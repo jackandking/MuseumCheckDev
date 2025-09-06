@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "2.3.0",
-    lastUpdate: "2024-12-20",
+    version: "2.3.2",
+    lastUpdate: "2025-09-06",
     changes: [
+        {
+            date: "2025-09-06",
+            version: "2.3.2",
+            title: "更正日期修复错误",
+            description: "撤销之前错误的日期修复，恢复正确的2025年日期。之前误将2025年8月的正确日期改为2024年，现已恢复。感谢用户反馈！",
+            type: "bugfix"
+        },
         {
             date: "2024-12-20",
             version: "2.3.0",
