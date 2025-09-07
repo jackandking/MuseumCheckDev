@@ -9275,6 +9275,7 @@ class MuseumCheckApp {
             const photoAreaHeight = Math.min(300, completedTasks.length * 60); // Photo grid height estimate
             const footerHeight = 110; // Footer space
             const margins = 80; // Top and bottom margins
+            const museumImageHeight = museum.image ? 220 : 0; // Space for museum image if present
             
             // More accurate calculation
             const textHeight = completedTasks.length * avgLinesPerTask * lineHeight;
@@ -9283,7 +9284,7 @@ class MuseumCheckApp {
             // FIX: Add generous buffer for text wrapping unpredictability, especially for 9+ tasks
             const bufferForTextWrapping = completedTasks.length * 50; // Extra 50px per task for wrapping
             
-            calculatedHeight = baseHeight + textHeight + spacingHeight + photoAreaHeight + footerHeight + margins + bufferForTextWrapping;
+            calculatedHeight = baseHeight + museumImageHeight + textHeight + spacingHeight + photoAreaHeight + footerHeight + margins + bufferForTextWrapping;
         }
         
         const dynamicHeight = Math.max(minHeight, calculatedHeight);
@@ -9434,6 +9435,57 @@ class MuseumCheckApp {
 
     async drawTasksWithPhotos(ctx, completedTasks, taskPhotos, completed, startY, canvas, preview, museum) {
         let yPosition = startY;
+        
+        // Add museum main image at the top if available
+        if (museum.image) {
+            const museumImg = new Image();
+            museumImg.crossOrigin = 'anonymous';
+            
+            // Create a promise for museum image loading
+            const museumImagePromise = new Promise((resolve) => {
+                museumImg.onload = () => resolve(museumImg);
+                museumImg.onerror = () => resolve(null);
+                museumImg.src = museum.image;
+            });
+            
+            const loadedMuseumImg = await museumImagePromise;
+            
+            if (loadedMuseumImg) {
+                // Calculate museum image display size
+                const maxImageWidth = 280;
+                const maxImageHeight = 180;
+                const aspectRatio = loadedMuseumImg.naturalWidth / loadedMuseumImg.naturalHeight;
+                let imageWidth = maxImageWidth;
+                let imageHeight = maxImageHeight;
+                
+                if (aspectRatio > 1) {
+                    imageHeight = maxImageWidth / aspectRatio;
+                } else {
+                    imageWidth = maxImageHeight * aspectRatio;
+                }
+                
+                // Center the museum image
+                const imageX = (canvas.width - imageWidth) / 2;
+                const imageY = yPosition;
+                
+                // Draw museum image with subtle border
+                ctx.fillStyle = 'white';
+                ctx.fillRect(imageX - 3, imageY - 3, imageWidth + 6, imageHeight + 6);
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(imageX - 3, imageY - 3, imageWidth + 6, imageHeight + 6);
+                
+                ctx.drawImage(loadedMuseumImg, imageX, imageY, imageWidth, imageHeight);
+                
+                // Add subtle label
+                ctx.fillStyle = '#666';
+                ctx.font = '16px "PingFang SC", "Microsoft YaHei", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(museum.name, canvas.width / 2, imageY + imageHeight + 20);
+                
+                yPosition = imageY + imageHeight + 40; // Update position after image
+            }
+        }
         
         ctx.font = '26px "PingFang SC", "Microsoft YaHei", sans-serif';
         ctx.fillStyle = '#333';
