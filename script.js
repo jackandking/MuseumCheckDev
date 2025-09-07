@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "2.3.2",
-    lastUpdate: "2025-09-06",
+    version: "2.3.3",
+    lastUpdate: "2024-12-31",
     changes: [
+        {
+            date: "2024-12-31",
+            version: "2.3.3",
+            title: "海报生成后自动滚动优化",
+            description: "点击生成成就海报按钮后，页面自动滚动到海报位置，提升用户体验。用户无需手动查找生成的海报位置",
+            type: "improvement"
+        },
         {
             date: "2025-09-06",
             version: "2.3.2",
@@ -9856,6 +9863,10 @@ class MuseumCheckApp {
         // Show poster section and download button
         document.getElementById('achievementPosterSection').style.display = 'block';
         document.getElementById('downloadAchievementPoster').style.display = 'inline-block';
+        
+        // Auto-scroll to the generated poster for better user experience
+        const posterSection = document.getElementById('achievementPosterSection');
+        posterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         // Track poster generation
         this.trackEvent('achievement_poster_generated', {

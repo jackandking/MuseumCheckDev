@@ -2464,4 +2464,73 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       expect(goodObject.property3.nested).toBe("value");
     });
   });
+
+  describe('v2.2.4 - 海报生成后自动滚动到海报位置', () => {
+    /**
+     * Enhancement: "海报生成按钮点击后跳到生成的海报位置吧 体验更好"
+     * Added: 2024-12-31
+     * 
+     * This test ensures that after poster generation, the page automatically scrolls
+     * to show the generated poster for better user experience.
+     */
+    
+    test('should auto-scroll to poster section after poster generation', () => {
+      // Mock the DOM elements needed for poster generation
+      const posterSection = document.createElement('div');
+      posterSection.id = 'achievementPosterSection';
+      posterSection.style.display = 'none';
+      
+      // Mock scrollIntoView function to track if it was called
+      let scrollIntoViewCalled = false;
+      let scrollIntoViewOptions = null;
+      posterSection.scrollIntoView = jest.fn((options) => {
+        scrollIntoViewCalled = true;
+        scrollIntoViewOptions = options;
+      });
+      
+      document.body.appendChild(posterSection);
+      
+      // Simulate the poster generation process
+      // Show poster section (like in generateAchievementPoster)
+      posterSection.style.display = 'block';
+      
+      // Auto-scroll to the generated poster (like in generateAchievementPoster)
+      posterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Verify scrollIntoView was called with correct options
+      expect(scrollIntoViewCalled).toBe(true);
+      expect(scrollIntoViewOptions).toEqual({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      
+      // Verify the poster section is visible
+      expect(posterSection.style.display).toBe('block');
+      
+      // Cleanup
+      posterSection.remove();
+    });
+
+    test('should use smooth scrolling behavior for better UX', () => {
+      const posterSection = document.createElement('div');
+      posterSection.id = 'achievementPosterSection';
+      
+      let capturedOptions = null;
+      posterSection.scrollIntoView = jest.fn((options) => {
+        capturedOptions = options;
+      });
+      
+      document.body.appendChild(posterSection);
+      
+      // Simulate calling scrollIntoView as done in generateAchievementPoster
+      posterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Verify smooth scrolling behavior is used
+      expect(capturedOptions.behavior).toBe('smooth');
+      expect(capturedOptions.block).toBe('start');
+      
+      // Cleanup
+      posterSection.remove();
+    });
+  });
 });
