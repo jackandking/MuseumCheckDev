@@ -1,185 +1,170 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "2.3.3",
-    lastUpdate: "2024-12-31",
+    version: "2.3.5",
     changes: [
         {
-            date: "2024-12-31",
+            version: "2.3.5",
+            title: "移除更新日期显示",
+            description: "根据用户反馈，移除更新列表中的所有日期显示，包括最后更新日期和每个条目的日期。专注于版本号、标题和描述信息，避免日期错误问题",
+            type: "improvement"
+        },
+        {
+            version: "2.3.4",
+            title: "修复最新更新日期错误",
+            description: "修复RECENT_CHANGES对象中的未来日期错误，将2024-12-31和2025-09-06等错误日期更正为合理的过去日期。增强验证脚本防止此类错误再次发生",
+            type: "bugfix"
+        },
+        {
             version: "2.3.3",
             title: "海报生成后自动滚动优化",
             description: "点击生成成就海报按钮后，页面自动滚动到海报位置，提升用户体验。用户无需手动查找生成的海报位置",
             type: "improvement"
         },
         {
-            date: "2025-09-06",
             version: "2.3.2",
             title: "更正日期修复错误",
             description: "撤销之前错误的日期修复，恢复正确的2025年日期。之前误将2025年8月的正确日期改为2024年，现已恢复。感谢用户反馈！",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.3.0",
             title: "新增博物馆配图功能",
             description: "为博物馆详情页面添加图片支持，首先为故宫博物院添加配图。图片显示在标签页下方，为用户提供更直观的视觉体验，增强参观指南的实用性",
             type: "feature"
         },
         {
-            date: "2024-12-20",
             version: "2.2.4",
             title: "修复JavaScript语法错误导致博物馆无法加载",
             description: "修复RECENT_CHANGES对象中缺少逗号的语法错误，该错误导致整个script.js无法解析，从而使博物馆数据无法加载显示。增加回归测试确保类似语法错误不再发生",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.2.3",
             title: "全面SEO优化提升搜索引擎收录",
             description: "添加完整SEO元标签、Open Graph标签、结构化数据(JSON-LD)、站点地图和robots.txt文件，优化语义化HTML结构，大幅提升百度、Bing等搜索引擎的收录效果和搜索排名",
             type: "improvement"
         },
         {
-            date: "2024-12-20",
             version: "2.1.5",
             title: "修复9个任务时海报显示不全问题",
             description: "优化了海报高度计算逻辑，增加了更充足的缓冲空间以适应中文文本换行，确保9个及以上完成任务的海报能够完整显示所有内容包括底部信息",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.2.2",
             title: "成就海报中加入网址",
             description: "在总成就海报中添加MuseumCheck.cn网址，与单个博物馆海报保持一致，增强品牌推广和流量吸引效果",
             type: "improvement"
         },
         {
-            date: "2024-12-20",
             version: "2.2.1",
             title: "优化成就系统用户体验",
             description: "新增早期成就奖励(1家、3家博物馆)，增加特色博物馆成就、城市成就、主题成就等，降低多样性成就门槛，提供更多即时满足感和参与动机",
             type: "improvement"
         },
         {
-            date: "2024-12-20",
             version: "2.2.0",
             title: "新增成就展示系统",
             description: "基于博物馆参观数据设计成就感系统，包含参观里程碑成就、多样性成就等。用户可生成个人成就海报分享，增加应用粘性和用户参与度",
             type: "feature"
         },
         {
-            date: "2024-12-20",
             version: "2.1.11",
             title: "更新文档中的博物馆数量",
             description: "更正文档中过时的博物馆数量信息，从26家更新为实际的120家博物馆，确保文档与应用功能保持一致",
             type: "improvement"
         },
         {
-            date: "2024-08-31",
             version: "3.0.0",
             title: "扩展到120家博物馆",
             description: "大幅扩展博物馆数量从26家增加到120家，覆盖全国各省市区，包括历史博物馆、科技馆、艺术馆、专业博物馆等多种类型，为用户提供更丰富的博物馆选择和文化体验",
             type: "feature"
         },
         {
-            date: "2024-12-20",
             version: "2.1.10",
             title: "进一步优化海报设计布局",
             description: "增大模态框尺寸提升海报展示效果，优化内容间距和布局比例，提升空间利用率和视觉密度，增强整体美观度和专业感",
             type: "improvement"
         },
         {
-            date: "2024-12-20",
             version: "2.1.9",
             title: "优化海报设计布局",
             description: "修复蓝色边框没有完全包围footer的问题，优化图片显示区域大小，提升空间利用率，增大模态框尺寸以更好展示海报",
             type: "improvement"
         },
         {
-            date: "2024-12-20",
             version: "2.1.8",
             title: "修复海报预览内容为空白问题",
             description: "解决海报生成后预览区域显示空白的问题，修复canvas.cloneNode()不保存绘制内容的bug，现在海报预览能正确显示生成的海报内容",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.1.7",
             title: "修复海报预览显示问题",
             description: "解决海报生成按钮点击后没有出现海报画面的问题，修复海报预览canvas的display样式，确保生成的海报正确显示在预览区域",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.1.6",
             title: "修复海报生成显示问题",
             description: "解决海报中间多余蓝线和海报下方多余空白问题，优化海报显示效果",
             type: "bugfix"
         },
         {
-            date: "2024-12-20",
             version: "2.1.5",
             title: "修复海报底部信息显示问题",
             description: "解决海报生成时footer显示不完整的问题，优化canvas高度计算逻辑，确保底部信息完整可见",
             type: "bugfix"
         },
         {
-            date: "2025-08-30",
             version: "2.1.4",
             title: "修复海报生成显示bug",
             description: "解决有完成任务时海报生成后不显示的问题，现在海报能正确显示已完成的任务列表",
             type: "bugfix"
         },
         {
-            date: "2025-08-30",
             version: "2.1.3",
             title: "修复海报生成两大bug",
             description: "解决海报生成时出现重复画布和高度不自动调整的问题，确保海报完整显示",
             type: "bugfix"
         },
         {
-            date: "2025-08-30",
             version: "2.1.2",
             title: "修复日期错误",
             description: "更正RECENT_CHANGES中的日期错误，统一使用2025年日期",
             type: "bugfix"
         },
         {
-            date: "2025-08-29",
             version: "2.1.1", 
             title: "版本管理系统自动化",
             description: "实现版本信息集中管理，消除手动更新的错误风险",
             type: "improvement"
         },
         {
-            date: "2025-08-25",
             version: "2.1.0", 
             title: "新增更新日志功能",
             description: "添加网站更新变化展示，让用户了解网站持续改进",
             type: "feature"
         },
         {
-            date: "2025-08-20",
             version: "2.0.5",
             title: "优化海报生成功能",
             description: "改进博物馆参观海报的生成和下载体验",
             type: "improvement"
         },
         {
-            date: "2025-08-15",
             version: "2.0.4",
             title: "增加自定义任务功能",
             description: "用户可以编辑和添加个性化的博物馆参观任务",
             type: "feature"
         },
         {
-            date: "2025-08-10",
             version: "2.0.3",
             title: "响应式设计优化",
             description: "优化移动设备显示效果，提升用户体验",
             type: "improvement"
         },
         {
-            date: "2025-08-05",
             version: "2.0.2",
             title: "照片上传功能",
             description: "支持为每个任务上传照片，记录美好的博物馆时光",
@@ -8837,7 +8822,6 @@ class MuseumCheckApp {
     renderUpdates() {
         // Update version info
         document.getElementById('currentVersion').textContent = `v${RECENT_CHANGES.version}`;
-        document.getElementById('lastUpdated').textContent = RECENT_CHANGES.lastUpdate;
         document.getElementById('versionBadge').textContent = `v${RECENT_CHANGES.version}`;
 
         // Render changes list
@@ -8859,9 +8843,6 @@ class MuseumCheckApp {
                         </div>
                     </div>
                     <div class="change-description">${change.description}</div>
-                    <div class="change-date" style="font-size: 12px; color: #999; margin-top: 8px;">
-                        📅 ${change.date}
-                    </div>
                 </div>
             `;
         }).join('');

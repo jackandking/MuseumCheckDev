@@ -36,22 +36,20 @@ function validateVersionConsistency() {
         
         // Extract RECENT_CHANGES object
         const versionRegex = /version:\s*["']([^"']+)["']/;
-        const dateRegex = /lastUpdate:\s*["']([^"']+)["']/;
         
         const versionMatch = scriptContent.match(versionRegex);
-        const dateMatch = scriptContent.match(dateRegex);
         
-        if (!versionMatch || !dateMatch) {
+        if (!versionMatch) {
             log('❌ Error: Could not extract version information from script.js', 'red');
             return false;
         }
         
         const currentVersion = versionMatch[1];
-        const lastUpdate = dateMatch[1];
         
         log(`📋 Found version information:`, 'blue');
         log(`   Version: ${currentVersion}`, 'green');
-        log(`   Last Update: ${lastUpdate}`, 'green');
+        
+        let hasIssues = false;
         
         // Read index.html to check for hardcoded versions
         const htmlPath = path.join(__dirname, 'index.html');
@@ -59,11 +57,8 @@ function validateVersionConsistency() {
         
         // Look for any hardcoded version numbers that don't match the pattern
         const hardcodedVersions = htmlContent.match(/v\d+\.\d+\.\d+/g) || [];
-        const hardcodedDates = htmlContent.match(/\d{4}-\d{2}-\d{2}/g) || [];
         
         log(`\n🔍 Checking for hardcoded values in HTML...`, 'blue');
-        
-        let hasIssues = false;
         
         // Check if there are any hardcoded versions that don't match expected placeholders
         const expectedPlaceholders = ['v0.0.0']; // Our placeholder version
@@ -74,16 +69,8 @@ function validateVersionConsistency() {
             unexpectedVersions.forEach(v => log(`   - ${v}`, 'yellow'));
             log(`   These should be replaced with placeholders and updated via JavaScript.`, 'yellow');
             hasIssues = true;
-        }
-        
-        // Check if there are any hardcoded dates that aren't placeholders
-        const expectedDatePlaceholders = ['...']; // Our placeholder text
-        const unexpectedDates = hardcodedDates.filter(d => d !== lastUpdate && !expectedDatePlaceholders.includes(d));
-        
-        if (unexpectedDates.length > 0) {
-            log(`⚠️  Warning: Found unexpected hardcoded dates in HTML:`, 'yellow');
-            unexpectedDates.forEach(d => log(`   - ${d}`, 'yellow'));
-            hasIssues = true;
+        } else {
+            log(`✅ No unexpected hardcoded versions found in HTML`, 'green');
         }
         
         if (!hasIssues) {
@@ -95,9 +82,8 @@ function validateVersionConsistency() {
         log(`\n📝 To update the version:`, 'blue');
         log(`   1. Edit the RECENT_CHANGES object in script.js`, 'blue');
         log(`   2. Update the version field: version: "${currentVersion}" → "x.x.x"`, 'blue');
-        log(`   3. Update the lastUpdate field: lastUpdate: "${lastUpdate}" → "YYYY-MM-DD"`, 'blue');
-        log(`   4. Add new entry to changes array with your update details`, 'blue');
-        log(`   5. Run this script again to validate: node validate-version.js`, 'blue');
+        log(`   3. Add new entry to changes array with your update details`, 'blue');
+        log(`   4. Run this script again to validate: node validate-version.js`, 'blue');
         
         return !hasIssues;
         
