@@ -53,46 +53,99 @@ header h1 {
     line-height: 1.4;
 }
 
-/* Updates Section */
-.updates-section {
-    margin-top: 15px;
-    text-align: right;
+/* Developer Menu */
+.developer-menu-section {
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 1000;
 }
 
-.updates-button {
-    background: rgba(0, 0, 0, 0.05);
-    color: #666;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 6px 12px;
-    border-radius: 12px;
+.developer-menu-button {
+    background: rgba(0, 0, 0, 0.03);
+    color: #888;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     font-family: inherit;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
     transition: all 0.2s ease;
 }
 
-.updates-button:hover {
+.developer-menu-button:hover {
     background: rgba(0, 0, 0, 0.08);
-    border-color: rgba(0, 0, 0, 0.2);
+    color: #555;
 }
 
-.updates-icon {
+.gear-icon {
+    font-size: 14px;
+}
+
+.developer-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    margin-top: 4px;
+    z-index: 1001;
+}
+
+.developer-menu.hidden {
+    display: none;
+}
+
+.developer-menu-list {
+    list-style: none;
+    padding: 4px 0;
+    margin: 0;
+}
+
+.developer-menu-item {
+    background: none;
+    border: none;
+    width: 100%;
+    padding: 8px 12px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.developer-menu-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.menu-icon {
     font-size: 12px;
-    /* Remove pulsing animation */
+    width: 16px;
+}
+
+.menu-text {
+    flex: 1;
 }
 
 .version-badge {
     background: rgba(0, 0, 0, 0.1);
     padding: 2px 6px;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 10px;
     font-weight: normal;
+    color: #666;
 }
 
 /* Updates Modal */

@@ -141,13 +141,23 @@
 <body>
     <div class="container">
         <header>
-            <!-- Recent Changes Button - moved to top right corner -->
-            <div class="updates-section">
-                <button id="updatesToggle" class="updates-button" title="查看最新更新">
-                    <span class="updates-icon">📋</span>
-                    <span class="updates-text">更新</span>
-                    <span class="version-badge" id="versionBadge">v0.0.0</span>
+            <!-- Developer Menu - gear button in top right corner -->
+            <div class="developer-menu-section">
+                <button id="developerMenuToggle" class="developer-menu-button" title="开发者选项" aria-label="开发者选项菜单">
+                    <span class="gear-icon">⚙️</span>
                 </button>
+                <div id="developerMenu" class="developer-menu hidden">
+                    <ul class="developer-menu-list">
+                        <li>
+                            <button id="updatesToggle" class="developer-menu-item" title="查看最新更新">
+                                <span class="menu-icon">📋</span>
+                                <span class="menu-text">查看更新</span>
+                                <span class="version-badge" id="versionBadge">v0.0.0</span>
+                            </button>
+                        </li>
+                        <!-- Future developer features will be added here -->
+                    </ul>
+                </div>
             </div>
             
             <h1>🏛️ 博物馆打卡</h1>
