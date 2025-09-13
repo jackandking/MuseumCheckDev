@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.1.2",
+    version: "4.2.0",
     lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.2.0",
+            title: "新增情景支持功能",
+            description: "支持通过URL参数直接分享特定博物馆的家长准备清单或孩子任务。新增分享按钮，可一键复制链接通过微信等应用分享给朋友。支持移动端友好的任务打卡体验，让多家庭出游更便捷。",
+            type: "feature"
+        },
         {
             date: "2024-12-21",
             version: "4.1.2",
@@ -19219,12 +19226,122 @@ class MuseumCheckApp {
         this.renderMuseums();
         this.updateStats();
         this.initializeUpdates();
+        this.handleURLParameters();
     }
 
     initializeUpdates() {
         // Initialize all version elements from RECENT_CHANGES object
         document.getElementById('versionBadge').textContent = `v${RECENT_CHANGES.version}`;
         document.getElementById('currentVersion').textContent = `v${RECENT_CHANGES.version}`;
+    }
+
+    // Handle URL parameters for direct museum/checklist sharing
+    handleURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const museumId = urlParams.get('museum');
+        const checklistType = urlParams.get('type'); // 'parent' or 'child'
+        const ageGroup = urlParams.get('age'); // '3-6', '7-12', '13-18'
+
+        if (museumId) {
+            const museum = MUSEUMS.find(m => m.id === museumId);
+            if (museum) {
+                // Set age group if provided
+                if (ageGroup && ['3-6', '7-12', '13-18'].includes(ageGroup)) {
+                    this.currentAge = ageGroup;
+                    const ageSelect = document.getElementById('ageSelect');
+                    if (ageSelect) {
+                        ageSelect.value = ageGroup;
+                    }
+                }
+
+                // Open museum modal
+                setTimeout(() => {
+                    this.openMuseumModal(museum, checklistType);
+                }, 500); // Small delay to ensure DOM is ready
+            }
+        }
+    }
+
+    // Generate sharing URL for museum checklist
+    generateSharingURL(museum, checklistType = 'parent', ageGroup = null) {
+        const baseURL = window.location.origin + window.location.pathname;
+        const params = new URLSearchParams();
+        
+        params.set('museum', museum.id);
+        params.set('type', checklistType);
+        if (ageGroup) {
+            params.set('age', ageGroup);
+        } else {
+            params.set('age', this.currentAge);
+        }
+
+        return `${baseURL}?${params.toString()}`;
+    }
+
+    // Share checklist functionality
+    async shareChecklist(museum, checklistType) {
+        const shareURL = this.generateSharingURL(museum, checklistType);
+        
+        // Use native sharing if available (mobile)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${museum.name} - ${checklistType === 'parent' ? '家长准备清单' : '孩子任务清单'}`,
+                    text: `快来看看${museum.name}的${checklistType === 'parent' ? '家长准备清单' : '孩子任务清单'}吧！`,
+                    url: shareURL
+                });
+                
+                this.trackEvent('checklist_shared', {
+                    'museum_id': museum.id,
+                    'checklist_type': checklistType,
+                    'share_method': 'native'
+                });
+                return;
+            } catch (err) {
+                // Fall back to copy to clipboard
+            }
+        }
+
+        // Fallback: Copy to clipboard
+        try {
+            await navigator.clipboard.writeText(shareURL);
+            this.showNotification('链接已复制到剪贴板！可以通过微信等应用分享给朋友', 'success');
+            
+            this.trackEvent('checklist_shared', {
+                'museum_id': museum.id,
+                'checklist_type': checklistType,
+                'share_method': 'clipboard'
+            });
+        } catch (err) {
+            // Final fallback: show URL in prompt
+            prompt('复制下面的链接进行分享：', shareURL);
+            
+            this.trackEvent('checklist_shared', {
+                'museum_id': museum.id,
+                'checklist_type': checklistType,
+                'share_method': 'prompt'
+            });
+        }
+    }
+
+    // Show notification message
+    showNotification(message, type = 'info') {
+        // Create notification element if it doesn't exist
+        let notification = document.getElementById('notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = 'notification';
+            document.body.appendChild(notification);
+        }
+
+        notification.textContent = message;
+        notification.className = `notification ${type} show`;
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
     }
 
     // Migrate existing localStorage photos to IndexedDB
@@ -19883,7 +20000,7 @@ class MuseumCheckApp {
         this.currentAchievements = achievements;
     }
 
-    openMuseumModal(museum) {
+    openMuseumModal(museum, activeTab = 'parent') {
         const modal = document.getElementById('museumModal');
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
@@ -19892,22 +20009,32 @@ class MuseumCheckApp {
 
         content.innerHTML = `
             <div class="checklist-tabs">
-                <button class="tab-button active" data-target="parent">家长准备</button>
-                <button class="tab-button" data-target="child">孩子任务</button>
-                <button class="tab-button" data-target="share">生成海报</button>
+                <button class="tab-button ${activeTab === 'parent' ? 'active' : ''}" data-target="parent">家长准备</button>
+                <button class="tab-button ${activeTab === 'child' ? 'active' : ''}" data-target="child">孩子任务</button>
+                <button class="tab-button ${activeTab === 'share' ? 'active' : ''}" data-target="share">生成海报</button>
             </div>
             ${museum.image ? `<div class="museum-image-section">
                 <img src="${museum.image}" alt="${museum.name}" class="museum-image" />
             </div>` : ''}
-            <div id="parentChecklist" class="checklist-content">
-                <h3>家长准备事项</h3>
+            <div id="parentChecklist" class="checklist-content" ${activeTab !== 'parent' ? 'style="display: none;"' : ''}>
+                <div class="checklist-header">
+                    <h3>家长准备事项</h3>
+                    <button class="share-button" data-type="parent" title="分享家长准备清单">
+                        🔗 分享链接
+                    </button>
+                </div>
                 ${this.renderChecklist(museum.id, 'parent', museum.checklists.parent[this.currentAge])}
             </div>
-            <div id="childChecklist" class="checklist-content" style="display: none;">
-                <h3>孩子探索任务</h3>
+            <div id="childChecklist" class="checklist-content" ${activeTab !== 'child' ? 'style="display: none;"' : ''}>
+                <div class="checklist-header">
+                    <h3>孩子探索任务</h3>
+                    <button class="share-button" data-type="child" title="分享孩子任务清单">
+                        🔗 分享链接
+                    </button>
+                </div>
                 ${this.renderChecklist(museum.id, 'child', museum.checklists.child[this.currentAge])}
             </div>
-            <div id="shareChecklist" class="checklist-content" style="display: none;">
+            <div id="shareChecklist" class="checklist-content" ${activeTab !== 'share' ? 'style="display: none;"' : ''}>
                 <h3>生成分享海报</h3>
                 <div class="share-poster-section">
                     <p class="share-description">📸 将已完成的任务和照片生成精美海报，方便分享朋友圈留念！</p>
@@ -19936,6 +20063,15 @@ class MuseumCheckApp {
             });
         });
 
+        // Setup share button functionality
+        const shareButtons = content.querySelectorAll('.share-button');
+        shareButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const checklistType = button.dataset.type;
+                this.shareChecklist(museum, checklistType);
+            });
+        });
+
         modal.classList.remove('hidden');
         
         // Set up checklist event listeners after modal content is rendered
@@ -19949,7 +20085,8 @@ class MuseumCheckApp {
             'museum_id': museum.id,
             'museum_name': museum.name,
             'museum_location': museum.location,
-            'age_group': this.currentAge
+            'age_group': this.currentAge,
+            'active_tab': activeTab
         });
     }
 
