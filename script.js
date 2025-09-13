@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.2.0",
-    lastUpdate: "2024-12-21",
+    version: "4.3.0",
+    lastUpdate: "2024-12-20",
     changes: [
+        {
+            date: "2024-12-20",
+            version: "4.3.0",
+            title: "新增火箭动画效果",
+            description: "为孩子完成任务和参观博物馆时增加了火箭动画效果，小火箭用于任务完成，大火箭用于博物馆参观，增强成就感和互动体验",
+            type: "feature"
+        },
         {
             date: "2024-12-21",
             version: "4.2.0",
@@ -19854,6 +19861,8 @@ class MuseumCheckApp {
             this.visitedMuseums.splice(index, 1);
         } else {
             this.visitedMuseums.push(museumId);
+            // Trigger large rocket animation for museum visit
+            this.triggerLargeRocket();
         }
         this.saveVisitedMuseums();
         this.renderMuseums();
@@ -20193,6 +20202,8 @@ class MuseumCheckApp {
                 
                 if (e.target.checked && itemIndex === -1) {
                     completed.push(index);
+                    // Trigger small rocket animation for task completion
+                    this.triggerSmallRocket();
                 } else if (!e.target.checked && itemIndex > -1) {
                     completed.splice(itemIndex, 1);
                 }
@@ -21357,6 +21368,52 @@ class MuseumCheckApp {
         this.trackEvent('achievement_poster_downloaded', {
             'visited_count': this.visitedMuseums.length,
             'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0
+        });
+    }
+
+    // Rocket Animation Methods
+    createRocketAnimation(isLarge = false) {
+        const rocket = document.createElement('div');
+        rocket.className = `rocket-animation ${isLarge ? 'large' : 'small'}`;
+        rocket.textContent = '🚀';
+        
+        // Position rocket at random horizontal position
+        const randomX = Math.random() * (window.innerWidth - 100) + 50;
+        rocket.style.left = randomX + 'px';
+        rocket.style.bottom = '20px';
+        
+        document.body.appendChild(rocket);
+        
+        // Trigger animation
+        setTimeout(() => {
+            rocket.classList.add(isLarge ? 'launch-large' : 'launch-small');
+        }, 50);
+        
+        // Remove element after animation
+        setTimeout(() => {
+            if (rocket && rocket.parentNode) {
+                rocket.parentNode.removeChild(rocket);
+            }
+        }, isLarge ? 2200 : 1700);
+        
+        return rocket;
+    }
+
+    triggerSmallRocket() {
+        this.createRocketAnimation(false);
+        
+        // Track small rocket animation
+        this.trackEvent('small_rocket_animation', {
+            'timestamp': new Date().toISOString()
+        });
+    }
+
+    triggerLargeRocket() {
+        this.createRocketAnimation(true);
+        
+        // Track large rocket animation  
+        this.trackEvent('large_rocket_animation', {
+            'timestamp': new Date().toISOString()
         });
     }
 }

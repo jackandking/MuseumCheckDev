@@ -1200,3 +1200,89 @@ main[role="main"] {
         transform: translateY(0);
     }
 }
+
+/* Rocket Animation Styles */
+.rocket-animation {
+    position: fixed;
+    font-size: 2em;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    user-select: none;
+}
+
+.rocket-animation.small {
+    font-size: 1.5em;
+}
+
+.rocket-animation.large {
+    font-size: 3em;
+}
+
+/* Small rocket animation for task completion */
+@keyframes rocketLaunchSmall {
+    0% {
+        bottom: 20px;
+        opacity: 1;
+        transform: translateX(-50%) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(15deg);
+    }
+    100% {
+        bottom: 100vh;
+        opacity: 0;
+        transform: translateX(-50%) rotate(-10deg);
+    }
+}
+
+/* Large rocket animation for museum visit */
+@keyframes rocketLaunchLarge {
+    0% {
+        bottom: 20px;
+        opacity: 1;
+        transform: translateX(-50%) rotate(0deg) scale(1);
+    }
+    30% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(10deg) scale(1.1);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(-5deg) scale(1.05);
+    }
+    100% {
+        bottom: 100vh;
+        opacity: 0;
+        transform: translateX(-50%) rotate(5deg) scale(0.8);
+    }
+}
+
+.rocket-animation.launch-small {
+    animation: rocketLaunchSmall 1.5s ease-out forwards;
+}
+
+.rocket-animation.launch-large {
+    animation: rocketLaunchLarge 2s ease-out forwards;
+}
+
+/* Add subtle trail effect */
+.rocket-animation::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 20px;
+    background: linear-gradient(to top, rgba(255, 165, 0, 0.8), transparent);
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.rocket-animation.large::after {
+    width: 5px;
+    height: 30px;
+    bottom: -15px;
+}
