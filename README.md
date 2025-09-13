@@ -4,7 +4,9 @@
 
 ## 🌐 立即使用
 
-**在线访问：** https://museumcheck.cn/
+**在线访问：** 
+https://博物馆打卡.cn/
+https://museumcheck.cn/
 
 无需安装，打开网页即可使用！支持手机和电脑访问。
 
