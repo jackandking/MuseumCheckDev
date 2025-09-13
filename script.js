@@ -19231,8 +19231,15 @@ class MuseumCheckApp {
 
     initializeUpdates() {
         // Initialize all version elements from RECENT_CHANGES object
-        document.getElementById('versionBadge').textContent = `v${RECENT_CHANGES.version}`;
-        document.getElementById('currentVersion').textContent = `v${RECENT_CHANGES.version}`;
+        const versionBadge = document.getElementById('versionBadge');
+        const currentVersion = document.getElementById('currentVersion');
+        
+        if (versionBadge) {
+            versionBadge.textContent = `v${RECENT_CHANGES.version}`;
+        }
+        if (currentVersion) {
+            currentVersion.textContent = `v${RECENT_CHANGES.version}`;
+        }
     }
 
     // Handle URL parameters for direct museum/checklist sharing
@@ -19528,31 +19535,8 @@ class MuseumCheckApp {
             }
         });
 
-        // Developer menu toggle
-        document.getElementById('developerMenuToggle').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleDeveloperMenu();
-        });
-
-        // Close developer menu when clicking outside
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('developerMenu');
-            const toggle = document.getElementById('developerMenuToggle');
-            if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-                this.closeDeveloperMenu();
-            }
-        });
-
-        // Close developer menu with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeDeveloperMenu();
-            }
-        });
-
-        // Updates toggle button (now inside developer menu)
+        // Updates toggle button - directly opens updates modal
         document.getElementById('updatesToggle').addEventListener('click', () => {
-            this.closeDeveloperMenu(); // Close menu first
             this.showUpdatesModal();
         });
 
@@ -20298,20 +20282,9 @@ class MuseumCheckApp {
         document.getElementById('updatesModal').classList.add('hidden');
     }
 
-    toggleDeveloperMenu() {
-        const menu = document.getElementById('developerMenu');
-        menu.classList.toggle('hidden');
-    }
-
-    closeDeveloperMenu() {
-        const menu = document.getElementById('developerMenu');
-        menu.classList.add('hidden');
-    }
-
     renderUpdates() {
         // Update version info
         document.getElementById('currentVersion').textContent = `v${RECENT_CHANGES.version}`;
-        document.getElementById('versionBadge').textContent = `v${RECENT_CHANGES.version}`;
 
         // Render changes list
         const changesList = document.getElementById('changesList');
