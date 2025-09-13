@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.5.0",
+    version: "4.5.1",
     lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.5.1",
+            title: "新增3家重要博物馆图片素材",
+            description: "为中国国家博物馆、首都博物馆和中国科学技术馆新增官方高清图片素材，丰富博物馆详情展示，提升用户视觉体验。",
+            type: "improvement"
+        },
         {
             date: "2024-12-21",
             version: "4.5.0",
@@ -707,6 +714,7 @@ const MUSEUMS = [
         location: '北京',
         description: '综合性历史艺术博物馆，展示中华民族悠久文化历史',
         tags: ['历史', '文化', '艺术'],
+        image: 'https://eb118-file.cdn.bcebos.com/upload/5b6fdbca17a04047b55adc6658a750bd_2211489532.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
         checklists: {
             parent: {
                 '3-6': [
@@ -2334,6 +2342,7 @@ const MUSEUMS = [
         location: '北京',
         description: '展示北京历史文化的市属综合性博物馆',
         tags: ['北京历史', '古都文化', '民俗'],
+        image: 'https://eb118-file.cdn.bcebos.com/upload/8e5e95e9a5b8432caa39da051544fcaa_1262462398.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
         checklists: {
             parent: {
                 '3-6': [
@@ -17585,6 +17594,7 @@ const MUSEUMS = [
         location: '北京',
         description: '国家级综合性科技博物馆',
         tags: ['科学技术', '科普教育', '创新发展'],
+        image: 'http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
         checklists: {
             parent: {
                 '3-6': [
