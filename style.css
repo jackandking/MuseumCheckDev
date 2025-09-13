@@ -1171,6 +1171,286 @@ main[role="main"] {
     background: #dc3545;
 }
 
+/* Enhanced Expert Guidance Styles */
+.expert-guidance {
+    font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.expert-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.expert-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.age-stage-info {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: inline-block;
+    padding: 8px 16px;
+}
+
+.stage-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.expert-section {
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.expert-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.expert-section h4 {
+    color: #2c5aa0;
+    font-size: 16px;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8f2ff;
+    font-weight: 600;
+}
+
+.developmental-traits {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    font-size: 13px;
+    color: #4a5568;
+    margin: 0;
+}
+
+.expert-tips, .emotional-support {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.expert-tips li, .emotional-support li {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.expert-tips li:hover, .emotional-support li:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateX(4px);
+}
+
+.intelligence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.intelligence-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.intelligence-item:hover {
+    border-color: #a0aec0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.intelligence-header {
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.intelligence-desc {
+    color: #4a5568;
+    font-size: 12px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.intelligence-activities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.activity-tag {
+    background: #e6fffa;
+    color: #065f46;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    border: 1px solid #a7f3d0;
+    font-weight: 500;
+}
+
+.dialogue-section {
+    background: #f7faff;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.dialogue-starters ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+}
+
+.dialogue-starters li {
+    background: #e6f3ff;
+    color: #1e40af;
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border-left: 3px solid #3b82f6;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.challenges-section {
+    background: #fefefe;
+    border-radius: 8px;
+    padding: 10px 0;
+}
+
+.challenge-item {
+    background: #fffbf0;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.challenge-item:hover {
+    background: #fef3c7;
+    border-color: #fbbf24;
+}
+
+.challenge-situation {
+    color: #92400e;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.challenge-solution {
+    color: #059669;
+    font-size: 13px;
+    background: #ecfdf5;
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #10b981;
+}
+
+.extension-activities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.activity-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.activity-card:hover {
+    transform: translateY(-3px);
+}
+
+.activity-card strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.activity-card p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+/* Mobile responsive adjustments for expert guidance */
+@media (max-width: 768px) {
+    .expert-guidance {
+        font-size: 13px;
+    }
+    
+    .expert-header {
+        padding: 15px;
+    }
+    
+    .expert-header h3 {
+        font-size: 16px;
+    }
+    
+    .expert-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .intelligence-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .extension-activities {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .intelligence-item, .challenge-item {
+        padding: 12px;
+    }
+    
+    .activity-card {
+        padding: 15px;
+    }
+    
+    .activity-tag {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+    
+    .dialogue-starters li, .expert-tips li, .emotional-support li {
+        font-size: 12px;
+    }
+}
+
 /* Mobile Responsive Adjustments for Share Features */
 @media (max-width: 768px) {
     .checklist-header {
@@ -1466,5 +1746,104 @@ main[role="main"] {
     100% {
         opacity: 0;
         transform: translateX(-50%) scale(0.9) translateY(-30px);
+    }
+}
+
+.rocket-animation.large::after {
+    width: 5px;
+    height: 30px;
+    bottom: -15px;
+}
+
+/* Enhanced Expert Guidance Styling */
+/* Removed duplicate .expert-section definition. Consolidated into a single definition earlier in the file. */
+
+.expert-section h4 {
+    margin-bottom: 12px;
+    color: var(--primary-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.expert-tips, .emotional-support, .attachment-strategies, 
+.scaffolding-techniques, .autonomy-support, .inclusive-support,
+.engagement-indicators, .parent-reflection, .family-reflection,
+.overstimulation-signs, .meltdown-prevention, .meltdown-response {
+    list-style: none;
+    padding: 0;
+}
+
+.expert-tips li, .emotional-support li, .attachment-strategies li,
+.scaffolding-techniques li, .autonomy-support li, .inclusive-support li,
+.engagement-indicators li, .parent-reflection li, .family-reflection li,
+.overstimulation-signs li, .meltdown-prevention li, .meltdown-response li {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #28a745;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+.challenge-prevention {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #e8f5e8;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #2d5016;
+}
+
+.assessment-section, .crisis-management, .reflection-section {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+.crisis-subsection, .reflection-subsection {
+    margin-bottom: 16px;
+}
+
+.crisis-subsection strong, .reflection-subsection strong {
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.age-stage-info {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1565c0;
+}
+
+.developmental-traits {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 12px;
+    line-height: 1.5;
+    color: #444;
+}
+
+@media (max-width: 768px) {
+    .expert-section {
+        padding: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .expert-tips li, .emotional-support li, .attachment-strategies li,
+    .scaffolding-techniques li, .autonomy-support li, .inclusive-support li,
+    .engagement-indicators li, .parent-reflection li, .family-reflection li,
+    .overstimulation-signs li, .meltdown-prevention li, .meltdown-response li {
+        font-size: 13px;
+        padding: 6px 10px;
     }
 }

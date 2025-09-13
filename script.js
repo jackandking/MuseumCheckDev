@@ -1,8 +1,22 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.4.0",
-    lastUpdate: "2024-12-20",
+    version: "4.5.0",
+    lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.5.0",
+            title: "亲子专家深度优化：专业心理学与教育学整合",
+            description: "基于依恋理论、教育心理学和危机管理原理，为每个年龄段增加专业级亲子互动指导。新增依恋关系建立、学习支架技巧、自主性支持、包容性支持等专业模块。集成参与度评估指标、危机预防与应对策略、家庭反思引导工具，将博物馆参观转化为科学的亲子成长体验。",
+            type: "feature"
+        },
+        {
+            date: "2024-12-21",
+            version: "4.4.0",
+            title: "亲子专家优化：认知发展与家长指导增强",
+            description: "基于儿童发展心理学理论，为每个年龄段添加认知发展特点说明、专业亲子互动指导、多元智能激发建议和情感连接活动。新增家长对话技巧、观察引导方法和延伸学习建议，让博物馆之旅成为真正的家庭教育体验。",
+            type: "feature"
+        },
         {
             date: "2024-12-20",
             version: "4.4.0",
@@ -240,6 +254,379 @@ const RECENT_CHANGES = {
             type: "feature"
         }
     ]
+};
+
+// Enhanced expert guidance system for parent-child interactions based on developmental psychology
+const EXPERT_GUIDANCE = {
+    '3-6': {
+        cognitiveStage: '具象运思期 (皮亚杰认知发展)',
+        developmentalTraits: '通过感官和具体操作学习，好奇心强，注意力短暂，喜欢重复和模仿，开始发展语言和象征思维。此阶段是建立安全依恋关系和基础认知能力的关键期。',
+        parentingTips: [
+            '🧠 认知引导：用具体形象的语言描述，多用比喻和故事，避免抽象概念',
+            '⏰ 注意力管理：参观时间控制在1-2小时内，每15-20分钟变换活动形式',
+            '👥 互动技巧：多用"看看这个"、"数一数"、"摸摸这里"等感官引导语言',
+            '🎯 学习目标：培养观察兴趣和基础认知，重在体验而非知识灌输',
+            '💬 对话策略：开放式提问"你看到了什么颜色/形状"，而非封闭式"这是什么"',
+            '🏃 身体需求：准备充足的水和健康零食，允许适当走动和休息',
+            '🎪 游戏化学习：用角色扮演、寻宝游戏等方式增加趣味性',
+            '📸 记忆巩固：及时拍照记录，回家后一起回顾加深印象',
+            '🧘 正念陪伴：保持当下的专注，感受孩子的情绪状态，避免急躁催促',
+            '🎨 创意表达：鼓励孩子用画画、动作或语言表达看到的内容'
+        ],
+        emotionalSupport: [
+            '🤗 身体语言：用拥抱、牵手等身体接触表达爱意和安全感',
+            '👏 即时鼓励：对每个小发现都给予及时赞美和肯定',
+            '😊 情绪调节：观察孩子情绪变化，及时调整参观节奏',
+            '🛡️ 安全感建立：创造安全的探索环境，让孩子敢于表达',
+            '💖 无条件接纳：接受孩子的所有情绪反应，不评判不批评',
+            '🌈 情绪命名：帮助孩子识别和表达情绪："你现在是兴奋还是紧张？"'
+        ],
+        attachmentStrategies: [
+            '👁️ 眼神交流：经常与孩子进行眼神接触，传递专注和爱意',
+            '🗣️ 情感回应：及时回应孩子的需求和信号，建立信任感',
+            '🤲 共同关注：指向同一个展品，建立共享体验和连接',
+            '🎵 语调温和：用温暖、平静的语调与孩子交流'
+        ],
+        dialogueStarters: [
+            '"这个颜色像什么呀？"',
+            '"你觉得这个小动物在做什么？"',
+            '"如果你是古代小朋友，会用这个做什么？"',
+            '"这个和我们家的什么东西很像？"',
+            '"你最喜欢这里的什么？为什么？"',
+            '"这个让你想到了什么有趣的事情？"'
+        ],
+        inclusiveSupport: [
+            '🌟 个体差异：尊重每个孩子的独特节奏和兴趣点',
+            '👂 感官友好：注意声音、光线、人群对敏感孩子的影响',
+            '🔄 灵活调整：根据孩子状态随时调整参观计划和方式',
+            '🛟 安全退路：始终准备好安静的休息或离开选择'
+        ],
+        commonChallenges: [
+            {
+                situation: '孩子注意力不集中',
+                solution: '变换互动方式，增加游戏元素，及时表扬关注行为',
+                preventionTips: '提前了解孩子的兴趣点，准备相关小道具或贴纸奖励'
+            },
+            {
+                situation: '对展品不感兴趣',
+                solution: '找相关的故事或生活连接，用孩子熟悉的事物做比喻',
+                preventionTips: '从孩子最感兴趣的展品开始，建立正面的博物馆体验'
+            },
+            {
+                situation: '情绪不佳或疲惫',
+                solution: '立即寻找休息区，提供食物和拥抱，考虑结束参观',
+                preventionTips: '观察孩子的疲劳信号，在情绪恶化前主动休息'
+            },
+            {
+                situation: '想要触摸展品',
+                solution: '温和阻止并解释原因，提供可触摸的替代体验',
+                preventionTips: '提前说明博物馆规则，准备触感玩具满足触觉需求'
+            },
+            {
+                situation: '在安静环境中大声说话',
+                solution: '轻声提醒并示范小声说话，用游戏方式练习',
+                preventionTips: '进入前玩"小声说话"游戏，建立安静参观的习惯'
+            }
+        ]
+    },
+    '7-12': {
+        cognitiveStage: '具体运思期 (皮亚杰认知发展)',
+        developmentalTraits: '逻辑思维发展，能理解因果关系，开始分类整理，喜欢收集和比较，有强烈的求知欲。此阶段是培养学习技能、建立自我效能感和发展友谊的关键期。',
+        parentingTips: [
+            '🧠 认知引导：鼓励分类、比较、总结，培养逻辑推理能力',
+            '📚 知识整合：将博物馆内容与学校知识结合，建立知识网络',
+            '🤔 思维启发：多问"为什么"、"你觉得呢"、"还能想到什么"',
+            '📝 记录培养：鼓励画图记录、文字描述，培养表达能力',
+            '👥 社会学习：支持与同伴交流讨论，学会分享和合作',
+            '🎯 成就系统：设置阶梯式挑战，及时认可努力和进步',
+            '🔍 探究精神：鼓励提出假设和验证，培养科学思维',
+            '🎭 角色体验：通过角色扮演深化历史文化理解',
+            '⚖️ 近发展区：根据孩子能力提供恰当支持，促进独立学习',
+            '🎨 多元表达：支持不同的学习和表达方式，发现孩子的优势智能'
+        ],
+        emotionalSupport: [
+            '🎯 自主性支持：尊重孩子的选择和兴趣方向，避免过度控制',
+            '🏆 能力感培养：认可孩子的独特观点，增强自信心',
+            '🤝 平等对话：用讨论而非教导的方式交流，建立互信',
+            '📚 内在动机：培养对学习本身的热爱，而非外在奖励',
+            '🌟 成长思维：强调努力和过程而非天赋和结果',
+            '👭 社交支持：帮助建立积极的同伴关系，学会合作与分享'
+        ],
+        scaffoldingTechniques: [
+            '🏗️ 认知支架：提供思维框架帮助孩子组织复杂信息',
+            '❓ 引导提问：用苏格拉底式提问引导孩子自主发现',
+            '📊 可视化工具：用图表、地图等工具帮助理解抽象概念',
+            '🔗 连接建构：帮助孩子将新知识与已有经验连接'
+        ],
+        dialogueStarters: [
+            '"这让你想起了什么？"',
+            '"如果你生活在那个时代会怎样？"',
+            '"这个和你学过的哪个知识有关系？"',
+            '"你能发现什么有趣的规律吗？"',
+            '"你会如何向朋友介绍这个展品？"',
+            '"这个发现改变了你的什么想法？"'
+        ],
+        inclusiveSupport: [
+            '🎨 学习风格：识别并适应孩子的学习偏好（视觉、听觉、动觉）',
+            '⏰ 个人节奏：允许孩子按自己的速度深入感兴趣的展品',
+            '🔄 多样选择：提供不同的参与方式，照顾不同性格的孩子',
+            '🌈 情绪调适：理解学龄期孩子的情绪波动和压力来源'
+        ],
+        commonChallenges: [
+            {
+                situation: '对某些展品表现冷淡',
+                solution: '寻找与孩子兴趣的连接点，用比较法激发好奇心',
+                preventionTips: '提前了解孩子的学习项目和兴趣，选择相关展品重点参观'
+            },
+            {
+                situation: '想要快速浏览所有展品',
+                solution: '引导深度观察，"慢下来"比"看得多"更有价值',
+                preventionTips: '制定参观计划，选择3-5个重点展品进行深入探索'
+            },
+            {
+                situation: '与同伴比较产生挫折感',
+                solution: '强调每个人的独特发现，避免竞争式学习',
+                preventionTips: '事先建立"每个人都有自己的发现"的参观原则'
+            },
+            {
+                situation: '觉得内容太幼稚或太难',
+                solution: '调整互动层次，提供适合认知水平的挑战',
+                preventionTips: '准备多层次的问题，根据孩子反应灵活调整'
+            },
+            {
+                situation: '被朋友影响注意力分散',
+                solution: '建立小组合作任务，将社交转化为学习动力',
+                preventionTips: '提前与其他家长协调，建立统一的参观规则'
+            }
+        ]
+    },
+    '13-18': {
+        cognitiveStage: '抽象运思期 (皮亚杰认知发展)',
+        developmentalTraits: '抽象思维能力发展，能独立思考复杂问题，开始形成个人价值观和世界观，追求独立和认同。此阶段是建立身份认同、培养批判思维和准备成人角色的关键期。',
+        parentingTips: [
+            '🧠 深度分析：引导分析历史文化的深层意义和当代价值',
+            '🤝 平等对话：以合作伙伴的方式交流，尊重青少年的独立思考',
+            '🎯 价值引导：通过文物历史引导思考人生意义和社会责任',
+            '📊 批判思维：鼓励质疑和辩论，培养独立判断能力',
+            '🌍 全球视野：连接国际文化，培养文化自信和包容胸怀',
+            '📱 现代联系：引导思考传统文化与现代科技、生活的融合',
+            '🎓 学术深度：支持深入研究感兴趣的专题，培养学者精神',
+            '💭 哲学思考：通过文化现象思考人性、社会、价值等深层问题',
+            '🦋 身份探索：支持青少年通过文化学习探索自我身份和价值观',
+            '🔮 未来导向：引导思考文化传承对个人和社会未来的意义'
+        ],
+        emotionalSupport: [
+            '🤗 理解支持：理解青春期的情绪波动和寻求独立的需要',
+            '🎯 目标引导：帮助建立人生目标，支持兴趣和专长发展',
+            '🗣️ 倾听尊重：认真倾听他们的想法，即使不完全赞同',
+            '🌟 个性认同：支持独特个性发展，避免过度期望和控制',
+            '💪 自主决策：在安全范围内支持他们做出独立选择',
+            '🌈 情绪管理：教导健康的压力和情绪管理技巧'
+        ],
+        autonomySupport: [
+            '🎯 自主选择：让青少年主导参观路线和重点内容选择',
+            '📚 独立研究：鼓励他们提前研究感兴趣的展品或历史',
+            '🎤 观点表达：创造机会让他们分享自己的理解和观点',
+            '🤝 对等讨论：避免居高临下的教导，进行平等的学术讨论'
+        ],
+        dialogueStarters: [
+            '"这个现象反映了什么社会问题？"',
+            '"你认为这种传统在现代还有意义吗？"',
+            '"如果你是博物馆馆长，会如何展示这段历史？"',
+            '"这给你的人生带来了什么启发？"',
+            '"这个文化现象与现代社会有什么相似之处？"',
+            '"你如何看待传统与创新的关系？"'
+        ],
+        inclusiveSupport: [
+            '🌍 文化敏感：理解不同文化背景青少年的观点差异',
+            '💡 学习差异：支持不同学习能力和兴趣方向的青少年',
+            '🧘 心理健康：关注青春期常见的心理压力和焦虑问题',
+            '🎭 角色压力：理解学业、社交、家庭期望等多重压力'
+        ],
+        commonChallenges: [
+            {
+                situation: '表现出对传统文化的轻视',
+                solution: '引导发现传统与现代的连接，避免说教式纠正',
+                preventionTips: '选择与现代生活相关的展品，展示传统文化的现代价值'
+            },
+            {
+                situation: '过于沉迷手机而忽视展品',
+                solution: '引导用技术增强体验，如拍照研究、查阅资料',
+                preventionTips: '事先商定手机使用规则，将数字技术作为学习工具'
+            },
+            {
+                situation: '对家长指导表现反感',
+                solution: '转变为平等讨论，给予更多独立探索空间',
+                preventionTips: '建立互相尊重的参观协议，明确各自的角色和期望'
+            },
+            {
+                situation: '觉得博物馆内容枯燥无趣',
+                solution: '寻找与个人兴趣和未来规划相关的连接点',
+                preventionTips: '提前了解青少年的专业兴趣和职业规划，选择相关展品'
+            },
+            {
+                situation: '对深度讨论缺乏兴趣',
+                solution: '从轻松话题开始，逐渐引入有意义的讨论',
+                preventionTips: '营造轻松的氛围，避免过于严肃的学术讨论开场'
+            }
+        ]
+    }
+};
+
+// Assessment and reflection tools for parent-child interactions
+const ASSESSMENT_TOOLS = {
+    engagementIndicators: {
+        '3-6': [
+            '✅ 孩子主动指向和询问展品',
+            '✅ 能专注观察15-20分钟',
+            '✅ 愿意分享自己的发现',
+            '✅ 表现出好奇和兴奋',
+            '✅ 能记住并重复感兴趣的内容'
+        ],
+        '7-12': [
+            '✅ 主动提出深度问题',
+            '✅ 能将展品与已学知识连接',
+            '✅ 表现出独立探索的欲望',
+            '✅ 愿意记录和总结观察',
+            '✅ 与他人分享学习心得'
+        ],
+        '13-18': [
+            '✅ 进行批判性思考和分析',
+            '✅ 主动寻找更多相关信息',
+            '✅ 表达个人观点和见解',
+            '✅ 关注文化的现代意义',
+            '✅ 思考个人身份和价值观'
+        ]
+    },
+    reflectionPrompts: {
+        parentSelfReflection: [
+            '我今天有多少时间真正在倾听孩子？',
+            '我是否给予了孩子足够的自主探索空间？',
+            '我的提问是否激发了孩子的思考？',
+            '我是否及时回应了孩子的情感需求？',
+            '我今天学到了关于孩子的什么新东西？'
+        ],
+        familyReflection: [
+            '今天我们最有意思的发现是什么？',
+            '哪个展品让我们印象最深刻？为什么？',
+            '我们学到了什么以前不知道的知识？',
+            '今天的博物馆之旅让我们感觉如何？',
+            '我们下次想要探索什么主题？'
+        ]
+    }
+};
+
+// Crisis management and behavior support strategies
+const CRISIS_MANAGEMENT = {
+    meltdownPrevention: [
+        '🔍 观察早期信号：疲劳、饥饿、过度刺激的迹象',
+        '⏰ 预防性休息：在问题出现前主动安排休息',
+        '🎯 降低期望：根据孩子状态调整参观目标',
+        '🆘 准备退出策略：始终有计划B和安全退路'
+    ],
+    meltdownResponse: [
+        '🧘 保持冷静：家长情绪稳定是处理危机的基础',
+        '🤗 提供安慰：身体接触和温和语言给予安全感',
+        '📍 寻找安静空间：立即转移到人少的地方',
+        '⏱️ 允许情绪：不急于纠正，让孩子表达情感',
+        '💧 满足基本需求：检查是否饿了、渴了、累了'
+    ],
+    overstimulationSigns: [
+        '😵 感觉标志：频繁揉眼睛、捂耳朵、说太吵太亮',
+        '😤 行为标志：变得粘人、易怒、注意力涣散',
+        '😰 情绪标志：突然哭闹、退缩、拒绝参与',
+        '🏃 身体标志：坐立不安、想要离开、疲惫表现'
+    ]
+};
+
+// Enhanced multiple intelligence activation strategies with specific activities
+const MULTIPLE_INTELLIGENCE_STRATEGIES = {
+    linguistic: {
+        name: '语言智能',
+        description: '通过讲故事、描述、讨论激发',
+        activities: ['讲解展品故事', '描述观察内容', '提问和回答', '制作解说词']
+    },
+    logical: {
+        name: '逻辑智能', 
+        description: '通过分类、比较、推理培养',
+        activities: ['文物分类游戏', '时间序列排列', '因果关系分析', '数据观察记录']
+    },
+    spatial: {
+        name: '空间智能',
+        description: '通过观察建筑、绘画、想象开发', 
+        activities: ['建筑结构观察', '空间方位认知', '图形绘制', '立体想象']
+    },
+    bodily: {
+        name: '肢体智能',
+        description: '通过模仿、体验、动手操作发展',
+        activities: ['古代动作模仿', '传统工艺体验', '手工制作', '身体测量对比']
+    },
+    musical: {
+        name: '音乐智能',
+        description: '通过节奏、韵律、音乐欣赏培养',
+        activities: ['古代音乐聆听', '节拍感知', '声音模仿', '韵律诗歌']
+    },
+    interpersonal: {
+        name: '人际智能',
+        description: '通过合作、分享、交流提升',
+        activities: ['团队讨论', '角色分工', '经验分享', '合作解谜']
+    },
+    intrapersonal: {
+        name: '内省智能',
+        description: '通过反思、记录、总结增强',
+        activities: ['个人感受记录', '学习反思日记', '价值观思考', '自我评估']
+    },
+    naturalist: {
+        name: '自然智能',
+        description: '通过观察、分类、保护意识培养',
+        activities: ['材质分类识别', '环境观察', '生态思考', '保护意识培养']
+    }
+};
+
+// Specific conversation techniques for different age groups
+const CONVERSATION_TECHNIQUES = {
+    '3-6': {
+        questionTypes: {
+            observation: ['你看到了什么颜色？', '这个像什么形状？', '你发现了几个小动物？'],
+            sensory: ['摸起来会是什么感觉？', '听起来像什么声音？', '闻起来是什么味道？'],
+            imagination: ['你觉得这是做什么用的？', '古代小朋友会怎么玩？', '如果是你的会怎么用？'],
+            emotional: ['你喜欢这个吗？', '这让你想到什么开心的事？', '你觉得美不美？']
+        },
+        responseStrategies: [
+            '重复孩子的话表示理解',
+            '用"哇"、"真的吗"等感叹表达共鸣',
+            '将孩子的观察与生活经验连接',
+            '给予具体的表扬："你的眼睛真厉害"'
+        ]
+    },
+    '7-12': {
+        questionTypes: {
+            analysis: ['为什么会这样设计？', '你能找出什么规律？', '这和那个有什么不同？'],
+            connection: ['这让你想起了什么？', '和你学过的知识有关系吗？', '现在还有类似的吗？'],
+            evaluation: ['你觉得哪个更好？为什么？', '如果是你会怎么改进？', '什么地方最有趣？'],
+            creation: ['你能设计一个类似的吗？', '如果你是工匠会怎么做？', '能想出新的用法吗？']
+        },
+        responseStrategies: [
+            '认真倾听孩子的想法',
+            '用"原来如此"、"你说得有道理"回应',
+            '提出延伸问题引导深入思考',
+            '分享自己的观点但不强加'
+        ]
+    },
+    '13-18': {
+        questionTypes: {
+            critical: ['你如何评价这种观点？', '有什么不同的角度？', '这反映了什么问题？'],
+            philosophical: ['这说明了什么价值观？', '对现代有什么意义？', '你的人生感悟是什么？'],
+            creative: ['如果重新设计会怎样？', '现代技术能如何改进？', '你会如何创新？'],
+            social: ['这对社会有什么影响？', '不同文化会如何处理？', '未来会如何发展？']
+        },
+        responseStrategies: [
+            '平等对话，避免权威姿态',
+            '承认他们观点的价值',
+            '分享而非灌输自己的见解',
+            '鼓励独立思考和判断'
+        ]
+    }
 };
 
 // Museum data with checklists for different age groups
@@ -20055,10 +20442,19 @@ class MuseumCheckApp {
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
 
-        title.textContent = `${museum.name} - 参观指南`;
+        title.textContent = `${museum.name} - 亲子参观指南`;
+
+        // Get expert guidance for current age group
+        const guidance = EXPERT_GUIDANCE[this.currentAge];
+        const ageLabels = {
+            '3-6': '3-6岁 (学龄前)',
+            '7-12': '7-12岁 (小学)',
+            '13-18': '13-18岁 (中学)'
+        };
 
         content.innerHTML = `
             <div class="checklist-tabs">
+                <button class="tab-button ${activeTab === 'expert' ? 'active' : ''}" data-target="expert">👨‍👩‍👧 专家指导</button>
                 <button class="tab-button ${activeTab === 'parent' ? 'active' : ''}" data-target="parent">家长准备</button>
                 <button class="tab-button ${activeTab === 'child' ? 'active' : ''}" data-target="child">孩子任务</button>
                 <button class="tab-button ${activeTab === 'share' ? 'active' : ''}" data-target="share">生成海报</button>
@@ -20066,6 +20462,191 @@ class MuseumCheckApp {
             ${museum.image ? `<div class="museum-image-section">
                 <img src="${museum.image}" alt="${museum.name}" class="museum-image" />
             </div>` : ''}
+            
+            <div id="expertGuidance" class="checklist-content expert-guidance" ${activeTab !== 'expert' ? 'style="display: none;"' : ''}>
+                <div class="expert-header">
+                    <h3>🎓 ${ageLabels[this.currentAge]} 专家指导</h3>
+                    <div class="age-stage-info">
+                        <span class="stage-label">${guidance.cognitiveStage}</span>
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>🧠 发展特点</h4>
+                    <p class="developmental-traits">${guidance.developmentalTraits}</p>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>👥 亲子互动指导</h4>
+                    <ul class="expert-tips">
+                        ${guidance.parentingTips.map(tip => `<li>${tip}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>❤️ 情感支持要点</h4>
+                    <ul class="emotional-support">
+                        ${guidance.emotionalSupport.map(tip => `<li>${tip}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>💬 对话启发技巧</h4>
+                    <div class="dialogue-section">
+                        <div class="dialogue-starters">
+                            <strong>📝 推荐话题开场：</strong>
+                            <ul>
+                                ${guidance.dialogueStarters.map(starter => `<li>${starter}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>🧩 多元智能激发</h4>
+                    <div class="intelligence-grid">
+                        ${Object.entries(MULTIPLE_INTELLIGENCE_STRATEGIES).map(([key, value]) => `
+                            <div class="intelligence-item">
+                                <div class="intelligence-header">
+                                    <strong>${value.name}</strong>
+                                </div>
+                                <div class="intelligence-desc">${value.description}</div>
+                                <div class="intelligence-activities">
+                                    ${value.activities.map(activity => `<span class="activity-tag">${activity}</span>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>🚨 常见挑战应对</h4>
+                    <div class="challenges-section">
+                        ${guidance.commonChallenges.map(challenge => `
+                            <div class="challenge-item">
+                                <div class="challenge-situation">
+                                    <strong>情况：</strong>${challenge.situation}
+                                </div>
+                                <div class="challenge-solution">
+                                    <strong>应对：</strong>${challenge.solution}
+                                </div>
+                                ${challenge.preventionTips ? `
+                                <div class="challenge-prevention">
+                                    <strong>预防：</strong>${challenge.preventionTips}
+                                </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${guidance.attachmentStrategies ? `
+                <div class="expert-section">
+                    <h4>💕 依恋关系建立</h4>
+                    <ul class="attachment-strategies">
+                        ${guidance.attachmentStrategies.map(strategy => `<li>${strategy}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                ${guidance.scaffoldingTechniques ? `
+                <div class="expert-section">
+                    <h4>🏗️ 学习支架技巧</h4>
+                    <ul class="scaffolding-techniques">
+                        ${guidance.scaffoldingTechniques.map(technique => `<li>${technique}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                ${guidance.autonomySupport ? `
+                <div class="expert-section">
+                    <h4>🎯 自主性支持</h4>
+                    <ul class="autonomy-support">
+                        ${guidance.autonomySupport.map(support => `<li>${support}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                ${guidance.inclusiveSupport ? `
+                <div class="expert-section">
+                    <h4>🌈 包容性支持</h4>
+                    <ul class="inclusive-support">
+                        ${guidance.inclusiveSupport.map(support => `<li>${support}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                
+                <div class="expert-section">
+                    <h4>📊 参与度评估指标</h4>
+                    <div class="assessment-section">
+                        <p class="assessment-intro">观察这些积极信号，了解孩子的学习状态：</p>
+                        <ul class="engagement-indicators">
+                            ${ASSESSMENT_TOOLS.engagementIndicators[this.currentAge].map(indicator => `<li>${indicator}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>🚨 危机预防与应对</h4>
+                    <div class="crisis-management">
+                        <div class="crisis-subsection">
+                            <strong>⚠️ 过度刺激预警信号：</strong>
+                            <ul class="overstimulation-signs">
+                                ${CRISIS_MANAGEMENT.overstimulationSigns.map(sign => `<li>${sign}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="crisis-subsection">
+                            <strong>🛡️ 预防策略：</strong>
+                            <ul class="meltdown-prevention">
+                                ${CRISIS_MANAGEMENT.meltdownPrevention.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="crisis-subsection">
+                            <strong>🆘 应对措施：</strong>
+                            <ul class="meltdown-response">
+                                ${CRISIS_MANAGEMENT.meltdownResponse.map(response => `<li>${response}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>🤔 家庭反思引导</h4>
+                    <div class="reflection-section">
+                        <div class="reflection-subsection">
+                            <strong>👨‍👩‍👧‍👦 家长自我反思：</strong>
+                            <ul class="parent-reflection">
+                                ${ASSESSMENT_TOOLS.reflectionPrompts.parentSelfReflection.map(prompt => `<li>${prompt}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="reflection-subsection">
+                            <strong>❤️ 全家共同反思：</strong>
+                            <ul class="family-reflection">
+                                ${ASSESSMENT_TOOLS.reflectionPrompts.familyReflection.map(prompt => `<li>${prompt}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="expert-section">
+                    <h4>📚 延伸学习建议</h4>
+                    <div class="extension-activities">
+                        <div class="activity-card">
+                            <strong>🏠 回家后</strong>
+                            <p>整理参观照片，制作家庭博物馆相册，分享今天的发现</p>
+                        </div>
+                        <div class="activity-card">
+                            <strong>📖 深入阅读</strong>
+                            <p>根据孩子兴趣，选择相关主题的绘本或科普读物</p>
+                        </div>
+                        <div class="activity-card">
+                            <strong>🎨 动手实践</strong>
+                            <p>制作小手工、画画或搭建模型，巩固博物馆体验</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="parentChecklist" class="checklist-content" ${activeTab !== 'parent' ? 'style="display: none;"' : ''}>
                 <div class="checklist-header">
                     <h3>家长准备事项</h3>
@@ -20107,6 +20688,7 @@ class MuseumCheckApp {
                 button.classList.add('active');
                 
                 // Show corresponding content
+                document.getElementById('expertGuidance').style.display = target === 'expert' ? 'block' : 'none';
                 document.getElementById('parentChecklist').style.display = target === 'parent' ? 'block' : 'none';
                 document.getElementById('childChecklist').style.display = target === 'child' ? 'block' : 'none';
                 document.getElementById('shareChecklist').style.display = target === 'share' ? 'block' : 'none';
