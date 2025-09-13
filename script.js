@@ -12630,7 +12630,7 @@ const MUSEUMS = [
         }
     },
     {
-        id: 'lu'an-museum',
+        id: 'luan-museum',
         name: '六安市博物馆',
         location: '六安',
         description: '展示六安茶文化和皖西文化特色',
@@ -19195,7 +19195,6 @@ class MuseumCheckApp {
         // Initialize all version elements from RECENT_CHANGES object
         document.getElementById('versionBadge').textContent = `v${RECENT_CHANGES.version}`;
         document.getElementById('currentVersion').textContent = `v${RECENT_CHANGES.version}`;
-        document.getElementById('lastUpdated').textContent = RECENT_CHANGES.lastUpdate;
     }
 
     // Migrate existing localStorage photos to IndexedDB
