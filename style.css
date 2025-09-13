@@ -214,31 +214,99 @@ header h1 {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    max-width: 500px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 }
 
-.age-selector label {
+.age-group-fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.age-group-legend {
     font-weight: bold;
-    margin-right: 15px;
+    margin-bottom: 15px;
     font-size: 1.1em;
     color: var(--primary-color);
+    text-align: center;
+    width: 100%;
 }
 
-.age-selector select {
-    padding: 10px 15px;
-    border: 2px solid var(--border-color);
+.age-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.age-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 16px;
     border-radius: 8px;
+    border: 2px solid var(--border-color);
+    background: white;
+    transition: all 0.2s ease;
     font-size: 16px;
-    background-color: white;
-    min-width: 200px;
-    transition: border-color 0.2s ease;
+    min-width: 140px;
+    justify-content: center;
 }
 
-.age-selector select:focus {
+.age-option:hover {
     border-color: var(--primary-color);
-    outline: none;
+    background: #f8f9ff;
+}
+
+.age-option input[type="radio"] {
+    margin: 0;
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+}
+
+.age-option:has(input[type="radio"]:checked) {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.age-option:has(input[type="radio"]:checked) .age-option-text {
+    color: white;
+    font-weight: bold;
+}
+
+.age-option-text {
+    color: var(--text-color);
+    transition: color 0.2s ease;
+}
+
+/* Fallback for browsers that don't support :has() */
+.age-option.selected {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.age-option.selected .age-option-text {
+    color: white;
+    font-weight: bold;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .age-options {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .age-option {
+        min-width: 200px;
+    }
 }
 
 .museum-list h2 {

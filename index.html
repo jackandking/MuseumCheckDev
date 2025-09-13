@@ -172,12 +172,23 @@
         </div>
 
         <nav class="age-selector" aria-label="年龄组选择">
-            <label for="ageGroup">孩子年龄：</label>
-            <select id="ageGroup" aria-describedby="age-help">
-                <option value="3-6">3-6岁 (学龄前)</option>
-                <option value="7-12">7-12岁 (小学)</option>
-                <option value="13-18">13-18岁 (中学)</option>
-            </select>
+            <fieldset class="age-group-fieldset">
+                <legend class="age-group-legend">孩子年龄：</legend>
+                <div class="age-options">
+                    <label class="age-option">
+                        <input type="radio" name="ageGroup" value="3-6" checked aria-describedby="age-help">
+                        <span class="age-option-text">3-6岁 (学龄前)</span>
+                    </label>
+                    <label class="age-option">
+                        <input type="radio" name="ageGroup" value="7-12" aria-describedby="age-help">
+                        <span class="age-option-text">7-12岁 (小学)</span>
+                    </label>
+                    <label class="age-option">
+                        <input type="radio" name="ageGroup" value="13-18" aria-describedby="age-help">
+                        <span class="age-option-text">13-18岁 (中学)</span>
+                    </label>
+                </div>
+            </fieldset>
             <span id="age-help" class="sr-only">选择孩子的年龄段以获取适合的博物馆参观内容</span>
         </nav>
 

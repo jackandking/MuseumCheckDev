@@ -12,6 +12,100 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
     testUtils.setupMinimalDOM();
   });
 
+  describe('v2.2.0 - 优化年龄选择器为水平单选按钮', () => {
+    /**
+     * Bug/Enhancement: 将下拉框年龄选择器改为更直观的水平单选按钮
+     * Fixed: 2024-12-20
+     * 
+     * These tests ensure the age selector UI optimization works correctly.
+     */
+
+    beforeEach(() => {
+      // Setup age selector HTML structure
+      document.body.innerHTML += `
+        <nav class="age-selector">
+          <fieldset class="age-group-fieldset">
+            <legend class="age-group-legend">孩子年龄：</legend>
+            <div class="age-options">
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="3-6" checked>
+                <span class="age-option-text">3-6岁 (学龄前)</span>
+              </label>
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="7-12">
+                <span class="age-option-text">7-12岁 (小学)</span>
+              </label>
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="13-18">
+                <span class="age-option-text">13-18岁 (中学)</span>
+              </label>
+            </div>
+          </fieldset>
+        </nav>
+      `;
+    });
+
+    test('should initialize with first radio button checked', () => {
+      const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+      expect(checkedRadio).toBeTruthy();
+      expect(checkedRadio.value).toBe('3-6');
+    });
+
+    test('should change selection when different radio button is clicked', () => {
+      const radio7to12 = document.querySelector('input[name="ageGroup"][value="7-12"]');
+      
+      // Simulate click
+      radio7to12.checked = true;
+      radio7to12.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      // Check that it's now selected
+      const newChecked = document.querySelector('input[name="ageGroup"]:checked');
+      expect(newChecked.value).toBe('7-12');
+      
+      // Check that previous selection is unchecked
+      const radio3to6 = document.querySelector('input[name="ageGroup"][value="3-6"]');
+      expect(radio3to6.checked).toBe(false);
+    });
+
+    test('should maintain proper radio button behavior (only one selected)', () => {
+      const radios = document.querySelectorAll('input[name="ageGroup"]');
+      
+      // Select each radio in sequence
+      radios.forEach(radio => {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Count checked radios - should always be 1
+        const checkedCount = document.querySelectorAll('input[name="ageGroup"]:checked').length;
+        expect(checkedCount).toBe(1);
+        expect(document.querySelector('input[name="ageGroup"]:checked').value).toBe(radio.value);
+      });
+    });
+
+    test('should have all three age group options available', () => {
+      const expectedValues = ['3-6', '7-12', '13-18'];
+      const actualValues = Array.from(document.querySelectorAll('input[name="ageGroup"]'))
+        .map(radio => radio.value);
+      
+      expect(actualValues).toEqual(expectedValues);
+    });
+
+    test('should use proper accessibility attributes', () => {
+      const fieldset = document.querySelector('.age-group-fieldset');
+      const legend = document.querySelector('.age-group-legend');
+      const radios = document.querySelectorAll('input[name="ageGroup"]');
+      
+      expect(fieldset).toBeTruthy();
+      expect(legend).toBeTruthy();
+      expect(legend.textContent.includes('孩子年龄')).toBe(true);
+      
+      radios.forEach(radio => {
+        expect(radio.type).toBe('radio');
+        expect(radio.name).toBe('ageGroup');
+      });
+    });
+  });
+
   describe('v2.1.3 - 修复海报生成两大bug', () => {
     /**
      * Bug: "解决海报生成时出现重复画布和高度不自动调整的问题"

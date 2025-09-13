@@ -19195,7 +19195,8 @@ const MUSEUMS = [
 
 class MuseumCheckApp {
     constructor() {
-        this.currentAge = document.getElementById('ageGroup').value;
+        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+        this.currentAge = checkedRadio ? checkedRadio.value : '3-6';
         this.visitedMuseums = this.loadVisitedMuseums();
         this.museumChecklists = this.loadMuseumChecklists();
         this.taskPhotos = this.loadTaskPhotos(); // Will fallback to localStorage initially
@@ -19207,6 +19208,14 @@ class MuseumCheckApp {
         this.init();
     }
 
+    initAgeSelector() {
+        // Set initial selected state for browsers that don't support :has()
+        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('.age-option').classList.add('selected');
+        }
+    }
+
     // Google Analytics tracking helper
     trackEvent(eventName, parameters = {}) {
         if (typeof gtag !== 'undefined' && window.GA_MEASUREMENT_ID !== 'GA_MEASUREMENT_ID') {
@@ -19216,6 +19225,9 @@ class MuseumCheckApp {
 
     async init() {
         await this.initIndexedDB();
+        
+        // Initialize age selector visual state
+        this.initAgeSelector();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -19255,9 +19267,14 @@ class MuseumCheckApp {
                 // Set age group if provided
                 if (ageGroup && ['3-6', '7-12', '13-18'].includes(ageGroup)) {
                     this.currentAge = ageGroup;
-                    const ageSelect = document.getElementById('ageSelect');
-                    if (ageSelect) {
-                        ageSelect.value = ageGroup;
+                    const ageRadio = document.querySelector(`input[name="ageGroup"][value="${ageGroup}"]`);
+                    if (ageRadio) {
+                        ageRadio.checked = true;
+                        // Update visual state for browsers that don't support :has()
+                        document.querySelectorAll('.age-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        ageRadio.closest('.age-option').classList.add('selected');
                     }
                 }
 
@@ -19489,16 +19506,26 @@ class MuseumCheckApp {
     }
 
     setupEventListeners() {
-        // Age group selector
-        document.getElementById('ageGroup').addEventListener('change', (e) => {
-            const oldAge = this.currentAge;
-            this.currentAge = e.target.value;
-            this.renderMuseums();
-            
-            // Track age group change
-            this.trackEvent('age_group_changed', {
-                'previous_age': oldAge,
-                'new_age': this.currentAge
+        // Age group selector - handle radio button changes
+        document.querySelectorAll('input[name="ageGroup"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    const oldAge = this.currentAge;
+                    this.currentAge = e.target.value;
+                    this.renderMuseums();
+                    
+                    // Update visual state for browsers that don't support :has()
+                    document.querySelectorAll('.age-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    e.target.closest('.age-option').classList.add('selected');
+                    
+                    // Track age group change
+                    this.trackEvent('age_group_changed', {
+                        'previous_age': oldAge,
+                        'new_age': this.currentAge
+                    });
+                }
             });
         });
 
