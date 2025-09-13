@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.0.0",
+    version: "4.0.1",
     lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.0.1",
+            title: "修复手机端博物馆加载问题",
+            description: "解决移动端用户遇到的博物馆数据无法加载问题。添加缓存清除机制、加载指示器和错误处理，防止浏览器缓存导致的显示问题。现在所有303家博物馆在手机上都能正确载入显示。",
+            type: "bugfix"
+        },
         {
             date: "2024-12-21",
             version: "4.0.0",
@@ -19510,46 +19517,81 @@ class MuseumCheckApp {
     }
 
     renderMuseums() {
-        const grid = document.getElementById('museumGrid');
-        grid.innerHTML = '';
+        try {
+            const grid = document.getElementById('museumGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            // Hide loading indicator
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+            
+            grid.innerHTML = '';
 
-        MUSEUMS.forEach(museum => {
-            const isVisited = this.visitedMuseums.includes(museum.id);
-            const card = document.createElement('div');
-            card.className = `museum-card ${isVisited ? 'visited' : ''}`;
-            card.innerHTML = `
-                <div class="museum-header">
-                    <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
-                           data-museum="${museum.id}">
-                    <div class="museum-info">
-                        <h3>${museum.name}</h3>
-                        <div class="museum-location">📍 ${museum.location}</div>
+            MUSEUMS.forEach(museum => {
+                const isVisited = this.visitedMuseums.includes(museum.id);
+                const card = document.createElement('div');
+                card.className = `museum-card ${isVisited ? 'visited' : ''}`;
+                card.innerHTML = `
+                    <div class="museum-header">
+                        <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
+                               data-museum="${museum.id}">
+                        <div class="museum-info">
+                            <h3>${museum.name}</h3>
+                            <div class="museum-location">📍 ${museum.location}</div>
+                        </div>
                     </div>
-                </div>
-                <p class="museum-description">${museum.description}</p>
-                <div class="museum-tags">
-                    ${museum.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                </div>
-            `;
+                    <p class="museum-description">${museum.description}</p>
+                    <div class="museum-tags">
+                        ${museum.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                `;
 
-            // Add click event for the card (excluding checkbox)
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('visit-checkbox')) {
-                    this.openMuseumModal(museum);
-                }
+                // Add click event for the card (excluding checkbox)
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('visit-checkbox')) {
+                        this.openMuseumModal(museum);
+                    }
+                });
+
+                // Add checkbox event
+                const checkbox = card.querySelector('.visit-checkbox');
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    this.toggleMuseumVisit(museum.id);
+                });
+
+                grid.appendChild(card);
             });
 
-            // Add checkbox event
-            const checkbox = card.querySelector('.visit-checkbox');
-            checkbox.addEventListener('change', (e) => {
-                e.stopPropagation();
-                this.toggleMuseumVisit(museum.id);
-            });
-
-            grid.appendChild(card);
-        });
-
-        this.updateStats();
+            this.updateStats();
+            
+            // If no museums were rendered, show error message
+            if (grid.children.length === 0) {
+                this.showError('博物馆数据载入失败，请刷新页面重试');
+            }
+        } catch (error) {
+            console.error('Error rendering museums:', error);
+            this.showError('博物馆数据载入出错，请刷新页面重试');
+        }
+    }
+    
+    showError(message) {
+        const grid = document.getElementById('museumGrid');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // Hide loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        grid.innerHTML = `
+            <div class="error-message">
+                <div class="error-icon">⚠️</div>
+                <p>${message}</p>
+                <button onclick="location.reload()" class="retry-button">重新载入</button>
+            </div>
+        `;
     }
 
     toggleMuseumVisit(museumId) {

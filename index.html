@@ -37,6 +37,11 @@
     
     <link rel="stylesheet" href="style.css">
     
+    <!-- Cache busting meta tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YHF52B1NMH"></script>
     <script>
@@ -193,6 +198,11 @@
                     </div>
                 </div>
                 <div id="museumGrid" class="museum-grid" role="grid" aria-label="博物馆列表">
+                    <!-- Loading indicator -->
+                    <div id="loadingIndicator" class="loading-indicator">
+                        <div class="loading-spinner"></div>
+                        <p>正在载入博物馆数据...</p>
+                    </div>
                     <!-- Museums will be populated by JavaScript -->
                 </div>
             </section>

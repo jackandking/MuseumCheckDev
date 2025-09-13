@@ -37,10 +37,18 @@ describe('Museum Expansion to 300 Total Museums', () => {
         expect(museumIds.length).toBeGreaterThanOrEqual(300); // Allow for slight variations
     });
 
-    test('version should be updated to 4.0.0', () => {
+    test('version should be current or higher than 4.0.0', () => {
         const versionMatch = scriptContent.match(/version: "([^"]+)"/);
         expect(versionMatch).not.toBeNull();
-        expect(versionMatch[1]).toBe('4.0.0');
+        const currentVersion = versionMatch[1];
+        const [major, minor, patch] = currentVersion.split('.').map(Number);
+        expect(major).toBeGreaterThanOrEqual(4);
+        if (major === 4) {
+            expect(minor).toBeGreaterThanOrEqual(0);
+            if (minor === 0) {
+                expect(patch).toBeGreaterThanOrEqual(0);
+            }
+        }
     });
 
     test('should have changelog entry for museum expansion', () => {
