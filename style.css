@@ -536,46 +536,96 @@ header h1 {
 
 .checklist-content {
     margin-top: 20px;
+    padding: 0 4px;
 }
 
 .checklist-item {
     display: flex;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: 8px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 6px;
     transition: all 0.3s ease;
-    flex-direction: column;
+    background-color: #ffffff;
+    border: 1px solid #e0e6ed;
+    position: relative;
+    min-height: 44px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .checklist-item:hover {
-    background-color: var(--hover-color);
+    background-color: #f8fbff;
+    border-color: #b3d9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.checklist-item:hover .checklist-controls {
+    opacity: 1;
 }
 
 .checklist-item input[type="checkbox"] {
-    margin-right: 12px;
-    margin-top: 2px;
-    width: 18px;
-    height: 18px;
-    align-self: flex-start;
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+    border-radius: 3px;
 }
 
 .checklist-item label {
     flex: 1;
     cursor: pointer;
     line-height: 1.4;
-    margin-bottom: 8px;
-    width: 100%;
+    margin: 0;
+    word-wrap: break-word;
+    font-size: 14px;
+    color: #2c3e50;
+    padding-right: 32px;
+    font-weight: 400;
+    display: block;
 }
 
 .checklist-item.completed {
-    background-color: #f8fff9;
-    border-left: 4px solid var(--accent-color);
+    background-color: #f0f8f0;
+    border: 1px solid #c8e6c9;
+    border-left: 3px solid var(--accent-color);
+    box-shadow: 0 1px 2px rgba(76, 175, 80, 0.08);
+}
+
+.checklist-item.completed:hover {
+    background-color: #ebf5eb;
+    border-color: #a5d6a7;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.12);
 }
 
 .checklist-item.completed label {
     text-decoration: line-through;
     color: #666;
+    opacity: 0.8;
+}
+
+/* Mobile responsive adjustments for checklist items */
+@media (max-width: 768px) {
+    .checklist-item {
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        gap: 8px;
+        min-height: 40px;
+    }
+    
+    .checklist-item input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .checklist-item label {
+        font-size: 13px;
+        line-height: 1.3;
+        padding-right: 28px;
+    }
 }
 
 /* Photo Upload Styles */
@@ -667,21 +717,6 @@ header h1 {
 }
 
 /* Checklist Customization Styles */
-.checklist-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    flex-direction: column;
-    position: relative;
-}
-
-.checklist-item:hover .checklist-controls {
-    opacity: 1;
-}
-
 .checklist-controls {
     position: absolute;
     top: 8px;
@@ -715,15 +750,6 @@ header h1 {
     cursor: not-allowed;
 }
 
-.checklist-label {
-    flex: 1;
-    cursor: pointer;
-    line-height: 1.4;
-    margin-bottom: 8px;
-    width: 100%;
-    padding-right: 60px; /* Space for control buttons */
-}
-
 .editing-input {
     flex: 1;
     padding: 8px;
@@ -731,7 +757,7 @@ header h1 {
     border-radius: 4px;
     font-size: 14px;
     font-family: inherit;
-    margin-bottom: 8px;
+    margin: 0;
     width: calc(100% - 60px);
 }
 
@@ -1095,13 +1121,18 @@ main[role="main"] {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
     gap: 15px;
+    border-bottom: 2px solid #f0f4f8;
 }
 
 .checklist-header h3 {
     margin: 0;
     flex-grow: 1;
+    color: #2c5aa0;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 /* Share Button Styles */
