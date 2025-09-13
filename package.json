@@ -7,6 +7,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:data-quality": "jest tests/data-quality.test.js",
+    "validate-data": "node tools/validate-museum-data.js",
     "serve": "python3 -m http.server 8000"
   },
   "keywords": ["museum", "checklist", "education", "travel", "china"],
