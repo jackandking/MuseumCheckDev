@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.0.1",
+    version: "4.1.0",
     lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.1.0",
+            title: "新增博物馆搜索功能",
+            description: "添加实时搜索功能，支持按博物馆名称、所在城市、标签分类、描述内容进行搜索。提供搜索结果计数显示、清空搜索按钮、Escape键快速清除等便捷操作。大幅提升用户在300家博物馆中快速查找目标博物馆的体验，解决博物馆数量增多后的查找困难问题。",
+            type: "feature"
+        },
         {
             date: "2024-12-21",
             version: "4.0.1",
@@ -19174,6 +19181,8 @@ class MuseumCheckApp {
         this.customChecklists = this.loadCustomChecklists();
         this.indexedDBSupported = false;
         this.db = null;
+        this.searchQuery = '';
+        this.filteredMuseums = MUSEUMS;
         this.init();
     }
 
@@ -19355,6 +19364,39 @@ class MuseumCheckApp {
             });
         });
 
+        // Search functionality
+        const searchInput = document.getElementById('museumSearch');
+        const clearButton = document.getElementById('clearSearch');
+        
+        // Search input event listener
+        searchInput.addEventListener('input', (e) => {
+            this.searchQuery = e.target.value.trim();
+            this.filterMuseums();
+            this.renderMuseums();
+            this.toggleClearButton();
+            
+            // Track search usage
+            if (this.searchQuery.length > 0) {
+                this.trackEvent('search_used', {
+                    'search_query_length': this.searchQuery.length
+                });
+            }
+        });
+        
+        // Clear search button
+        clearButton.addEventListener('click', () => {
+            this.clearSearch();
+            this.trackEvent('search_cleared');
+        });
+        
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.clearSearch();
+                this.trackEvent('search_cleared_escape');
+            }
+        });
+
         // Updates toggle button
         document.getElementById('updatesToggle').addEventListener('click', () => {
             this.showUpdatesModal();
@@ -19400,6 +19442,44 @@ class MuseumCheckApp {
                 this.closeAchievementModal();
             }
         });
+    }
+
+    // Search functionality methods
+    filterMuseums() {
+        if (!this.searchQuery) {
+            this.filteredMuseums = MUSEUMS;
+            return;
+        }
+        
+        const query = this.searchQuery.toLowerCase();
+        this.filteredMuseums = MUSEUMS.filter(museum => {
+            return museum.name.toLowerCase().includes(query) ||
+                   museum.location.toLowerCase().includes(query) ||
+                   museum.description.toLowerCase().includes(query) ||
+                   museum.tags.some(tag => tag.toLowerCase().includes(query));
+        });
+    }
+    
+    clearSearch() {
+        this.searchQuery = '';
+        document.getElementById('museumSearch').value = '';
+        this.filteredMuseums = MUSEUMS;
+        this.renderMuseums();
+        this.toggleClearButton();
+    }
+    
+    toggleClearButton() {
+        const clearButton = document.getElementById('clearSearch');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        
+        if (this.searchQuery.length > 0) {
+            clearButton.style.display = 'block';
+            searchResultsInfo.style.display = 'block';
+            document.getElementById('filteredCount').textContent = this.filteredMuseums.length;
+        } else {
+            clearButton.style.display = 'none';
+            searchResultsInfo.style.display = 'none';
+        }
     }
 
     loadVisitedMuseums() {
@@ -19528,7 +19608,7 @@ class MuseumCheckApp {
             
             grid.innerHTML = '';
 
-            MUSEUMS.forEach(museum => {
+            this.filteredMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
                 const card = document.createElement('div');
                 card.className = `museum-card ${isVisited ? 'visited' : ''}`;

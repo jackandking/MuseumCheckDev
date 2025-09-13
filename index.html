@@ -189,6 +189,18 @@
             <section class="museum-list" id="museums">
                 <h2>全国主要博物馆清单</h2>
                 <p class="section-description">精选全国300家知名博物馆，为您的亲子文化之旅提供专业指导</p>
+                
+                <!-- Search functionality -->
+                <div class="search-section">
+                    <div class="search-container">
+                        <input type="text" id="museumSearch" class="search-input" placeholder="🔍 搜索博物馆名称、城市或标签..." aria-label="搜索博物馆">
+                        <button id="clearSearch" class="clear-search-button" title="清空搜索" style="display: none;">✕</button>
+                    </div>
+                    <div class="search-results-info" id="searchResultsInfo" style="display: none;">
+                        显示 <span id="filteredCount">0</span> 个搜索结果
+                    </div>
+                </div>
+                
                 <div class="stats" role="status" aria-live="polite">
                     <span id="visitedCount">0</span>/<span id="totalCount">0</span> 已参观
                     (<span id="visitedPercentage">0</span>%)

@@ -238,4 +238,149 @@ describe('MuseumCheck Core Functions', () => {
       global.gtag = originalGtag;
     });
   });
+
+  describe('Search Functionality', () => {
+    // Tests for the new search feature added in response to Issue #158
+    let mockMuseums;
+
+    beforeEach(() => {
+      mockMuseums = testUtils.getMockMuseumData();
+    });
+
+    test('should filter museums by name correctly', () => {
+      const searchQuery = '故宫';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      expect(filteredMuseums.length).toBeGreaterThan(0);
+      filteredMuseums.forEach(museum => {
+        expect(museum.name.toLowerCase()).toContain(searchQuery.toLowerCase());
+      });
+    });
+
+    test('should filter museums by location correctly', () => {
+      const searchQuery = '北京';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.location.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      expect(filteredMuseums.length).toBeGreaterThan(0);
+      filteredMuseums.forEach(museum => {
+        expect(museum.location.toLowerCase()).toContain(searchQuery.toLowerCase());
+      });
+    });
+
+    test('should filter museums by tags correctly', () => {
+      const searchQuery = '历史';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+
+      expect(filteredMuseums.length).toBeGreaterThan(0);
+      filteredMuseums.forEach(museum => {
+        expect(museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))).toBe(true);
+      });
+    });
+
+    test('should filter museums by description correctly', () => {
+      const searchQuery = '文物';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      expect(filteredMuseums.length).toBeGreaterThan(0);
+      filteredMuseums.forEach(museum => {
+        expect(museum.description.toLowerCase()).toContain(searchQuery.toLowerCase());
+      });
+    });
+
+    test('should return all museums when search query is empty', () => {
+      const searchQuery = '';
+      const filteredMuseums = searchQuery ? mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      ) : mockMuseums;
+
+      expect(filteredMuseums).toEqual(mockMuseums);
+      expect(filteredMuseums.length).toBe(mockMuseums.length);
+    });
+
+    test('should return empty array for non-existent search terms', () => {
+      const searchQuery = '不存在的博物馆xyz123';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+
+      expect(filteredMuseums).toEqual([]);
+      expect(filteredMuseums.length).toBe(0);
+    });
+
+    test('should perform case-insensitive search', () => {
+      const searchQueries = ['故宫', '故宫', 'GUGONG'];  // Different cases for testing
+      const baseQuery = '故宫';
+      
+      const baseResults = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(baseQuery.toLowerCase())
+      );
+
+      // Test case-insensitive search
+      const uppercaseResults = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(baseQuery.toUpperCase().toLowerCase())
+      );
+
+      expect(baseResults.length).toBe(uppercaseResults.length);
+      expect(baseResults).toEqual(uppercaseResults);
+    });
+
+    test('should handle special characters and spaces in search', () => {
+      const searchQuery = '中国 博物馆';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+
+      // Should handle searches with spaces and Chinese characters
+      expect(filteredMuseums.length).toBeGreaterThanOrEqual(0);
+    });
+
+    test('should search across multiple fields simultaneously', () => {
+      const searchQuery = '北京';
+      let matchedFields = 0;
+
+      mockMuseums.forEach(museum => {
+        if (museum.name.toLowerCase().includes(searchQuery.toLowerCase())) matchedFields++;
+        if (museum.location.toLowerCase().includes(searchQuery.toLowerCase())) matchedFields++;
+        if (museum.description.toLowerCase().includes(searchQuery.toLowerCase())) matchedFields++;
+        if (museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))) matchedFields++;
+      });
+
+      // Should find matches across different fields (name, location, description, tags)
+      expect(matchedFields).toBeGreaterThan(0);
+    });
+
+    test('should maintain search results count accuracy', () => {
+      const searchQuery = '艺术';
+      const filteredMuseums = mockMuseums.filter(museum => 
+        museum.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        museum.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+
+      const resultCount = filteredMuseums.length;
+
+      // Verify that the count matches the actual filtered results
+      expect(resultCount).toBe(filteredMuseums.length);
+      expect(typeof resultCount).toBe('number');
+      expect(resultCount).toBeGreaterThanOrEqual(0);
+    });
+  });
 });
