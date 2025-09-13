@@ -1,8 +1,22 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.1.0",
+    version: "4.1.2",
     lastUpdate: "2024-12-21",
     changes: [
+        {
+            date: "2024-12-21",
+            version: "4.1.2",
+            title: "修复搜索功能bug",
+            description: "修复搜索框输入\"兵马俑\"等关键词无效果的问题。优化搜索逻辑，确保能够正确匹配博物馆名称和描述中的关键词，提供准确的搜索结果。解决undefined字段导致的搜索失效问题。",
+            type: "bugfix"
+        },
+        {
+            date: "2024-12-21",
+            version: "4.1.1",
+            title: "修复搜索功能错误",
+            description: "解决搜索框输入\"兵马俑\"等关键词时出现的JavaScript错误。添加安全检查防止undefined值导致的toLowerCase错误，确保搜索功能稳定运行。现在可以正常搜索所有博物馆内容。",
+            type: "bugfix"
+        },
         {
             date: "2024-12-21",
             version: "4.1.0",
@@ -19453,10 +19467,16 @@ class MuseumCheckApp {
         
         const query = this.searchQuery.toLowerCase();
         this.filteredMuseums = MUSEUMS.filter(museum => {
-            return museum.name.toLowerCase().includes(query) ||
-                   museum.location.toLowerCase().includes(query) ||
-                   museum.description.toLowerCase().includes(query) ||
-                   museum.tags.some(tag => tag.toLowerCase().includes(query));
+            // Safety check for undefined values
+            const name = museum.name || '';
+            const location = museum.location || '';
+            const description = museum.description || '';
+            const tags = museum.tags || [];
+            
+            return name.toLowerCase().includes(query) ||
+                   location.toLowerCase().includes(query) ||
+                   description.toLowerCase().includes(query) ||
+                   tags.some(tag => (tag || '').toLowerCase().includes(query));
         });
     }
     

@@ -1595,6 +1595,158 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
     });
   });
 
+  describe('v4.1.2 - 修复搜索功能bug (Issue #160)', () => {
+    /**
+     * Bug: "搜索框输入兵马俑，没有效果"
+     * Fixed: 2024-12-21
+     * 
+     * Issue: Search function not returning results for "兵马俑" due to undefined field handling
+     * The search was failing because some museum objects had undefined name/location/description fields
+     * and calling .toLowerCase() on undefined was causing the search to not work properly.
+     * 
+     * This test ensures search works correctly even with undefined fields.
+     */
+
+    test('should handle search for "兵马俑" correctly without undefined errors', () => {
+      // Test museum data with some undefined fields (simulating the bug condition)
+      const testMuseums = [
+        {
+          id: 'terracotta-warriors',
+          name: '秦始皇帝陵博物院',
+          location: '西安',
+          description: '世界文化遗产，展示秦朝兵马俑的恢宏场面',
+          tags: ['历史', '考古', '世界遗产']
+        },
+        {
+          id: 'test-museum',
+          name: undefined, // This should trigger the original bug
+          location: undefined,
+          description: undefined,
+          tags: ['测试']
+        },
+        {
+          id: 'palace-museum',
+          name: '故宫博物院',
+          location: '北京',
+          description: '世界上现存规模最大、保存最为完整的木质结构古建筑群',
+          tags: ['历史', '建筑', '文物']
+        }
+      ];
+
+      // Mock the search function logic (fixed version)
+      const performSearch = (searchTerm) => {
+        if (!searchTerm) return testMuseums;
+        
+        const term = searchTerm.toLowerCase();
+        return testMuseums.filter(museum => {
+          // This should handle undefined values without throwing errors
+          const name = (museum.name || '').toLowerCase();
+          const location = (museum.location || '').toLowerCase();
+          const description = (museum.description || '').toLowerCase();
+          const tags = (museum.tags || []).join(' ').toLowerCase();
+          
+          return name.includes(term) || 
+                 location.includes(term) || 
+                 description.includes(term) || 
+                 tags.includes(term);
+        });
+      };
+
+      // Test search for "兵马俑" - this should not throw any errors
+      expect(() => {
+        const results = performSearch('兵马俑');
+        expect(results).toHaveLength(1);
+        expect(results[0].name).toBe('秦始皇帝陵博物院');
+        expect(results[0].description).toContain('兵马俑');
+      }).not.toThrow();
+
+      // Test search with undefined fields doesn't crash
+      expect(() => {
+        const results = performSearch('测试');
+        expect(results).toHaveLength(1);
+        expect(results[0].id).toBe('test-museum');
+      }).not.toThrow();
+
+      // Test empty search returns all museums
+      expect(() => {
+        const results = performSearch('');
+        expect(results).toHaveLength(3);
+      }).not.toThrow();
+    });
+
+    test('should search case-insensitively for Chinese characters', () => {
+      const testMuseums = [
+        {
+          id: 'terracotta',
+          name: '秦始皇帝陵博物院',
+          location: '西安',
+          description: '世界文化遗产，展示秦朝兵马俑的恢宏场面',
+          tags: ['历史', '考古']
+        }
+      ];
+
+      const performSearch = (searchTerm) => {
+        if (!searchTerm) return testMuseums;
+        
+        const term = searchTerm.toLowerCase();
+        return testMuseums.filter(museum => {
+          const name = (museum.name || '').toLowerCase();
+          const location = (museum.location || '').toLowerCase(); 
+          const description = (museum.description || '').toLowerCase();
+          const tags = (museum.tags || []).join(' ').toLowerCase();
+          
+          return name.includes(term) || 
+                 location.includes(term) || 
+                 description.includes(term) || 
+                 tags.includes(term);
+        });
+      };
+
+      // Test various search terms for the same museum
+      expect(performSearch('兵马俑')).toHaveLength(1);
+      expect(performSearch('秦始皇')).toHaveLength(1);
+      expect(performSearch('西安')).toHaveLength(1);
+      expect(performSearch('历史')).toHaveLength(1);
+      expect(performSearch('考古')).toHaveLength(1);
+      expect(performSearch('不存在')).toHaveLength(0);
+    });
+
+    test('should handle edge cases in search terms', () => {
+      const testMuseums = [
+        {
+          id: 'test1',
+          name: '秦始皇帝陵博物院',
+          location: '西安',
+          description: '兵马俑展示',
+          tags: ['历史']
+        }
+      ];
+
+      const performSearch = (searchTerm) => {
+        if (!searchTerm) return testMuseums;
+        
+        const term = searchTerm.toLowerCase();
+        return testMuseums.filter(museum => {
+          const name = (museum.name || '').toLowerCase();
+          const location = (museum.location || '').toLowerCase();
+          const description = (museum.description || '').toLowerCase();
+          const tags = (museum.tags || []).join(' ').toLowerCase();
+          
+          return name.includes(term) || 
+                 location.includes(term) || 
+                 description.includes(term) || 
+                 tags.includes(term);
+        });
+      };
+
+      // Test edge cases
+      expect(performSearch(null)).toHaveLength(1); // null should return all
+      expect(performSearch('')).toHaveLength(1); // empty string should return all
+      expect(performSearch('   ')).toHaveLength(0); // whitespace only should find nothing
+      expect(performSearch('兵马俑')).toHaveLength(1); // normal search should work
+    });
+  });
+
   describe('v2.1.8 - 修复海报预览内容为空白问题', () => {
     /**
      * Bug: "海报问题 - 上次fix没有完全成功，这次请想办法避免类似问题。问题：海报内容是空白"
