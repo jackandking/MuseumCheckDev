@@ -1201,88 +1201,270 @@ main[role="main"] {
     }
 }
 
-/* Rocket Animation Styles */
+/* Enhanced Rocket Animation Styles */
 .rocket-animation {
     position: fixed;
-    font-size: 2em;
     z-index: 9999;
     pointer-events: none;
     opacity: 0;
     user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.rocket-animation.small {
-    font-size: 1.5em;
+.rocket-body {
+    font-size: 2em;
+    position: relative;
+    z-index: 2;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.6));
 }
 
-.rocket-animation.large {
-    font-size: 3em;
+.rocket-animation.small .rocket-body {
+    font-size: 1.8em;
 }
 
-/* Small rocket animation for task completion */
+.rocket-animation.large .rocket-body {
+    font-size: 4em;
+}
+
+.rocket-trail {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 40px;
+    background: linear-gradient(to top, 
+        rgba(255, 69, 0, 0.9) 0%,
+        rgba(255, 140, 0, 0.8) 30%,
+        rgba(255, 215, 0, 0.6) 60%,
+        rgba(255, 255, 255, 0.4) 80%,
+        transparent 100%);
+    border-radius: 50%;
+    opacity: 0.9;
+    animation: trailFlicker 0.1s infinite alternate;
+}
+
+.rocket-animation.large .rocket-trail {
+    width: 12px;
+    height: 60px;
+    bottom: -25px;
+}
+
+.rocket-sparks {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+}
+
+.rocket-sparks::before,
+.rocket-sparks::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #FFD700;
+    border-radius: 50%;
+    animation: sparkle 0.3s infinite;
+}
+
+.rocket-sparks::before {
+    left: -10px;
+    animation-delay: 0s;
+}
+
+.rocket-sparks::after {
+    right: -10px;
+    animation-delay: 0.15s;
+}
+
+@keyframes trailFlicker {
+    0% { opacity: 0.8; transform: translateX(-50%) scaleY(1); }
+    100% { opacity: 1; transform: translateX(-50%) scaleY(1.1); }
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* Enhanced Small rocket animation */
 @keyframes rocketLaunchSmall {
     0% {
-        bottom: 20px;
         opacity: 1;
-        transform: translateX(-50%) rotate(0deg);
+        transform: translateX(-50%) rotate(0deg) scale(0.8);
     }
-    50% {
+    20% {
         opacity: 1;
-        transform: translateX(-50%) rotate(15deg);
+        transform: translateX(-50%) rotate(5deg) scale(1);
     }
-    100% {
-        bottom: 100vh;
-        opacity: 0;
-        transform: translateX(-50%) rotate(-10deg);
-    }
-}
-
-/* Large rocket animation for museum visit */
-@keyframes rocketLaunchLarge {
-    0% {
-        bottom: 20px;
+    40% {
         opacity: 1;
-        transform: translateX(-50%) rotate(0deg) scale(1);
-    }
-    30% {
-        opacity: 1;
-        transform: translateX(-50%) rotate(10deg) scale(1.1);
+        transform: translateX(-50%) rotate(-3deg) scale(1.1);
     }
     70% {
         opacity: 1;
-        transform: translateX(-50%) rotate(-5deg) scale(1.05);
+        transform: translateX(-50%) rotate(8deg) scale(1.05);
     }
     100% {
-        bottom: 100vh;
+        bottom: 120vh;
         opacity: 0;
-        transform: translateX(-50%) rotate(5deg) scale(0.8);
+        transform: translateX(-50%) rotate(-5deg) scale(0.9);
+    }
+}
+
+/* Enhanced Large rocket animation */
+@keyframes rocketLaunchLarge {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(0deg) scale(0.7);
+    }
+    15% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(3deg) scale(0.9);
+    }
+    30% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(-2deg) scale(1.1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(5deg) scale(1.3);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(-3deg) scale(1.4);
+    }
+    85% {
+        opacity: 0.8;
+        transform: translateX(-50%) rotate(2deg) scale(1.2);
+    }
+    100% {
+        bottom: 130vh;
+        opacity: 0;
+        transform: translateX(-50%) rotate(-1deg) scale(0.8);
     }
 }
 
 .rocket-animation.launch-small {
-    animation: rocketLaunchSmall 1.5s ease-out forwards;
+    animation: rocketLaunchSmall 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .rocket-animation.launch-large {
-    animation: rocketLaunchLarge 2s ease-out forwards;
+    animation: rocketLaunchLarge 3.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Add subtle trail effect */
-.rocket-animation::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 3px;
-    height: 20px;
-    background: linear-gradient(to top, rgba(255, 165, 0, 0.8), transparent);
+/* Screen shake effect */
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-2px); }
+    20% { transform: translateX(2px); }
+    30% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    50% { transform: translateX(-1px); }
+    60% { transform: translateX(1px); }
+    70% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+    90% { transform: translateX(-1px); }
+}
+
+.screen-shake {
+    animation: screenShake 0.6s ease-in-out;
+}
+
+/* Particle effects */
+.rocket-particle {
+    position: fixed;
+    width: var(--size, 4px);
+    height: var(--size, 4px);
     border-radius: 50%;
-    opacity: 0.7;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 1;
 }
 
-.rocket-animation.large::after {
-    width: 5px;
-    height: 30px;
-    bottom: -15px;
+.rocket-particle.particle-explode {
+    animation: particleExplode 1.2s ease-out forwards;
+}
+
+@keyframes particleExplode {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) rotate(var(--angle, 0deg)) 
+                   translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) rotate(var(--angle, 0deg)) 
+                   translateY(calc(-1 * var(--velocity, 50px))) scale(0);
+    }
+}
+
+/* Celebration text effects */
+.celebration-text {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #FFD700;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.celebration-text.large {
+    font-size: 2em;
+    border: 4px solid #FF6B35;
+    color: #FF6B35;
+}
+
+.celebration-emoji {
+    font-size: 1.2em;
+    animation: celebrationBounce 0.6s ease-out infinite alternate;
+}
+
+.celebration-text.celebration-appear {
+    animation: celebrationAppear 2.5s ease-out forwards;
+}
+
+@keyframes celebrationBounce {
+    0% { transform: scale(1) rotate(-5deg); }
+    100% { transform: scale(1.2) rotate(5deg); }
+}
+
+@keyframes celebrationAppear {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.5) translateY(50px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.1) translateY(-10px);
+    }
+    30% {
+        transform: translateX(-50%) scale(1) translateY(0);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.9) translateY(-30px);
+    }
 }

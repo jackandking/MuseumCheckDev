@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "4.3.0",
+    version: "4.4.0",
     lastUpdate: "2024-12-20",
     changes: [
+        {
+            date: "2024-12-20",
+            version: "4.4.0",
+            title: "火箭发射系统全面升级",
+            description: "火箭动画效果大幅增强！新增多重火箭同时发射、粒子爆炸特效、屏幕震动效果、庆祝文字弹窗、更长飞行轨迹、闪烁火焰尾迹、金色火花效果等。博物馆打卡时最多4枚大火箭齐发，任务完成时小火箭连发，让每次成功都更有感染力和成就感！",
+            type: "feature"
+        },
         {
             date: "2024-12-20",
             version: "4.3.0",
@@ -21371,49 +21378,165 @@ class MuseumCheckApp {
         });
     }
 
-    // Rocket Animation Methods
-    createRocketAnimation(isLarge = false) {
+    // Enhanced Rocket Animation Methods
+    createRocketAnimation(isLarge = false, sourceElement = null) {
         const rocket = document.createElement('div');
         rocket.className = `rocket-animation ${isLarge ? 'large' : 'small'}`;
-        rocket.textContent = '🚀';
+        rocket.innerHTML = `
+            <div class="rocket-body">🚀</div>
+            <div class="rocket-trail"></div>
+            <div class="rocket-sparks"></div>
+        `;
         
-        // Position rocket at random horizontal position
-        const randomX = Math.random() * (window.innerWidth - 100) + 50;
-        rocket.style.left = randomX + 'px';
-        rocket.style.bottom = '20px';
+        // Position rocket at source element or random position
+        let startX, startY;
+        if (sourceElement) {
+            const rect = sourceElement.getBoundingClientRect();
+            startX = rect.left + rect.width / 2;
+            startY = window.innerHeight - rect.top;
+        } else {
+            startX = Math.random() * (window.innerWidth - 100) + 50;
+            startY = 50;
+        }
+        
+        rocket.style.left = startX + 'px';
+        rocket.style.bottom = startY + 'px';
         
         document.body.appendChild(rocket);
         
-        // Trigger animation
+        // Add screen shake effect for large rockets
+        if (isLarge) {
+            this.addScreenShake();
+        }
+        
+        // Create particle burst effect
+        this.createParticleEffect(startX, startY, isLarge);
+        
+        // Trigger animation with enhanced timing
         setTimeout(() => {
             rocket.classList.add(isLarge ? 'launch-large' : 'launch-small');
-        }, 50);
+        }, 100);
         
         // Remove element after animation
         setTimeout(() => {
             if (rocket && rocket.parentNode) {
                 rocket.parentNode.removeChild(rocket);
             }
-        }, isLarge ? 2200 : 1700);
+        }, isLarge ? 3500 : 2500);
         
         return rocket;
     }
 
-    triggerSmallRocket() {
-        this.createRocketAnimation(false);
+    addScreenShake() {
+        const body = document.body;
+        body.classList.add('screen-shake');
+        setTimeout(() => {
+            body.classList.remove('screen-shake');
+        }, 600);
+    }
+
+    createParticleEffect(x, y, isLarge = false) {
+        const particleCount = isLarge ? 15 : 8;
+        const colors = ['#FFD700', '#FF6B35', '#FF1744', '#FFC107', '#FF9800'];
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'rocket-particle';
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.left = x + 'px';
+            particle.style.bottom = y + 'px';
+            
+            const angle = (360 / particleCount) * i + Math.random() * 30;
+            const velocity = (Math.random() * 100 + 50) * (isLarge ? 1.5 : 1);
+            
+            particle.style.setProperty('--angle', angle + 'deg');
+            particle.style.setProperty('--velocity', velocity + 'px');
+            particle.style.setProperty('--size', (Math.random() * 6 + 3) + 'px');
+            
+            document.body.appendChild(particle);
+            
+            // Trigger particle animation
+            setTimeout(() => {
+                particle.classList.add('particle-explode');
+            }, 50);
+            
+            // Remove particle
+            setTimeout(() => {
+                if (particle && particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1500);
+        }
+    }
+
+    createCelebrationEffect(isLarge = false) {
+        // Create celebratory text
+        const celebration = document.createElement('div');
+        celebration.className = `celebration-text ${isLarge ? 'large' : 'small'}`;
+        celebration.innerHTML = isLarge ? 
+            '<span class="celebration-emoji">🎉</span><span>博物馆打卡成功!</span><span class="celebration-emoji">🎉</span>' :
+            '<span class="celebration-emoji">⭐</span><span>任务完成!</span><span class="celebration-emoji">⭐</span>';
+        
+        celebration.style.left = '50%';
+        celebration.style.top = '30%';
+        celebration.style.transform = 'translateX(-50%)';
+        
+        document.body.appendChild(celebration);
+        
+        setTimeout(() => {
+            celebration.classList.add('celebration-appear');
+        }, 200);
+        
+        setTimeout(() => {
+            if (celebration && celebration.parentNode) {
+                celebration.parentNode.removeChild(celebration);
+            }
+        }, 3000);
+        
+        return celebration;
+    }
+
+    triggerSmallRocket(sourceElement = null) {
+        // Create multiple small rockets for more impact
+        const rocketCount = Math.floor(Math.random() * 2) + 1;
+        
+        for (let i = 0; i < rocketCount; i++) {
+            setTimeout(() => {
+                this.createRocketAnimation(false, sourceElement);
+            }, i * 300);
+        }
+        
+        // Add celebration effect
+        setTimeout(() => {
+            this.createCelebrationEffect(false);
+        }, 500);
         
         // Track small rocket animation
-        this.trackEvent('small_rocket_animation', {
-            'timestamp': new Date().toISOString()
+        this.trackEvent('enhanced_small_rocket_animation', {
+            'timestamp': new Date().toISOString(),
+            'rocket_count': rocketCount
         });
     }
 
-    triggerLargeRocket() {
-        this.createRocketAnimation(true);
+    triggerLargeRocket(sourceElement = null) {
+        // Create multiple large rockets for museum visits
+        const rocketCount = Math.floor(Math.random() * 3) + 2; // 2-4 rockets
+        
+        for (let i = 0; i < rocketCount; i++) {
+            setTimeout(() => {
+                this.createRocketAnimation(true, sourceElement);
+            }, i * 400);
+        }
+        
+        // Add celebration effect
+        setTimeout(() => {
+            this.createCelebrationEffect(true);
+        }, 800);
         
         // Track large rocket animation  
-        this.trackEvent('large_rocket_animation', {
-            'timestamp': new Date().toISOString()
+        this.trackEvent('enhanced_large_rocket_animation', {
+            'timestamp': new Date().toISOString(),
+            'rocket_count': rocketCount
         });
     }
 }
