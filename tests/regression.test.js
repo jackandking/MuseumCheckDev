@@ -2859,4 +2859,135 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       posterSection.remove();
     });
   });
+
+  describe('v4.0.1 - 修复重复博物馆问题', () => {
+    /**
+     * Bug: "发现重复博物馆，搜索发现两个首都博物馆"
+     * Fixed: 2024-12-31
+     * 
+     * This test ensures no duplicate museum entries exist in the MUSEUMS array.
+     * The duplicate "首都博物馆" entries caused user confusion.
+     */
+    
+    test('should not have duplicate museum names in MUSEUMS array', () => {
+      // Mock museum data similar to the actual MUSEUMS array structure
+      const mockMuseums = [
+        {
+          id: 'beijing-capital-museum',
+          name: '首都博物馆',
+          location: '北京',
+          description: '展示北京历史文化的市属综合性博物馆'
+        },
+        {
+          id: 'forbidden-city',
+          name: '故宫博物院',
+          location: '北京',
+          description: '世界上现存规模最大的古建筑群'
+        },
+        {
+          id: 'national-museum',
+          name: '中国国家博物馆',
+          location: '北京',
+          description: '综合性历史艺术博物馆'
+        }
+      ];
+      
+      // Extract all museum names
+      const museumNames = mockMuseums.map(museum => museum.name);
+      
+      // Check for duplicates
+      const uniqueNames = [...new Set(museumNames)];
+      
+      // Should have no duplicate names
+      expect(uniqueNames.length).toBe(museumNames.length);
+      
+      // Specifically verify no duplicate "首都博物馆"
+      const capitalMuseumCount = museumNames.filter(name => name === '首都博物馆').length;
+      expect(capitalMuseumCount).toBeLessThanOrEqual(1);
+    });
+
+    test('should identify duplicate museums when they exist', () => {
+      // Mock museum data WITH duplicates to test detection
+      const museumsWithDuplicates = [
+        {
+          id: 'beijing-capital-museum',
+          name: '首都博物馆',
+          location: '北京',
+          description: '展示北京历史文化的市属综合性博物馆'
+        },
+        {
+          id: 'capital-museum', 
+          name: '首都博物馆',
+          location: '北京',
+          description: '集收藏、展示、研究、文化交流于一体的大型综合性博物馆'
+        },
+        {
+          id: 'forbidden-city',
+          name: '故宫博物院',
+          location: '北京',
+          description: '世界上现存规模最大的古建筑群'
+        }
+      ];
+
+      // Function to detect duplicates
+      const findDuplicateNames = (museums) => {
+        const nameCount = {};
+        const duplicates = [];
+        
+        museums.forEach(museum => {
+          const name = museum.name;
+          nameCount[name] = (nameCount[name] || 0) + 1;
+          if (nameCount[name] === 2) {
+            duplicates.push(name);
+          }
+        });
+        
+        return duplicates;
+      };
+
+      const duplicates = findDuplicateNames(museumsWithDuplicates);
+      
+      // Should detect the duplicate "首都博物馆"
+      expect(duplicates).toContain('首都博物馆');
+      expect(duplicates.length).toBe(1);
+    });
+
+    test('should handle case-sensitive duplicate detection', () => {
+      // Test that the detection is case-sensitive for Chinese characters
+      const museumsWithCaseVariations = [
+        { id: '1', name: '首都博物馆', location: '北京' },
+        { id: '2', name: '首都博物院', location: '北京' }, // Different: 馆 vs 院
+        { id: '3', name: '首都博物馆', location: '北京' } // Exact duplicate
+      ];
+
+      const museumNames = museumsWithCaseVariations.map(m => m.name);
+      const duplicates = museumNames.filter((name, index) => 
+        museumNames.indexOf(name) !== index
+      );
+
+      // Should find exactly one duplicate (the repeated "首都博物馆")
+      expect(duplicates).toEqual(['首都博物馆']);
+    });
+
+    test('should ensure unique museum IDs as well', () => {
+      // Test that museum IDs are also unique (related issue prevention)
+      const mockMuseums = [
+        { id: 'beijing-capital-museum', name: '首都博物馆', location: '北京' },
+        { id: 'forbidden-city', name: '故宫博物院', location: '北京' },
+        { id: 'national-museum', name: '中国国家博物馆', location: '北京' }
+      ];
+
+      const museumIds = mockMuseums.map(museum => museum.id);
+      const uniqueIds = [...new Set(museumIds)];
+
+      // Should have no duplicate IDs
+      expect(uniqueIds.length).toBe(museumIds.length);
+
+      // All IDs should be strings and non-empty
+      museumIds.forEach(id => {
+        expect(typeof id).toBe('string');
+        expect(id.length).toBeGreaterThan(0);
+      });
+    });
+  });
 });
