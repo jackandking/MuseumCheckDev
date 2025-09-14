@@ -260,6 +260,10 @@ header h1 {
     border-radius: 12px;
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+    transition: all 0.3s ease;
 }
 
 .stats > span:first-child {
@@ -272,10 +276,16 @@ header h1 {
 }
 
 .progress-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.progress-text {
     font-size: 1.8em;
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 15px;
     line-height: 1.2;
 }
 
@@ -921,12 +931,23 @@ header h1 {
         margin-bottom: 20px;
         padding: 12px;
         border-radius: 8px;
+        position: sticky;
+        top: 10px;
     }
     
     .progress-display {
-        font-size: 1.3em;
         margin-bottom: 8px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    
+    .progress-text {
+        font-size: 1.3em;
         line-height: 1.1;
+        flex: 1;
+        text-align: left;
     }
     
     .achievement-stats {
@@ -959,13 +980,13 @@ header h1 {
         font-size: 11px;
     }
     
-    .achievement-inline .clear-data-button-icon {
+    .progress-display .clear-data-button-icon {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        padding: 4px;
+        font-size: 14px;
         flex: 0 0 auto;
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        padding: 6px;
-        font-size: 12px;
     }
 
     .achievement-buttons {
@@ -1229,6 +1250,13 @@ main[role="main"] {
     border-radius: 50%;
     flex: 0 0 auto;
     margin-left: auto;
+}
+
+.progress-display .clear-data-button-icon {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    font-size: 16px;
 }
 
 .clear-data-button-icon:hover {

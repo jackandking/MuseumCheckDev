@@ -178,8 +178,11 @@
                 
                 <div class="stats" role="status" aria-live="polite">
                     <div class="progress-display">
-                        <span id="visitedCount">0</span>/<span id="totalCount">0</span> 已参观
-                        (<span id="visitedPercentage">0</span>%)
+                        <div class="progress-text">
+                            <span id="visitedCount">0</span>/<span id="totalCount">0</span> 已参观
+                            (<span id="visitedPercentage">0</span>%)
+                        </div>
+                        <button id="clearAllDataButton" class="clear-data-button clear-all-button clear-data-button-icon" title="清空所有数据">🗑️</button>
                     </div>
                     <div class="achievement-stats">
                         <div class="achievement-inline">
@@ -187,7 +190,6 @@
                                 🏅 获得成就: <span id="achievementCount">0</span>个
                             </div>
                             <button id="achievementButton" class="achievement-button achievement-button-inline" title="查看成就详情">🎖️ 我的成就</button>
-                            <button id="clearAllDataButton" class="clear-data-button clear-all-button clear-data-button-icon" title="清空所有数据">🗑️</button>
                         </div>
                     </div>
                 </div>
