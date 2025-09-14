@@ -697,16 +697,25 @@ header h1 {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.achievement-inline {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .achievement-text {
     font-size: 1.1em;
     color: #555;
     font-weight: 500;
+    flex: 0 0 auto;
+}
+
+.achievement-button-inline {
+    flex: 0 0 auto;
 }
 
 .achievement-buttons {
@@ -900,6 +909,25 @@ header h1 {
         font-size: 1em;
     }
     
+    .achievement-inline {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .achievement-inline .achievement-text {
+        align-self: center;
+    }
+    
+    .achievement-inline .achievement-button-inline {
+        align-self: center;
+    }
+    
+    .achievement-inline .clear-data-button-icon {
+        align-self: center;
+        /* margin-left removed to avoid conflict with base style. Use a modifier class for alignment if needed. */
+    }
+
     .achievement-buttons {
         flex-direction: row;
         gap: 10px;
@@ -1148,6 +1176,20 @@ main[role="main"] {
 
 .clear-all-button:hover {
     background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+.clear-data-button-icon {
+    min-width: auto;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.clear-data-button-icon:hover {
+    transform: translateY(-2px);
 }
 
 .clear-checklist-button {
