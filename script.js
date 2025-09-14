@@ -17946,6 +17946,11 @@ class MuseumCheckApp {
                 document.getElementById('parentChecklist').style.display = target === 'parent' ? 'block' : 'none';
                 document.getElementById('childChecklist').style.display = target === 'child' ? 'block' : 'none';
                 document.getElementById('shareChecklist').style.display = target === 'share' ? 'block' : 'none';
+                
+                // Enhanced UX: Smooth scroll to the content area after tab switch
+                setTimeout(() => {
+                    this.scrollToTabContent(target);
+                }, 100);
             });
         });
 
@@ -17959,6 +17964,14 @@ class MuseumCheckApp {
         });
 
         modal.classList.remove('hidden');
+        
+        // Enhanced UX: Ensure modal content starts at the top
+        setTimeout(() => {
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+            }
+        }, 100);
         
         // Set up checklist event listeners after modal content is rendered
         this.addChecklistEventListeners();
@@ -18047,6 +18060,11 @@ class MuseumCheckApp {
                     completed.push(index);
                     // Trigger small rocket animation for task completion
                     this.triggerSmallRocket();
+                    
+                    // Enhanced UX: Auto-scroll to next unchecked item after a brief celebration
+                    setTimeout(() => {
+                        this.scrollToNextUncheckedItem(e.target);
+                    }, 800);
                 } else if (!e.target.checked && itemIndex > -1) {
                     completed.splice(itemIndex, 1);
                 }
@@ -18331,8 +18349,13 @@ class MuseumCheckApp {
         const newText = prompt('请输入新的清单项目：');
         
         if (newText && newText.trim()) {
-            this.insertChecklistItem(checklistKey, newText.trim());
+            const newItemIndex = this.insertChecklistItem(checklistKey, newText.trim());
             this.refreshCurrentChecklist();
+            
+            // Enhanced UX: Scroll to newly added item after a brief delay to ensure DOM is updated
+            setTimeout(() => {
+                this.scrollToNewItem(checklistKey, newItemIndex);
+            }, 200);
         }
     }
 
@@ -18387,6 +18410,9 @@ class MuseumCheckApp {
         });
 
         this.saveCustomChecklists();
+        
+        // Return the index of the newly added item
+        return this.customChecklists[checklistKey].length - 1;
     }
 
     initializeCustomChecklist(checklistKey) {
@@ -20549,6 +20575,158 @@ class MuseumCheckApp {
             '13-18': '13-18岁 (中学)'
         };
         return labels[ageGroup] || ageGroup;
+    }
+    
+    // Enhanced UX: Smooth scrolling helper functions for better user experience
+    
+    /**
+     * Scroll to the next unchecked item after user completes a checklist item
+     * This guides users to the next task that needs attention
+     */
+    scrollToNextUncheckedItem(currentCheckbox) {
+        const currentItem = currentCheckbox.closest('.checklist-item');
+        const container = currentItem.closest('.checklist-content, #modalContent');
+        
+        if (!container) return;
+        
+        // Find all unchecked items in the current visible tab/container
+        const allCheckboxes = container.querySelectorAll('input[type="checkbox"]');
+        let foundCurrentIndex = -1;
+        
+        // Find the index of current checkbox
+        for (let i = 0; i < allCheckboxes.length; i++) {
+            if (allCheckboxes[i] === currentCheckbox) {
+                foundCurrentIndex = i;
+                break;
+            }
+        }
+        
+        // Look for next unchecked item
+        if (foundCurrentIndex !== -1) {
+            for (let i = foundCurrentIndex + 1; i < allCheckboxes.length; i++) {
+                if (!allCheckboxes[i].checked) {
+                    const nextItem = allCheckboxes[i].closest('.checklist-item');
+                    this.smoothScrollToElement(nextItem, 'center');
+                    
+                    // Add subtle highlight to draw attention
+                    this.highlightElement(nextItem, 2000);
+                    return;
+                }
+            }
+            
+            // If no next unchecked item, scroll to add button or completion message
+            const addButton = container.querySelector('.add-item-btn');
+            if (addButton) {
+                this.smoothScrollToElement(addButton.closest('.add-item-section'), 'center');
+            }
+        }
+    }
+    
+    /**
+     * Scroll to the appropriate content area after tab switch
+     */
+    scrollToTabContent(targetTab) {
+        let targetElement;
+        
+        switch (targetTab) {
+            case 'expert':
+                targetElement = document.getElementById('expertGuidance');
+                break;
+            case 'parent':
+                targetElement = document.getElementById('parentChecklist');
+                break;
+            case 'child':
+                targetElement = document.getElementById('childChecklist');
+                break;
+            case 'share':
+                targetElement = document.getElementById('shareChecklist');
+                break;
+            default:
+                return;
+        }
+        
+        if (targetElement && targetElement.style.display !== 'none') {
+            // Scroll to the content section header
+            const header = targetElement.querySelector('h3, .checklist-header');
+            const scrollTarget = header || targetElement;
+            this.smoothScrollToElement(scrollTarget, 'start');
+        }
+    }
+    
+    /**
+     * Scroll to a newly added checklist item
+     */
+    scrollToNewItem(checklistKey, itemIndex) {
+        // Try to find the newly added item by its index
+        const items = document.querySelectorAll(`[data-checklist-key="${checklistKey}"] .checklist-item`);
+        
+        if (items.length > itemIndex) {
+            const newItem = items[itemIndex];
+            this.smoothScrollToElement(newItem, 'center');
+            
+            // Add celebration highlight for the new item
+            this.highlightElement(newItem, 3000, 'rgba(52, 211, 153, 0.2)'); // Green highlight
+        }
+    }
+    
+    /**
+     * Smooth scroll to any element with customizable positioning
+     */
+    smoothScrollToElement(element, position = 'center', offset = 0) {
+        if (!element) return;
+        
+        const modalContent = document.querySelector('#museumModal .modal-content');
+        if (!modalContent) return;
+        
+        const elementRect = element.getBoundingClientRect();
+        const modalRect = modalContent.getBoundingClientRect();
+        const modalScrollTop = modalContent.scrollTop;
+        
+        let targetScrollTop;
+        
+        switch (position) {
+            case 'start':
+                targetScrollTop = modalScrollTop + (elementRect.top - modalRect.top) - 20 + offset;
+                break;
+            case 'center':
+                targetScrollTop = modalScrollTop + (elementRect.top - modalRect.top) - (modalRect.height / 2) + (elementRect.height / 2) + offset;
+                break;
+            case 'end':
+                targetScrollTop = modalScrollTop + (elementRect.bottom - modalRect.bottom) + 20 + offset;
+                break;
+            default:
+                targetScrollTop = modalScrollTop + (elementRect.top - modalRect.top) + offset;
+        }
+        
+        // Ensure we don't scroll beyond boundaries
+        targetScrollTop = Math.max(0, targetScrollTop);
+        
+        modalContent.scrollTo({
+            top: targetScrollTop,
+            behavior: 'smooth'
+        });
+    }
+    
+    /**
+     * Add a temporary highlight effect to draw attention to an element
+     */
+    highlightElement(element, duration = 2000, color = 'rgba(59, 130, 246, 0.2)') {
+        if (!element) return;
+        
+        const originalTransition = element.style.transition;
+        const originalBackground = element.style.backgroundColor;
+        
+        // Add highlight
+        element.style.transition = 'background-color 0.3s ease-in-out';
+        element.style.backgroundColor = color;
+        
+        // Remove highlight after duration
+        setTimeout(() => {
+            element.style.backgroundColor = originalBackground;
+            setTimeout(() => {
+                element.style.transition = originalTransition;
+            }, 300);
+        }, duration);
     }
 }
 
