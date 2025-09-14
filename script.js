@@ -17100,6 +17100,23 @@ class MuseumCheckApp {
             }
         });
 
+        // Settings icon click
+        document.getElementById('settingsIcon').addEventListener('click', () => {
+            this.showSettingsModal();
+        });
+
+        // Settings modal close
+        document.querySelector('#settingsModal .close').addEventListener('click', () => {
+            this.closeSettingsModal();
+        });
+
+        // Click outside settings modal to close
+        document.getElementById('settingsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'settingsModal') {
+                this.closeSettingsModal();
+            }
+        });
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -18077,6 +18094,26 @@ class MuseumCheckApp {
         if (posterSection) {
             posterSection.style.display = 'none';
         }
+    }
+
+    showSettingsModal() {
+        this.renderSettingsInfo();
+        document.getElementById('settingsModal').classList.remove('hidden');
+        
+        // Track settings view
+        this.trackEvent('settings_viewed', {
+            'museum_count': MUSEUMS.length,
+            'visited_count': this.visitedMuseums.length
+        });
+    }
+
+    closeSettingsModal() {
+        document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    renderSettingsInfo() {
+        // Update museum count
+        document.getElementById('museumCountSettings').textContent = MUSEUMS.length;
     }
 
     renderAchievements() {

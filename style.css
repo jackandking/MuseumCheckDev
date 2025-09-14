@@ -38,6 +38,16 @@ header h1 {
     margin-bottom: 10px;
 }
 
+.settings-icon {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.settings-icon:hover {
+    transform: scale(1.1);
+}
+
 .subtitle {
     color: #666;
     font-size: 1.3em;
@@ -2326,5 +2336,73 @@ main[role="main"] {
     
     .score-number {
         font-size: 2.5em;
+    }
+}
+
+/* Settings Modal Styles */
+.settings-modal .modal-content {
+    max-width: 600px;
+}
+
+.settings-section {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    color: var(--primary-color);
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-label {
+    color: #495057;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.settings-value {
+    color: #28a745;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #e8f5e8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #c3e6c3;
+}
+
+@media (max-width: 768px) {
+    .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 10px 0;
+    }
+    
+    .settings-value {
+        align-self: flex-end;
+        font-size: 12px;
     }
 }

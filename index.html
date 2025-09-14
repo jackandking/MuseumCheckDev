@@ -142,7 +142,7 @@
     <div class="container">
         <header>
             <h1>
-                🏛️ 博物馆打卡
+                <span id="settingsIcon" class="settings-icon" title="点击打开设置">🏛️</span> 博物馆打卡
             </h1>
             <p class="subtitle">通过博物馆亲子游增进亲子关系</p>
             <p class="value-proposition">
@@ -280,6 +280,21 @@
                 <canvas id="achievementPosterCanvas" style="display: none; max-width: 100%;"></canvas>
                 <div id="achievementPosterPreview" class="poster-preview"></div>
                 <button id="downloadAchievementPoster" class="poster-button" style="display: none;">📱 下载成就海报</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal settings-modal hidden">
+        <div class="modal-content settings-content">
+            <span class="close">&times;</span>
+            <h2>⚙️ 设置</h2>
+            <div class="settings-section">
+                <h3>📊 应用信息</h3>
+                <div class="settings-item">
+                    <label class="settings-label">博物馆数量：</label>
+                    <span class="settings-value" id="museumCountSettings">0</span>
+                </div>
             </div>
         </div>
     </div>
