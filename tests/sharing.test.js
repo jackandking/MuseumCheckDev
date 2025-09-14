@@ -252,22 +252,22 @@ describe('Scenario Support - Sharing Functionality', () => {
   });
 
   describe('Share Button UI Component', () => {
-    test('should create share button with correct styling and text', () => {
+    test('should create share button with correct styling and icon', () => {
       document.body.innerHTML = `
         <div class="checklist-tabs">
-          <button class="share-button">🔗 分享链接</button>
+          <button class="share-button">🔗</button>
         </div>
       `;
       
       const shareButton = document.querySelector('.share-button');
       
       expect(shareButton).toBeTruthy();
-      expect(shareButton.textContent).toBe('🔗 分享链接');
+      expect(shareButton.textContent.trim()).toBe('🔗');
     });
 
     test('should simulate share button click behavior', () => {
       document.body.innerHTML = `
-        <button class="share-button" id="shareBtn">🔗 分享链接</button>
+        <button class="share-button" id="shareBtn">🔗</button>
       `;
       
       const shareButton = document.getElementById('shareBtn');
@@ -351,7 +351,7 @@ describe('Scenario Support - Sharing Functionality', () => {
     test('should support touch-friendly interfaces', () => {
       document.body.innerHTML = `
         <button class="share-button mobile-friendly" id="mobileShareBtn">
-          🔗 分享链接
+          🔗
         </button>
       `;
       
