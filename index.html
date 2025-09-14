@@ -190,6 +190,10 @@
                                 🏅 获得成就: <span id="achievementCount">0</span>个
                             </div>
                             <button id="achievementButton" class="achievement-button achievement-button-inline" title="查看成就详情">🎖️ 我的成就</button>
+
+                            <button id="assessmentHistoryButton" class="achievement-button achievement-button-inline" title="查看测评历史">📊 测评历史</button>
+
+
                         </div>
                     </div>
                 </div>
@@ -279,6 +283,46 @@
                 <canvas id="achievementPosterCanvas" style="display: none; max-width: 100%;"></canvas>
                 <div id="achievementPosterPreview" class="poster-preview"></div>
                 <button id="downloadAchievementPoster" class="poster-button" style="display: none;">📱 下载成就海报</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment History Modal -->
+    <div id="assessmentHistoryModal" class="modal assessment-history-modal hidden">
+        <div class="modal-content assessment-history-content">
+            <span class="close">&times;</span>
+            <h2>📊 亲子测评历史</h2>
+            <div class="assessment-history-summary">
+                <div class="history-overview">
+                    <div class="history-stat">
+                        <span class="stat-number" id="totalAssessments">0</span>
+                        <span class="stat-label">总测评次数</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="stat-number" id="averageScore">0</span>
+                        <span class="stat-label">平均得分</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="stat-number" id="latestScore">0</span>
+                        <span class="stat-label">最新得分</span>
+                    </div>
+                </div>
+                <div class="history-filters">
+                    <select id="historyMuseumFilter" class="filter-select">
+                        <option value="">所有博物馆</option>
+                    </select>
+                    <button id="exportHistoryButton" class="export-button" title="导出测评数据">📤 导出数据</button>
+                </div>
+            </div>
+            <div id="assessmentHistoryContent" class="assessment-history-content">
+                <div class="history-empty" id="historyEmptyState">
+                    <div class="empty-icon">📊</div>
+                    <p>您还没有任何测评记录</p>
+                    <p>完成一次亲子测评后，历史记录将显示在这里</p>
+                </div>
+                <div class="history-list" id="historyList" style="display: none;">
+                    <!-- History entries will be populated by JavaScript -->
+                </div>
             </div>
         </div>
     </div>

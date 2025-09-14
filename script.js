@@ -17088,15 +17088,32 @@ class MuseumCheckApp {
             this.showAchievementModal();
         });
 
+        // Assessment history button
+        document.getElementById('assessmentHistoryButton').addEventListener('click', () => {
+            this.showAssessmentHistoryModal();
+        });
+
         // Achievement modal close
         document.querySelector('#achievementModal .close').addEventListener('click', () => {
             this.closeAchievementModal();
+        });
+
+        // Assessment history modal close
+        document.querySelector('#assessmentHistoryModal .close').addEventListener('click', () => {
+            this.closeAssessmentHistoryModal();
         });
 
         // Click outside achievement modal to close
         document.getElementById('achievementModal').addEventListener('click', (e) => {
             if (e.target.id === 'achievementModal') {
                 this.closeAchievementModal();
+            }
+        });
+
+        // Click outside assessment history modal to close
+        document.getElementById('assessmentHistoryModal').addEventListener('click', (e) => {
+            if (e.target.id === 'assessmentHistoryModal') {
+                this.closeAssessmentHistoryModal();
             }
         });
 
@@ -18094,6 +18111,20 @@ class MuseumCheckApp {
         if (posterSection) {
             posterSection.style.display = 'none';
         }
+    }
+
+    showAssessmentHistoryModal() {
+        this.renderAssessmentHistory();
+        document.getElementById('assessmentHistoryModal').classList.remove('hidden');
+        
+        // Track assessment history view
+        this.trackEvent('assessment_history_viewed', {
+            'total_assessments': this.getAssessmentHistoryCount()
+        });
+    }
+
+    closeAssessmentHistoryModal() {
+        document.getElementById('assessmentHistoryModal').classList.add('hidden');
     }
 
     showSettingsModal() {
@@ -20024,6 +20055,283 @@ class MuseumCheckApp {
         return features[museumType] || '主要';
     }
 
+    // Assessment History Functionality
+    renderAssessmentHistory() {
+        const results = this.getAssessmentResults();
+        const historyContent = document.getElementById('assessmentHistoryContent');
+        const historyList = document.getElementById('historyList');
+        const historyEmpty = document.getElementById('historyEmptyState');
+        
+        // Update summary statistics
+        this.updateHistorySummary(results);
+        
+        // Populate museum filter
+        this.populateMuseumFilter(results);
+        
+        if (results.length === 0) {
+            historyEmpty.style.display = 'block';
+            historyList.style.display = 'none';
+        } else {
+            historyEmpty.style.display = 'none';
+            historyList.style.display = 'block';
+            this.renderHistoryList(results);
+        }
+        
+        // Setup event listeners
+        this.setupHistoryEventListeners();
+    }
+    
+    getAssessmentResults() {
+        try {
+            const results = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
+            const resultsArray = [];
+            
+            for (const [museumId, data] of Object.entries(results)) {
+                const museum = MUSEUMS.find(m => m.id === museumId);
+                if (museum) {
+                    resultsArray.push({
+                        museumId,
+                        museumName: museum.name,
+                        score: data.score,
+                        date: new Date(data.date),
+                        parentAnswers: data.parentAnswers,
+                        childAnswers: data.childAnswers,
+                        raw: data
+                    });
+                }
+            }
+            
+            // Sort by date (newest first)
+            return resultsArray.sort((a, b) => b.date - a.date);
+        } catch (error) {
+            console.error('Failed to load assessment results:', error);
+            return [];
+        }
+    }
+    
+    getAssessmentHistoryCount() {
+        const results = this.getAssessmentResults();
+        return results.length;
+    }
+    
+    updateHistorySummary(results) {
+        const totalAssessments = results.length;
+        const averageScore = totalAssessments > 0 
+            ? Math.round(results.reduce((sum, r) => sum + r.score, 0) / totalAssessments)
+            : 0;
+        const latestScore = totalAssessments > 0 ? results[0].score : 0;
+        
+        document.getElementById('totalAssessments').textContent = totalAssessments;
+        document.getElementById('averageScore').textContent = averageScore;
+        document.getElementById('latestScore').textContent = latestScore;
+    }
+    
+    populateMuseumFilter(results) {
+        const filter = document.getElementById('historyMuseumFilter');
+        const museums = [...new Set(results.map(r => r.museumName))].sort();
+        
+        // Clear existing options except "all"
+        filter.innerHTML = '<option value="">所有博物馆</option>';
+        
+        museums.forEach(museumName => {
+            const option = document.createElement('option');
+            option.value = museumName;
+            option.textContent = museumName;
+            filter.appendChild(option);
+        });
+    }
+    
+    renderHistoryList(results) {
+        const historyList = document.getElementById('historyList');
+        const filteredResults = this.getFilteredResults(results);
+        
+        historyList.innerHTML = filteredResults.map((result, index) => {
+            const scoreLevel = this.getRelationshipLevel(result.score);
+            const previousScore = index < results.length - 1 ? results[index + 1].score : null;
+            const scoreTrend = this.getScoreTrend(result.score, previousScore);
+            
+            return `
+                <div class="history-item">
+                    <div class="history-item-header">
+                        <div class="history-item-title">
+                            ${result.museumName}
+                            ${scoreTrend.html}
+                        </div>
+                        <div class="history-item-date">
+                            ${this.formatDate(result.date)}
+                        </div>
+                    </div>
+                    
+                    <div class="history-score">
+                        ${result.score}
+                        <span class="history-score-label">${scoreLevel.title}</span>
+                    </div>
+                    
+                    <div class="history-details">
+                        <div class="history-section">
+                            <div class="history-section-title">家长问卷结果</div>
+                            <div class="history-answers">
+                                ${this.formatAnswerSummary(result.parentAnswers, 'parent')}
+                            </div>
+                        </div>
+                        
+                        <div class="history-section">
+                            <div class="history-section-title">孩子问卷结果</div>
+                            <div class="history-answers">
+                                ${this.formatAnswerSummary(result.childAnswers, 'child')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${scoreTrend.comparison ? `
+                        <div class="history-comparison">
+                            ${scoreTrend.comparison}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    getFilteredResults(results) {
+        const filter = document.getElementById('historyMuseumFilter');
+        const selectedMuseum = filter.value;
+        
+        if (!selectedMuseum) {
+            return results;
+        }
+        
+        return results.filter(r => r.museumName === selectedMuseum);
+    }
+    
+    getScoreTrend(currentScore, previousScore) {
+        if (previousScore === null) {
+            return { html: '', comparison: null };
+        }
+        
+        const diff = currentScore - previousScore;
+        let trendClass, trendIcon, trendText;
+        
+        if (diff > 0) {
+            trendClass = 'up';
+            trendIcon = '📈';
+            trendText = `+${diff}`;
+        } else if (diff < 0) {
+            trendClass = 'down';
+            trendIcon = '📉';
+            trendText = `${diff}`;
+        } else {
+            trendClass = 'same';
+            trendIcon = '➡️';
+            trendText = '持平';
+        }
+        
+        const html = `<span class="score-trend ${trendClass}">${trendIcon} ${trendText}</span>`;
+        const comparison = `${trendIcon} 与上次测评相比：${trendText === '持平' ? '分数保持稳定' : `分数${diff > 0 ? '提升' : '下降'}了${Math.abs(diff)}分`}`;
+        
+        return { html, comparison };
+    }
+    
+    formatAnswerSummary(answers, type) {
+        if (!answers || answers.length === 0) {
+            return '暂无数据';
+        }
+        
+        const scores = answers.map(a => a || 0);
+        const total = scores.reduce((sum, score) => sum + score, 0);
+        const average = (total / scores.length).toFixed(1);
+        
+        return `
+            平均得分：${average}/3.0<br>
+            回答分布：${scores.map((score, i) => `Q${i+1}: ${score}`).join(', ')}
+        `;
+    }
+    
+    formatDate(date) {
+        return date.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    setupHistoryEventListeners() {
+        // Museum filter change
+        document.getElementById('historyMuseumFilter').addEventListener('change', () => {
+            const results = this.getAssessmentResults();
+            this.renderHistoryList(results);
+        });
+        
+        // Export button
+        document.getElementById('exportHistoryButton').addEventListener('click', () => {
+            this.exportAssessmentHistory();
+        });
+    }
+    
+    exportAssessmentHistory() {
+        try {
+            const results = this.getAssessmentResults();
+            
+            if (results.length === 0) {
+                alert('没有可导出的测评数据');
+                return;
+            }
+            
+            const exportData = results.map(result => ({
+                博物馆: result.museumName,
+                测评时间: this.formatDate(result.date),
+                得分: result.score,
+                关系水平: this.getRelationshipLevel(result.score).title,
+                家长问卷得分: result.parentAnswers.reduce((sum, a) => sum + (a || 0), 0),
+                孩子问卷得分: result.childAnswers.reduce((sum, a) => sum + (a || 0), 0)
+            }));
+            
+            const csvContent = this.convertToCSV(exportData);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `亲子测评历史_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Track export
+            this.trackEvent('assessment_history_exported', {
+                'record_count': results.length
+            });
+        } catch (error) {
+            console.error('Failed to export assessment history:', error);
+            alert('导出失败，请稍后重试');
+        }
+    }
+    
+    convertToCSV(data) {
+        if (!data || data.length === 0) return '';
+        
+        const headers = Object.keys(data[0]);
+        const csvRows = [];
+        
+        // Add headers
+        csvRows.push(headers.join(','));
+        
+        // Add data rows
+        for (const row of data) {
+            const values = headers.map(header => {
+                const value = row[header];
+                return typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value;
+            });
+            csvRows.push(values.join(','));
+        }
+        
+        return '\ufeff' + csvRows.join('\n'); // Add BOM for proper Chinese display
+    }
+
     // Clear Data Functionality
     clearAllData() {
         const confirmed = confirm(
@@ -20032,7 +20340,8 @@ class MuseumCheckApp {
             '• 所有已参观博物馆记录\n' +
             '• 所有清单完成记录\n' +
             '• 所有任务照片\n' +
-            '• 所有成就进度\n\n' +
+            '• 所有成就进度\n' +
+            '• 所有亲子测评记录\n\n' +
             '此操作不可撤销！\n\n' +
             '确定要继续吗？'
         );
@@ -20051,6 +20360,7 @@ class MuseumCheckApp {
                 localStorage.removeItem('museumChecklists');
                 localStorage.removeItem('taskPhotos');
                 localStorage.removeItem('ageGroup');
+                localStorage.removeItem('assessmentResults');
                 
                 // Clear IndexedDB data if supported
                 if (this.indexedDBSupported) {
