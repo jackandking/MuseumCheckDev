@@ -1393,6 +1393,118 @@ main[role="main"] {
     margin: 0;
 }
 
+/* Relationship Focus Section Styles */
+.relationship-focus {
+    border: 2px solid #ff6b8a;
+    background: linear-gradient(135deg, #fff0f3, #fff8f9);
+    position: relative;
+    overflow: hidden;
+}
+
+.relationship-focus::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 107, 138, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.relationship-focus h4 {
+    color: #e91e63;
+    border-bottom: 2px solid #ffc1cc;
+    background: rgba(255, 107, 138, 0.1);
+    margin: -20px -20px 20px -20px;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.core-goal {
+    background: #fff;
+    border: 2px solid #ffb3c6;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 4px 12px rgba(255, 107, 138, 0.1);
+}
+
+.goal-statement {
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 600;
+    line-height: 1.6;
+    margin: 0;
+    text-align: center;
+    position: relative;
+}
+
+.goal-statement::before {
+    content: '💖';
+    display: block;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.relationship-metrics h5 {
+    color: #d63384;
+    font-size: 14px;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metrics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.metrics-list li {
+    background: linear-gradient(135deg, #fff 0%, #fef7f7 100%);
+    border: 1px solid #f8d7da;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    position: relative;
+    border-left: 4px solid #ff6b8a;
+}
+
+.metrics-list li:hover {
+    background: #fff5f7;
+    border-color: #ff6b8a;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(255, 107, 138, 0.15);
+}
+
+.relationship-benefits h5 {
+    color: #d63384;
+    font-size: 14px;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.benefits-text {
+    background: #f8f0ff;
+    border: 1px solid #e6ccff;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 0;
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.6;
+    border-left: 4px solid #a855f7;
+}
+
 .expert-tips, .emotional-support {
     list-style: none;
     padding: 0;
