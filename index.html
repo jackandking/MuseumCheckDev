@@ -209,12 +209,18 @@
                 </div>
                 
                 <div class="stats" role="status" aria-live="polite">
-                    <span id="visitedCount">0</span>/<span id="totalCount">0</span> 已参观
-                    (<span id="visitedPercentage">0</span>%)
+                    <div class="progress-display">
+                        <span id="visitedCount">0</span>/<span id="totalCount">0</span> 已参观
+                        (<span id="visitedPercentage">0</span>%)
+                    </div>
                     <div class="achievement-stats">
-                        🏅 获得成就: <span id="achievementCount">0</span>个
-                        <button id="achievementButton" class="achievement-button" title="查看成就详情">🎖️ 我的成就</button>
-                        <button id="clearAllDataButton" class="clear-data-button clear-all-button" title="清空所有数据">🗑️ 清空所有数据</button>
+                        <div class="achievement-text">
+                            🏅 获得成就: <span id="achievementCount">0</span>个
+                        </div>
+                        <div class="achievement-buttons">
+                            <button id="achievementButton" class="achievement-button" title="查看成就详情">🎖️ 我的成就</button>
+                            <button id="clearAllDataButton" class="clear-data-button clear-all-button" title="清空所有数据">🗑️ 清空所有数据</button>
+                        </div>
                     </div>
                 </div>
                 <div id="museumGrid" class="museum-grid" role="grid" aria-label="博物馆列表">

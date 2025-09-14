@@ -377,9 +377,29 @@ header h1 {
 
 .stats {
     text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.1em;
-    color: #666;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stats > span:first-child {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.progress-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    line-height: 1.2;
 }
 
 .museum-grid {
@@ -793,36 +813,53 @@ header h1 {
 
 /* Achievement Styles */
 .achievement-stats {
-    margin-top: 10px;
-    padding: 10px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 15px;
+}
+
+.achievement-text {
+    font-size: 1.1em;
+    color: #555;
+    font-weight: 500;
+}
+
+.achievement-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .achievement-button {
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 12px 20px;
+    border-radius: 25px;
     cursor: pointer;
     font-size: 14px;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+    font-weight: 500;
+    min-width: 130px;
+    justify-content: center;
 }
 
 .achievement-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+    background: linear-gradient(135deg, #f57c00, #ef6c00);
 }
 
 .achievement-modal .modal-content {
@@ -968,6 +1005,34 @@ header h1 {
     .modal-content {
         margin: 10px;
         padding: 20px;
+    }
+    
+    .stats {
+        margin-bottom: 25px;
+        padding: 15px;
+    }
+    
+    .progress-display {
+        font-size: 1.5em;
+        margin-bottom: 12px;
+    }
+    
+    .achievement-text {
+        font-size: 1em;
+    }
+    
+    .achievement-buttons {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .achievement-button,
+    .clear-data-button {
+        width: 100%;
+        max-width: 200px;
+        padding: 12px 16px;
+        font-size: 13px;
     }
 }
 
@@ -1168,22 +1233,25 @@ main[role="main"] {
     background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 12px 20px;
+    border-radius: 25px;
     cursor: pointer;
     font-size: 13px;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
     white-space: nowrap;
+    font-weight: 500;
+    min-width: 130px;
+    justify-content: center;
 }
 
 .clear-data-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
     background: linear-gradient(135deg, #c82333, #bd2130);
 }
 
@@ -1192,10 +1260,11 @@ main[role="main"] {
 }
 
 .clear-all-button {
-    margin-left: 10px;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
-    font-size: 12px;
-    padding: 6px 12px;
+}
+
+.clear-all-button:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
 }
 
 .clear-checklist-button {
