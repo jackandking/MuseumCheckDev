@@ -782,6 +782,42 @@ header h1 {
     background: linear-gradient(135deg, #f57c00, #ef6c00);
 }
 
+/* Assessment History Button in Progress Display */
+.assessment-history-button {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+    font-weight: 500;
+    min-width: auto;
+    justify-content: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.assessment-history-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+    background: linear-gradient(135deg, #5f3dc4, #6c5ce7);
+}
+
+.assessment-history-button:active {
+    transform: translateY(0);
+}
+
+.assessment-history-button-inline {
+    flex: 0 0 auto;
+}
+
 .achievement-modal .modal-content {
     max-width: 800px;
 }
@@ -989,6 +1025,21 @@ header h1 {
         flex: 0 0 auto;
     }
 
+    .progress-display .assessment-history-button-inline {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        padding: 4px;
+        font-size: 12px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        gap: 0;
+    }
+
+    .progress-display .assessment-history-button .button-text {
+        display: none;
+    }
+
     .achievement-buttons {
         flex-direction: row;
         gap: 10px;
@@ -1033,6 +1084,19 @@ header h1 {
     
     .museum-card {
         padding: 15px;
+    }
+    
+    .progress-display .assessment-history-button-inline {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        padding: 2px;
+        font-size: 11px;
+        border-radius: 50%;
+    }
+    
+    .progress-display .assessment-history-button .button-text {
+        display: none;
     }
 }
 
