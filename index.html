@@ -225,6 +225,34 @@
         </div>
     </div>
 
+    <!-- Assessment Modal -->
+    <div id="assessmentModal" class="modal hidden">
+        <div class="modal-content assessment-content">
+            <span class="close">&times;</span>
+            <h2 id="assessmentTitle">🧡 亲子关系测评</h2>
+            <div id="assessmentContent">
+                <div class="assessment-intro">
+                    <p>通过简单的问卷，了解您的亲子关系现状，获得专业的改善建议。</p>
+                    <p>请根据实际情况选择最符合的答案，测评结果将帮助您更好地改善亲子关系。</p>
+                </div>
+                <div class="assessment-steps">
+                    <div class="step-indicator">
+                        <span class="step active" data-step="1">1. 家长问卷</span>
+                        <span class="step" data-step="2">2. 孩子问卷</span>
+                        <span class="step" data-step="3">3. 测评结果</span>
+                    </div>
+                </div>
+                <div class="assessment-form" id="assessmentForm">
+                    <!-- Content will be filled dynamically -->
+                </div>
+                <div class="assessment-buttons">
+                    <button id="assessmentPrev" class="btn-secondary" style="display: none;">上一步</button>
+                    <button id="assessmentNext" class="btn-primary">开始测评</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Achievement Modal -->
     <div id="achievementModal" class="modal achievement-modal hidden">
         <div class="modal-content achievement-content">

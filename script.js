@@ -1,3 +1,4 @@
+
 // Enhanced expert guidance system for parent-child interactions based on developmental psychology
 const EXPERT_GUIDANCE = {
     '3-6': {
@@ -17278,7 +17279,10 @@ class MuseumCheckApp {
                         <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
                                data-museum="${museum.id}">
                         <div class="museum-info">
-                            <h3>${museum.name}</h3>
+                            <h3>
+                                ${museum.name}
+                                ${isVisited ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
+                            </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
                         </div>
                     </div>
@@ -17288,9 +17292,10 @@ class MuseumCheckApp {
                     </div>
                 `;
 
-                // Add click event for the card (excluding checkbox)
+                // Add click event for the card (excluding checkbox and assessment button)
                 card.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('visit-checkbox')) {
+                    if (!e.target.classList.contains('visit-checkbox') && 
+                        !e.target.classList.contains('assessment-button')) {
                         this.openMuseumModal(museum);
                     }
                 });
@@ -17301,6 +17306,15 @@ class MuseumCheckApp {
                     e.stopPropagation();
                     this.toggleMuseumVisit(museum.id);
                 });
+
+                // Add assessment button event
+                const assessmentButton = card.querySelector('.assessment-button');
+                if (assessmentButton) {
+                    assessmentButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.openAssessmentModal(museum.id);
+                    });
+                }
 
                 grid.appendChild(card);
             });
@@ -19204,6 +19218,435 @@ class MuseumCheckApp {
             'timestamp': new Date().toISOString(),
             'rocket_count': rocketCount
         });
+    }
+
+    // Assessment System
+    openAssessmentModal(museumId) {
+        const museum = MUSEUMS.find(m => m.id === museumId);
+        if (!museum) return;
+
+        const modal = document.getElementById('assessmentModal');
+        const title = document.getElementById('assessmentTitle');
+        
+        title.textContent = `🧡 ${museum.name} - 亲子关系测评`;
+        
+        // Initialize assessment state
+        this.assessmentState = {
+            museumId,
+            currentStep: 0,
+            parentAnswers: [],
+            childAnswers: [],
+            score: 0
+        };
+        
+        this.showAssessmentStep(0);
+        modal.classList.remove('hidden');
+        
+        // Setup modal event listeners
+        this.setupAssessmentEventListeners();
+        
+        // Track event
+        this.trackEvent('assessment_started', {
+            'museum_id': museumId,
+            'museum_name': museum.name
+        });
+    }
+
+    setupAssessmentEventListeners() {
+        const modal = document.getElementById('assessmentModal');
+        const closeBtn = modal.querySelector('.close');
+        const nextBtn = document.getElementById('assessmentNext');
+        const prevBtn = document.getElementById('assessmentPrev');
+
+        // Close modal
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            this.assessmentState = null;
+        };
+
+        closeBtn.onclick = closeModal;
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+
+        // Navigation buttons
+        nextBtn.onclick = () => this.nextAssessmentStep();
+        prevBtn.onclick = () => this.prevAssessmentStep();
+    }
+
+    showAssessmentStep(step) {
+        const form = document.getElementById('assessmentForm');
+        const steps = document.querySelectorAll('.step');
+        const nextBtn = document.getElementById('assessmentNext');
+        const prevBtn = document.getElementById('assessmentPrev');
+
+        // Update step indicators
+        steps.forEach((stepEl, index) => {
+            stepEl.classList.remove('active', 'completed');
+            if (index < step) {
+                stepEl.classList.add('completed');
+            } else if (index === step) {
+                stepEl.classList.add('active');
+            }
+        });
+
+        // Show/hide navigation buttons
+        prevBtn.style.display = step > 0 ? 'inline-block' : 'none';
+        
+        if (step === 0) {
+            // Introduction step
+            form.innerHTML = `
+                <div class="assessment-intro">
+                    <h3>欢迎参与亲子关系测评</h3>
+                    <p>本测评将通过简单的问卷帮助您了解当前的亲子关系状况，并提供个性化的改善建议。</p>
+                    <p><strong>测评包含两个部分：</strong></p>
+                    <ul style="text-align: left; margin: 20px 0;">
+                        <li>第一部分：家长问卷（5道题）</li>
+                        <li>第二部分：孩子问卷（5道题）</li>
+                    </ul>
+                    <p>整个过程大约需要5分钟，请根据实际情况如实填写。</p>
+                </div>
+            `;
+            nextBtn.textContent = '开始测评';
+        } else if (step === 1) {
+            // Parent questionnaire
+            this.showParentQuestions();
+            nextBtn.textContent = '下一步';
+        } else if (step === 2) {
+            // Child questionnaire  
+            this.showChildQuestions();
+            nextBtn.textContent = '查看结果';
+        } else if (step === 3) {
+            // Results
+            this.showAssessmentResults();
+            nextBtn.textContent = '完成测评';
+            nextBtn.onclick = () => {
+                document.getElementById('assessmentModal').classList.add('hidden');
+            };
+        }
+
+        this.assessmentState.currentStep = step;
+    }
+
+    showParentQuestions() {
+        const form = document.getElementById('assessmentForm');
+        const questions = this.getParentQuestions();
+        
+        form.innerHTML = `
+            <div class="questionnaire-section">
+                <h3>家长问卷</h3>
+                <p>请根据您与孩子的日常相处情况，选择最符合的答案：</p>
+                ${questions.map((q, index) => `
+                    <div class="question-container">
+                        <div class="question-title">${index + 1}. ${q.question}</div>
+                        <div class="question-options">
+                            ${q.options.map((option, optIndex) => `
+                                <label class="option-item" data-question="${index}" data-option="${optIndex}">
+                                    <input type="radio" name="parent_q${index}" value="${optIndex}">
+                                    <span class="option-text">${option.text}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        // Add click handlers for options
+        this.setupQuestionHandlers('parent');
+    }
+
+    showChildQuestions() {
+        const form = document.getElementById('assessmentForm');
+        const questions = this.getChildQuestions();
+        
+        form.innerHTML = `
+            <div class="questionnaire-section">
+                <h3>孩子问卷</h3>
+                <p>请让孩子根据自己的感受选择答案，或者家长根据对孩子的了解代为回答：</p>
+                ${questions.map((q, index) => `
+                    <div class="question-container">
+                        <div class="question-title">${index + 1}. ${q.question}</div>
+                        <div class="question-options">
+                            ${q.options.map((option, optIndex) => `
+                                <label class="option-item" data-question="${index}" data-option="${optIndex}">
+                                    <input type="radio" name="child_q${index}" value="${optIndex}">
+                                    <span class="option-text">${option.text}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        // Add click handlers for options
+        this.setupQuestionHandlers('child');
+    }
+
+    setupQuestionHandlers(type) {
+        const options = document.querySelectorAll('.option-item');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                const questionIndex = parseInt(option.dataset.question);
+                const optionIndex = parseInt(option.dataset.option);
+                
+                // Remove previous selection
+                const questionContainer = option.closest('.question-container');
+                questionContainer.querySelectorAll('.option-item').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selection
+                option.classList.add('selected');
+                option.querySelector('input').checked = true;
+                
+                // Store answer
+                if (type === 'parent') {
+                    this.assessmentState.parentAnswers[questionIndex] = optionIndex;
+                } else {
+                    this.assessmentState.childAnswers[questionIndex] = optionIndex;
+                }
+            });
+        });
+    }
+
+    nextAssessmentStep() {
+        const currentStep = this.assessmentState.currentStep;
+        
+        if (currentStep === 1) {
+            // Validate parent questions
+            if (this.assessmentState.parentAnswers.length < 5 || 
+                this.assessmentState.parentAnswers.some(a => a === undefined)) {
+                alert('请完成所有题目后再继续');
+                return;
+            }
+        } else if (currentStep === 2) {
+            // Validate child questions and calculate results
+            if (this.assessmentState.childAnswers.length < 5 || 
+                this.assessmentState.childAnswers.some(a => a === undefined)) {
+                alert('请完成所有题目后再继续');
+                return;
+            }
+            this.calculateAssessmentScore();
+        }
+        
+        this.showAssessmentStep(currentStep + 1);
+    }
+
+    prevAssessmentStep() {
+        const currentStep = this.assessmentState.currentStep;
+        if (currentStep > 0) {
+            this.showAssessmentStep(currentStep - 1);
+        }
+    }
+
+    calculateAssessmentScore() {
+        const parentScore = this.assessmentState.parentAnswers.reduce((sum, answer) => sum + answer, 0);
+        const childScore = this.assessmentState.childAnswers.reduce((sum, answer) => sum + answer, 0);
+        
+        // Calculate final score (0-100 scale)
+        const maxScore = 5 * 2 * 4; // 5 questions * 2 questionnaires * 4 max points per question
+        const totalScore = (parentScore + childScore) * 4; // Scale up answer indices
+        this.assessmentState.score = Math.round((totalScore / maxScore) * 100);
+        
+        // Save results to localStorage
+        this.saveAssessmentResult();
+    }
+
+    showAssessmentResults() {
+        const form = document.getElementById('assessmentForm');
+        const score = this.assessmentState.score;
+        const level = this.getRelationshipLevel(score);
+        const suggestions = this.getRelationshipSuggestions(score);
+
+        form.innerHTML = `
+            <div class="assessment-results">
+                <div class="score-display">
+                    <div class="score-number">${score}</div>
+                    <div class="score-label">${level.title}</div>
+                    <div class="score-description">${level.description}</div>
+                </div>
+                <div class="suggestions">
+                    <h4>💡 改善建议</h4>
+                    <ul>
+                        ${suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
+    getRelationshipLevel(score) {
+        if (score >= 85) {
+            return {
+                title: '亲子关系优秀',
+                description: '您和孩子之间有很好的沟通和理解，请继续保持这种良好的关系！'
+            };
+        } else if (score >= 70) {
+            return {
+                title: '亲子关系良好',
+                description: '您和孩子的关系总体不错，还有一些提升空间，可以尝试更多的互动活动。'
+            };
+        } else if (score >= 50) {
+            return {
+                title: '亲子关系一般',
+                description: '您和孩子的关系需要更多的关注和改善，建议增加高质量的陪伴时间。'
+            };
+        } else {
+            return {
+                title: '亲子关系需要关注',
+                description: '建议您更多地关注孩子的情感需求，寻求专业的家庭教育指导。'
+            };
+        }
+    }
+
+    getRelationshipSuggestions(score) {
+        const allSuggestions = [
+            '每天安排固定的亲子交流时间，不被手机等外界干扰',
+            '多倾听孩子的想法，避免过度批评和指责',
+            '参与孩子感兴趣的活动，建立共同话题',
+            '给予孩子更多的肯定和鼓励，增强其自信心',
+            '设立合理的规则和边界，让孩子感到安全',
+            '和孩子一起制定家庭活动计划，如博物馆参观',
+            '学习正确的沟通技巧，用积极的语言表达',
+            '关注孩子的情绪变化，及时提供支持和帮助',
+            '培养家庭传统和仪式感，增强归属感',
+            '必要时寻求专业的家庭教育咨询服务'
+        ];
+        
+        if (score >= 70) {
+            return allSuggestions.slice(0, 4);
+        } else if (score >= 50) {
+            return allSuggestions.slice(2, 7);
+        } else {
+            return allSuggestions.slice(4, 9);
+        }
+    }
+
+    saveAssessmentResult() {
+        try {
+            const results = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
+            const museumId = this.assessmentState.museumId;
+            
+            results[museumId] = {
+                score: this.assessmentState.score,
+                date: new Date().toISOString(),
+                parentAnswers: this.assessmentState.parentAnswers,
+                childAnswers: this.assessmentState.childAnswers
+            };
+            
+            localStorage.setItem('assessmentResults', JSON.stringify(results));
+            
+            // Track completion
+            this.trackEvent('assessment_completed', {
+                'museum_id': museumId,
+                'score': this.assessmentState.score,
+                'completion_date': new Date().toISOString()
+            });
+        } catch (error) {
+            console.error('Failed to save assessment result:', error);
+        }
+    }
+
+    getParentQuestions() {
+        return [
+            {
+                question: "您平时和孩子的交流频率如何？",
+                options: [
+                    { text: "很少交流，主要是生活必需的对话", score: 0 },
+                    { text: "偶尔聊天，但不够深入", score: 1 },
+                    { text: "经常交流，会聊一些日常话题", score: 2 },
+                    { text: "每天都有深入的交流和分享", score: 3 }
+                ]
+            },
+            {
+                question: "当孩子遇到困难时，您通常如何处理？",
+                options: [
+                    { text: "直接告诉孩子解决方案", score: 1 },
+                    { text: "批评孩子，要求其自己解决", score: 0 },
+                    { text: "先倾听，然后给出建议", score: 2 },
+                    { text: "耐心引导孩子思考解决办法", score: 3 }
+                ]
+            },
+            {
+                question: "您了解孩子的兴趣爱好吗？",
+                options: [
+                    { text: "不太了解，忙于工作", score: 0 },
+                    { text: "有一定了解，但不深入", score: 1 },
+                    { text: "比较了解，会支持孩子的兴趣", score: 2 },
+                    { text: "非常了解，经常参与孩子的兴趣活动", score: 3 }
+                ]
+            },
+            {
+                question: "您觉得孩子愿意向您分享内心想法吗？",
+                options: [
+                    { text: "很少分享，比较封闭", score: 0 },
+                    { text: "偶尔分享一些无关紧要的事", score: 1 },
+                    { text: "会分享日常的事情和想法", score: 2 },
+                    { text: "非常愿意分享，包括内心感受", score: 3 }
+                ]
+            },
+            {
+                question: "您和孩子在一起时的感受如何？",
+                options: [
+                    { text: "经常感到紧张或压力", score: 0 },
+                    { text: "有时愉快，有时有些困难", score: 1 },
+                    { text: "大部分时间都很愉快", score: 2 },
+                    { text: "非常享受亲子时光", score: 3 }
+                ]
+            }
+        ];
+    }
+
+    getChildQuestions() {
+        return [
+            {
+                question: "孩子是否愿意和您分享学校发生的事情？",
+                options: [
+                    { text: "从不主动分享", score: 0 },
+                    { text: "很少分享，需要多次询问", score: 1 },
+                    { text: "有时会分享有趣的事情", score: 2 },
+                    { text: "经常主动分享各种事情", score: 3 }
+                ]
+            },
+            {
+                question: "当您不在家时，孩子的表现如何？",
+                options: [
+                    { text: "明显更加放松和自由", score: 0 },
+                    { text: "行为有一定变化", score: 1 },
+                    { text: "基本保持一致", score: 2 },
+                    { text: "会想念您，期待您回来", score: 3 }
+                ]
+            },
+            {
+                question: "孩子对家庭活动的参与度如何？",
+                options: [
+                    { text: "不愿意参与，更喜欢独自活动", score: 0 },
+                    { text: "被动参与，兴趣不高", score: 1 },
+                    { text: "一般会配合参与", score: 2 },
+                    { text: "积极主动，很期待家庭活动", score: 3 }
+                ]
+            },
+            {
+                question: "孩子遇到挫折时会向您求助吗？",
+                options: [
+                    { text: "从不求助，独自承受", score: 0 },
+                    { text: "很少求助，更愿意找其他人", score: 1 },
+                    { text: "有时会求助", score: 2 },
+                    { text: "经常第一时间向您求助", score: 3 }
+                ]
+            },
+            {
+                question: "孩子对您的情绪变化敏感吗？",
+                options: [
+                    { text: "不太关注您的情绪", score: 1 },
+                    { text: "会注意但不知如何应对", score: 2 },
+                    { text: "比较敏感，会主动询问", score: 3 },
+                    { text: "非常敏感，会试图安慰您", score: 3 }
+                ]
+            }
+        ];
     }
 
     // Clear Data Functionality
