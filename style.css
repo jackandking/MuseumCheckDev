@@ -1163,6 +1163,60 @@ main[role="main"] {
     transform: translateY(0);
 }
 
+/* Clear Data Button Styles */
+.clear-data-button {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    white-space: nowrap;
+}
+
+.clear-data-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    background: linear-gradient(135deg, #c82333, #bd2130);
+}
+
+.clear-data-button:active {
+    transform: translateY(0);
+}
+
+.clear-all-button {
+    margin-left: 10px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+.clear-checklist-button {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+.clear-checklist-button:hover {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+}
+
+/* Checklist Actions Container */
+.checklist-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 /* Notification Styles */
 .notification {
     position: fixed;

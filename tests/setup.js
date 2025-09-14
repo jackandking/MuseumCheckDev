@@ -86,7 +86,9 @@ document.createElement = jest.fn((tagName) => {
 
 // Reset localStorage mock before each test
 beforeEach(() => {
-  localStorage.clear();
+  if (localStorage && typeof localStorage.clear === 'function') {
+    localStorage.clear();
+  }
   jest.clearAllMocks();
 });
 

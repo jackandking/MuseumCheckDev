@@ -1,10 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-
-    version: "4.6.4",
+    version: "4.6.5",
     lastUpdate: "2025-01-01",
     changes: [
-
+        {
+            date: "2025-01-01",
+            version: "4.6.5",
+            title: "新增清数据功能",
+            description: "在博物馆总清单、家长清单、孩子清单三个位置添加清数据功能。清空前会显示详细警告说明删除的不可逆影响，并要求用户双重确认。用户可以选择清空所有数据或仅清空特定清单的完成记录，满足不同的数据管理需求。",
+            type: "feature"
+        },
         {
             date: "2025-01-01",
             version: "4.6.4",
@@ -20141,6 +20146,11 @@ class MuseumCheckApp {
                 this.closeAchievementModal();
             }
         });
+
+        // Clear all data button
+        document.getElementById('clearAllDataButton').addEventListener('click', () => {
+            this.clearAllData();
+        });
     }
 
     // Search functionality methods
@@ -20783,18 +20793,28 @@ class MuseumCheckApp {
             <div id="parentChecklist" class="checklist-content" ${activeTab !== 'parent' ? 'style="display: none;"' : ''}>
                 <div class="checklist-header">
                     <h3>家长准备事项</h3>
-                    <button class="share-button" data-type="parent" title="分享家长准备清单">
-                        🔗 分享链接
-                    </button>
+                    <div class="checklist-actions">
+                        <button class="share-button" data-type="parent" title="分享家长准备清单">
+                            🔗 分享链接
+                        </button>
+                        <button class="clear-checklist-button clear-parent-button" data-museum="${museum.id}" data-type="parent" title="清空家长清单数据">
+                            🗑️ 清空清单
+                        </button>
+                    </div>
                 </div>
                 ${this.renderChecklist(museum.id, 'parent', museum.checklists.parent[this.currentAge])}
             </div>
             <div id="childChecklist" class="checklist-content" ${activeTab !== 'child' ? 'style="display: none;"' : ''}>
                 <div class="checklist-header">
                     <h3>孩子探索任务</h3>
-                    <button class="share-button" data-type="child" title="分享孩子任务清单">
-                        🔗 分享链接
-                    </button>
+                    <div class="checklist-actions">
+                        <button class="share-button" data-type="child" title="分享孩子任务清单">
+                            🔗 分享链接
+                        </button>
+                        <button class="clear-checklist-button clear-child-button" data-museum="${museum.id}" data-type="child" title="清空孩子清单数据">
+                            🗑️ 清空清单
+                        </button>
+                    </div>
                 </div>
                 ${this.renderChecklist(museum.id, 'child', museum.checklists.child[this.currentAge])}
             </div>
@@ -20993,6 +21013,14 @@ class MuseumCheckApp {
                 } else if (e.target.classList.contains('add-item-btn')) {
                     e.stopPropagation();
                     this.addChecklistItem(e.target);
+                } else if (e.target.classList.contains('clear-parent-button')) {
+                    e.stopPropagation();
+                    const museumId = e.target.dataset.museum;
+                    this.clearParentChecklistData(museumId, this.currentAge);
+                } else if (e.target.classList.contains('clear-child-button')) {
+                    e.stopPropagation();
+                    const museumId = e.target.dataset.museum;
+                    this.clearChildChecklistData(museumId, this.currentAge);
                 }
             };
             
@@ -22253,6 +22281,156 @@ class MuseumCheckApp {
             'timestamp': new Date().toISOString(),
             'rocket_count': rocketCount
         });
+    }
+
+    // Clear Data Functionality
+    clearAllData() {
+        const confirmed = confirm(
+            '⚠️ 重要警告 ⚠️\n\n' +
+            '您即将清空所有数据，包括：\n' +
+            '• 所有已参观博物馆记录\n' +
+            '• 所有清单完成记录\n' +
+            '• 所有任务照片\n' +
+            '• 所有成就进度\n\n' +
+            '此操作不可撤销！\n\n' +
+            '确定要继续吗？'
+        );
+        
+        if (confirmed) {
+            const doubleConfirmed = confirm(
+                '最后确认：\n\n' +
+                '您真的要清空所有数据吗？\n' +
+                '这将删除您的所有参观记录和进度！\n\n' +
+                '点击"确定"将永久删除所有数据'
+            );
+            
+            if (doubleConfirmed) {
+                // Clear all localStorage data
+                localStorage.removeItem('visitedMuseums');
+                localStorage.removeItem('museumChecklists');
+                localStorage.removeItem('taskPhotos');
+                localStorage.removeItem('ageGroup');
+                
+                // Clear IndexedDB data if supported
+                if (this.indexedDBSupported) {
+                    this.clearIndexedDBData();
+                }
+                
+                // Reset application state
+                this.visitedMuseums = [];
+                this.museumChecklists = {};
+                this.taskPhotos = {};
+                this.currentAgeGroup = '7-12';
+                
+                // Update UI
+                this.updateStats();
+                this.renderMuseums();
+                this.updateAgeGroupSelector();
+                
+                // Show success message
+                alert('✅ 所有数据已成功清空！');
+                
+                // Track event
+                this.trackEvent('clear_all_data', {
+                    'timestamp': new Date().toISOString()
+                });
+            }
+        }
+    }
+
+    clearParentChecklistData(museumId, ageGroup) {
+        const confirmed = confirm(
+            '⚠️ 清空家长清单数据 ⚠️\n\n' +
+            `您即将清空「${this.getMuseumById(museumId)?.name || '此博物馆'}」\n` +
+            `年龄组「${this.getAgeGroupLabel(ageGroup)}」的家长清单完成记录\n\n` +
+            '此操作不可撤销！\n\n' +
+            '确定要继续吗？'
+        );
+        
+        if (confirmed) {
+            const parentKey = `${museumId}-parent-${ageGroup}`;
+            delete this.museumChecklists[parentKey];
+            
+            // Save updated data
+            this.saveMuseumChecklists();
+            
+            // Update modal if currently open
+            const modal = document.getElementById('museumModal');
+            if (!modal.classList.contains('hidden')) {
+                this.openMuseumModal(this.getMuseumById(museumId));
+            }
+            
+            alert('✅ 家长清单数据已清空！');
+            
+            // Track event
+            this.trackEvent('clear_parent_checklist', {
+                'museum_id': museumId,
+                'age_group': ageGroup,
+                'timestamp': new Date().toISOString()
+            });
+        }
+    }
+
+    clearChildChecklistData(museumId, ageGroup) {
+        const confirmed = confirm(
+            '⚠️ 清空孩子清单数据 ⚠️\n\n' +
+            `您即将清空「${this.getMuseumById(museumId)?.name || '此博物馆'}」\n` +
+            `年龄组「${this.getAgeGroupLabel(ageGroup)}」的孩子清单完成记录\n\n` +
+            '此操作不可撤销！\n\n' +
+            '确定要继续吗？'
+        );
+        
+        if (confirmed) {
+            const childKey = `${museumId}-child-${ageGroup}`;
+            delete this.museumChecklists[childKey];
+            
+            // Save updated data
+            this.saveMuseumChecklists();
+            
+            // Update modal if currently open
+            const modal = document.getElementById('museumModal');
+            if (!modal.classList.contains('hidden')) {
+                this.openMuseumModal(this.getMuseumById(museumId));
+            }
+            
+            alert('✅ 孩子清单数据已清空！');
+            
+            // Track event
+            this.trackEvent('clear_child_checklist', {
+                'museum_id': museumId,
+                'age_group': ageGroup,
+                'timestamp': new Date().toISOString()
+            });
+        }
+    }
+
+    async clearIndexedDBData() {
+        if (!this.indexedDBSupported) return;
+        
+        try {
+            const request = indexedDB.deleteDatabase('MuseumCheckDB');
+            request.onsuccess = () => {
+                console.log('IndexedDB data cleared successfully');
+            };
+            request.onerror = (event) => {
+                console.error('Failed to clear IndexedDB data:', event);
+            };
+        } catch (error) {
+            console.error('Error clearing IndexedDB data:', error);
+        }
+    }
+
+    getMuseumById(museumId) {
+        return MUSEUMS.find(museum => museum.id === museumId);
+    }
+
+    getAgeGroupLabel(ageGroup) {
+        const labels = {
+            '3-6': '3-6岁 (学龄前)',
+            '7-12': '7-12岁 (小学)', 
+            '13-18': '13-18岁 (中学)'
+        };
+        return labels[ageGroup] || ageGroup;
     }
 }
 

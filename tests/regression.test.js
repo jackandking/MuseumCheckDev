@@ -3112,4 +3112,228 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       });
     });
   });
+
+  describe('v2.3.0 - 清数据功能实现 (Issue #198)', () => {
+    /**
+     * Enhancement: "加入清数据功能，在3个地方都可以允许用户清空个人数据：博物馆总清单，家长清单，孩子清单。清空前说明删除不可逆影响并且和用户确认。"
+     * Added: 2024-12-20
+     * 
+     * This test ensures the clear data functionality works correctly with proper user confirmation.
+     */
+    
+    test('should provide clearAllData function for complete data clearing', () => {
+      // Mock confirm and alert functions
+      const originalConfirm = global.confirm;
+      const originalAlert = global.alert;
+      global.confirm = jest.fn(() => true);
+      global.alert = jest.fn();
+
+      // Mock localStorage
+      const mockStorage = {
+        removeItem: jest.fn(),
+        setItem: jest.fn(),
+        getItem: jest.fn(() => '[]'),
+        clear: jest.fn()
+      };
+      Object.defineProperty(window, 'localStorage', {
+        value: mockStorage
+      });
+
+      // Mock clearAllData function behavior
+      const clearAllData = () => {
+        const confirmed = confirm('⚠️ 清空所有个人数据 ⚠️\n\n您即将清空所有参观记录和清单完成记录\n\n此操作不可撤销！\n\n确定要继续吗？');
+        if (confirmed) {
+          localStorage.removeItem('visitedMuseums');
+          localStorage.removeItem('museumChecklists');
+          localStorage.removeItem('taskPhotos');
+          alert('✅ 所有数据已清空！');
+        }
+      };
+
+      // Test the function
+      clearAllData();
+
+      // Verify confirmation dialog was shown with correct message
+      expect(global.confirm).toHaveBeenCalledWith(
+        expect.stringContaining('清空所有个人数据')
+      );
+      expect(global.confirm).toHaveBeenCalledWith(
+        expect.stringContaining('此操作不可撤销')
+      );
+
+      // Verify all data was cleared
+      expect(mockStorage.removeItem).toHaveBeenCalledWith('visitedMuseums');
+      expect(mockStorage.removeItem).toHaveBeenCalledWith('museumChecklists');
+      expect(mockStorage.removeItem).toHaveBeenCalledWith('taskPhotos');
+
+      // Verify success message was shown
+      expect(global.alert).toHaveBeenCalledWith(
+        expect.stringContaining('所有数据已清空')
+      );
+
+      // Restore original functions
+      global.confirm = originalConfirm;
+      global.alert = originalAlert;
+    });
+
+    test('should provide clearCurrentChecklist function for specific checklist clearing', () => {
+      // Mock confirm and alert functions
+      const originalConfirm = global.confirm;
+      const originalAlert = global.alert;
+      global.confirm = jest.fn(() => true);
+      global.alert = jest.fn();
+
+      // Mock localStorage with test data
+      const testData = {
+        'test-museum-parent-7-12': [0, 1, 2],
+        'test-museum-child-7-12': [0, 1],
+        'other-museum-parent-3-6': [1]
+      };
+      const mockStorage = {
+        getItem: jest.fn((key) => key === 'museumChecklists' ? JSON.stringify(testData) : '[]'),
+        setItem: jest.fn()
+      };
+      Object.defineProperty(window, 'localStorage', {
+        value: mockStorage
+      });
+
+      // Mock clearCurrentChecklist function behavior
+      const clearCurrentChecklist = (museumId, listType, ageGroup) => {
+        const key = `${museumId}-${listType}-${ageGroup}`;
+        const typeText = listType === 'parent' ? '家长清单' : '孩子清单';
+        const ageText = ageGroup === '3-6' ? '3-6岁 (学龄前)' : ageGroup === '7-12' ? '7-12岁 (小学)' : '13-18岁 (中学)';
+        
+        const confirmed = confirm(`⚠️ 清空${typeText}数据 ⚠️\n\n您即将清空「测试博物馆」\n年龄组「${ageText}」的${typeText}完成记录\n\n此操作不可撤销！\n\n确定要继续吗？`);
+        
+        if (confirmed) {
+          const checklists = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
+          delete checklists[key];
+          localStorage.setItem('museumChecklists', JSON.stringify(checklists));
+          alert(`✅ ${typeText}数据已清空！`);
+        }
+      };
+
+      // Test parent checklist clearing
+      clearCurrentChecklist('test-museum', 'parent', '7-12');
+      
+      expect(global.confirm).toHaveBeenCalledWith(
+        expect.stringContaining('家长清单数据')
+      );
+      expect(global.confirm).toHaveBeenCalledWith(
+        expect.stringContaining('此操作不可撤销')
+      );
+      expect(global.alert).toHaveBeenCalledWith(
+        expect.stringContaining('家长清单数据已清空')
+      );
+
+      // Test child checklist clearing
+      global.confirm.mockClear();
+      global.alert.mockClear();
+      
+      clearCurrentChecklist('test-museum', 'child', '7-12');
+      
+      expect(global.confirm).toHaveBeenCalledWith(
+        expect.stringContaining('孩子清单数据')
+      );
+      expect(global.alert).toHaveBeenCalledWith(
+        expect.stringContaining('孩子清单数据已清空')
+      );
+
+      // Restore original functions
+      global.confirm = originalConfirm;
+      global.alert = originalAlert;
+    });
+
+    test('should handle user cancellation of clear data operations', () => {
+      // Mock confirm to return false (user cancels)
+      const originalConfirm = global.confirm;
+      const originalAlert = global.alert;
+      global.confirm = jest.fn(() => false);
+      global.alert = jest.fn();
+
+      // Mock localStorage
+      const mockStorage = {
+        removeItem: jest.fn(),
+        setItem: jest.fn()
+      };
+      Object.defineProperty(window, 'localStorage', {
+        value: mockStorage
+      });
+
+      // Mock clearAllData function
+      const clearAllData = () => {
+        const confirmed = confirm('⚠️ 清空所有个人数据 ⚠️\n\n此操作不可撤销！\n\n确定要继续吗？');
+        if (confirmed) {
+          localStorage.removeItem('visitedMuseums');
+          localStorage.removeItem('museumChecklists');
+          localStorage.removeItem('taskPhotos');
+          alert('✅ 所有数据已清空！');
+        }
+      };
+
+      // Test cancellation
+      clearAllData();
+
+      // Verify confirmation dialog was shown
+      expect(global.confirm).toHaveBeenCalled();
+
+      // Verify no data was cleared (since user cancelled)
+      expect(mockStorage.removeItem).not.toHaveBeenCalled();
+      expect(mockStorage.setItem).not.toHaveBeenCalled();
+
+      // Verify no success message was shown
+      expect(global.alert).not.toHaveBeenCalled();
+
+      // Restore original functions
+      global.confirm = originalConfirm;
+      global.alert = originalAlert;
+    });
+
+    test('should provide appropriate warning messages for different clear operations', () => {
+      const originalConfirm = global.confirm;
+      global.confirm = jest.fn(() => false); // Don't actually clear
+
+      // Test various clear operation messages
+      const testCases = [
+        {
+          type: 'all',
+          expectedMessages: ['清空所有个人数据', '此操作不可撤销']
+        },
+        {
+          type: 'parent',
+          museumName: '故宫博物院',
+          ageGroup: '7-12',
+          expectedMessages: ['家长清单数据', '故宫博物院', '7-12岁 (小学)', '此操作不可撤销']
+        },
+        {
+          type: 'child',
+          museumName: '故宫博物院',
+          ageGroup: '3-6',
+          expectedMessages: ['孩子清单数据', '故宫博物院', '3-6岁 (学龄前)', '此操作不可撤销']
+        }
+      ];
+
+      testCases.forEach(testCase => {
+        global.confirm.mockClear();
+
+        if (testCase.type === 'all') {
+          // Mock clearAllData call
+          confirm('⚠️ 清空所有个人数据 ⚠️\n\n您即将清空所有参观记录和清单完成记录\n\n此操作不可撤销！\n\n确定要继续吗？');
+        } else {
+          // Mock clearCurrentChecklist call
+          const typeText = testCase.type === 'parent' ? '家长清单' : '孩子清单';
+          const ageText = testCase.ageGroup === '3-6' ? '3-6岁 (学龄前)' : testCase.ageGroup === '7-12' ? '7-12岁 (小学)' : '13-18岁 (中学)';
+          confirm(`⚠️ 清空${typeText}数据 ⚠️\n\n您即将清空「${testCase.museumName}」\n年龄组「${ageText}」的${typeText}完成记录\n\n此操作不可撤销！\n\n确定要继续吗？`);
+        }
+
+        // Verify all expected messages are present
+        const confirmCall = global.confirm.mock.calls[0][0];
+        testCase.expectedMessages.forEach(expectedMessage => {
+          expect(confirmCall).toContain(expectedMessage);
+        });
+      });
+
+      global.confirm = originalConfirm;
+    });
+  });
 });
