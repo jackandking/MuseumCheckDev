@@ -22,7 +22,7 @@ MuseumCheck 是一个帮助中国家庭规划博物馆参观的互动应用，�
 - **[开发环境设置](Development-Setup.md)** - 本地开发环境配置
 - **[项目架构](Architecture.md)** - 技术架构和代码结构说明
 - **[测试指南](../TESTING_GUIDE.md)** - 单元测试和质量保证
-- **[版本管理](../VERSION_MANAGEMENT.md)** - 版本控制和发布流程
+
 - **[贡献指南](Contributing.md)** - 如何参与项目开发
 
 ### 📋 项目管理

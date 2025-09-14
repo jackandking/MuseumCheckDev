@@ -44,25 +44,7 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         expect(uniqueIds.length).toBe(257);
     });
 
-    test('version should be 4.7.0 or higher (systematic deduplication version)', () => {
-        const versionMatch = scriptContent.match(/version: "([^"]+)"/);
-        expect(versionMatch).not.toBeNull();
-        const currentVersion = versionMatch[1];
-        const [major, minor, patch] = currentVersion.split('.').map(Number);
-        expect(major).toBeGreaterThanOrEqual(4);
-        if (major === 4) {
-            expect(minor).toBeGreaterThanOrEqual(7);
-            if (minor === 7) {
-                expect(patch).toBeGreaterThanOrEqual(0);
-            }
-        }
-    });
 
-    test('should have changelog entry for systematic deduplication', () => {
-        expect(scriptContent).toContain('4.7.0');
-        expect(scriptContent).toContain('系统性数据质量优化');
-        expect(scriptContent).toContain('257家高质量博物馆');
-    });
 
     test('all museum entries should have complete required fields', () => {
         // Count each required field within the MUSEUMS array only

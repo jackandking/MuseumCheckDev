@@ -30,7 +30,6 @@ header {
     text-align: center;
     margin-bottom: 30px;
     position: relative;
-    padding-top: 50px; /* Make room for absolute positioned updates button */
 }
 
 header h1 {
@@ -53,159 +52,15 @@ header h1 {
     line-height: 1.4;
 }
 
-/* Updates Icon Button */
-.updates-icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin-right: 8px;
-    color: #666;
-    transition: all 0.2s ease;
-    font-size: 1.8em;
-    vertical-align: middle;
-}
 
-.updates-icon-button:hover {
-    color: var(--primary-color);
-    transform: scale(1.1);
-}
 
 .info-icon {
     font-size: 0.7em;
 }
 
-/* Updates Modal */
-.updates-modal {
-    z-index: 1001;
-}
 
-.updates-content {
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
 
-.updates-content h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    text-align: center;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
-}
 
-.updates-info {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.current-version, .last-updated {
-    margin: 5px 0;
-    color: #666;
-}
-
-.current-version span, .last-updated span {
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.changes-list {
-    margin-bottom: 20px;
-}
-
-.change-item {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 12px;
-    border-left: 4px solid #4CAF50;
-    transition: transform 0.2s ease;
-}
-
-.change-item:hover {
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.change-item.feature {
-    border-left-color: #4CAF50;
-}
-
-.change-item.improvement {
-    border-left-color: #2196F3;
-}
-
-.change-item.bugfix {
-    border-left-color: #FF9800;
-}
-
-.change-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.change-title {
-    font-weight: bold;
-    color: var(--text-color);
-    font-size: 16px;
-}
-
-.change-meta {
-    display: flex;
-    gap: 10px;
-    font-size: 12px;
-    color: #666;
-}
-
-.change-version {
-    background: var(--primary-color);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.change-type {
-    background: #e9ecef;
-    color: #495057;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.change-type.feature {
-    background: #d4edda;
-    color: #155724;
-}
-
-.change-type.improvement {
-    background: #cce5ff;
-    color: #004085;
-}
-
-.change-type.bugfix {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.change-description {
-    color: #666;
-    line-height: 1.5;
-    margin-top: 5px;
-}
-
-.updates-footer {
-    text-align: center;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    color: #666;
-    font-style: italic;
-}
 
 .age-selector {
     text-align: center;

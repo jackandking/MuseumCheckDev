@@ -29,7 +29,6 @@ MuseumCheck/
 ├── 📚 文档系统
 │   ├── README.md           # 项目说明
 │   ├── TESTING_GUIDE.md    # 测试指南
-│   ├── VERSION_MANAGEMENT.md # 版本管理
 │   └── wiki/              # Wiki文档目录
 │       ├── Home.md         # Wiki首页
 │       ├── User-Guide.md   # 用户指南
@@ -48,7 +47,6 @@ MuseumCheck/
 │       └── regression.test.js # 回归测试
 │
 ├── 🛠️ 工具和配置
-│   ├── validate-version.js # 版本验证工具
 │   ├── .gitignore         # Git忽略配置
 │   ├── robots.txt         # 搜索引擎配置
 │   └── sitemap.xml        # 网站地图
@@ -67,14 +65,7 @@ MuseumCheck/
 
 #### 1. 数据层
 ```javascript
-// 版本和更新信息
-const RECENT_CHANGES = {
-    version: "2.2.2",
-    lastUpdate: "2024-12-20",
-    changes: [...]
-};
-
-// 博物馆数据库 (120家博物馆)
+// 博物馆数据库 (257家博物馆)
 const MUSEUMS = [
     {
         id: 'forbidden-city',
@@ -390,36 +381,7 @@ const localStorageMock = (() => {
 })();
 ```
 
-## 📊 版本管理架构
 
-### 集中式版本系统
-```javascript
-// 单一数据源 (script.js)
-const RECENT_CHANGES = {
-    version: "x.y.z",
-    lastUpdate: "YYYY-MM-DD",
-    changes: [
-        {
-            date: "YYYY-MM-DD",
-            version: "x.y.z",
-            title: "更新标题",
-            description: "详细描述",
-            type: "feature|improvement|bugfix"
-        }
-    ]
-};
-```
-
-### 自动化验证
-```javascript
-// validate-version.js
-function validateVersionConsistency() {
-    // 检查版本格式
-    // 验证日期有效性
-    // 确保版本递增
-    // 检查硬编码版本
-}
-```
 
 ## 🌐 部署架构
 
@@ -449,8 +411,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run tests
       run: npm test
-    - name: Validate version
-      run: node validate-version.js
     - name: Deploy to Pages
       uses: peaceiris/actions-gh-pages@v3
 ```

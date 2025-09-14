@@ -65,37 +65,6 @@ describe('MuseumCheck Core Functions', () => {
     });
   });
 
-  describe('Version Management', () => {
-    test('should have consistent version format', () => {
-      // This would have caught the "修复日期错误" bug mentioned in v2.1.2
-      const versionRegex = /^\d+\.\d+\.\d+$/;
-      const mockVersion = '2.1.3';
-      
-      expect(mockVersion).toMatch(versionRegex);
-    });
-
-    test('should have valid date format in changes', () => {
-      // This would catch date inconsistencies like the 2025 vs 2024 error
-      const mockChange = {
-        date: '2025-08-30',
-        version: '2.1.3',
-        title: 'Test change',
-        description: 'Test description',
-        type: 'bugfix'
-      };
-      
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      expect(mockChange.date).toMatch(dateRegex);
-      
-      // Ensure date is not in the future (beyond reasonable development time)
-      const changeDate = new Date(mockChange.date);
-      const currentDate = new Date();
-      const maxFutureDate = new Date(currentDate.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
-      
-      expect(changeDate.getTime()).toBeLessThanOrEqual(maxFutureDate.getTime());
-    });
-  });
-
   describe('Progress Calculation', () => {
     test('should calculate visit percentage correctly', () => {
       // Test the progress calculation mentioned in validation scenarios

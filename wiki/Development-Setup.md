@@ -55,8 +55,6 @@ MuseumCheck/
 ├── script.js              # 核心JavaScript逻辑
 ├── style.css              # 样式表
 ├── TESTING_GUIDE.md       # 测试指南
-├── VERSION_MANAGEMENT.md  # 版本管理指南
-├── validate-version.js    # 版本验证脚本
 ├── package.json           # Node.js依赖和脚本
 ├── .gitignore             # Git忽略文件
 ├── CNAME                  # GitHub Pages域名配置
@@ -84,7 +82,6 @@ MuseumCheck/
 npm install
 
 # 验证安装
-npm test --version
 ```
 
 ### 运行测试
@@ -173,8 +170,7 @@ git commit -m "Add: your feature description"
 ### 2. 版本管理
 ```bash
 # 更新版本信息（编辑 script.js 中的 RECENT_CHANGES）
-# 验证版本一致性
-node validate-version.js
+
 
 # 如有问题，按提示修复
 ```

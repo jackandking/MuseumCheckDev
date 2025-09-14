@@ -105,8 +105,7 @@ global.testUtils = {
         </select>
         <div id="museumGrid"></div>
         <div id="stats"></div>
-        <span id="versionBadge">v0.0.0</span>
-        <span id="currentVersion">v0.0.0</span>
+
         <span id="lastUpdated">...</span>
         <div id="changesList"></div>
       </div>
