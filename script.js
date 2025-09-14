@@ -17775,7 +17775,7 @@ class MuseumCheckApp {
                             🔗 分享链接
                         </button>
                         <button class="clear-checklist-button clear-parent-button" data-museum="${museum.id}" data-type="parent" title="清空家长清单数据">
-                            🗑️ 清空清单
+                            🗑️
                         </button>
                     </div>
                 </div>
@@ -17789,7 +17789,7 @@ class MuseumCheckApp {
                             🔗 分享链接
                         </button>
                         <button class="clear-checklist-button clear-child-button" data-museum="${museum.id}" data-type="child" title="清空孩子清单数据">
-                            🗑️ 清空清单
+                            🗑️
                         </button>
                     </div>
                 </div>
