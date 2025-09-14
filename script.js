@@ -1,303 +1,238 @@
 // Recent
 const RECENT_CHANGES = {
     version: "4.6.5",
-    lastUpdate: "2025-01-01",
     changes: [
         {
-            date: "2025-01-01",
-            version: "4.6.5",
             title: "新增清数据功能",
             description: "在博物馆总清单、家长清单、孩子清单三个位置添加清数据功能。清空前会显示详细警告说明删除的不可逆影响，并要求用户双重确认。用户可以选择清空所有数据或仅清空特定清单的完成记录，满足不同的数据管理需求。",
             type: "feature"
         },
         {
-            date: "2025-01-01",
-            version: "4.6.4",
             title: "北京博物馆情绪价值优化 - 第三批完成",
             description: "完成中国铁道博物馆和北京天文馆的深度优化，新增交通强国梦想培养、宇宙探索精神激发等专业心理引导。目前已完成9家重点北京博物馆的情绪价值优化，完成率达到24%，为家庭提供更丰富的情感连接体验。",
             type: "feature"
         },
         {
-            date: "2025-01-01",
-            version: "4.6.3",
             title: "北京博物馆情绪价值深度优化进展 - 第二批",
             description: "继续优化北京地区博物馆，为中国人民革命军事博物馆、北京自然博物馆应用情绪价值增强模式。新增爱国主义情感培养、自然好奇心呵护、科学探索庆祝等专业心理引导。目前已完成7家北京博物馆优化，完成率19%。",
             type: "improvement"
         },
         {
-            date: "2024-12-31",
-            version: "4.6.1", 
             title: "修复重复博物馆问题",
             description: "解决首都博物馆重复条目问题，移除重复的'capital-museum'条目，保留内容更详细的'beijing-capital-museum'条目。博物馆总数从300家调整为299家，消除用户搜索时的困惑。",
             type: "bugfix"
         },
         {
-            date: "2024-12-21",
-            version: "4.6.1",
             title: "优化清单页面专业度",
             description: "响应用户反馈，重新设计家长清单和孩子清单页面布局。修复复选框与文字不对齐问题，采用更紧凑专业的设计风格，提升视觉层次和用户体验，让清单页面看起来更加专业规范。",
             type: "improvement"
         },
         {
-            date: "2024-12-21",
-            version: "4.6.0",
             title: "前三大博物馆情绪价值深度优化",
             description: "为故宫博物院、中国国家博物馆、上海博物馆全面优化情绪价值体验。家长清单新增情感连接指导、庆祝时刻设计、深度对话技巧；儿童清单增加自豪感任务、情感表达活动、成就庆祝环节。让博物馆之旅不仅是学习，更是温馨的亲子情感连接体验。",
             type: "feature"
         },
         {
-            date: "2024-12-21",
-            version: "4.5.1",
             title: "新增3家重要博物馆图片素材",
             description: "为中国国家博物馆、首都博物馆和中国科学技术馆新增官方高清图片素材，丰富博物馆详情展示，提升用户视觉体验。",
             type: "improvement"
         },
         {
-            date: "2024-12-21",
-            version: "4.5.0",
             title: "亲子专家深度优化：专业心理学与教育学整合",
             description: "基于依恋理论、教育心理学和危机管理原理，为每个年龄段增加专业级亲子互动指导。新增依恋关系建立、学习支架技巧、自主性支持、包容性支持等专业模块。集成参与度评估指标、危机预防与应对策略、家庭反思引导工具，将博物馆参观转化为科学的亲子成长体验。",
             type: "feature"
         },
         {
-            date: "2024-12-21",
-            version: "4.4.0",
             title: "亲子专家优化：认知发展与家长指导增强",
             description: "基于儿童发展心理学理论，为每个年龄段添加认知发展特点说明、专业亲子互动指导、多元智能激发建议和情感连接活动。新增家长对话技巧、观察引导方法和延伸学习建议，让博物馆之旅成为真正的家庭教育体验。",
             type: "feature"
         },
         {
-            date: "2024-12-20",
-            version: "4.4.0",
             title: "火箭发射系统全面升级",
             description: "火箭动画效果大幅增强！新增多重火箭同时发射、粒子爆炸特效、屏幕震动效果、庆祝文字弹窗、更长飞行轨迹、闪烁火焰尾迹、金色火花效果等。博物馆打卡时最多4枚大火箭齐发，任务完成时小火箭连发，让每次成功都更有感染力和成就感！",
             type: "feature"
         },
         {
-            date: "2024-12-20",
-            version: "4.3.0",
             title: "新增火箭动画效果",
             description: "为孩子完成任务和参观博物馆时增加了火箭动画效果，小火箭用于任务完成，大火箭用于博物馆参观，增强成就感和互动体验",
             type: "feature"
         },
         {
-            date: "2024-12-21",
-            version: "4.2.0",
             title: "新增情景支持功能",
             description: "支持通过URL参数直接分享特定博物馆的家长准备清单或孩子任务。新增分享按钮，可一键复制链接通过微信等应用分享给朋友。支持移动端友好的任务打卡体验，让多家庭出游更便捷。",
             type: "feature"
         },
         {
-            date: "2024-12-21",
-            version: "4.1.2",
             title: "修复搜索功能bug",
             description: "修复搜索框输入\"兵马俑\"等关键词无效果的问题。优化搜索逻辑，确保能够正确匹配博物馆名称和描述中的关键词，提供准确的搜索结果。解决undefined字段导致的搜索失效问题。",
             type: "bugfix"
         },
         {
-            date: "2024-12-21",
-            version: "4.1.1",
             title: "修复搜索功能错误",
             description: "解决搜索框输入\"兵马俑\"等关键词时出现的JavaScript错误。添加安全检查防止undefined值导致的toLowerCase错误，确保搜索功能稳定运行。现在可以正常搜索所有博物馆内容。",
             type: "bugfix"
         },
         {
-            date: "2024-12-21",
-            version: "4.1.0",
             title: "新增博物馆搜索功能",
             description: "添加实时搜索功能，支持按博物馆名称、所在城市、标签分类、描述内容进行搜索。提供搜索结果计数显示、清空搜索按钮、Escape键快速清除等便捷操作。大幅提升用户在300家博物馆中快速查找目标博物馆的体验，解决博物馆数量增多后的查找困难问题。",
             type: "feature"
         },
         {
-            date: "2024-12-21",
-            version: "4.0.1",
             title: "修复手机端博物馆加载问题",
             description: "解决移动端用户遇到的博物馆数据无法加载问题。添加缓存清除机制、加载指示器和错误处理，防止浏览器缓存导致的显示问题。现在所有303家博物馆在手机上都能正确载入显示。",
             type: "bugfix"
         },
         {
-            date: "2024-12-21",
-            version: "4.0.0",
             title: "博物馆数量大幅扩展至300家",
             description: "新增96家优质博物馆，覆盖全国更多省市和专业领域，包括大学博物馆、专业主题博物馆、地方特色博物馆等。每家新增博物馆均配备完整的三个年龄段亲子参观清单，为用户提供更丰富多样的博物馆选择和文化体验。首次达到300家博物馆的里程碑。",
             type: "feature"
         },
         {
-            version: "3.1.0",
             title: "大幅扩展博物馆数量至204家",
             description: "新增80家优质博物馆，覆盖全国更多省市区域，包括地方特色博物馆、专业主题博物馆、文化遗产博物馆等。每家新增博物馆均配备完整的三个年龄段亲子参观清单，为用户提供更丰富多样的博物馆选择和文化体验",
             type: "feature"
         },
         {
-            version: "2.4.0",
             title: "前三大博物馆内容专业化优化",
             description: "对故宫博物院、中国国家博物馆、上海博物馆进行全面内容优化。家长准备清单提供专业化指导、具体知识点和傻瓜式操作步骤；儿童任务清单更加具体可操作，增强成就感和分享欲望；强化亲子互动连接性，提升参观体验的专业性和趣味性",
             type: "improvement"
         },
         {
-            version: "2.3.5",
             title: "移除更新日期显示",
             description: "根据用户反馈，移除更新列表中的所有日期显示，包括最后更新日期和每个条目的日期。专注于版本号、标题和描述信息，避免日期错误问题",
             type: "improvement"
         },
         {
-            version: "2.3.4",
             title: "修复最新更新日期错误",
             description: "修复RECENT_CHANGES对象中的未来日期错误，将2024-12-31和2025-09-06等错误日期更正为合理的过去日期。增强验证脚本防止此类错误再次发生",
             type: "bugfix"
         },
         {
-            version: "2.3.3",
             title: "海报生成后自动滚动优化",
             description: "点击生成成就海报按钮后，页面自动滚动到海报位置，提升用户体验。用户无需手动查找生成的海报位置",
             type: "improvement"
         },
         {
-            version: "2.3.2",
             title: "更正日期修复错误",
             description: "撤销之前错误的日期修复，恢复正确的2025年日期。之前误将2025年8月的正确日期改为2024年，现已恢复。感谢用户反馈！",
             type: "bugfix"
         },
         {
-            version: "2.3.0",
             title: "新增博物馆配图功能",
             description: "为博物馆详情页面添加图片支持，首先为故宫博物院添加配图。图片显示在标签页下方，为用户提供更直观的视觉体验，增强参观指南的实用性",
             type: "feature"
         },
         {
-            version: "2.2.4",
             title: "修复JavaScript语法错误导致博物馆无法加载",
             description: "修复RECENT_CHANGES对象中缺少逗号的语法错误，该错误导致整个script.js无法解析，从而使博物馆数据无法加载显示。增加回归测试确保类似语法错误不再发生",
             type: "bugfix"
         },
         {
-            version: "2.2.3",
             title: "全面SEO优化提升搜索引擎收录",
             description: "添加完整SEO元标签、Open Graph标签、结构化数据(JSON-LD)、站点地图和robots.txt文件，优化语义化HTML结构，大幅提升百度、Bing等搜索引擎的收录效果和搜索排名",
             type: "improvement"
         },
         {
-            version: "2.1.5",
             title: "修复9个任务时海报显示不全问题",
             description: "优化了海报高度计算逻辑，增加了更充足的缓冲空间以适应中文文本换行，确保9个及以上完成任务的海报能够完整显示所有内容包括底部信息",
             type: "bugfix"
         },
         {
-            version: "2.2.2",
             title: "成就海报中加入网址",
             description: "在总成就海报中添加MuseumCheck.cn网址，与单个博物馆海报保持一致，增强品牌推广和流量吸引效果",
             type: "improvement"
         },
         {
-            version: "2.2.1",
             title: "优化成就系统用户体验",
             description: "新增早期成就奖励(1家、3家博物馆)，增加特色博物馆成就、城市成就、主题成就等，降低多样性成就门槛，提供更多即时满足感和参与动机",
             type: "improvement"
         },
         {
-            version: "2.2.0",
             title: "新增成就展示系统",
             description: "基于博物馆参观数据设计成就感系统，包含参观里程碑成就、多样性成就等。用户可生成个人成就海报分享，增加应用粘性和用户参与度",
             type: "feature"
         },
         {
-            version: "2.1.11",
             title: "更新文档中的博物馆数量",
             description: "更正文档中过时的博物馆数量信息，从26家更新为实际的120家博物馆，确保文档与应用功能保持一致",
             type: "improvement"
         },
         {
-            version: "3.0.0",
             title: "扩展到120家博物馆",
             description: "大幅扩展博物馆数量从26家增加到120家，覆盖全国各省市区，包括历史博物馆、科技馆、艺术馆、专业博物馆等多种类型，为用户提供更丰富的博物馆选择和文化体验",
             type: "feature"
         },
         {
-            version: "2.1.10",
             title: "进一步优化海报设计布局",
             description: "增大模态框尺寸提升海报展示效果，优化内容间距和布局比例，提升空间利用率和视觉密度，增强整体美观度和专业感",
             type: "improvement"
         },
         {
-            version: "2.1.9",
             title: "优化海报设计布局",
             description: "修复蓝色边框没有完全包围footer的问题，优化图片显示区域大小，提升空间利用率，增大模态框尺寸以更好展示海报",
             type: "improvement"
         },
         {
-            version: "2.1.8",
             title: "修复海报预览内容为空白问题",
             description: "解决海报生成后预览区域显示空白的问题，修复canvas.cloneNode()不保存绘制内容的bug，现在海报预览能正确显示生成的海报内容",
             type: "bugfix"
         },
         {
-            version: "2.1.7",
             title: "修复海报预览显示问题",
             description: "解决海报生成按钮点击后没有出现海报画面的问题，修复海报预览canvas的display样式，确保生成的海报正确显示在预览区域",
             type: "bugfix"
         },
         {
-            version: "2.1.6",
             title: "修复海报生成显示问题",
             description: "解决海报中间多余蓝线和海报下方多余空白问题，优化海报显示效果",
             type: "bugfix"
         },
         {
-            version: "2.1.5",
             title: "修复海报底部信息显示问题",
             description: "解决海报生成时footer显示不完整的问题，优化canvas高度计算逻辑，确保底部信息完整可见",
             type: "bugfix"
         },
         {
-            version: "2.1.4",
             title: "修复海报生成显示bug",
             description: "解决有完成任务时海报生成后不显示的问题，现在海报能正确显示已完成的任务列表",
             type: "bugfix"
         },
         {
-            version: "2.1.3",
             title: "修复海报生成两大bug",
             description: "解决海报生成时出现重复画布和高度不自动调整的问题，确保海报完整显示",
             type: "bugfix"
         },
         {
-            version: "2.1.2",
             title: "修复日期错误",
             description: "更正RECENT_CHANGES中的日期错误，统一使用2025年日期",
             type: "bugfix"
         },
         {
-            version: "2.1.1", 
             title: "版本管理系统自动化",
             description: "实现版本信息集中管理，消除手动更新的错误风险",
             type: "improvement"
         },
         {
-            version: "2.1.0", 
             title: "新增更新日志功能",
             description: "添加网站更新变化展示，让用户了解网站持续改进",
             type: "feature"
         },
         {
-            version: "2.0.5",
             title: "优化海报生成功能",
             description: "改进博物馆参观海报的生成和下载体验",
             type: "improvement"
         },
         {
-            version: "2.0.4",
             title: "增加自定义任务功能",
             description: "用户可以编辑和添加个性化的博物馆参观任务",
             type: "feature"
         },
         {
-            version: "2.0.3",
             title: "响应式设计优化",
             description: "优化移动设备显示效果，提升用户体验",
             type: "improvement"
         },
         {
-            version: "2.0.2",
             title: "照片上传功能",
             description: "支持为每个任务上传照片，记录美好的博物馆时光",
             type: "feature"
@@ -21088,7 +21023,6 @@ class MuseumCheckApp {
                     <div class="change-header">
                         <div class="change-title">${change.title}</div>
                         <div class="change-meta">
-                            <span class="change-version">${change.version}</span>
                             <span class="change-type ${change.type}">${typeText[change.type] || change.type}</span>
                         </div>
                     </div>
