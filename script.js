@@ -16706,6 +16706,9 @@ const MUSEUMS = [
     }
 ];
 
+// Single source of truth for museum count - automatically calculated
+const MUSEUM_COUNT = MUSEUMS.length;
+
 class MuseumCheckApp {
     constructor() {
         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
@@ -16741,6 +16744,9 @@ class MuseumCheckApp {
         
         // Initialize age selector visual state
         this.initAgeSelector();
+        
+        // Update dynamic museum count displays
+        this.updateDynamicMuseumCounts();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -17387,6 +17393,23 @@ class MuseumCheckApp {
         this.updateAchievements(visitedCount);
     }
 
+    updateDynamicMuseumCounts() {
+        // Update all dynamic museum count displays with the actual count
+        const countText = `${MUSEUM_COUNT}家知名`;
+        
+        // Update header museum count
+        const headerElement = document.getElementById('headerMuseumCount');
+        if (headerElement) {
+            headerElement.textContent = countText;
+        }
+        
+        // Update section description museum count
+        const sectionElement = document.getElementById('sectionMuseumCount');
+        if (sectionElement) {
+            sectionElement.textContent = countText;
+        }
+    }
+
     calculateAchievements(visitedCount) {
         const achievements = [];
         
@@ -17400,7 +17423,7 @@ class MuseumCheckApp {
             { visits: 50, name: '文化达人', emoji: '🏆', description: '参观了50家博物馆' },
             { visits: 75, name: '博物馆专家', emoji: '🎓', description: '参观了75家博物馆' },
             { visits: 100, name: '文化大师', emoji: '👑', description: '参观了100家博物馆' },
-            { visits: 120, name: '博物馆收藏家', emoji: '💎', description: '完成了全部120家博物馆' }
+            { visits: MUSEUM_COUNT, name: '博物馆收藏家', emoji: '💎', description: `完成了全部${MUSEUM_COUNT}家博物馆` }
         ];
         
         // Add achieved milestones
@@ -18063,7 +18086,7 @@ class MuseumCheckApp {
         
         // Update summary stats
         document.getElementById('totalAchievements').textContent = achievedCount;
-        document.getElementById('visitProgress').textContent = `${visitedCount}/120`;
+        document.getElementById('visitProgress').textContent = `${visitedCount}/${MUSEUM_COUNT}`;
         
         // Render achievement list
         const achievementList = document.getElementById('achievementList');
@@ -18926,10 +18949,10 @@ class MuseumCheckApp {
         // Stats section  
         let yPosition = 200;
         ctx.font = 'bold 36px "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.fillText(`🏛️ 已参观 ${visitedCount} / 120 家博物馆`, canvas.width / 2, yPosition);
+        ctx.fillText(`🏛️ 已参观 ${visitedCount} / ${MUSEUM_COUNT} 家博物馆`, canvas.width / 2, yPosition);
         
         yPosition += 60;
-        const percentage = Math.round((visitedCount / 120) * 100);
+        const percentage = Math.round((visitedCount / MUSEUM_COUNT) * 100);
         ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
         ctx.fillText(`完成度: ${percentage}% | 获得成就: ${achievedAchievements.length}个`, canvas.width / 2, yPosition);
         
@@ -18945,7 +18968,7 @@ class MuseumCheckApp {
         
         // Progress bar
         ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(barX, yPosition, (barWidth * visitedCount) / 120, barHeight);
+        ctx.fillRect(barX, yPosition, (barWidth * visitedCount) / MUSEUM_COUNT, barHeight);
         
         // Achievement list
         yPosition += 80;
