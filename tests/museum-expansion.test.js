@@ -1,11 +1,12 @@
 /**
- * Tests for the museum expansion to 300 total museums (Issue #149)
+ * Tests for the systematic museum data quality improvement (Issue #200 - deduplication)
+ * After v4.7.0: Museum count reduced from 302 to 257 high-quality unique museums
  */
 
 const fs = require('fs');
 const path = require('path');
 
-describe('Museum Expansion to 300 Total Museums', () => {
+describe('Museum Data Quality After Systematic Deduplication', () => {
     let scriptContent;
 
     beforeAll(() => {
@@ -14,50 +15,56 @@ describe('Museum Expansion to 300 Total Museums', () => {
         scriptContent = fs.readFileSync(scriptPath, 'utf8');
     });
 
-    test('should have exactly 300 museums total', () => {
+    test('should have exactly 257 high-quality museums after deduplication', () => {
         // Count museum names within the MUSEUMS array (this is what users see)
         const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
         const museumNames = museumsSection.match(/name: '[^']*'/g);
         expect(museumNames).not.toBeNull();
-        expect(museumNames.length).toBe(300);
+        expect(museumNames.length).toBe(257);
     });
 
-    test('should have valid museum structure', () => {
-        // Check that we have a reasonable number of unique museum IDs
-        // (Some duplicates are acceptable as they don't break functionality)
+    test('should have no duplicate museum names or IDs', () => {
+        // Check that all museum names and IDs are unique
         const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
-        const museumIds = museumsSection.match(/id: '([^']*)'/g);
-        expect(museumIds).not.toBeNull();
         
+        // Check names
+        const museumNames = museumsSection.match(/name: '[^']*'/g) || [];
+        const names = museumNames.map(match => match.match(/name: '([^']*)'/)[1]);
+        const uniqueNames = [...new Set(names)];
+        expect(uniqueNames.length).toBe(names.length); // No duplicates
+        
+        // Check IDs 
+        const museumIds = museumsSection.match(/id: '([^']*)'/g) || [];
         const ids = museumIds.map(match => match.match(/id: '([^']*)'/)[1]);
         const uniqueIds = [...new Set(ids)];
+        expect(uniqueIds.length).toBe(ids.length); // No duplicates
         
-        // Should have at least 275 unique museums (allowing for some duplicates)
-        expect(uniqueIds.length).toBeGreaterThanOrEqual(275);
-        expect(museumIds.length).toBeGreaterThanOrEqual(300); // Allow for slight variations
+        // Should have exactly 257 unique museums
+        expect(uniqueNames.length).toBe(257);
+        expect(uniqueIds.length).toBe(257);
     });
 
-    test('version should be current or higher than 4.0.0', () => {
+    test('version should be 4.7.0 or higher (systematic deduplication version)', () => {
         const versionMatch = scriptContent.match(/version: "([^"]+)"/);
         expect(versionMatch).not.toBeNull();
         const currentVersion = versionMatch[1];
         const [major, minor, patch] = currentVersion.split('.').map(Number);
         expect(major).toBeGreaterThanOrEqual(4);
         if (major === 4) {
-            expect(minor).toBeGreaterThanOrEqual(0);
-            if (minor === 0) {
+            expect(minor).toBeGreaterThanOrEqual(7);
+            if (minor === 7) {
                 expect(patch).toBeGreaterThanOrEqual(0);
             }
         }
     });
 
-    test('should have changelog entry for museum expansion', () => {
-        expect(scriptContent).toContain('4.0.0');
-        expect(scriptContent).toContain('博物馆数量大幅扩展至300家');
-        expect(scriptContent).toContain('新增96家');
+    test('should have changelog entry for systematic deduplication', () => {
+        expect(scriptContent).toContain('4.7.0');
+        expect(scriptContent).toContain('系统性数据质量优化');
+        expect(scriptContent).toContain('257家高质量博物馆');
     });
 
-    test('all museum entries should have required fields', () => {
+    test('all museum entries should have complete required fields', () => {
         // Count each required field within the MUSEUMS array only
         const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
         const nameCount = museumsSection.match(/name: '[^']*'/g)?.length || 0;
@@ -65,11 +72,11 @@ describe('Museum Expansion to 300 Total Museums', () => {
         const descriptionCount = museumsSection.match(/description: '[^']*'/g)?.length || 0;
         const tagsCount = museumsSection.match(/tags: \[/g)?.length || 0;
         
-        // Should have at least 300 entries of each type
-        expect(nameCount).toBeGreaterThanOrEqual(300);
-        expect(locationCount).toBeGreaterThanOrEqual(300);
-        expect(descriptionCount).toBeGreaterThanOrEqual(300);
-        expect(tagsCount).toBeGreaterThanOrEqual(300);
+        // Should have exactly 257 entries of each type (no missing fields)
+        expect(nameCount).toBe(257);
+        expect(locationCount).toBe(257);
+        expect(descriptionCount).toBe(257);
+        expect(tagsCount).toBe(257);
     });
 
     test('should have Chinese content for all museums', () => {
@@ -80,11 +87,11 @@ describe('Museum Expansion to 300 Total Museums', () => {
         
         expect(chineseNameMatches).not.toBeNull();
         expect(chineseLocationMatches).not.toBeNull();
-        expect(chineseNameMatches.length).toBeGreaterThanOrEqual(300);
-        expect(chineseLocationMatches.length).toBeGreaterThanOrEqual(300);
+        expect(chineseNameMatches.length).toBe(257);
+        expect(chineseLocationMatches.length).toBe(257);
     });
 
-    test('should have checklists for all age groups', () => {
+    test('should have complete checklists for all age groups', () => {
         // Count age group entries within MUSEUMS array only
         const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
         const ageGroup36Count = museumsSection.match(/'3-6': \[/g)?.length || 0;
@@ -92,13 +99,13 @@ describe('Museum Expansion to 300 Total Museums', () => {
         const ageGroup1318Count = museumsSection.match(/'13-18': \[/g)?.length || 0;
         
         // Each museum should have 2 checklists (parent + child) × 3 age groups = 6 entries per museum
-        // Should have at least 600 entries for 300+ museums
-        expect(ageGroup36Count).toBeGreaterThanOrEqual(600); 
-        expect(ageGroup712Count).toBeGreaterThanOrEqual(600); 
-        expect(ageGroup1318Count).toBeGreaterThanOrEqual(600);
+        // Should have exactly 1542 entries for 257 museums (257 × 6 = 1542)
+        expect(ageGroup36Count).toBe(514); // 257 × 2 (parent + child)
+        expect(ageGroup712Count).toBe(514); // 257 × 2 (parent + child)
+        expect(ageGroup1318Count).toBe(514); // 257 × 2 (parent + child)
     });
 
-    test('should have diverse geographic coverage', () => {
+    test('should maintain diverse geographic coverage', () => {
         // Check for presence of museums from different regions
         const regions = ['北京', '上海', '广州', '西安', '南京', '杭州', '成都', '武汉', '重庆'];
         regions.forEach(region => {
@@ -106,7 +113,7 @@ describe('Museum Expansion to 300 Total Museums', () => {
         });
     });
 
-    test('should have diverse museum types', () => {
+    test('should maintain diverse museum types', () => {
         // Check for different types of museums in tags
         const museumTypes = ['历史', '文化', '艺术', '博物院', '纪念馆'];
         museumTypes.forEach(type => {
@@ -125,5 +132,20 @@ describe('Museum Expansion to 300 Total Museums', () => {
             expect(id).not.toContain('_');
             expect(id).not.toContain(' ');
         });
+    });
+
+    test('should have improved data quality metrics', () => {
+        // Verify the systematic improvement achieved
+        const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
+        
+        // No undefined or null names
+        expect(museumsSection).not.toContain('name: undefined');
+        expect(museumsSection).not.toContain('name: null');
+        expect(museumsSection).not.toContain('name: \'\'');
+        
+        // All entries should be properly structured
+        const museumObjects = museumsSection.match(/{\s*id:/g);
+        expect(museumObjects).not.toBeNull();
+        expect(museumObjects.length).toBe(257);
     });
 });

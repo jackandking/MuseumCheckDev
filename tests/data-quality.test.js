@@ -181,19 +181,19 @@ describe('Museum Data Quality', () => {
         expect(invalidStructures).toHaveLength(0);
     });
 
-    test('should have expected museum count (within reasonable range)', () => {
-        // Current reality: 302 museums with 40+ duplicates
-        // After cleanup: should be around 260-280 unique museums
-        // This test will need updating after systematic deduplication
+    test('should have expected museum count (after systematic deduplication)', () => {
+        // After comprehensive deduplication (v4.7.0):
+        // - Removed 45 duplicate/invalid entries (40 duplicate names + 24 duplicate IDs + 3 missing data)
+        // - Final count: 257 high-quality unique museums
         
         console.log(`Current museum count: ${museums.length}`);
         
-        // For now, just ensure we have a reasonable number
-        expect(museums.length).toBeGreaterThan(200);
-        expect(museums.length).toBeLessThan(400);
+        // Exact count after systematic deduplication
+        expect(museums.length).toBe(257);
         
-        // TODO: After systematic deduplication, update this to exact expected count
-        // expect(museums.length).toBe(EXPECTED_FINAL_COUNT);
+        // Validate that this is within reasonable operational range
+        expect(museums.length).toBeGreaterThan(200);
+        expect(museums.length).toBeLessThan(300);
     });
 
     describe('Data Consistency Checks', () => {
