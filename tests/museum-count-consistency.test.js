@@ -105,8 +105,7 @@ describe('Museum Count Consistency', () => {
         const indexHtmlPath = path.join(__dirname, '../index.html');
         const htmlContent = fs.readFileSync(indexHtmlPath, 'utf8');
         
-        // Check that HTML uses placeholder spans for dynamic counts
-        expect(htmlContent).toMatch(/id="headerMuseumCount"/);
+        // Check that HTML uses placeholder spans for dynamic counts (section count still exists)
         expect(htmlContent).toMatch(/id="sectionMuseumCount"/);
         
         // Check that hardcoded counts are removed from meta tags

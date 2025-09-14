@@ -163,14 +163,26 @@ header h1 {
 
 /* Mobile responsiveness */
 @media (max-width: 600px) {
+    .age-selector {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .age-group-legend {
+        margin-bottom: 10px;
+        font-size: 1em;
+    }
+    
     .age-options {
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
     }
     
     .age-option {
         min-width: 200px;
+        padding: 6px 12px;
+        font-size: 15px;
     }
 }
 
