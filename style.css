@@ -918,36 +918,54 @@ header h1 {
     }
     
     .stats {
-        margin-bottom: 25px;
-        padding: 15px;
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 8px;
     }
     
     .progress-display {
-        font-size: 1.5em;
-        margin-bottom: 12px;
+        font-size: 1.3em;
+        margin-bottom: 8px;
+        line-height: 1.1;
+    }
+    
+    .achievement-stats {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 6px;
     }
     
     .achievement-text {
-        font-size: 1em;
+        font-size: 0.9em;
     }
     
     .achievement-inline {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
     }
     
     .achievement-inline .achievement-text {
-        align-self: center;
+        flex: 1;
+        min-width: 0;
+        text-align: left;
     }
     
     .achievement-inline .achievement-button-inline {
-        align-self: center;
+        flex: 0 0 auto;
+        padding: 8px 12px;
+        font-size: 11px;
     }
     
     .achievement-inline .clear-data-button-icon {
-        align-self: center;
-        /* margin-left removed to avoid conflict with base style. Use a modifier class for alignment if needed. */
+        flex: 0 0 auto;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        padding: 6px;
+        font-size: 12px;
     }
 
     .achievement-buttons {
