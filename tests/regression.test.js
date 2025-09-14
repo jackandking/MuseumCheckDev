@@ -3064,4 +3064,188 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       global.confirm = originalConfirm;
     });
   });
+
+  describe('Age Group Persistence - Remember Child Age', () => {
+    /**
+     * Feature: 记住孩子年龄 (Remember Child Age)
+     * Added: Issue #238
+     * 
+     * Tests that the selected age group is saved to localStorage
+     * and restored when the app is reloaded.
+     */
+    
+    let mockApp;
+    let mockLocalStorage;
+
+    beforeEach(() => {
+      // Create our own localStorage mock to avoid conflicts
+      let store = {};
+      mockLocalStorage = {
+        getItem: jest.fn((key) => store[key] || null),
+        setItem: jest.fn((key, value) => {
+          store[key] = value.toString();
+        }),
+        removeItem: jest.fn((key) => {
+          delete store[key];
+        }),
+        clear: jest.fn(() => {
+          store = {};
+        })
+      };
+      
+      // Setup age selector HTML structure
+      document.body.innerHTML += `
+        <nav class="age-selector">
+          <fieldset class="age-group-fieldset">
+            <div class="age-options">
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="3-6" checked>
+                <span class="age-option-text">3-6岁 (学龄前)</span>
+              </label>
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="7-12">
+                <span class="age-option-text">7-12岁 (小学)</span>
+              </label>
+              <label class="age-option">
+                <input type="radio" name="ageGroup" value="13-18">
+                <span class="age-option-text">13-18岁 (中学)</span>
+              </label>
+            </div>
+          </fieldset>
+        </nav>
+      `;
+
+      // Mock app methods for testing
+      mockApp = {
+        currentAge: '3-6',
+        loadAgeGroup: function() {
+          try {
+            const saved = mockLocalStorage.getItem('ageGroup');
+            return saved || '3-6';
+          } catch (error) {
+            return '3-6';
+          }
+        },
+        saveAgeGroup: function() {
+          try {
+            mockLocalStorage.setItem('ageGroup', this.currentAge);
+          } catch (error) {
+            console.error('Failed to save age group:', error);
+          }
+        },
+        initAgeSelector: function() {
+          const savedAgeRadio = document.querySelector(`input[name="ageGroup"][value="${this.currentAge}"]`);
+          if (savedAgeRadio) {
+            savedAgeRadio.checked = true;
+          }
+          
+          const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+          if (checkedRadio) {
+            document.querySelectorAll('.age-option').forEach(option => {
+              option.classList.remove('selected');
+            });
+            checkedRadio.closest('.age-option').classList.add('selected');
+          }
+        }
+      };
+    });
+
+    test('should save age group to localStorage when changed', () => {
+      // Initially no age group saved
+      expect(mockLocalStorage.getItem('ageGroup')).toBeNull();
+      
+      // Change age group and save
+      mockApp.currentAge = '7-12';
+      mockApp.saveAgeGroup();
+      
+      // Verify it's saved
+      expect(mockLocalStorage.getItem('ageGroup')).toBe('7-12');
+      
+      // Change to different age group
+      mockApp.currentAge = '13-18';
+      mockApp.saveAgeGroup();
+      
+      // Verify it's updated
+      expect(mockLocalStorage.getItem('ageGroup')).toBe('13-18');
+    });
+
+    test('should load age group from localStorage on initialization', () => {
+      // Pre-save an age group
+      mockLocalStorage.setItem('ageGroup', '13-18');
+      
+      // Load age group
+      const loadedAge = mockApp.loadAgeGroup();
+      
+      // Should load the saved age
+      expect(loadedAge).toBe('13-18');
+    });
+
+    test('should default to "3-6" when no age group is saved', () => {
+      // Ensure no age group is saved
+      expect(mockLocalStorage.getItem('ageGroup')).toBeNull();
+      
+      // Load age group
+      const loadedAge = mockApp.loadAgeGroup();
+      
+      // Should default to '3-6'
+      expect(loadedAge).toBe('3-6');
+    });
+
+    test('should set radio button to match saved age group', () => {
+      // Set saved age group
+      mockApp.currentAge = '7-12';
+      mockApp.initAgeSelector();
+      
+      // Verify correct radio button is checked
+      const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+      expect(checkedRadio).toBeTruthy();
+      expect(checkedRadio.value).toBe('7-12');
+    });
+
+    test('should handle localStorage errors gracefully', () => {
+      // Mock localStorage error
+      const originalGetItem = mockLocalStorage.getItem;
+      mockLocalStorage.getItem = jest.fn(() => {
+        throw new Error('localStorage unavailable');
+      });
+      
+      // Should still return default age
+      const loadedAge = mockApp.loadAgeGroup();
+      expect(loadedAge).toBe('3-6');
+      
+      // Restore localStorage
+      mockLocalStorage.getItem = originalGetItem;
+    });
+
+    test('should persist age group selection across app reinitialization', () => {
+      // First "session" - user selects age group
+      mockApp.currentAge = '7-12';
+      mockApp.saveAgeGroup();
+      expect(mockLocalStorage.getItem('ageGroup')).toBe('7-12');
+      
+      // Second "session" - app reinitializes
+      const newMockApp = {
+        currentAge: mockApp.loadAgeGroup(),
+        loadAgeGroup: mockApp.loadAgeGroup
+      };
+      
+      // Should remember the selection
+      expect(newMockApp.currentAge).toBe('7-12');
+    });
+
+    test('should clear age group when all data is cleared', () => {
+      // Save an age group
+      mockLocalStorage.setItem('ageGroup', '13-18');
+      expect(mockLocalStorage.getItem('ageGroup')).toBe('13-18');
+      
+      // Clear all data (as done in clearAllData function)
+      mockLocalStorage.removeItem('ageGroup');
+      
+      // Should be cleared
+      expect(mockLocalStorage.getItem('ageGroup')).toBeNull();
+      
+      // Loading should return default
+      expect(mockApp.loadAgeGroup()).toBe('3-6');
+    });
+  });
 });

@@ -16711,8 +16711,7 @@ const MUSEUM_COUNT = MUSEUMS.length;
 
 class MuseumCheckApp {
     constructor() {
-        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
-        this.currentAge = checkedRadio ? checkedRadio.value : '3-6';
+        this.currentAge = this.loadAgeGroup();
         this.visitedMuseums = this.loadVisitedMuseums();
         this.museumChecklists = this.loadMuseumChecklists();
         this.taskPhotos = this.loadTaskPhotos(); // Will fallback to localStorage initially
@@ -16725,9 +16724,20 @@ class MuseumCheckApp {
     }
 
     initAgeSelector() {
+        // Set the radio button to match the saved age group
+        const savedAgeRadio = document.querySelector(`input[name="ageGroup"][value="${this.currentAge}"]`);
+        if (savedAgeRadio) {
+            savedAgeRadio.checked = true;
+        }
+        
         // Set initial selected state for browsers that don't support :has()
         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
         if (checkedRadio) {
+            // Remove previous selected states
+            document.querySelectorAll('.age-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            // Add selected state to the current radio
             checkedRadio.closest('.age-option').classList.add('selected');
         }
     }
@@ -17019,6 +17029,7 @@ class MuseumCheckApp {
                 if (e.target.checked) {
                     const oldAge = this.currentAge;
                     this.currentAge = e.target.value;
+                    this.saveAgeGroup(); // Save age group to localStorage
                     this.renderMuseums();
                     
                     // Update visual state for browsers that don't support :has()
@@ -17295,6 +17306,24 @@ class MuseumCheckApp {
             localStorage.setItem('museumChecklists', JSON.stringify(this.museumChecklists));
         } catch (error) {
             console.error('Failed to save museum checklists:', error);
+        }
+    }
+
+    loadAgeGroup() {
+        try {
+            const saved = localStorage.getItem('ageGroup');
+            return saved || '3-6'; // Default to '3-6' if not saved
+        } catch (error) {
+            console.error('Failed to load age group:', error);
+            return '3-6';
+        }
+    }
+
+    saveAgeGroup() {
+        try {
+            localStorage.setItem('ageGroup', this.currentAge);
+        } catch (error) {
+            console.error('Failed to save age group:', error);
         }
     }
 
