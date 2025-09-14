@@ -17423,24 +17423,62 @@ class MuseumCheckApp {
         const museum = MUSEUMS.find(m => m.id === museumId);
         const isNowVisited = index === -1;
         
+        // If unchecking (removing visit), allow without validation
         if (index > -1) {
             this.visitedMuseums.splice(index, 1);
-        } else {
+            this.saveVisitedMuseums();
+            this.renderMuseums();
+            
+            // Track museum visit toggle
+            this.trackEvent('museum_visit_toggled', {
+                'museum_id': museumId,
+                'museum_name': museum ? museum.name : '',
+                'museum_location': museum ? museum.location : '',
+                'visited': false,
+                'age_group': this.currentAge
+            });
+            return;
+        }
+        
+        // If checking (adding visit), validate child task completion first
+        if (isNowVisited) {
+            const childChecklistKey = `${museumId}-child-${this.currentAge}`;
+            const completedChildTasks = this.museumChecklists[childChecklistKey] || [];
+            
+            // If no child tasks are completed, show confirmation dialog
+            if (completedChildTasks.length === 0) {
+                const museumName = museum ? museum.name : '该博物馆';
+                const confirmed = confirm(
+                    `您还没有完成任何孩子任务就要打卡${museumName}。\n\n` +
+                    `建议至少完成一个孩子任务后再打卡，这样能更好地记录参观体验。\n\n` +
+                    `点击"确定"进入参观指南页面查看任务，或点击"取消"强制打卡。`
+                );
+                
+                if (confirmed) {
+                    // User chose to enter guide page - open museum modal
+                    this.openMuseumModal(museum);
+                    return;
+                }
+                // If user clicked "取消", continue with force check-in below
+            }
+            
+            // Proceed with checking the museum as visited
             this.visitedMuseums.push(museumId);
             // Trigger large rocket animation for museum visit
             this.triggerLargeRocket();
+            this.saveVisitedMuseums();
+            this.renderMuseums();
+            
+            // Track museum visit toggle
+            this.trackEvent('museum_visit_toggled', {
+                'museum_id': museumId,
+                'museum_name': museum ? museum.name : '',
+                'museum_location': museum ? museum.location : '',
+                'visited': true,
+                'age_group': this.currentAge,
+                'force_checkin': completedChildTasks.length === 0
+            });
         }
-        this.saveVisitedMuseums();
-        this.renderMuseums();
-        
-        // Track museum visit toggle
-        this.trackEvent('museum_visit_toggled', {
-            'museum_id': museumId,
-            'museum_name': museum ? museum.name : '',
-            'museum_location': museum ? museum.location : '',
-            'visited': isNowVisited,
-            'age_group': this.currentAge
-        });
     }
 
     updateStats() {
