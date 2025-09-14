@@ -1,8 +1,15 @@
 // Recent
 const RECENT_CHANGES = {
-    version: "3.0.0",
+    version: "3.0.1",
     lastUpdate: "2024-12-20",
     changes: [
+        {
+            date: "2024-12-20",
+            version: "3.0.1",
+            title: "优化移动端按钮布局",
+            description: "改善手机端用户体验，将成就和清空数据按钮改为水平排列，有效节省垂直空间。按钮尺寸针对移动设备优化，确保良好的触摸体验和视觉效果。",
+            type: "improvement"
+        },
         {
             date: "2024-12-20",
             version: "3.0.0",
