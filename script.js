@@ -17717,16 +17717,6 @@ class MuseumCheckApp {
                     <div class="core-goal">
                         <p class="goal-statement">${guidance.relationshipFocus.coreGoal}</p>
                     </div>
-                    <div class="relationship-metrics">
-                        <h5>📊 关系改善指标</h5>
-                        <ul class="metrics-list">
-                            ${guidance.relationshipFocus.relationshipMetrics.map(metric => `<li>${metric}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div class="relationship-benefits">
-                        <h5>✨ 长期关系收益</h5>
-                        <p class="benefits-text">${guidance.relationshipFocus.relationshipBenefits}</p>
-                    </div>
                 </div>
                 
                 <div class="expert-section">
@@ -17737,14 +17727,14 @@ class MuseumCheckApp {
                 <div class="expert-section">
                     <h4>👥 亲子互动指导</h4>
                     <ul class="expert-tips">
-                        ${guidance.parentingTips.map(tip => `<li>${tip}</li>`).join('')}
+                        ${guidance.parentingTips.slice(0, 5).map(tip => `<li>${tip}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div class="expert-section">
                     <h4>❤️ 情感支持要点</h4>
                     <ul class="emotional-support">
-                        ${guidance.emotionalSupport.map(tip => `<li>${tip}</li>`).join('')}
+                        ${guidance.emotionalSupport.slice(0, 4).map(tip => `<li>${tip}</li>`).join('')}
                     </ul>
                 </div>
                 
@@ -17754,7 +17744,7 @@ class MuseumCheckApp {
                         <div class="dialogue-starters">
                             <strong>📝 推荐话题开场：</strong>
                             <ul>
-                                ${guidance.dialogueStarters.map(starter => `<li>${starter}</li>`).join('')}
+                                ${guidance.dialogueStarters.slice(0, 4).map(starter => `<li>${starter}</li>`).join('')}
                             </ul>
                         </div>
                     </div>
@@ -17763,15 +17753,12 @@ class MuseumCheckApp {
                 <div class="expert-section">
                     <h4>🧩 多元智能激发</h4>
                     <div class="intelligence-grid">
-                        ${Object.entries(MULTIPLE_INTELLIGENCE_STRATEGIES).map(([key, value]) => `
+                        ${Object.entries(MULTIPLE_INTELLIGENCE_STRATEGIES).slice(0, 4).map(([key, value]) => `
                             <div class="intelligence-item">
                                 <div class="intelligence-header">
                                     <strong>${value.name}</strong>
                                 </div>
                                 <div class="intelligence-desc">${value.description}</div>
-                                <div class="intelligence-activities">
-                                    ${value.activities.map(activity => `<span class="activity-tag">${activity}</span>`).join('')}
-                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -17780,7 +17767,7 @@ class MuseumCheckApp {
                 <div class="expert-section">
                     <h4>🚨 常见挑战应对</h4>
                     <div class="challenges-section">
-                        ${guidance.commonChallenges.map(challenge => `
+                        ${guidance.commonChallenges.slice(0, 3).map(challenge => `
                             <div class="challenge-item">
                                 <div class="challenge-situation">
                                     <strong>情况：</strong>${challenge.situation}
@@ -17788,11 +17775,6 @@ class MuseumCheckApp {
                                 <div class="challenge-solution">
                                     <strong>应对：</strong>${challenge.solution}
                                 </div>
-                                ${challenge.preventionTips ? `
-                                <div class="challenge-prevention">
-                                    <strong>预防：</strong>${challenge.preventionTips}
-                                </div>
-                                ` : ''}
                             </div>
                         `).join('')}
                     </div>
@@ -17839,50 +17821,8 @@ class MuseumCheckApp {
                     <div class="assessment-section">
                         <p class="assessment-intro">观察这些积极信号，了解孩子的学习状态：</p>
                         <ul class="engagement-indicators">
-                            ${ASSESSMENT_TOOLS.engagementIndicators[this.currentAge].map(indicator => `<li>${indicator}</li>`).join('')}
+                            ${ASSESSMENT_TOOLS.engagementIndicators[this.currentAge].slice(0, 4).map(indicator => `<li>${indicator}</li>`).join('')}
                         </ul>
-                    </div>
-                </div>
-                
-                <div class="expert-section">
-                    <h4>🚨 危机预防与应对</h4>
-                    <div class="crisis-management">
-                        <div class="crisis-subsection">
-                            <strong>⚠️ 过度刺激预警信号：</strong>
-                            <ul class="overstimulation-signs">
-                                ${CRISIS_MANAGEMENT.overstimulationSigns.map(sign => `<li>${sign}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="crisis-subsection">
-                            <strong>🛡️ 预防策略：</strong>
-                            <ul class="meltdown-prevention">
-                                ${CRISIS_MANAGEMENT.meltdownPrevention.map(tip => `<li>${tip}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="crisis-subsection">
-                            <strong>🆘 应对措施：</strong>
-                            <ul class="meltdown-response">
-                                ${CRISIS_MANAGEMENT.meltdownResponse.map(response => `<li>${response}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="expert-section">
-                    <h4>🤔 家庭反思引导</h4>
-                    <div class="reflection-section">
-                        <div class="reflection-subsection">
-                            <strong>👨‍👩‍👧‍👦 家长自我反思：</strong>
-                            <ul class="parent-reflection">
-                                ${ASSESSMENT_TOOLS.reflectionPrompts.parentSelfReflection.map(prompt => `<li>${prompt}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="reflection-subsection">
-                            <strong>❤️ 全家共同反思：</strong>
-                            <ul class="family-reflection">
-                                ${ASSESSMENT_TOOLS.reflectionPrompts.familyReflection.map(prompt => `<li>${prompt}</li>`).join('')}
-                            </ul>
-                        </div>
                     </div>
                 </div>
                 
@@ -19448,7 +19388,7 @@ class MuseumCheckApp {
         const modal = document.getElementById('assessmentModal');
         const title = document.getElementById('assessmentTitle');
         
-        title.textContent = `🧡 ${museum.name} - 亲子关系测评`;
+        title.textContent = `🧡 ${museum.name} - 亲子测评`;
         
         // Check for existing progress
         const savedProgress = this.loadAssessmentProgress(museumId);
@@ -19559,16 +19499,6 @@ class MuseumCheckApp {
         resumeDialog.innerHTML = `
             <div class="resume-progress-content">
                 <h3>📋 发现未完成的测评</h3>
-                <p>您在这个博物馆有一个未完成的亲子关系测评，是否继续完成？</p>
-                <div class="progress-info">
-                    <p><strong>上次进度：</strong></p>
-                    <ul>
-                        <li>测评步骤：${this.getStepName(savedProgress.currentStep)}</li>
-                        <li>家长问卷：${(savedProgress.parentAnswers || []).length}/5 题已完成</li>
-                        <li>孩子问卷：${(savedProgress.childAnswers || []).length}/5 题已完成</li>
-                        <li>保存时间：${new Date(savedProgress.timestamp).toLocaleString()}</li>
-                    </ul>
-                </div>
                 <div class="resume-progress-buttons">
                     <button id="resumeAssessment" class="btn-primary">继续完成</button>
                     <button id="startNewAssessment" class="btn-secondary">重新开始</button>
@@ -19669,6 +19599,12 @@ class MuseumCheckApp {
         const nextBtn = document.getElementById('assessmentNext');
         const prevBtn = document.getElementById('assessmentPrev');
 
+        // Return early if essential elements are missing
+        if (!form || !nextBtn || !prevBtn) {
+            console.error('Assessment modal elements not found');
+            return;
+        }
+
         // Update step indicators
         steps.forEach((stepEl, index) => {
             stepEl.classList.remove('active', 'completed');
@@ -19696,48 +19632,15 @@ class MuseumCheckApp {
         }, 100);
         
         if (step === 0) {
-            // Introduction step - Optimized for mobile UX
+            // Introduction step - Simplified and concise
             const museum = this.getCurrentMuseum();
             const museumName = museum ? museum.name : '博物馆';
             
             form.innerHTML = `
                 <div class="assessment-intro-optimized">
                     <div class="assessment-welcome">
-                        <h3>${museumName} - 亲子关系测评</h3>
-                        <p class="assessment-subtitle">通过回顾这次<strong>${museumName}</strong>参观体验，了解亲子互动表现</p>
+                        <h3>${museumName} - 亲子测评</h3>
                     </div>
-                    
-                    <div class="assessment-quick-info">
-                        <div class="quick-info-item">
-                            <span class="info-icon">👨‍👩‍👧‍👦</span>
-                            <span class="info-text">家长+孩子 两部分问卷</span>
-                        </div>
-                        <div class="quick-info-item">
-                            <span class="info-icon">⏱️</span>
-                            <span class="info-text">约3分钟完成</span>
-                        </div>
-                        <div class="quick-info-item">
-                            <span class="info-icon">💡</span>
-                            <span class="info-text">获得改善建议</span>
-                        </div>
-                    </div>
-
-                    <div class="assessment-disclaimer-compact">
-                        <p><strong>📋 测评说明</strong></p>
-                        <p class="disclaimer-text">本测评仅针对此次参观，评分供参考，重点关注改进方向</p>
-                    </div>
-                    
-                    <details class="assessment-details" style="margin: 15px 0; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px;">
-                        <summary style="cursor: pointer; font-weight: bold; color: #6c5ce7;">📖 详细说明（点击展开）</summary>
-                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0;">
-                            <p><strong>测评包含两个部分：</strong></p>
-                            <ul style="text-align: left; margin: 10px 0; padding-left: 20px; font-size: 0.9em;">
-                                <li>第一部分：家长在此次参观中的表现（5道题）</li>
-                                <li>第二部分：孩子在此次参观中的表现（5道题）</li>
-                            </ul>
-                            <p style="font-size: 0.9em; color: #666;">请根据这次参观的实际情况如实回答，结果仅供参考，重点是了解优势和改进方向。</p>
-                        </div>
-                    </details>
                 </div>
             `;
             nextBtn.textContent = '开始测评';
@@ -19861,13 +19764,7 @@ class MuseumCheckApp {
         
         form.innerHTML = `
             <div class="questionnaire-section">
-                <h3>家长问卷 - ${museumName}参观体验</h3>
-                <p>请根据这次<strong>${museumName}之行</strong>中您与孩子的具体表现，选择最符合的答案：</p>
-                <div class="assessment-disclaimer">
-                    <p>🎯 <strong>专项评估说明：</strong>本测评专门针对这一次<strong>${museumName}</strong>参观中的亲子互动表现进行评估。</p>
-                    <p>📊 <strong>分数参考提醒：</strong>测评分数<strong>仅供参考</strong>，请不要过分看重数值结果。每次博物馆参观都是独特的亲子体验。</p>
-                    <p>💡 <strong>价值导向：</strong>重要的是通过本次${museumName}之行的回顾，发现亲子关系的优势并找到可以改进的地方，让未来的博物馆之旅更加愉快和有意义。</p>
-                </div>
+                <h3>家长问卷 - ${museumName}</h3>
                 ${questions.map((q, index) => `
                     <div class="question-container">
                         <div class="question-title">${index + 1}. ${q.question}</div>
@@ -19896,12 +19793,7 @@ class MuseumCheckApp {
         
         form.innerHTML = `
             <div class="questionnaire-section">
-                <h3>孩子问卷 - ${museumName}参观体验</h3>
-                <p>请根据孩子在这次<strong>${museumName}之行</strong>中的具体表现，选择最符合的答案（可由孩子自己回答或家长根据观察代为选择）：</p>
-                <div class="assessment-disclaimer">
-                    <p>👶 <strong>孩子视角评估：</strong>这些问题专门针对本次<strong>${museumName}</strong>参观体验，关注孩子的真实反应和参与度。</p>
-                    <p>🔍 <strong>观察重点：</strong>每个孩子在不同博物馆中的表现会有所不同，这很正常。重要的是了解孩子在此次活动中的感受。</p>
-                </div>
+                <h3>孩子问卷 - ${museumName}</h3>
                 ${questions.map((q, index) => `
                     <div class="question-container">
                         <div class="question-title">${index + 1}. ${q.question}</div>
