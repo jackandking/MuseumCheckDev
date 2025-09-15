@@ -16884,9 +16884,6 @@ class MuseumCheckApp {
             // Initialize visual components
             this.ageSelectorComponent.initialize();
             
-            // Update dynamic museum count displays
-            this.updateDynamicMuseumCounts();
-            
             // Set up event listeners
             this.setupEventListeners();
             
@@ -17128,7 +17125,7 @@ class MuseumCheckApp {
     updateSearchInfo() {
         const searchInfo = document.getElementById('searchInfo');
         if (searchInfo) {
-            const totalCount = MUSEUM_COUNT;
+            const totalCount = MUSEUMS.length;
             const filteredCount = this.filteredMuseums.length;
             
             if (this.searchQuery.trim()) {
@@ -17142,45 +17139,22 @@ class MuseumCheckApp {
 
     updateStats() {
         const visitedCount = this.visitedMuseums.length;
-        const totalCount = MUSEUM_COUNT;
-        const percentage = totalCount > 0 ? ((visitedCount / MUSEUM_COUNT) * 100).toFixed(1) : 0;
+        const totalCount = MUSEUMS.length;
+        const percentage = totalCount > 0 ? ((visitedCount / totalCount) * 100).toFixed(1) : 0;
         
         // Update main stats display
         const statsElement = document.getElementById('stats');
         if (statsElement) {
-            statsElement.textContent = `${visitedCount}/${MUSEUM_COUNT} 已参观 (${percentage}%)`;
+            statsElement.textContent = `${visitedCount}/${totalCount} 已参观 (${percentage}%)`;
         }
         
         // Update settings display
         const museumCountSettings = document.getElementById('museumCountSettings');
         if (museumCountSettings) {
-            museumCountSettings.textContent = MUSEUM_COUNT;
+            museumCountSettings.textContent = totalCount;
         }
         
-        console.log(`📊 Stats updated: ${visitedCount}/${MUSEUM_COUNT} (${percentage}%)`);
-    }
-
-    /**
-     * Update dynamic museum count displays throughout the app
-     */
-    updateDynamicMuseumCounts() {
-        console.log('🔄 Updating dynamic museum counts...');
-        
-        // Update any hardcoded museum count displays
-        const museumCountElements = document.querySelectorAll('[data-museum-count]');
-        museumCountElements.forEach(element => {
-            element.textContent = MUSEUM_COUNT;
-        });
-        
-        // Update achievements that reference museum counts
-        const achievementElements = document.querySelectorAll('.achievement-text');
-        achievementElements.forEach(element => {
-            if (element.textContent.includes('博物馆收藏家')) {
-                element.innerHTML = element.innerHTML.replace(/\d+家博物馆/g, `${MUSEUM_COUNT}家博物馆`);
-            }
-        });
-        
-        console.log(`✅ Museum counts updated to ${MUSEUM_COUNT}`);
+        console.log(`📊 Stats updated: ${visitedCount}/${totalCount} (${percentage}%)`);
     }
 
     toggleVisited(museumId) {
@@ -17463,52 +17437,12 @@ class MuseumCheckApp {
             currentAge: this.currentAge,
             searchQuery: this.searchQuery,
             filteredMuseumsCount: this.filteredMuseums.length,
-            totalMuseumsCount: MUSEUM_COUNT,
+            totalMuseumsCount: MUSEUMS.length,
             visitedCount: this.visitedMuseums.length,
             componentsInitialized: !!(this.museumGridComponent && this.museumModalComponent),
             servicesInitialized: !!(this.storageService && this.analyticsService)
         };
     }
-
-    /**
-     * Calculate achievements based on visit progress
-     */
-    calculateAchievements() {
-        const visitedCount = this.visitedMuseums.length;
-        const achievements = [];
-        
-        // Progress-based achievements
-        if (visitedCount >= 1) {
-            achievements.push({
-                id: 'first-visit',
-                title: '初次探索',
-                description: '完成第一次博物馆打卡',
-                icon: '🎯'
-            });
-        }
-        
-        if (visitedCount >= 10) {
-            achievements.push({
-                id: 'explorer',
-                title: '文化探险家',
-                description: '已参观10家博物馆',
-                icon: '🌟'
-            });
-        }
-        
-        if (visitedCount >= MUSEUM_COUNT) {
-            // Achievement structure that matches test expectations
-            achievements.push({
-                id: 'completionist',
-                title: '博物馆收藏家',
-                description: `已参观全部${MUSEUM_COUNT}家博物馆`,
-                icon: '🏆',
-                visits: MUSEUM_COUNT,
-                completionText: `博物馆收藏家 - 已参观全部${MUSEUM_COUNT}家博物馆`
-            });
-        }
-        
-        return achievements;
 }
 
 // Global error handling
