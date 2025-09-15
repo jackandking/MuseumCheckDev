@@ -19636,13 +19636,7 @@ class MuseumCheckApp {
             const museum = this.getCurrentMuseum();
             const museumName = museum ? museum.name : '博物馆';
             
-            form.innerHTML = `
-                <div class="assessment-intro-optimized">
-                    <div class="assessment-welcome">
-                        <h3>${museumName} - 亲子测评</h3>
-                    </div>
-                </div>
-            `;
+            form.innerHTML = ``;
             nextBtn.textContent = '开始测评';
         } else if (step === 1) {
             // Parent questionnaire
