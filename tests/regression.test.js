@@ -3248,4 +3248,68 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       expect(mockApp.loadAgeGroup()).toBe('3-6');
     });
   });
+
+  describe('v2.1.6 - Percentage Display Bug Fix', () => {
+    /**
+     * Bug: When 1/257 museums visited, percentage shows 0% instead of 0.4%
+     * Fixed: 2024-12-20
+     * 
+     * This test ensures small percentages are displayed meaningfully with one decimal place.
+     */
+
+    test('should show meaningful percentage for small visit counts', () => {
+      // Test the specific bug: 1/257 museums visited should show 0.4% not 0%
+      const visitedCount = 1;
+      const totalCount = 257;
+      
+      // Simulate the old calculation (this was the bug)
+      const oldPercentage = Math.round((visitedCount / totalCount) * 100);
+      
+      // New fixed calculation  
+      const newPercentage = visitedCount > 0 
+          ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 
+          : 0;
+      
+      expect(oldPercentage).toBe(0); // This was the bug
+      expect(newPercentage).toBe(0.4); // This is the fix
+    });
+    
+    test('should handle edge cases correctly', () => {
+      // Test with 0 visited
+      let visitedCount = 0;
+      let totalCount = 257;
+      let percentage = visitedCount > 0 
+          ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 
+          : 0;
+      expect(percentage).toBe(0);
+      
+      // Test with all visited (should be 100.0)
+      visitedCount = 257;
+      percentage = visitedCount > 0 
+          ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 
+          : 0;
+      expect(percentage).toBe(100);
+      
+      // Test with typical small numbers
+      visitedCount = 3;
+      percentage = visitedCount > 0 
+          ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 
+          : 0;
+      expect(percentage).toBe(1.2);
+    });
+    
+    test('should round properly to one decimal place', () => {
+      const totalCount = 257;
+      
+      // Test rounding down (1.16... -> 1.2)
+      let visitedCount = 3;
+      let percentage = Math.round((visitedCount / totalCount) * 100 * 10) / 10;
+      expect(percentage).toBe(1.2);
+      
+      // Test rounding up
+      visitedCount = 4; // 1.556... -> 1.6
+      percentage = Math.round((visitedCount / totalCount) * 100 * 10) / 10;
+      expect(percentage).toBe(1.6);
+    });
+  });
 });

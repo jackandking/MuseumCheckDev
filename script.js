@@ -17373,7 +17373,14 @@ class MuseumCheckApp {
                 const checkbox = card.querySelector('.visit-checkbox');
                 checkbox.addEventListener('change', (e) => {
                     e.stopPropagation();
-                    this.toggleMuseumVisit(museum.id);
+                    const wasChecked = checkbox.checked;
+                    const result = this.toggleMuseumVisit(museum.id);
+                    
+                    // If toggleMuseumVisit indicates the action was cancelled (user went to modal),
+                    // revert the checkbox state since the museum wasn't actually marked as visited
+                    if (result === 'cancelled') {
+                        checkbox.checked = !wasChecked;
+                    }
                 });
 
                 // Add assessment button event
@@ -17437,7 +17444,7 @@ class MuseumCheckApp {
                 'visited': false,
                 'age_group': this.currentAge
             });
-            return;
+            return 'unchecked';
         }
         
         // If checking (adding visit), validate child task completion first
@@ -17456,8 +17463,9 @@ class MuseumCheckApp {
                 
                 if (confirmed) {
                     // User chose to enter guide page - open museum modal
+                    // Return 'cancelled' to indicate checkbox should be reverted
                     this.openMuseumModal(museum);
-                    return;
+                    return 'cancelled';
                 }
                 // If user clicked "取消", continue with force check-in below
             }
@@ -17478,13 +17486,19 @@ class MuseumCheckApp {
                 'age_group': this.currentAge,
                 'force_checkin': completedChildTasks.length === 0
             });
+            return 'checked';
         }
+        
+        return 'no_action';
     }
 
     updateStats() {
         const visitedCount = this.visitedMuseums.length;
         const totalCount = MUSEUMS.length;
-        const percentage = totalCount > 0 ? Math.round((visitedCount / totalCount) * 100) : 0;
+        // Fix percentage display: use one decimal place to show meaningful progress for small percentages
+        const percentage = totalCount > 0 
+            ? (visitedCount > 0 ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 : 0)
+            : 0;
 
         document.getElementById('visitedCount').textContent = visitedCount;
         document.getElementById('totalCount').textContent = totalCount;
@@ -19133,7 +19147,9 @@ class MuseumCheckApp {
         ctx.fillText(`🏛️ 已参观 ${visitedCount} / ${MUSEUM_COUNT} 家博物馆`, canvas.width / 2, yPosition);
         
         yPosition += 60;
-        const percentage = Math.round((visitedCount / MUSEUM_COUNT) * 100);
+        const percentage = visitedCount > 0 
+            ? Math.round((visitedCount / MUSEUM_COUNT) * 100 * 10) / 10 
+            : 0;
         ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
         ctx.fillText(`完成度: ${percentage}% | 获得成就: ${achievedAchievements.length}个`, canvas.width / 2, yPosition);
         
