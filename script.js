@@ -21916,8 +21916,42 @@ class MuseumCheckApp {
                 score: 0,
                 timestamp: new Date().toISOString()
             };
+            
+            // Restore original modal structure before showing assessment step
+            this.resetAssessmentModalStructure();
+            
+            // Re-setup event listeners for the new DOM elements
+            this.setupAssessmentEventListeners();
+            
             this.showAssessmentStep(0);
         };
+    }
+
+    // Reset assessment modal to original structure
+    resetAssessmentModalStructure() {
+        const assessmentContent = document.getElementById('assessmentContent');
+        if (!assessmentContent) return;
+
+        // Restore the original modal structure
+        assessmentContent.innerHTML = `
+            <div class="assessment-intro">
+                <p>通过简单的问卷，了解您的亲子关系现状，获得专业的改善建议。</p>
+                <p>请根据实际情况选择最符合的答案，测评结果将帮助您更好地改善亲子关系。</p>
+            </div>
+            <div class="assessment-steps">
+                <div class="step-indicator">
+                    <span class="step active" data-step="1">1. 家长问卷</span>
+                    <span class="step" data-step="2">2. 孩子问卷</span>
+                    <span class="step" data-step="3">3. 测评结果</span>
+                </div>
+            </div>
+            <div class="assessment-form" id="assessmentForm">
+                <!-- Content will be filled dynamically -->
+            </div>
+            <div class="assessment-buttons">
+                <button id="assessmentNext" class="btn-primary">开始测评</button>
+            </div>
+        `;
     }
 
     // Get step name for display
@@ -21935,7 +21969,6 @@ class MuseumCheckApp {
         const modal = document.getElementById('assessmentModal');
         const closeBtn = modal.querySelector('.close');
         const nextBtn = document.getElementById('assessmentNext');
-        const prevBtn = document.getElementById('assessmentPrev');
 
         // Close modal
         const closeModal = () => {
@@ -21979,17 +22012,15 @@ class MuseumCheckApp {
 
         // Navigation buttons
         nextBtn.onclick = () => this.nextAssessmentStep();
-        prevBtn.onclick = () => this.prevAssessmentStep();
     }
 
     showAssessmentStep(step) {
         const form = document.getElementById('assessmentForm');
         const steps = document.querySelectorAll('.step');
         const nextBtn = document.getElementById('assessmentNext');
-        const prevBtn = document.getElementById('assessmentPrev');
 
         // Return early if essential elements are missing
-        if (!form || !nextBtn || !prevBtn) {
+        if (!form || !nextBtn) {
             console.error('Assessment modal elements not found');
             return;
         }
@@ -22004,8 +22035,7 @@ class MuseumCheckApp {
             }
         });
 
-        // Show/hide navigation buttons
-        prevBtn.style.display = step > 0 ? 'inline-block' : 'none';
+        // Remove the previous button display logic since button was removed
         
         // Auto-scroll to assessment form top for better mobile UX
         setTimeout(() => {
@@ -22248,13 +22278,6 @@ class MuseumCheckApp {
         }
         
         this.showAssessmentStep(currentStep + 1);
-    }
-
-    prevAssessmentStep() {
-        const currentStep = this.assessmentState.currentStep;
-        if (currentStep > 0) {
-            this.showAssessmentStep(currentStep - 1);
-        }
     }
 
     calculateAssessmentScore() {

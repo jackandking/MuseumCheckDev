@@ -2385,7 +2385,7 @@ main[role="main"] {
 }
 
 .assessment-steps {
-    margin-bottom: 30px;
+    margin-bottom: 5px;
 }
 
 .step-indicator {
@@ -2393,7 +2393,7 @@ main[role="main"] {
     justify-content: space-between;
     align-items: center;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .step-indicator::before {
@@ -2433,8 +2433,15 @@ main[role="main"] {
 }
 
 .assessment-form {
-    margin-bottom: 30px;
+    margin-bottom: 5px;
+    min-height: 0px;
+    transition: margin-bottom 0.3s ease;
+}
+
+/* When assessment form has content (questions), restore normal spacing */
+.assessment-form:not(:empty) {
     min-height: 300px;
+    margin-bottom: 30px;
 }
 
 .question-container {
@@ -2495,9 +2502,14 @@ main[role="main"] {
 
 .assessment-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     gap: 15px;
+}
+
+/* Hide redundant previous button to improve UX */
+#assessmentPrev {
+    display: none !important;
 }
 
 .btn-primary, .btn-secondary {
