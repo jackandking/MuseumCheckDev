@@ -21782,7 +21782,8 @@ class MuseumCheckApp {
         // Check for existing progress
         const savedProgress = this.loadAssessmentProgress(museumId);
         
-        if (savedProgress) {
+        // Only show resume dialog for truly incomplete assessments
+        if (savedProgress && savedProgress.currentStep < 3 && !savedProgress.completed) {
             // Resume from saved progress
             this.assessmentState = {
                 museumId: savedProgress.museumId,
@@ -21796,6 +21797,10 @@ class MuseumCheckApp {
             // Show resume option to user
             this.showResumeProgressDialog(savedProgress);
         } else {
+            // Clear completed or invalid progress and start fresh
+            if (savedProgress) {
+                this.clearAssessmentProgress();
+            }
             // Initialize fresh assessment state
             this.assessmentState = {
                 museumId,
@@ -21859,6 +21864,34 @@ class MuseumCheckApp {
                 const hoursDiff = (now - timestamp) / (1000 * 60 * 60);
                 
                 if (hoursDiff < 24) { // Progress valid for 24 hours
+                    // Issue #270 fix: Enhanced completion detection
+                    // Only return progress if assessment is truly incomplete
+                    if (progress.completed === true || progress.currentStep >= 3) {
+                        // Assessment is already completed, clear stale progress
+                        this.clearAssessmentProgress();
+                        return null;
+                    }
+                    
+                    // Additional validation: check if required answers are complete
+                    const parentComplete = progress.parentAnswers && progress.parentAnswers.length >= 5 && 
+                                         !progress.parentAnswers.some(a => a === undefined || a === null);
+                    const childComplete = progress.childAnswers && progress.childAnswers.length >= 5 && 
+                                        !progress.childAnswers.some(a => a === undefined || a === null);
+                    
+                    // If both questionnaires are complete, assessment should be considered completed
+                    if (parentComplete && childComplete && progress.currentStep >= 2) {
+                        this.clearAssessmentProgress();
+                        return null;
+                    }
+                    
+                    // Additional check: don't show continue for step 0 with no answers
+                    if (progress.currentStep === 0 && 
+                        (!progress.parentAnswers || progress.parentAnswers.length === 0) &&
+                        (!progress.childAnswers || progress.childAnswers.length === 0)) {
+                        this.clearAssessmentProgress();
+                        return null;
+                    }
+                    
                     return progress;
                 }
             }
@@ -21902,6 +21935,13 @@ class MuseumCheckApp {
         
         // Handle resume button
         document.getElementById('resumeAssessment').onclick = () => {
+            // Restore original modal structure before resuming
+            this.resetAssessmentModalStructure();
+            
+            // Re-setup event listeners for the restored DOM elements
+            this.setupAssessmentEventListeners();
+            
+            // Now show the assessment step
             this.showAssessmentStep(savedProgress.currentStep);
         };
         
@@ -21952,6 +21992,48 @@ class MuseumCheckApp {
                 <button id="assessmentNext" class="btn-primary">开始测评</button>
             </div>
         `;
+        
+        // Initialize step tabs with proper accessibility attributes
+        this.initializeStepTabs();
+    }
+
+    // Initialize step tabs with proper accessibility and non-clickable state
+    initializeStepTabs() {
+        const steps = document.querySelectorAll('.step');
+        steps.forEach((stepEl, index) => {
+            // Set base accessibility attributes
+            stepEl.setAttribute('role', 'tab');
+            stepEl.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+            stepEl.setAttribute('tabindex', '-1'); // Not focusable by keyboard
+            
+            // Issue #270 fix: Make tabs non-interactive indicators only
+            stepEl.style.cursor = 'default';
+            stepEl.removeAttribute('onclick');
+            stepEl.onclick = null;
+            
+            // Clear any visual indicators that suggest clickability
+            if (index === 0) {
+                stepEl.classList.add('active');
+                stepEl.style.opacity = '1';
+            } else {
+                stepEl.classList.add('disabled');
+                stepEl.style.opacity = '0.6';
+                stepEl.style.pointerEvents = 'none';
+            }
+        });
+    }
+            
+            // Set initial visual states
+            if (index === 0) {
+                stepEl.setAttribute('aria-current', 'step');
+                stepEl.setAttribute('aria-label', `当前步骤: ${this.getStepName(index + 1)}`);
+            } else {
+                stepEl.classList.add('disabled');
+                stepEl.style.opacity = '0.5';
+                stepEl.style.cursor = 'not-allowed';
+                stepEl.setAttribute('aria-label', `步骤${index + 1}: ${this.getStepName(index + 1)} - 未开始`);
+            }
+        });
     }
 
     // Get step name for display
@@ -21969,6 +22051,9 @@ class MuseumCheckApp {
         const modal = document.getElementById('assessmentModal');
         const closeBtn = modal.querySelector('.close');
         const nextBtn = document.getElementById('assessmentNext');
+
+        // Initialize step tabs when setting up listeners
+        this.initializeStepTabs();
 
         // Close modal
         const closeModal = () => {
@@ -22096,23 +22181,33 @@ class MuseumCheckApp {
         this.updateStepVisualStates(step);
     }
     
-    // Auto-scroll to form area on step changes  
+    // Auto-scroll to form area on step changes for better mobile UX
     scrollToFormArea() {
         const modalContent = document.querySelector('.modal-content.assessment-content');
         const assessmentForm = document.getElementById('assessmentForm');
         
         if (modalContent && assessmentForm) {
-            // For mobile devices, scroll to the form content specifically
+            // Issue #270 fix: Enhanced mobile auto-scroll behavior
             if (window.innerWidth <= 768) {
-                // On mobile, scroll to top of form to ensure buttons are visible
+                // On mobile, scroll to top of modal for better question visibility
                 setTimeout(() => {
                     modalContent.scrollTo({ 
                         top: 0, 
                         behavior: 'smooth' 
                     });
-                }, 100);
+                }, 150); // Slightly longer delay for better UX
             } else {
-                // On desktop, smooth scroll to top of modal
+                // On desktop, scroll to form area specifically
+                setTimeout(() => {
+                    assessmentForm.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }, 100);
+            }
+        }
+    }
                 modalContent.scrollTo({ 
                     top: 0, 
                     behavior: 'smooth' 
@@ -22129,6 +22224,7 @@ class MuseumCheckApp {
                 currentStep: this.assessmentState.currentStep,
                 parentAnswers: this.assessmentState.parentAnswers || [],
                 childAnswers: this.assessmentState.childAnswers || [],
+                completed: this.assessmentState.currentStep >= 3, // Mark as completed when on results step
                 timestamp: this.assessmentState.timestamp
             };
             
@@ -22145,6 +22241,11 @@ class MuseumCheckApp {
             stepEl.classList.remove('active', 'completed', 'disabled', 'current');
             stepEl.removeAttribute('aria-current');
             stepEl.removeAttribute('aria-label');
+            stepEl.removeAttribute('onclick'); // Remove any click handlers
+            
+            // Set base accessibility attributes for all steps
+            stepEl.setAttribute('role', 'tab');
+            stepEl.setAttribute('aria-selected', 'false');
             
             if (index < currentStep) {
                 // Completed steps
@@ -22158,6 +22259,7 @@ class MuseumCheckApp {
                 stepEl.style.cursor = 'default';
                 stepEl.style.opacity = '1';
                 stepEl.setAttribute('aria-current', 'step');
+                stepEl.setAttribute('aria-selected', 'true');
                 stepEl.setAttribute('aria-label', `当前步骤: ${this.getStepName(index + 1)}`);
             } else {
                 // Future/disabled steps
@@ -22253,8 +22355,40 @@ class MuseumCheckApp {
                 
                 // Auto-save progress after each answer
                 this.autoSaveAssessmentProgress();
+                
+                // Auto-scroll to next question on mobile for better UX
+                if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                        this.scrollToNextQuestion(questionIndex);
+                    }, 300); // Small delay to let selection animation complete
+                }
             });
         });
+    }
+
+    // Auto-scroll to next question on mobile devices
+    scrollToNextQuestion(currentQuestionIndex) {
+        const questions = document.querySelectorAll('.question-container');
+        const nextQuestion = questions[currentQuestionIndex + 1];
+        
+        if (nextQuestion) {
+            // Scroll to next question
+            nextQuestion.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+            });
+        } else {
+            // No more questions, scroll to bottom to show navigation buttons
+            const assessmentButtons = document.querySelector('.assessment-buttons');
+            if (assessmentButtons) {
+                assessmentButtons.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }
+        }
     }
 
     nextAssessmentStep() {
