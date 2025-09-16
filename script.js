@@ -22022,19 +22022,6 @@ class MuseumCheckApp {
             }
         });
     }
-            
-            // Set initial visual states
-            if (index === 0) {
-                stepEl.setAttribute('aria-current', 'step');
-                stepEl.setAttribute('aria-label', `当前步骤: ${this.getStepName(index + 1)}`);
-            } else {
-                stepEl.classList.add('disabled');
-                stepEl.style.opacity = '0.5';
-                stepEl.style.cursor = 'not-allowed';
-                stepEl.setAttribute('aria-label', `步骤${index + 1}: ${this.getStepName(index + 1)} - 未开始`);
-            }
-        });
-    }
 
     // Get step name for display
     getStepName(step) {
@@ -22205,13 +22192,6 @@ class MuseumCheckApp {
                         inline: 'nearest'
                     });
                 }, 100);
-            }
-        }
-    }
-                modalContent.scrollTo({ 
-                    top: 0, 
-                    behavior: 'smooth' 
-                });
             }
         }
     }
