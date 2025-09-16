@@ -2615,53 +2615,7 @@ main[role="main"] {
     color: #856404;
 }
 
-.assessment-steps {
-    margin-bottom: 5px;
-}
 
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    margin-bottom: 15px;
-}
-
-.step-indicator::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #e0e0e0;
-    z-index: 1;
-}
-
-.step {
-    background: white;
-    padding: 12px 20px;
-    border-radius: 25px;
-    border: 2px solid #e0e0e0;
-    color: #666;
-    font-size: 0.9em;
-    font-weight: 500;
-    z-index: 2;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.step.active {
-    background: #ff6b6b;
-    color: white;
-    border-color: #ff6b6b;
-}
-
-.step.completed {
-    background: #28a745;
-    color: white;
-    border-color: #28a745;
-}
 
 .assessment-form {
     margin-bottom: 5px;
@@ -2881,22 +2835,6 @@ main[role="main"] {
 }
 
 @media (max-width: 768px) {
-    .step-indicator {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .step-indicator::before {
-        display: none;
-    }
-    
-    .step {
-        width: 100%;
-        text-align: center;
-        padding: 10px 15px;
-        font-size: 0.85em;
-    }
-    
     .assessment-buttons {
         flex-direction: column;
         gap: 12px;
@@ -3312,47 +3250,6 @@ main[role="main"] {
 
 /* Assessment UX Improvements */
 
-/* Enhanced Step Indicator Styles */
-.step.active {
-    border-color: #ff6b6b;
-    background: #ff6b6b;
-    color: white;
-    cursor: default;
-    opacity: 1;
-}
-
-.step.completed {
-    border-color: #28a745;
-    background: #28a745;
-    color: white;
-    cursor: default;
-    opacity: 0.8;
-}
-
-.step.disabled {
-    border-color: #e0e0e0;
-    background: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.step.current {
-    animation: pulse-glow 2s infinite;
-}
-
-@keyframes pulse-glow {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-    }
-}
-
 /* Resume Progress Dialog */
 .resume-progress-dialog {
     text-align: center;
@@ -3456,21 +3353,6 @@ main[role="main"] {
         margin: 5vh auto;
         max-height: 90vh;
         overflow-y: auto;
-    }
-    
-    .step-indicator {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .step-indicator::before {
-        display: none;
-    }
-    
-    .step {
-        width: 100%;
-        text-align: center;
-        min-width: auto;
     }
     
     .assessment-buttons {
