@@ -5680,13 +5680,6 @@ class MuseumCheckApp {
                 <p>通过简单的问卷，了解您的亲子关系现状，获得专业的改善建议。</p>
                 <p>请根据实际情况选择最符合的答案，测评结果将帮助您更好地改善亲子关系。</p>
             </div>
-            <div class="assessment-steps">
-                <div class="step-indicator">
-                    <span class="step active" data-step="1">1. 家长问卷</span>
-                    <span class="step" data-step="2">2. 孩子问卷</span>
-                    <span class="step" data-step="3">3. 测评结果</span>
-                </div>
-            </div>
             <div class="assessment-form" id="assessmentForm">
                 <!-- Content will be filled dynamically -->
             </div>
@@ -5702,6 +5695,11 @@ class MuseumCheckApp {
     // Initialize step tabs with proper accessibility and non-clickable state
     initializeStepTabs() {
         const steps = document.querySelectorAll('.step');
+        if (steps.length === 0) {
+            // Step indicators have been removed for simplified UI
+            return;
+        }
+        
         steps.forEach((stepEl, index) => {
             // Set base accessibility attributes
             stepEl.setAttribute('role', 'tab');
