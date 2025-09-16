@@ -5566,7 +5566,7 @@ class MuseumCheckApp {
                 const hoursDiff = (now - timestamp) / (1000 * 60 * 60);
                 
                 if (hoursDiff < 24) { // Progress valid for 24 hours
-                    // Issue #270 fix: Enhanced completion detection
+                    // Issue #285 fix: Enhanced completion detection
                     // Only return progress if assessment is truly incomplete
                     if (progress.completed === true || progress.currentStep >= 3) {
                         // Assessment is already completed, clear stale progress
