@@ -5978,6 +5978,19 @@ class MuseumCheckApp {
 
         // Add click handlers for options
         this.setupQuestionHandlers('parent');
+        
+        // Issue #292 fix: Restore visual selection state from saved answers
+        if (this.assessmentState && this.assessmentState.parentAnswers) {
+            this.assessmentState.parentAnswers.forEach((selectedOption, questionIndex) => {
+                if (selectedOption !== undefined && selectedOption !== null) {
+                    const optionElement = document.querySelector(`[data-question="${questionIndex}"][data-option="${selectedOption}"]`);
+                    if (optionElement) {
+                        optionElement.classList.add('selected');
+                        optionElement.querySelector('input').checked = true;
+                    }
+                }
+            });
+        }
     }
 
     showChildQuestions() {
@@ -6007,6 +6020,19 @@ class MuseumCheckApp {
 
         // Add click handlers for options
         this.setupQuestionHandlers('child');
+        
+        // Issue #292 fix: Restore visual selection state from saved answers
+        if (this.assessmentState && this.assessmentState.childAnswers) {
+            this.assessmentState.childAnswers.forEach((selectedOption, questionIndex) => {
+                if (selectedOption !== undefined && selectedOption !== null) {
+                    const optionElement = document.querySelector(`[data-question="${questionIndex}"][data-option="${selectedOption}"]`);
+                    if (optionElement) {
+                        optionElement.classList.add('selected');
+                        optionElement.querySelector('input').checked = true;
+                    }
+                }
+            });
+        }
     }
 
     setupQuestionHandlers(type) {
