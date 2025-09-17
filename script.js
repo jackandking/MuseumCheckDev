@@ -6752,17 +6752,696 @@ class MuseumCheckApp {
     
     formatAnswerSummary(answers, type) {
         if (!answers || answers.length === 0) {
-            return '暂无数据';
+            return `
+                <div class="answer-summary-improved">
+                    <div class="overall-score-improved no-data">
+                        <span class="no-data-icon">📝</span>
+                        <span class="no-data-text">暂无测评数据</span>
+                    </div>
+                </div>
+            `;
         }
         
         const scores = answers.map(a => a || 0);
         const total = scores.reduce((sum, score) => sum + score, 0);
         const average = (total / scores.length).toFixed(1);
         
+        // Get user-friendly interpretations focused on key insights
+        const keyInsights = this.getKeyInsights(scores, type);
+        const overallAssessment = this.getOverallAssessment(parseFloat(average), type);
+        const topRecommendations = this.getTopRecommendations(scores, type, parseFloat(average));
+        
         return `
-            平均得分：${average}/3.0<br>
-            回答分布：${scores.map((score, i) => `Q${i+1}: ${score}`).join(', ')}
+            <div class="answer-summary-improved">
+                <div class="overall-score-improved">
+                    <span class="score-label">总体评估:</span> 
+                    <span class="score-value">${overallAssessment}</span>
+                </div>
+                
+                <div class="key-insights">
+                    ${keyInsights.map(insight => `
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <span class="insight-icon-large">${insight.icon}</span>
+                                <div class="insight-main">
+                                    <div class="insight-title">${insight.title}</div>
+                                    <div class="insight-description">${insight.description}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${topRecommendations.length > 0 ? `
+                    <div class="top-recommendations">
+                        <div class="recommendations-header">💡 改善建议</div>
+                        <div class="recommendations-grid">
+                            ${topRecommendations.map(rec => `
+                                <div class="recommendation-card">
+                                    <span class="rec-icon-large">${rec.icon}</span>
+                                    <span class="rec-text-simplified">${rec.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
         `;
+    }
+    
+    getKeyInsights(scores, type) {
+        if (type === 'parent') {
+            return this.getParentKeyInsights(scores);
+        } else {
+            return this.getChildKeyInsights(scores);
+        }
+    }
+    
+    getParentKeyInsights(scores) {
+        const insights = [];
+        
+        // Focus on the most impactful aspects
+        const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        
+        // Communication (most important)
+        const comm = scores[0];
+        if (comm >= 2) {
+            insights.push({ 
+                icon: '💬', 
+                title: '与孩子保持良好日常交流',
+                description: comm >= 3 ? '可以尝试更深入地了解孩子的内心世界' : '继续保持这种良好的交流习惯'
+            });
+        } else {
+            insights.push({ 
+                icon: '💭', 
+                title: '与孩子交流有待加强',
+                description: '建议每天安排固定时间与孩子聊天'
+            });
+        }
+
+        // Problem handling approach (second most important)
+        const handling = scores[1];
+        if (handling >= 3) {
+            insights.push({ 
+                icon: '🤝', 
+                title: '善于引导孩子独立思考',
+                description: '您的引导方式很好，有助于培养孩子的解决问题能力'
+            });
+        } else if (handling >= 2) {
+            insights.push({ 
+                icon: '👂', 
+                title: '能够倾听并给出建议',
+                description: '在给建议前，可以先引导孩子自己思考解决方案'
+            });
+        } else {
+            insights.push({ 
+                icon: '🤔', 
+                title: '可以改善处理孩子困难的方式',
+                description: '试着先问孩子"你觉得应该怎么办？"让孩子参与解决过程'
+            });
+        }
+
+        // Interest understanding (if notably good or bad)
+        const interests = scores[2];
+        if (interests >= 3) {
+            insights.push({ 
+                icon: '🎯', 
+                title: '深度了解并参与孩子兴趣',
+                description: '您对孩子兴趣的支持和参与非常到位'
+            });
+        } else if (interests <= 1) {
+            insights.push({ 
+                icon: '🤷', 
+                title: '对孩子兴趣了解有限',
+                description: '建议主动询问并尝试了解孩子感兴趣的事物和活动'
+            });
+        }
+
+        // Quality time (if notably good)
+        const feelings = scores[4];
+        if (feelings >= 3) {
+            insights.push({ 
+                icon: '🌟', 
+                title: '非常享受亲子相处时光',
+                description: '您和孩子都很享受在一起的时间，这是健康亲子关系的体现'
+            });
+        }
+        
+        // Limit to 3 most important insights
+        return insights.slice(0, 3);
+    }
+    
+    getChildKeyInsights(scores) {
+        const insights = [];
+        
+        // School sharing (communication indicator)
+        const schoolShare = scores[0];
+        if (schoolShare >= 3) {
+            insights.push({ 
+                icon: '🗣️', 
+                title: '主动分享学校趣事',
+                description: '孩子愿意分享说明对您很信任，这是很好的沟通基础'
+            });
+        } else if (schoolShare <= 1) {
+            insights.push({ 
+                icon: '💭', 
+                title: '偶尔分享学校生活',
+                description: '可以主动询问学校生活，表现出对孩子日常的关心和兴趣'
+            });
+        }
+
+        // Behavior consistency (self-control indicator)
+        const awayBehavior = scores[1];
+        if (awayBehavior >= 2) {
+            insights.push({ 
+                icon: '😌', 
+                title: '行为表现较为一致',
+                description: '孩子有良好的自控能力和安全感，这很棒'
+            });
+        } else {
+            insights.push({ 
+                icon: '🔄', 
+                title: '您不在时行为有变化',
+                description: '这很正常，可以建立一些您不在时的行为约定和期望'
+            });
+        }
+
+        // Family participation (engagement indicator)
+        const participation = scores[2];
+        if (participation >= 3) {
+            insights.push({ 
+                icon: '🎉', 
+                title: '积极参与家庭活动',
+                description: '孩子很享受家庭时光，继续规划有趣的家庭活动'
+            });
+        } else if (participation >= 2) {
+            insights.push({ 
+                icon: '👌', 
+                title: '一般会配合家庭活动',
+                description: '可以让孩子参与活动规划，提高其参与的主动性'
+            });
+        }
+
+        // Help seeking (trust indicator) 
+        const helpSeeking = scores[3];
+        if (helpSeeking >= 3) {
+            insights.push({ 
+                icon: '🆘', 
+                title: '遇到困难第一时间找您',
+                description: '孩子对您非常信任，认为您能够提供有效帮助'
+            });
+        } else if (helpSeeking <= 1) {
+            insights.push({ 
+                icon: '🔍', 
+                title: '更愿意寻求其他人帮助',
+                description: '反思您的帮助方式是否让孩子感到舒适和有效'
+            });
+        }
+
+        // Emotional sensitivity (empathy indicator)
+        const sensitivity = scores[4];
+        if (sensitivity >= 3) {
+            insights.push({ 
+                icon: '💝', 
+                title: '对您的情绪很敏感关心',
+                description: '孩子很在意您的感受，注意自己的情绪管理'
+            });
+        } else if (sensitivity <= 1) {
+            insights.push({ 
+                icon: '🤷', 
+                title: '对您的情绪关注度一般',
+                description: '可以更多地与孩子分享情绪，教导情绪识别和表达'
+            });
+        }
+        
+        // Limit to 3 most important insights
+        return insights.slice(0, 3);
+    }
+    
+    getTopRecommendations(scores, type, average) {
+        const recommendations = [];
+        
+        if (type === 'parent') {
+            // Focus on practical, specific actions parents can take
+            
+            // Communication is always priority if low
+            if (scores[0] < 2) {
+                recommendations.push({
+                    icon: '📅',
+                    text: '每天晚饭后设置15分钟聊天时间，询问孩子今天最开心的事'
+                });
+            }
+            
+            // Interest understanding if notably low
+            if (scores[2] < 2) {
+                recommendations.push({
+                    icon: '🎯',
+                    text: '这周末陪孩子做一次他们最喜欢的活动，仔细观察和询问'
+                });
+            }
+            
+            // Problem handling improvement
+            if (scores[1] < 2) {
+                recommendations.push({
+                    icon: '🤔',
+                    text: '下次孩子遇到困难时，先问"你觉得可以怎么解决？"再给建议'
+                });
+            }
+            
+            // Overall relationship if poor
+            if (average < 1.5) {
+                recommendations.push({
+                    icon: '💝',
+                    text: '考虑报名亲子关系课程，或咨询儿童心理专家获得专业指导'
+                });
+            }
+            
+        } else {
+            // Child-focused recommendations - focus on creating safe environment for child
+            if (scores[0] < 2) {
+                recommendations.push({
+                    icon: '❓',
+                    text: '每天接孩子时问："今天在学校最有趣的是什么？"耐心等待回答'
+                });
+            }
+            
+            if (scores[3] < 2) {
+                recommendations.push({
+                    icon: '🤗',
+                    text: '告诉孩子"无论什么困难都可以来找爸爸/妈妈"，并给出具体帮助的例子'
+                });
+            }
+            
+            if (scores[4] < 2) {
+                recommendations.push({
+                    icon: '😊',
+                    text: '适当地跟孩子分享您的感受："今天工作很累，但看到你我就开心了"'
+                });
+            }
+            
+            if (scores[1] < 2) {
+                recommendations.push({
+                    icon: '📋',
+                    text: '制定简单的行为约定表，让孩子参与制定规则，而不是强制执行'
+                });
+            }
+        }
+        
+        // Limit to 2 most important recommendations
+        return recommendations.slice(0, 2);
+    }
+    
+    getParentInterpretations(scores) {
+        const interpretations = [];
+        
+        // Question 1: Communication frequency
+        const comm = scores[0];
+        if (comm >= 3) {
+            interpretations.push({ 
+                icon: '💬', 
+                text: '与孩子交流十分频繁深入',
+                context: '保持这种良好的交流习惯，继续倾听孩子的想法'
+            });
+        } else if (comm >= 2) {
+            interpretations.push({ 
+                icon: '💬', 
+                text: '与孩子保持良好日常交流',
+                context: '可以尝试更深入地了解孩子的内心世界'
+            });
+        } else if (comm >= 1) {
+            interpretations.push({ 
+                icon: '💭', 
+                text: '与孩子交流有待加强',
+                context: '建议每天安排固定时间与孩子聊天，了解其一天的经历'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '😶', 
+                text: '亲子交流较为缺乏',
+                context: '需要创造更多交流机会，从孩子感兴趣的话题开始'
+            });
+        }
+        
+        // Question 2: Handling difficulties
+        const handling = scores[1];
+        if (handling >= 3) {
+            interpretations.push({ 
+                icon: '🤝', 
+                text: '善于引导孩子独立思考',
+                context: '您的引导方式很好，有助于培养孩子的解决问题能力'
+            });
+        } else if (handling >= 2) {
+            interpretations.push({ 
+                icon: '👂', 
+                text: '能够倾听并给出建议',
+                context: '在给建议前，可以先引导孩子自己思考解决方案'
+            });
+        } else if (handling >= 1) {
+            interpretations.push({ 
+                icon: '⚡', 
+                text: '倾向于直接给出解决方案',
+                context: '试着先问孩子"你觉得应该怎么办？"让孩子参与解决过程'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '❌', 
+                text: '对孩子困难处理方式需改善',
+                context: '建议学习更耐心的引导方式，避免批评，多给予支持'
+            });
+        }
+        
+        // Question 3: Understanding interests
+        const interests = scores[2];
+        if (interests >= 3) {
+            interpretations.push({ 
+                icon: '🎯', 
+                text: '深度了解并参与孩子兴趣',
+                context: '您对孩子兴趣的支持和参与非常到位，继续保持'
+            });
+        } else if (interests >= 2) {
+            interpretations.push({ 
+                icon: '👍', 
+                text: '比较了解孩子的兴趣爱好',
+                context: '可以更主动地参与孩子的兴趣活动，增进亲子关系'
+            });
+        } else if (interests >= 1) {
+            interpretations.push({ 
+                icon: '🤷', 
+                text: '对孩子兴趣了解有限',
+                context: '建议主动询问并尝试了解孩子感兴趣的事物和活动'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '❓', 
+                text: '对孩子兴趣关注不足',
+                context: '多观察孩子的日常行为，发现并培养孩子的兴趣爱好'
+            });
+        }
+        
+        // Question 4: Child's sharing
+        const sharing = scores[3];
+        if (sharing >= 3) {
+            interpretations.push({ 
+                icon: '💖', 
+                text: '孩子非常愿意分享内心想法',
+                context: '孩子对您非常信任，请继续珍惜这种亲密关系'
+            });
+        } else if (sharing >= 2) {
+            interpretations.push({ 
+                icon: '😊', 
+                text: '孩子愿意分享日常感受',
+                context: '可以通过更多倾听和理解，鼓励孩子分享更深层的想法'
+            });
+        } else if (sharing >= 1) {
+            interpretations.push({ 
+                icon: '😐', 
+                text: '孩子分享意愿一般',
+                context: '创造安全的交流环境，让孩子感到被理解而非被评判'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '😔', 
+                text: '孩子较少主动分享想法',
+                context: '需要建立更多信任，通过耐心倾听和理解来鼓励孩子开放'
+            });
+        }
+        
+        // Question 5: Quality time feelings
+        const feelings = scores[4];
+        if (feelings >= 3) {
+            interpretations.push({ 
+                icon: '🌟', 
+                text: '非常享受亲子相处时光',
+                context: '您和孩子都很享受在一起的时间，这是健康亲子关系的体现'
+            });
+        } else if (feelings >= 2) {
+            interpretations.push({ 
+                icon: '😄', 
+                text: '亲子相处大多愉快轻松',
+                context: '尝试规划更多有趣的亲子活动，让相处时光更加丰富'
+            });
+        } else if (feelings >= 1) {
+            interpretations.push({ 
+                icon: '😕', 
+                text: '亲子相处时有压力感',
+                context: '可能需要调整期望值，更多关注过程的愉快而非结果'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '😰', 
+                text: '亲子相处常感紧张压力',
+                context: '建议寻求专业指导，学习更轻松有效的亲子相处方式'
+            });
+        }
+        
+        return interpretations;
+    }
+    
+    getChildInterpretations(scores) {
+        const interpretations = [];
+        
+        // Question 1: Sharing school events
+        const schoolShare = scores[0];
+        if (schoolShare >= 3) {
+            interpretations.push({ 
+                icon: '🗣️', 
+                text: '主动分享学校趣事',
+                context: '孩子愿意分享说明对您很信任，这是很好的沟通基础'
+            });
+        } else if (schoolShare >= 2) {
+            interpretations.push({ 
+                icon: '💭', 
+                text: '偶尔分享学校生活',
+                context: '可以主动询问学校生活，表现出对孩子日常的关心和兴趣'
+            });
+        } else if (schoolShare >= 1) {
+            interpretations.push({ 
+                icon: '🤐', 
+                text: '需要询问才会分享',
+                context: '耐心引导，用开放式问题鼓励孩子表达，如"今天有什么有趣的事？"'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '😶', 
+                text: '很少分享学校情况',
+                context: '需要创造更轻松的氛围，让孩子感到分享是安全和受欢迎的'
+            });
+        }
+        
+        // Question 2: Behavior when parent away
+        const awayBehavior = scores[1];
+        if (awayBehavior >= 3) {
+            interpretations.push({ 
+                icon: '💕', 
+                text: '会想念您并期待回来',
+                context: '说明孩子与您的情感连接很强，这是健康依恋关系的表现'
+            });
+        } else if (awayBehavior >= 2) {
+            interpretations.push({ 
+                icon: '😌', 
+                text: '行为表现较为一致',
+                context: '孩子有良好的自控能力和安全感，这很棒'
+            });
+        } else if (awayBehavior >= 1) {
+            interpretations.push({ 
+                icon: '🔄', 
+                text: '您不在时行为有变化',
+                context: '这很正常，可以建立一些您不在时的行为约定和期望'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '😅', 
+                text: '您不在时更放松自由',
+                context: '可能需要反思在场时是否对孩子要求过于严格'
+            });
+        }
+        
+        // Question 3: Family activity participation
+        const participation = scores[2];
+        if (participation >= 3) {
+            interpretations.push({ 
+                icon: '🎉', 
+                text: '积极参与家庭活动',
+                context: '孩子很享受家庭时光，继续规划有趣的家庭活动'
+            });
+        } else if (participation >= 2) {
+            interpretations.push({ 
+                icon: '👌', 
+                text: '一般会配合家庭活动',
+                context: '可以让孩子参与活动规划，提高其参与的主动性'
+            });
+        } else if (participation >= 1) {
+            interpretations.push({ 
+                icon: '😑', 
+                text: '被动参与家庭活动',
+                context: '选择更符合孩子兴趣的活动，或让孩子有更多选择权'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '🚪', 
+                text: '不太愿意参与家庭活动',
+                context: '需要了解孩子的真实想法，调整活动内容或方式'
+            });
+        }
+        
+        // Question 4: Seeking help when frustrated
+        const helpSeeking = scores[3];
+        if (helpSeeking >= 3) {
+            interpretations.push({ 
+                icon: '🆘', 
+                text: '遇到困难第一时间找您',
+                context: '孩子对您非常信任，认为您能够提供有效帮助'
+            });
+        } else if (helpSeeking >= 2) {
+            interpretations.push({ 
+                icon: '🤔', 
+                text: '有时会向您寻求帮助',
+                context: '可以主动关心孩子是否遇到困难，建立更多支持'
+            });
+        } else if (helpSeeking >= 1) {
+            interpretations.push({ 
+                icon: '🔍', 
+                text: '更愿意寻求其他人帮助',
+                context: '反思您的帮助方式是否让孩子感到舒适和有效'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '💪', 
+                text: '倾向于独自承受困难',
+                context: '需要让孩子知道寻求帮助是正常的，您总是愿意支持'
+            });
+        }
+        
+        // Question 5: Sensitivity to your emotions
+        const sensitivity = scores[4];
+        if (sensitivity >= 3) {
+            interpretations.push({ 
+                icon: '💝', 
+                text: '对您的情绪很敏感关心',
+                context: '孩子很在意您的感受，注意自己的情绪管理'
+            });
+        } else if (sensitivity >= 2) {
+            interpretations.push({ 
+                icon: '👀', 
+                text: '会注意到您的情绪变化',
+                context: '孩子有一定的情绪敏感度，可以适当分享情绪管理方法'
+            });
+        } else {
+            interpretations.push({ 
+                icon: '🤷', 
+                text: '对您的情绪关注度一般',
+                context: '可以更多地与孩子分享情绪，教导情绪识别和表达'
+            });
+        }
+        
+        return interpretations;
+    }
+    
+    getActionableRecommendations(scores, type, average) {
+        const recommendations = [];
+        
+        if (type === 'parent') {
+            // Communication recommendations
+            if (scores[0] < 2) {
+                recommendations.push({
+                    icon: '📅',
+                    text: '建立每日谈心时间，了解孩子一天的经历和感受'
+                });
+            }
+            
+            // Problem-solving guidance recommendations
+            if (scores[1] < 2) {
+                recommendations.push({
+                    icon: '🤔',
+                    text: '遇到问题时先问"你觉得应该怎么办？"培养孩子思考能力'
+                });
+            }
+            
+            // Interest understanding recommendations
+            if (scores[2] < 2) {
+                recommendations.push({
+                    icon: '🎯',
+                    text: '花时间参与孩子的兴趣活动，了解他们喜欢什么'
+                });
+            }
+            
+            // Sharing encouragement recommendations
+            if (scores[3] < 2) {
+                recommendations.push({
+                    icon: '👂',
+                    text: '创造安全的交流环境，多倾听少评判，鼓励孩子表达'
+                });
+            }
+            
+            // Quality time recommendations
+            if (scores[4] < 2) {
+                recommendations.push({
+                    icon: '🌸',
+                    text: '降低期望压力，专注于享受与孩子相处的过程'
+                });
+            }
+            
+            // Overall recommendations based on average
+            if (average < 1.5) {
+                recommendations.push({
+                    icon: '📚',
+                    text: '考虑参加亲子关系课程或寻求专业育儿指导'
+                });
+            }
+        } else {
+            // Child-focused recommendations
+            if (scores[0] < 2) {
+                recommendations.push({
+                    icon: '❓',
+                    text: '主动询问学校生活，用开放式问题引导孩子分享'
+                });
+            }
+            
+            if (scores[2] < 2) {
+                recommendations.push({
+                    icon: '🎮',
+                    text: '让孩子参与家庭活动规划，选择更符合其兴趣的活动'
+                });
+            }
+            
+            if (scores[3] < 2) {
+                recommendations.push({
+                    icon: '🤗',
+                    text: '主动关心孩子的困难，让孩子知道您随时愿意提供帮助'
+                });
+            }
+            
+            if (scores[4] < 2) {
+                recommendations.push({
+                    icon: '😊',
+                    text: '与孩子分享您的情绪，教导情绪识别和健康表达方式'
+                });
+            }
+        }
+        
+        return recommendations;
+    }
+    
+    getOverallAssessment(average, type) {
+        const isParent = type === 'parent';
+        
+        if (average >= 2.5) {
+            return isParent ? 
+                '亲子关系：优秀 🌟🌟🌟' : 
+                '孩子表现：优秀 ⭐⭐⭐';
+        } else if (average >= 2.0) {
+            return isParent ? 
+                '亲子关系：良好 🌟🌟' : 
+                '孩子表现：良好 ⭐⭐';
+        } else if (average >= 1.0) {
+            return isParent ? 
+                '亲子关系：有提升空间 🌱' : 
+                '孩子表现：成长中 🌱';
+        } else {
+            return isParent ? 
+                '亲子关系：需要用心呵护 💙' : 
+                '孩子表现：需要更多关爱 💙';
+        }
     }
     
     formatDate(date) {

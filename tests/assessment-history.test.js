@@ -299,10 +299,18 @@ describe('Assessment History Functionality', () => {
                 const mockAnswers = [2, 3, 1, 2, 3]; // scores from 0-3
                 const summary = museumCheck.formatAnswerSummary(mockAnswers, 'parent');
                 
-                expect(summary).toContain('平均得分：2.2/3.0');
-                expect(summary).toContain('Q1: 2');
-                expect(summary).toContain('Q2: 3');
-                expect(summary).toContain('Q5: 3');
+                // Should contain user-friendly assessment instead of raw scores
+                expect(summary).toContain('总体评估');
+                expect(summary).toContain('answer-summary-improved');
+                
+                // Should NOT contain the old technical format
+                expect(summary).not.toContain('平均得分：2.2/3.0');
+                expect(summary).not.toContain('Q1: 2');
+                expect(summary).not.toContain('Q2: 3');
+                expect(summary).not.toContain('Q5: 3');
+                
+                // Should contain insights and recommendations
+                expect(summary).toContain('key-insights');
             }
         });
     });
