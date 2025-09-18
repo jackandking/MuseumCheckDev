@@ -20,6 +20,132 @@ body {
     background-color: var(--secondary-color);
 }
 
+/* Benefits Section Styles */
+.benefits-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.benefits-section h2 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.benefits-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.benefit-item {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.benefit-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.benefit-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.benefit-item h3 {
+    color: var(--primary-color);
+    font-size: 1.3em;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.benefit-item p {
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.95em;
+}
+
+.call-to-action {
+    background: linear-gradient(135deg, var(--primary-color), #4a90e2);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.cta-text {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.cta-text strong {
+    display: block;
+    font-size: 1.3em;
+    margin-bottom: 8px;
+}
+
+/* Mobile responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .benefits-section {
+        padding: 10px;
+    }
+    
+    .benefits-section h2 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    
+    .benefits-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .benefit-item {
+        padding: 20px;
+    }
+    
+    .benefit-icon {
+        font-size: 2.5em;
+        margin-bottom: 12px;
+    }
+    
+    .benefit-item h3 {
+        font-size: 1.2em;
+    }
+    
+    .call-to-action {
+        padding: 25px 20px;
+    }
+    
+    .cta-text {
+        font-size: 1em;
+    }
+    
+    .cta-text strong {
+        font-size: 1.2em;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
