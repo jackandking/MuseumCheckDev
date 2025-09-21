@@ -3242,6 +3242,11 @@ class MuseumCheckApp {
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
         });
+
+        // Achievement poster generation button
+        document.getElementById('generateAchievementPoster').addEventListener('click', () => {
+            this.generateAchievementPoster();
+        });
     }
 
     // Search functionality methods
