@@ -824,6 +824,51 @@ header h1 {
     flex: 0 0 auto;
 }
 
+.assessment-stats {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0, 123, 255, 0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+.assessment-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.assessment-scores {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+}
+
+.assessment-score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.score-value {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.score-label {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 2px;
+}
+
+.assessment-history-button-inline {
+    flex: 0 0 auto;
+}
+
 .achievement-buttons {
     display: flex;
     gap: 15px;
@@ -1245,6 +1290,38 @@ header h1 {
     
     .achievement-inline .achievement-button-inline {
         flex: 0 0 auto;
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    
+    .assessment-stats {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 6px;
+    }
+    
+    .assessment-inline {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .assessment-scores {
+        gap: 12px;
+        flex: 1;
+    }
+    
+    .score-value {
+        font-size: 1.2em;
+    }
+    
+    .score-label {
+        font-size: 0.75em;
+    }
+    
+    .assessment-history-button-inline {
         padding: 8px 12px;
         font-size: 11px;
     }

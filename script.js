@@ -7304,9 +7304,20 @@ class MuseumCheckApp {
             : 0;
         const latestScore = totalAssessments > 0 ? results[0].score : 0;
         
+        // Update modal display
         document.getElementById('totalAssessments').textContent = totalAssessments;
         document.getElementById('averageScore').textContent = averageScore;
         document.getElementById('latestScore').textContent = latestScore;
+        
+        // Update main page display
+        const mainAverageScore = document.getElementById('mainAverageScore');
+        const mainLatestScore = document.getElementById('mainLatestScore');
+        if (mainAverageScore) {
+            mainAverageScore.textContent = averageScore;
+        }
+        if (mainLatestScore) {
+            mainLatestScore.textContent = latestScore;
+        }
     }
     
     populateMuseumFilter(results) {
