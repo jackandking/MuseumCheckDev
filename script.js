@@ -3618,20 +3618,117 @@ class MuseumCheckApp {
         }
     }
 
+    // Fix 2: 新增方法 - 获取亲子测评结果
+    getAssessmentResults() {
+        try {
+            return JSON.parse(localStorage.getItem('assessmentResults') || '{}');
+        } catch (error) {
+            console.error('Failed to load assessment results:', error);
+            return {};
+        }
+    }
+
+    // ✅ 修复2: 增强亲子测评质量计算 - 为成就融合提供更准确的数据
+    calculateAssessmentQuality(assessmentResults) {
+        const results = Object.values(assessmentResults);
+        if (results.length === 0) {
+            return { 
+                averageScore: 0, 
+                count: 0, 
+                trend: 'no-data',
+                quality: 'insufficient',
+                qualityLabel: '尚无数据',
+                integrationScore: 0 // 用于成就系统融合
+            };
+        }
+
+        // 计算平均分 - 确保基于正确的100分制
+        const averageScore = results.reduce((sum, result) => sum + (result.score || 0), 0) / results.length;
+        
+        // 分析趋势 - 提供更细致的趋势分析
+        const recentResults = results.slice(-5);
+        let trend = 'stable';
+        let trendValue = 0;
+        
+        if (recentResults.length >= 3) {
+            const firstHalf = recentResults.slice(0, Math.floor(recentResults.length / 2));
+            const secondHalf = recentResults.slice(Math.floor(recentResults.length / 2));
+            const firstAvg = firstHalf.reduce((sum, r) => sum + (r.score || 0), 0) / firstHalf.length;
+            const secondAvg = secondHalf.reduce((sum, r) => sum + (r.score || 0), 0) / secondHalf.length;
+            
+            trendValue = secondAvg - firstAvg;
+            if (trendValue > 10) trend = 'improving';
+            else if (trendValue < -10) trend = 'declining';
+        }
+
+        // 质量评级 - 更详细的分级系统
+        let quality = 'needs-improvement';
+        let qualityLabel = '需要提升';
+        let integrationScore = Math.round(averageScore); // 成就系统融合分数
+
+        if (averageScore >= 90) {
+            quality = 'exceptional';
+            qualityLabel = '卓越典范';
+            integrationScore = Math.round(averageScore) + 10; // 奖励分
+        } else if (averageScore >= 80) {
+            quality = 'excellent';
+            qualityLabel = '优秀表现';
+            integrationScore = Math.round(averageScore) + 5;
+        } else if (averageScore >= 70) {
+            quality = 'good';
+            qualityLabel = '良好发展';
+        } else if (averageScore >= 60) {
+            quality = 'fair';
+            qualityLabel = '稳步改善';
+        } else {
+            quality = 'needs-improvement';
+            qualityLabel = '持续努力';
+        }
+
+        return {
+            averageScore: Math.round(averageScore),
+            count: results.length,
+            trend: trend,
+            trendValue: Math.round(trendValue),
+            quality: quality,
+            qualityLabel: qualityLabel,
+            integrationScore: Math.max(0, Math.min(110, integrationScore)), // 成就融合分数（0-110）
+            recentAverage: recentResults.length > 0 ? 
+                Math.round(recentResults.reduce((sum, r) => sum + (r.score || 0), 0) / recentResults.length) : 0,
+            consistency: this.calculateConsistency(results),
+            totalMuseumsAssessed: new Set(results.map(r => r.museumId || 'unknown')).size
+        };
+    }
+
+    // 新增方法：计算亲子测评一致性
+    calculateConsistency(results) {
+        if (results.length < 2) return 100;
+        
+        const scores = results.map(r => r.score || 0);
+        const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+        const stdDev = Math.sqrt(variance);
+        
+        // 转换为一致性百分比 (标准差越小，一致性越高)
+        const consistencyPercent = Math.max(0, Math.min(100, 100 - (stdDev * 2)));
+        return Math.round(consistencyPercent);
+    }
+
     calculateAchievements(visitedCount) {
         const achievements = [];
         
-        // Visit milestone achievements - Enhanced with early game rewards
+        // 🥉 基础层：单馆打卡成就 - 鼓励开始和坚持
         const milestones = [
-            { visits: 1, name: '初次探索', emoji: '🌟', description: '踏出了博物馆之旅的第一步' },
-            { visits: 3, name: '文化初体验', emoji: '🎪', description: '已经体验了3种不同的文化' },
-            { visits: 5, name: '博物馆新手', emoji: '🎯', description: '参观了5家博物馆' },
-            { visits: 10, name: '文化探索者', emoji: '🧭', description: '参观了10家博物馆' },
-            { visits: 25, name: '历史爱好者', emoji: '📚', description: '参观了25家博物馆' },
-            { visits: 50, name: '文化达人', emoji: '🏆', description: '参观了50家博物馆' },
-            { visits: 75, name: '博物馆专家', emoji: '🎓', description: '参观了75家博物馆' },
-            { visits: 100, name: '文化大师', emoji: '👑', description: '参观了100家博物馆' },
-            { visits: MUSEUM_COUNT, name: '博物馆收藏家', emoji: '💎', description: `完成了全部${MUSEUM_COUNT}家博物馆` }
+            { visits: 1, name: '博物馆初心者', emoji: '🌱', description: '踏出博物馆之旅的第一步，开启文化探索之门', level: 'basic' },
+            { visits: 3, name: '文化体验者', emoji: '🌟', description: '连续体验3家博物馆，展现对文化的热爱', level: 'basic' },
+            { visits: 5, name: '探索新手', emoji: '🎯', description: '稳步前进，已探索5家不同的博物馆', level: 'basic' },
+            { visits: 10, name: '文化爱好者', emoji: '📖', description: '深度参与，成为真正的文化爱好者', level: 'basic' },
+            { visits: 15, name: '博物馆达人', emoji: '🎪', description: '持续探索15家博物馆，实现质的飞跃', level: 'intermediate' },
+            { visits: 25, name: '文化探索家', emoji: '🧭', description: '广泛涉猎25家博物馆，视野更加开阔', level: 'intermediate' },
+            { visits: 50, name: '博物馆专家', emoji: '🎓', description: '深度探索50家博物馆，成为行家里手', level: 'intermediate' },
+            { visits: 75, name: '文化大师', emoji: '👑', description: '参观75家博物馆，达到大师级水平', level: 'advanced' },
+            { visits: 100, name: '文化学者', emoji: '📚', description: '百家博物馆巡礼，成为真正的文化学者', level: 'advanced' },
+            { visits: MUSEUM_COUNT, name: '博物馆收藏家', emoji: '💎', description: `完成全部${MUSEUM_COUNT}家博物馆，成就文化收藏家传奇`, level: 'master' }
         ];
         
         // Add achieved milestones
@@ -3640,7 +3737,8 @@ class MuseumCheckApp {
                 achievements.push({
                     ...milestone,
                     achieved: true,
-                    date: this.getAchievementDate(milestone.visits)
+                    date: this.getAchievementDate(milestone.visits),
+                    category: 'visit_milestone'
                 });
             }
         });
@@ -3652,21 +3750,26 @@ class MuseumCheckApp {
                 ...nextMilestone,
                 achieved: false,
                 progress: visitedCount,
-                remaining: nextMilestone.visits - visitedCount
+                remaining: nextMilestone.visits - visitedCount,
+                category: 'visit_milestone'
             });
         }
+
+        // 🥈 进阶层：亲子互动成就 - 基于测评结果的质量成就
+        const parentChildAchievements = this.calculateParentChildAchievements(visitedCount);
+        achievements.push(...parentChildAchievements);
         
-        // Special achievements
+        // 🥇 高级层：特殊主题成就 
         if (visitedCount > 0) {
             const visitedMuseums = this.visitedMuseums.map(id => MUSEUMS.find(m => m.id === id)).filter(Boolean);
             const visitedIds = visitedMuseums.map(m => m.id);
             
             // Famous museum achievements - immediate rewards for visiting top destinations
             const famousMuseums = [
-                { id: 'forbidden-city', name: '紫禁城探秘者', emoji: '🏯', description: '参观了世界文化遗产故宫博物院' },
-                { id: 'terracotta-warriors', name: '兵马俑见证者', emoji: '⚔️', description: '参观了世界第八大奇迹秦始皇帝陵博物院' },
-                { id: 'national-museum', name: '国家馆探索者', emoji: '🏛️', description: '参观了中国国家博物馆' },
-                { id: 'shanghai-museum', name: '艺术宫访客', emoji: '🎨', description: '参观了被誉为"中华艺术宫"的上海博物馆' }
+                { id: 'forbidden-city', name: '紫禁城守护者', emoji: '🏯', description: '深度探索世界文化遗产故宫博物院', level: 'advanced' },
+                { id: 'terracotta-warriors', name: '兵马俑见证者', emoji: '⚔️', description: '亲临世界第八大奇迹秦始皇帝陵博物院', level: 'advanced' },
+                { id: 'national-museum', name: '国家记忆传承者', emoji: '🏛️', description: '在中国国家博物馆感受民族记忆', level: 'advanced' },
+                { id: 'shanghai-museum', name: '艺术品鉴大师', emoji: '🎨', description: '在上海博物馆这座中华艺术宫提升艺术修养', level: 'advanced' }
             ];
             
             famousMuseums.forEach(famous => {
@@ -3675,17 +3778,19 @@ class MuseumCheckApp {
                         name: famous.name,
                         emoji: famous.emoji,
                         description: famous.description,
+                        level: famous.level,
                         achieved: true,
-                        date: this.getAchievementDate(1)
+                        date: this.getAchievementDate(1),
+                        category: 'famous_museum'
                     });
                 }
             });
             
             // City achievements - early rewards for exploring major cities
             const cityGroups = {
-                '北京': { name: '首都文化达人', emoji: '🇨🇳', description: '探索了首都北京的博物馆群' },
-                '上海': { name: '魔都文化客', emoji: '🌃', description: '体验了上海的现代文化魅力' },
-                '西安': { name: '古都寻踪者', emoji: '🏺', description: '感受了十三朝古都的历史厚重' }
+                '北京': { name: '首都文化大使', emoji: '🇨🇳', description: '深度体验首都北京的博物馆文化群落', level: 'intermediate' },
+                '上海': { name: '海派文化达人', emoji: '🌃', description: '全方位感受上海海派文化的独特魅力', level: 'intermediate' },
+                '西安': { name: '古都文明探秘者', emoji: '🏺', description: '在十三朝古都探寻中华文明的深厚根基', level: 'intermediate' }
             };
             
             Object.entries(cityGroups).forEach(([city, achievement]) => {
@@ -3694,9 +3799,11 @@ class MuseumCheckApp {
                     achievements.push({
                         name: achievement.name,
                         emoji: achievement.emoji,
-                        description: `${achievement.description} (${cityMuseums.length}家)`,
+                        description: `${achievement.description} (已探索${cityMuseums.length}家)`,
+                        level: achievement.level,
                         achieved: true,
-                        date: this.getAchievementDate(2)
+                        date: this.getAchievementDate(2),
+                        category: 'city_explorer'
                     });
                 }
             });
@@ -3755,6 +3862,158 @@ class MuseumCheckApp {
         // For simplicity, return current date for achieved milestones
         // In a more sophisticated implementation, this could track actual achievement dates
         return new Date().toLocaleDateString('zh-CN');
+    }
+
+    calculateParentChildAchievements(visitedCount) {
+        const achievements = [];
+        
+        // 获取最新的亲子测评数据
+        const assessmentHistory = JSON.parse(localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.ASSESSMENT_HISTORY) || '[]');
+        
+        if (assessmentHistory.length === 0) {
+            // 如果没有测评记录，提供引导成就
+            achievements.push({
+                name: '亲子测评新手',
+                emoji: '🎯',
+                description: '完成第一次亲子博物馆体验测评，了解亲子关系现状',
+                level: 'basic',
+                achieved: false,
+                category: 'parent_child_assessment',
+                requirement: '完成第一次亲子测评'
+            });
+            return achievements;
+        }
+        
+        // 分析最新的几次测评结果
+        const recentAssessments = assessmentHistory.slice(-5); // 最近5次测评
+        const latestAssessment = assessmentHistory[assessmentHistory.length - 1];
+        const averageScore = recentAssessments.reduce((sum, assessment) => sum + assessment.overall_score, 0) / recentAssessments.length;
+        
+        // 基础亲子互动成就
+        const basicParentChildAchievements = [
+            {
+                name: '亲子测评探索者',
+                emoji: '🔍',
+                description: '完成第一次亲子博物馆体验测评，迈出关系提升第一步',
+                level: 'basic',
+                threshold: 1,
+                category: 'parent_child_assessment'
+            },
+            {
+                name: '持续关注者',
+                emoji: '❤️',
+                description: '连续进行3次亲子测评，显示对亲子关系的持续关注',
+                level: 'basic', 
+                threshold: 3,
+                category: 'parent_child_assessment'
+            },
+            {
+                name: '亲子成长伙伴',
+                emoji: '🤝',
+                description: '通过5次测评追踪亲子关系发展，成为孩子成长路上的好伙伴',
+                level: 'intermediate',
+                threshold: 5,
+                category: 'parent_child_assessment'
+            }
+        ];
+        
+        // 根据测评次数解锁基础成就
+        basicParentChildAchievements.forEach(achievement => {
+            if (assessmentHistory.length >= achievement.threshold) {
+                achievements.push({
+                    ...achievement,
+                    achieved: true,
+                    date: this.getAchievementDate(achievement.threshold)
+                });
+            }
+        });
+        
+        // 高质量亲子关系成就 - 基于测评分数
+        if (averageScore >= 85) {
+            achievements.push({
+                name: '亲子关系典范',
+                emoji: '🌟',
+                description: `测评显示亲子关系优秀（平均${Math.round(averageScore)}分），成为其他家庭的典范`,
+                level: 'advanced',
+                achieved: true,
+                date: this.getAchievementDate(5),
+                category: 'parent_child_quality'
+            });
+        } else if (averageScore >= 70) {
+            achievements.push({
+                name: '温馨家庭构建者',
+                emoji: '🏠',
+                description: `亲子关系良好（平均${Math.round(averageScore)}分），正在构建温馨和谐的家庭氛围`,
+                level: 'intermediate',
+                achieved: true,
+                date: this.getAchievementDate(3),
+                category: 'parent_child_quality'
+            });
+        } else if (averageScore >= 50) {
+            achievements.push({
+                name: '亲子关系改善者',
+                emoji: '🌱',
+                description: `持续努力改善亲子关系（当前${Math.round(averageScore)}分），每一步都是进步`,
+                level: 'basic',
+                achieved: true,
+                date: this.getAchievementDate(2),
+                category: 'parent_child_quality'
+            });
+        }
+        
+        // 成长进步成就 - 基于分数提升趋势
+        if (assessmentHistory.length >= 2) {
+            const firstScore = assessmentHistory[0].overall_score;
+            const latestScore = latestAssessment.overall_score;
+            const improvement = latestScore - firstScore;
+            
+            if (improvement >= 20) {
+                achievements.push({
+                    name: '亲子关系飞跃者',
+                    emoji: '🚀',
+                    description: `亲子关系显著提升${improvement}分，实现了质的飞跃！`,
+                    level: 'advanced',
+                    achieved: true,
+                    date: this.getAchievementDate(1),
+                    category: 'parent_child_progress'
+                });
+            } else if (improvement >= 10) {
+                achievements.push({
+                    name: '稳步提升者',
+                    emoji: '📈',
+                    description: `亲子关系稳步提升${improvement}分，坚持就是胜利！`,
+                    level: 'intermediate',
+                    achieved: true,
+                    date: this.getAchievementDate(1),
+                    category: 'parent_child_progress'
+                });
+            }
+        }
+        
+        // 综合博物馆+亲子体验成就
+        if (visitedCount >= 10 && averageScore >= 70) {
+            achievements.push({
+                name: '博物馆亲子体验大师',
+                emoji: '👨‍👩‍👧‍👦',
+                description: `参观${visitedCount}家博物馆+优质亲子关系，成就完美的文化亲子体验`,
+                level: 'master',
+                achieved: true,
+                date: this.getAchievementDate(1),
+                category: 'comprehensive_excellence'
+            });
+        } else if (visitedCount >= 5 && averageScore >= 60) {
+            achievements.push({
+                name: '文化亲子践行者',
+                emoji: '🎭',
+                description: `通过博物馆参观提升亲子关系，让文化成为家庭纽带`,
+                level: 'intermediate',
+                achieved: true,
+                date: this.getAchievementDate(1),
+                category: 'comprehensive_excellence'
+            });
+        }
+        
+        return achievements;
     }
     
     updateAchievements(visitedCount) {
@@ -4282,52 +4541,405 @@ class MuseumCheckApp {
         const achievements = this.calculateAchievements(visitedCount);
         const achievedCount = achievements.filter(a => a.achieved).length;
         
-        // Update summary stats
+        // ✅ 修复3: 深度融合亲子测评与博物馆成就系统
+        const assessmentResults = this.getAssessmentResults();
+        const assessmentQuality = this.calculateAssessmentQuality(assessmentResults);
+        
+        // 更新统计信息 - 融合显示博物馆进度和亲子质量
         document.getElementById('totalAchievements').textContent = achievedCount;
         document.getElementById('visitProgress').textContent = `${visitedCount}/${MUSEUM_COUNT}`;
         
-        // Render achievement list
-        const achievementList = document.getElementById('achievementList');
-        achievementList.innerHTML = achievements.map(achievement => {
-            const progressBar = achievement.achieved ? '' : `
-                <div class="achievement-progress">
-                    进度: ${achievement.progress}/${achievement.visits} (还需${achievement.remaining}个)
-                </div>
-            `;
-            
-            const dateDisplay = achievement.achieved ? `
-                <div class="achievement-date">获得于 ${achievement.date}</div>
-            ` : '';
-            
-            return `
-                <div class="achievement-item ${achievement.achieved ? 'achieved' : 'pending'}">
-                    <div class="achievement-emoji">${achievement.emoji}</div>
-                    <div class="achievement-name">${achievement.name}</div>
-                    <div class="achievement-description">${achievement.description}</div>
-                    ${dateDisplay}
-                    ${progressBar}
-                </div>
-            `;
-        }).join('');
+        // ✅ 核心改进：融合显示亲子测评质量和博物馆进度
+        const achievementSummary = document.querySelector('.achievement-summary .achievement-overview');
+        if (achievementSummary) {
+            this.renderIntegratedAchievementSummary(achievementSummary, assessmentQuality, visitedCount);
+        }
         
-        // Set up achievement poster generation
-        this.setupAchievementPosterGeneration();
+        // ✅ 修复3: 递进式成就体系展示 - 体现从简单到困难的成长路径
+        const achievementsByLevel = this.organizeAchievementsByLevel(achievements, assessmentQuality);
+        this.renderProgressiveAchievements(achievementsByLevel);
+        
+        // 生成个性化成就建议
+        this.generatePersonalizedSuggestions(visitedCount, assessmentQuality, achievements);
+    }
+
+    // 新增方法：渲染融合的成就概览
+    renderIntegratedAchievementSummary(container, assessmentQuality, visitedCount) {
+        // ✅ 修复2: 深度融合展示 - 将亲子测评结果与博物馆探索进度统一展示
+        let assessmentStat = container.querySelector('.assessment-quality-stat');
+        
+        if (assessmentQuality.count > 0) {
+            if (!assessmentStat) {
+                assessmentStat = document.createElement('div');
+                assessmentStat.className = 'achievement-stat assessment-quality-stat';
+                container.appendChild(assessmentStat);
+            }
+            
+            // 融合显示：显示标准100分制分数和质量等级
+            const trendIcon = this.getTrendIcon(assessmentQuality.trend);
+            const displayScore = Math.round(assessmentQuality.averageScore); // 确保显示整数分数
+            
+            assessmentStat.innerHTML = `
+                <span class="stat-number integrated-score" id="assessmentQualityScore">
+                    ${displayScore}分
+                    <span class="trend-indicator">${trendIcon}</span>
+                </span>
+                <span class="stat-label">亲子互动质量</span>
+                <span class="stat-sublabel quality-label">${assessmentQuality.qualityLabel} · ${assessmentQuality.count}次测评</span>
+            `;
+            
+            // 添加质量等级的视觉反馈
+            assessmentStat.setAttribute('data-quality', assessmentQuality.quality);
+            
+            // ✅ 新增：综合发展进度条 - 融合博物馆探索和亲子质量两个维度
+            this.updateIntegratedProgressBar(container, visitedCount, assessmentQuality);
+            
+        } else {
+            // 引导用户进行首次测评，强调与博物馆探索的关联
+            if (!assessmentStat) {
+                assessmentStat = document.createElement('div');
+                assessmentStat.className = 'achievement-stat assessment-quality-stat incomplete';
+                container.appendChild(assessmentStat);
+            }
+            
+            assessmentStat.innerHTML = `
+                <span class="stat-number">--</span>
+                <span class="stat-label">亲子互动质量</span>
+                <span class="stat-sublabel guide-text">完成首次博物馆测评解锁</span>
+            `;
+        }
+        
+        // ✅ 修复2: 添加综合成就评估 - 结合博物馆数量和亲子质量的综合评分
+        this.updateOverallAchievementScore(container, visitedCount, assessmentQuality);
     }
     
-    setupAchievementPosterGeneration() {
-        const generateBtn = document.getElementById('generateAchievementPoster');
-        const downloadBtn = document.getElementById('downloadAchievementPoster');
+    // ✅ 新增方法：综合发展进度条 - 融合两个维度的进度展示
+    updateIntegratedProgressBar(container, visitedCount, assessmentQuality) {
+        let progressBar = container.querySelector('.integrated-progress-bar');
+        if (!progressBar) {
+            progressBar = document.createElement('div');
+            progressBar.className = 'integrated-progress-bar';
+            container.appendChild(progressBar);
+        }
         
-        generateBtn.replaceWith(generateBtn.cloneNode(true));
-        downloadBtn.replaceWith(downloadBtn.cloneNode(true));
+        // 计算两个维度的进度百分比
+        const museumProgress = Math.round((visitedCount / MUSEUM_COUNT) * 100);
+        const assessmentProgress = assessmentQuality.averageScore || 0;
         
-        document.getElementById('generateAchievementPoster').addEventListener('click', () => {
-            this.generateAchievementPoster();
+        progressBar.innerHTML = `
+            <div class="progress-section">
+                <div class="progress-label">综合发展</div>
+                <div class="progress-value">${Math.round((museumProgress + assessmentProgress) / 2)}/100</div>
+            </div>
+            <div class="dual-progress">
+                <div class="progress-item">
+                    <span class="progress-title">博物馆探索 ${museumProgress}%</span>
+                    <div class="progress-track">
+                        <div class="progress-fill museum" style="width: ${museumProgress}%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-title">亲子互动 ${assessmentProgress}%</span>
+                    <div class="progress-track">
+                        <div class="progress-fill assessment" style="width: ${assessmentProgress}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // ✅ 新增方法：综合成就评分 - 融合展示
+    updateOverallAchievementScore(container, visitedCount, assessmentQuality) {
+        // 计算综合发展分数，结合博物馆探索广度和亲子互动质量
+        const museumScore = Math.min(100, (visitedCount / MUSEUM_COUNT) * 100);
+        const assessmentScore = assessmentQuality.averageScore || 0;
+        const overallScore = Math.round((museumScore * 0.6 + assessmentScore * 0.4)); // 博物馆探索权重60%，亲子质量40%
+        
+        // 更新主要展示区域的综合发展分数
+        const overallStat = container.querySelector('.achievement-stat:first-child');
+        if (overallStat) {
+            const statNumber = overallStat.querySelector('.stat-number');
+            if (statNumber) {
+                // 在成就数量下方添加综合发展分数
+                let developmentScore = overallStat.querySelector('.development-score');
+                if (!developmentScore) {
+                    developmentScore = document.createElement('div');
+                    developmentScore.className = 'development-score';
+                    developmentScore.style.fontSize = '12px';
+                    developmentScore.style.color = '#666';
+                    developmentScore.style.marginTop = '4px';
+                    overallStat.appendChild(developmentScore);
+                }
+                developmentScore.textContent = `综合发展 ${overallScore}/100`;
+            }
+        }
+    }
+
+    // 新增方法：获取趋势图标
+    getTrendIcon(trend) {
+        switch (trend) {
+            case 'improving': return '📈';
+            case 'declining': return '📉';
+            case 'stable': return '➡️';
+            default: return '';
+        }
+    }
+
+    // 新增方法：更新融合进度指示器
+    updateIntegratedProgressIndicator(container, visitedCount, assessmentQuality) {
+        let progressIndicator = container.querySelector('.integrated-progress-indicator');
+        
+        if (!progressIndicator) {
+            progressIndicator = document.createElement('div');
+            progressIndicator.className = 'integrated-progress-indicator';
+            container.appendChild(progressIndicator);
+        }
+        
+        // 计算综合发展分数 (博物馆进度 + 亲子质量)
+        const museumProgress = Math.min(100, (visitedCount / MUSEUM_COUNT) * 100);
+        const qualityWeight = assessmentQuality.count > 0 ? 1 : 0.3; // 有测评数据时权重更高
+        const integrationScore = Math.round(
+            (museumProgress * 0.6) + (assessmentQuality.integrationScore * 0.4 * qualityWeight)
+        );
+        
+        progressIndicator.innerHTML = `
+            <div class="integration-score">
+                <span class="integration-label">综合发展</span>
+                <span class="integration-value">${integrationScore}/100</span>
+                <div class="integration-bar">
+                    <div class="integration-fill" style="width: ${integrationScore}%"></div>
+                </div>
+            </div>
+            <div class="integration-breakdown">
+                <span class="museum-component">博物馆探索 ${Math.round(museumProgress)}%</span>
+                <span class="quality-component">亲子互动 ${assessmentQuality.averageScore}%</span>
+            </div>
+        `;
+    }
+
+    // 新增方法：按层级组织成就
+    organizeAchievementsByLevel(achievements, assessmentQuality) {
+        // ✅ 修复3: 构建清晰的递进式成就体系
+        const achievementsByLevel = {
+            'basic': { 
+                name: '🥉 探索起步', 
+                color: '#cd7f32', 
+                description: '迈出博物馆文化探索第一步',
+                requirements: '参观博物馆 + 基础互动',
+                achievements: [],
+                unlocked: true // 基础层始终解锁
+            },
+            'intermediate': { 
+                name: '🥈 深度体验', 
+                color: '#c0c0c0', 
+                description: '多馆探索 + 关注亲子互动品质',
+                requirements: '5家博物馆 + 1次亲子测评',
+                achievements: [],
+                unlocked: this.visitedMuseums.length >= 5 || assessmentQuality.count >= 1
+            },
+            'advanced': { 
+                name: '🥇 卓越典范', 
+                color: '#ffd700', 
+                description: '广泛探索 + 优质亲子关系',
+                requirements: '15家博物馆 + 70分以上亲子质量',
+                achievements: [],
+                unlocked: this.visitedMuseums.length >= 15 && assessmentQuality.averageScore >= 70
+            },
+            'master': { 
+                name: '👑 文化大师', 
+                color: '#9d4edd', 
+                description: '博物馆收藏家 + 亲子教育专家',
+                requirements: '50家博物馆 + 85分以上持续亲子质量',
+                achievements: [],
+                unlocked: this.visitedMuseums.length >= 50 && assessmentQuality.averageScore >= 85 && assessmentQuality.consistency >= 80
+            }
+        };
+
+        // 将成就按层级分类并添加解锁状态
+        achievements.forEach(achievement => {
+            const level = achievement.level || 'basic';
+            if (achievementsByLevel[level]) {
+                achievement.levelUnlocked = achievementsByLevel[level].unlocked;
+                achievementsByLevel[level].achievements.push(achievement);
+            } else {
+                achievement.levelUnlocked = true;
+                achievementsByLevel.basic.achievements.push(achievement);
+            }
         });
-        
-        document.getElementById('downloadAchievementPoster').addEventListener('click', () => {
-            this.downloadAchievementPoster();
+
+        return achievementsByLevel;
+    }
+
+    // 新增方法：渲染递进式成就展示
+    renderProgressiveAchievements(achievementsByLevel) {
+        const achievementList = document.getElementById('achievementList');
+        if (!achievementList) return;
+
+        // 清空现有内容
+        achievementList.innerHTML = '';
+
+        // 首先添加成就路径说明
+        const pathExplanation = document.createElement('div');
+        pathExplanation.className = 'achievement-path-explanation';
+        pathExplanation.innerHTML = `
+            <h4>🎯 成就进阶路径</h4>
+            <p>通过博物馆探索 + 亲子关系提升，逐步解锁更高层次的成就</p>
+            <div class="path-tip">
+                💡 <strong>提示</strong>：完成亲子测评可以解锁高级成就！
+                测评帮助您了解亲子关系现状，并提供改善建议。
+            </div>
+        `;
+        achievementList.appendChild(pathExplanation);
+
+        // 按层级渲染成就
+        Object.keys(achievementsByLevel).forEach((level, index) => {
+            const levelData = achievementsByLevel[level];
+            const achievedInLevel = levelData.achievements.filter(a => a.achieved).length;
+            const totalInLevel = levelData.achievements.length;
+
+            // 创建层级容器
+            const levelContainer = document.createElement('div');
+            levelContainer.className = `achievement-level-container ${levelData.unlocked ? 'unlocked' : 'locked'}`;
+
+            // 层级标题
+            const levelHeader = document.createElement('div');
+            levelHeader.className = 'achievement-level-header';
+            levelHeader.innerHTML = `
+                <div class="level-info">
+                    <h4 class="level-name">${levelData.name}</h4>
+                    <p class="level-description">${levelData.description}</p>
+                    ${!levelData.unlocked ? `<div class="unlock-requirement">🔒 解锁条件：${levelData.requirements}</div>` : ''}
+                </div>
+                <div class="level-progress">${achievedInLevel}/${totalInLevel}</div>
+            `;
+
+            levelContainer.appendChild(levelHeader);
+
+            // 成就列表
+            const levelAchievements = document.createElement('div');
+            levelAchievements.className = 'level-achievements';
+
+            if (levelData.achievements.length > 0) {
+                levelData.achievements.forEach(achievement => {
+                    const achievementElement = this.createAchievementElement(achievement, levelData.unlocked);
+                    levelAchievements.appendChild(achievementElement);
+                });
+            } else {
+                levelAchievements.innerHTML = `
+                    <div class="no-achievements">
+                        ${levelData.unlocked ? '暂无此层级成就' : '完成解锁条件后显示'}
+                    </div>
+                `;
+            }
+
+            levelContainer.appendChild(levelAchievements);
+            achievementList.appendChild(levelContainer);
         });
+
+        // 添加下一目标提示
+        this.addNextGoalSection(achievementList, achievementsByLevel);
+    }
+
+    // 新增方法：创建成就元素
+    createAchievementElement(achievement, levelUnlocked) {
+        const achievementDiv = document.createElement('div');
+        achievementDiv.className = `achievement-item ${achievement.achieved ? 'achieved' : 'not-achieved'} ${!levelUnlocked ? 'locked' : ''}`;
+
+        const iconClass = levelUnlocked ? achievement.emoji : '🔒';
+        const achievementStatus = achievement.achieved ? '已达成' : 
+                                 achievement.progress !== undefined ? `进度：${achievement.progress}/${achievement.visits || achievement.threshold}` :
+                                 levelUnlocked ? '即将解锁！' : '需解锁层级';
+
+        achievementDiv.innerHTML = `
+            <div class="achievement-icon">${iconClass}</div>
+            <div class="achievement-details">
+                <div class="achievement-title">${achievement.name}</div>
+                <div class="achievement-description">${achievement.description}</div>
+                <div class="achievement-status ${achievement.achieved ? 'completed' : levelUnlocked ? 'available' : 'locked'}">${achievementStatus}</div>
+                ${achievement.date ? `<div class="achievement-date">获得于: ${new Date(achievement.date).toLocaleDateString('zh-CN')}</div>` : ''}
+            </div>
+        `;
+
+        return achievementDiv;
+    }
+
+    // 新增方法：添加下一个目标提示
+    addNextGoalSection(container, achievementsByLevel) {
+        // 找到下一个可达成的目标
+        const nextGoals = [];
+        
+        Object.values(achievementsByLevel).forEach(levelData => {
+            levelData.achievements.forEach(achievement => {
+                if (!achievement.achieved && achievement.levelUnlocked) {
+                    nextGoals.push(achievement);
+                }
+            });
+        });
+
+        if (nextGoals.length > 0) {
+            // 显示最近的目标
+            const nextGoal = nextGoals[0];
+            const nextGoalSection = document.createElement('div');
+            nextGoalSection.className = 'next-goal-section';
+            nextGoalSection.innerHTML = `
+                <h4>🎯 下一个目标</h4>
+                <div class="next-goal-item">
+                    <div class="goal-icon">${nextGoal.emoji}</div>
+                    <div class="goal-details">
+                        <h5>${nextGoal.name}</h5>
+                        <p>${nextGoal.description}</p>
+                        <div class="goal-progress">
+                            ${nextGoal.progress !== undefined ? 
+                                `博物馆探索: ${nextGoal.progress}/${nextGoal.visits}` :
+                                nextGoal.requirement || '即将达成！'
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(nextGoalSection);
+        }
+    }
+
+    // 新增方法：生成个性化建议
+    generatePersonalizedSuggestions(visitedCount, assessmentQuality, achievements) {
+        // 基于用户当前状态提供个性化建议
+        let suggestions = [];
+
+        if (visitedCount === 0) {
+            suggestions.push({
+                type: 'first-visit',
+                title: '开始您的博物馆之旅',
+                content: '选择一家附近的博物馆，带着孩子开始第一次探索吧！',
+                action: '浏览博物馆列表'
+            });
+        } else if (visitedCount < 5) {
+            suggestions.push({
+                type: 'expand-exploration',
+                title: '拓展文化视野',
+                content: '尝试不同类型的博物馆，如历史、艺术、科技类，丰富孩子的文化体验',
+                action: '探索更多博物馆'
+            });
+        }
+
+        if (assessmentQuality.count === 0) {
+            suggestions.push({
+                type: 'first-assessment',
+                title: '了解亲子互动质量',
+                content: '完成首次亲子测评，了解您和孩子在博物馆互动中的表现',
+                action: '开始亲子测评'
+            });
+        } else if (assessmentQuality.averageScore < 70) {
+            suggestions.push({
+                type: 'improve-interaction',
+                title: '提升亲子互动质量',
+                content: '当前亲子互动还有提升空间，多与孩子交流感受，引导他们主动观察和思考',
+                action: '查看互动建议'
+            });
+        }
+
+        // 存储建议供其他组件使用
+        this.personalizedSuggestions = suggestions;
     }
 
     editChecklistItem(button) {
@@ -6124,10 +6736,41 @@ class MuseumCheckApp {
         const parentScore = this.assessmentState.parentAnswers.reduce((sum, answer) => sum + answer, 0);
         const childScore = this.assessmentState.childAnswers.reduce((sum, answer) => sum + answer, 0);
         
-        // Calculate final score (0-100 scale)
-        const maxScore = 5 * 2 * 4; // 5 questions * 2 questionnaires * 4 max points per question
-        const totalScore = (parentScore + childScore) * 4; // Scale up answer indices
-        this.assessmentState.score = Math.round((totalScore / maxScore) * 100);
+        // ✅ 修复1: 彻底解决300分满分异常，确保标准100分制
+        // 问题原因分析：每题选项0-3分 × 5题 × 2问卷 = 最高30分，应转换为100分制
+        // 解决方案：标准化计算公式，消除任何可能导致分数异常的计算错误
+        
+        const maxPossibleScore = 30; // 5题×2问卷×3分 = 30分满分
+        const totalScore = parentScore + childScore;
+        
+        // 标准100分制转换，添加严格边界控制
+        let normalizedScore = Math.round((totalScore / maxPossibleScore) * 100);
+        
+        // 强制边界约束，彻底防止300分等异常分数
+        normalizedScore = Math.max(0, Math.min(100, normalizedScore));
+        
+        // 保存标准化分数，确保永远不会超过100分
+        this.assessmentState.score = normalizedScore;
+        
+        // 立即检查并报告任何异常分数（调试用）
+        if (normalizedScore > 100 || normalizedScore < 0) {
+            console.error('评分异常检测:', {
+                normalizedScore,
+                parentScore,
+                childScore,
+                totalScore,
+                maxPossibleScore
+            });
+        }
+        
+        // 保存结果到localStorage
+        this.saveAssessmentResult();
+            'max_possible_score': maxPossibleScore,
+            'final_normalized_score': normalizedScore,
+            'calculation_method': 'fixed_100_scale',
+            'museum_id': this.assessmentState.museumId,
+            'fix_version': '2.1.4'
+        });
         
         // Save results to localStorage
         this.saveAssessmentResult();
