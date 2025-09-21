@@ -5,6 +5,9 @@
  * for our client-side JavaScript application.
  */
 
+const fs = require('fs');
+const path = require('path');
+
 // Mock localStorage for testing
 const localStorageMock = (() => {
   let store = {};
@@ -32,6 +35,72 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 });
+
+// Load MUSEUMS data from museums-data.js and make it globally available
+function loadMuseumData() {
+  const museumsDataPath = path.join(__dirname, '..', 'museums-data.js');
+  const scriptPath = path.join(__dirname, '..', 'script.js');
+  
+  let content;
+  if (fs.existsSync(museumsDataPath)) {
+    content = fs.readFileSync(museumsDataPath, 'utf8');
+  } else {
+    content = fs.readFileSync(scriptPath, 'utf8');
+  }
+  
+  const startIndex = content.indexOf('const MUSEUMS = [');
+  const endIndex = content.indexOf('];', startIndex) + 2;
+  
+  if (startIndex !== -1 && endIndex !== -1) {
+    const museumsCode = content.substring(startIndex, endIndex);
+    const museums = eval(museumsCode.replace('const MUSEUMS = ', ''));
+    
+    // Make MUSEUMS globally available
+    global.MUSEUMS = museums;
+    
+    return museums;
+  }
+  
+  return [];
+}
+
+// Load museum data at setup time
+const loadedMuseums = loadMuseumData();
+console.log(`✅ Loaded ${loadedMuseums.length} museums for testing`);
+
+// Load the main script to make MuseumCheckApp available
+const scriptPath = path.join(__dirname, '..', 'script.js');
+const scriptContent = fs.readFileSync(scriptPath, 'utf8');
+
+// Execute the script content in the global context to make MuseumCheckApp available
+// But remove the immediate execution at the end
+const scriptWithoutExecution = scriptContent.replace(/document\.addEventListener\(['"`]DOMContentLoaded['"`][^}]+}\);?\s*$/, '');
+
+try {
+  // Execute in global context 
+  const vm = require('vm');
+  const context = {
+    console: console,
+    global: global,
+    MUSEUMS: global.MUSEUMS,
+    localStorage: localStorageMock,
+    document: document,
+    window: window,
+    HTMLCanvasElement: HTMLCanvasElement,
+    Image: window.Image || class MockImage {},
+    gtag: global.gtag
+  };
+  
+  vm.createContext(context);
+  vm.runInContext(scriptWithoutExecution, context);
+  
+  // Make MuseumCheckApp available globally
+  global.MuseumCheckApp = context.MuseumCheckApp;
+  
+  console.log('✅ MuseumCheckApp loaded successfully and made globally available');
+} catch (error) {
+  console.warn('⚠️  Could not load MuseumCheckApp:', error.message);
+}
 
 // Mock Google Analytics gtag function
 global.gtag = jest.fn();

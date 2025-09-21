@@ -13,9 +13,17 @@ describe('Museum Data Quality', () => {
     let museums;
     
     beforeAll(() => {
-        // Load museum data from script.js
+        // Load museum data from museums-data.js (new structure) or script.js (legacy)
         const scriptPath = path.join(__dirname, '..', 'script.js');
-        const content = fs.readFileSync(scriptPath, 'utf8');
+        const museumsDataPath = path.join(__dirname, '..', 'museums-data.js');
+        
+        let content;
+        if (fs.existsSync(museumsDataPath)) {
+            content = fs.readFileSync(museumsDataPath, 'utf8');
+        } else {
+            content = fs.readFileSync(scriptPath, 'utf8');
+        }
+        
         const startIndex = content.indexOf('const MUSEUMS = [');
         const endIndex = content.indexOf('];', startIndex) + 2;
         

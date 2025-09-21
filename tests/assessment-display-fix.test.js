@@ -19,9 +19,17 @@ describe('Assessment History Display Fix', () => {
         `;
 
         // Mock MuseumCheck class
+        console.log('Debug: typeof MuseumCheckApp =', typeof MuseumCheckApp);
+        console.log('Debug: global.MuseumCheckApp =', typeof global.MuseumCheckApp);
+        
         if (typeof MuseumCheckApp !== 'undefined') {
+            console.log('Debug: Creating real MuseumCheckApp instance');
             museumCheck = new MuseumCheckApp();
+        } else if (typeof global.MuseumCheckApp !== 'undefined') {
+            console.log('Debug: Creating MuseumCheckApp instance from global');
+            museumCheck = new global.MuseumCheckApp();
         } else {
+            console.log('Debug: Using mocked MuseumCheckApp');
             // Create mock with the methods we need to test
             museumCheck = {
                 formatAnswerSummary: jest.fn(),
@@ -40,8 +48,12 @@ describe('Assessment History Display Fix', () => {
         test('should never display Q1, Q2, Q3 format in assessment results', () => {
             const mockAnswers = [2, 3, 1, 2, 3];
             
+            console.log('Debug: museumCheck =', museumCheck);
+            console.log('Debug: typeof formatAnswerSummary =', typeof museumCheck.formatAnswerSummary);
+            
             if (museumCheck.formatAnswerSummary && typeof museumCheck.formatAnswerSummary === 'function') {
                 const result = museumCheck.formatAnswerSummary(mockAnswers, 'parent');
+                console.log('Debug: result =', result);
                 
                 // Should NOT contain any technical question format
                 expect(result).not.toContain('Q1:');

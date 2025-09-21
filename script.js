@@ -6765,15 +6765,6 @@ class MuseumCheckApp {
         
         // 保存结果到localStorage
         this.saveAssessmentResult();
-            'max_possible_score': maxPossibleScore,
-            'final_normalized_score': normalizedScore,
-            'calculation_method': 'fixed_100_scale',
-            'museum_id': this.assessmentState.museumId,
-            'fix_version': '2.1.4'
-        });
-        
-        // Save results to localStorage
-        this.saveAssessmentResult();
     }
 
     showAssessmentResults() {

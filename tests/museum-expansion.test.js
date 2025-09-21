@@ -10,9 +10,15 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
     let scriptContent;
 
     beforeAll(() => {
-        // Read script.js file
+        // Load from appropriate file - museums-data.js (new structure) or script.js (legacy)
         const scriptPath = path.join(__dirname, '..', 'script.js');
-        scriptContent = fs.readFileSync(scriptPath, 'utf8');
+        const museumsDataPath = path.join(__dirname, '..', 'museums-data.js');
+        
+        if (fs.existsSync(museumsDataPath)) {
+            scriptContent = fs.readFileSync(museumsDataPath, 'utf8');
+        } else {
+            scriptContent = fs.readFileSync(scriptPath, 'utf8');
+        }
     });
 
     test('should have exactly 257 high-quality museums after deduplication', () => {

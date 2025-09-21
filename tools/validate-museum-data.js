@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SCRIPT_PATH = path.join(__dirname, '..', 'script.js');
+const MUSEUMS_DATA_PATH = path.join(__dirname, '..', 'museums-data.js');
 
 function validateMuseumData() {
     console.log('🔍 Museum Data Validation Tool');
@@ -24,17 +25,29 @@ function validateMuseumData() {
     // Read and parse museum data
     let museums;
     try {
-        const content = fs.readFileSync(SCRIPT_PATH, 'utf8');
+        let content;
+        let sourcePath;
+        
+        // Try loading from museums-data.js first (new structure)
+        if (fs.existsSync(MUSEUMS_DATA_PATH)) {
+            content = fs.readFileSync(MUSEUMS_DATA_PATH, 'utf8');
+            sourcePath = 'museums-data.js';
+        } else {
+            // Fallback to script.js (legacy structure)
+            content = fs.readFileSync(SCRIPT_PATH, 'utf8');
+            sourcePath = 'script.js';
+        }
+        
         const startIndex = content.indexOf('const MUSEUMS = [');
         const endIndex = content.indexOf('];', startIndex) + 2;
         
         if (startIndex === -1 || endIndex === -1) {
-            throw new Error('Could not find MUSEUMS array in script.js');
+            throw new Error(`Could not find MUSEUMS array in ${sourcePath}`);
         }
         
         const museumsCode = content.substring(startIndex, endIndex);
         museums = eval(museumsCode.replace('const MUSEUMS = ', ''));
-        console.log(`✅ Successfully loaded ${museums.length} museums\n`);
+        console.log(`✅ Successfully loaded ${museums.length} museums from ${sourcePath}\n`);
     } catch (error) {
         console.error('❌ Error loading museum data:', error.message);
         process.exit(1);

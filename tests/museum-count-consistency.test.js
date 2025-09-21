@@ -11,15 +11,24 @@ const path = require('path');
 
 // Read the script.js file to extract museum data
 const scriptPath = path.join(__dirname, '../script.js');
-const scriptContent = fs.readFileSync(scriptPath, 'utf8');
+const museumsDataPath = path.join(__dirname, '../museums-data.js');
+
+// Load content from appropriate file
+let scriptContent;
+if (fs.existsSync(museumsDataPath)) {
+    scriptContent = fs.readFileSync(museumsDataPath, 'utf8');
+} else {
+    scriptContent = fs.readFileSync(scriptPath, 'utf8');
+}
 
 // Extract MUSEUMS array
 const startIdx = scriptContent.indexOf('const MUSEUMS = [');
 const endIdx = scriptContent.indexOf('];', startIdx) + 2;
 const MUSEUMS = eval(scriptContent.substring(startIdx, endIdx).replace('const MUSEUMS = ', ''));
 
-// Extract MUSEUM_COUNT constant
-const museumCountMatch = scriptContent.match(/const MUSEUM_COUNT = MUSEUMS\.length;/);
+// Also load script.js for checking MUSEUM_COUNT constant
+const mainScriptContent = fs.readFileSync(scriptPath, 'utf8');
+const museumCountMatch = mainScriptContent.match(/const MUSEUM_COUNT = MUSEUMS\.length;/);
 
 describe('Museum Count Consistency', () => {
     test('MUSEUM_COUNT constant should exist and match MUSEUMS.length', () => {
@@ -28,10 +37,10 @@ describe('Museum Count Consistency', () => {
     });
 
     test('MUSEUM_COUNT should be used consistently in JavaScript code', () => {
-        // Check that hardcoded museum counts are replaced with MUSEUM_COUNT
-        // Match all integer literals in the code
+        // Check that hardcoded museum counts are replaced with MUSEUM_COUNT in main script
+        // Match all integer literals in the main script content
         const hardcodedCountRegex = /\b\d+\b/g;
-        const matches = scriptContent.match(hardcodedCountRegex) || [];
+        const matches = mainScriptContent.match(hardcodedCountRegex) || [];
         
         // Only consider numbers that match the current museum count
         const museumCountNumbers = [MUSEUMS.length];
@@ -43,8 +52,8 @@ describe('Museum Count Consistency', () => {
         
         // Filter out legitimate uses (like dimensions, timeouts, etc.)
         const suspiciousMatches = potentialCountMatches.filter(match => {
-            const matchIndex = scriptContent.indexOf(match);
-            const context = scriptContent.substring(Math.max(0, matchIndex - 100), matchIndex + 100);
+            const matchIndex = mainScriptContent.indexOf(match);
+            const context = mainScriptContent.substring(Math.max(0, matchIndex - 100), matchIndex + 100);
             
             // These are legitimate uses of the number that are not museum counts
             const legitimateContexts = [
@@ -58,8 +67,8 @@ describe('Museum Count Consistency', () => {
         
         // Only flag potential museum count references
         const potentialMuseumCounts = suspiciousMatches.filter(match => {
-            const matchIndex = scriptContent.indexOf(match);
-            const context = scriptContent.substring(Math.max(0, matchIndex - 50), matchIndex + 50).toLowerCase();
+            const matchIndex = mainScriptContent.indexOf(match);
+            const context = mainScriptContent.substring(Math.max(0, matchIndex - 50), matchIndex + 50).toLowerCase();
             
             // Context that suggests this might be a museum count
             const museumContexts = [
@@ -73,9 +82,9 @@ describe('Museum Count Consistency', () => {
         if (potentialMuseumCounts.length > 0) {
             console.warn('Potential hardcoded museum counts found. Please verify these are not museum references:');
             potentialMuseumCounts.forEach(match => {
-                const matchIndex = scriptContent.indexOf(match);
-                const lineNumber = scriptContent.substring(0, matchIndex).split('\n').length;
-                const context = scriptContent.substring(Math.max(0, matchIndex - 50), matchIndex + 50);
+                const matchIndex = mainScriptContent.indexOf(match);
+                const lineNumber = mainScriptContent.substring(0, matchIndex).split('\n').length;
+                const context = mainScriptContent.substring(Math.max(0, matchIndex - 50), matchIndex + 50);
                 console.warn(`  Line ${lineNumber}: "${context.trim()}" contains "${match}"`);
             });
         }
@@ -85,20 +94,20 @@ describe('Museum Count Consistency', () => {
     });
 
     test('Achievement for completing all museums should use MUSEUM_COUNT', () => {
-        // Check that the "博物馆收藏家" achievement uses MUSEUM_COUNT
+        // Check that the "博物馆收藏家" achievement uses MUSEUM_COUNT (this should be in script.js)
         const achievementRegex = /visits:\s*MUSEUM_COUNT.*?博物馆收藏家.*?MUSEUM_COUNT.*?家博物馆/s;
-        expect(scriptContent).toMatch(achievementRegex);
+        expect(mainScriptContent).toMatch(achievementRegex);
     });
 
     test('Progress displays should use MUSEUM_COUNT', () => {
-        // Check that progress bars use MUSEUM_COUNT for calculations
-        expect(scriptContent).toMatch(/visitedCount\s*\/\s*MUSEUM_COUNT/);
-        expect(scriptContent).toMatch(/visitedCount.*MUSEUM_COUNT/);
+        // Check that progress bars use MUSEUM_COUNT for calculations (this should be in script.js)
+        expect(mainScriptContent).toMatch(/visitedCount\s*\/\s*MUSEUM_COUNT/);
+        expect(mainScriptContent).toMatch(/visitedCount.*MUSEUM_COUNT/);
     });
 
     test('Dynamic museum count updates should exist', () => {
-        // Check that the updateDynamicMuseumCounts function exists
-        expect(scriptContent.includes('updateDynamicMuseumCounts')).toBe(true);
+        // Check that the updateDynamicMuseumCounts function exists (this should be in script.js)
+        expect(mainScriptContent.includes('updateDynamicMuseumCounts')).toBe(true);
     });
 
     test('HTML should not contain hardcoded museum counts', () => {
