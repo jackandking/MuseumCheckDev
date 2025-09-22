@@ -3648,6 +3648,12 @@ main[role="main"] {
         font-size: 2.5em;
     }
     
+    /* Assessment history modal specific font size fix */
+    .assessment-history-modal .stat-number {
+        font-size: 1.1em !important;
+        font-weight: 600;
+    }
+    
     .assessment-content {
         max-width: 100%;
         margin: 10px;
@@ -3750,6 +3756,19 @@ main[role="main"] {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* Fix: Assessment History Modal font size consistency */
+.assessment-history-modal .history-stat .stat-number {
+    font-size: 1.1em !important; /* Much smaller to harmonize with surrounding elements */
+    font-weight: 600;
+    color: white;
+    margin-bottom: 3px;
+}
+
+.assessment-history-modal .stat-label {
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .history-filters {
