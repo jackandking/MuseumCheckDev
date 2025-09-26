@@ -865,6 +865,26 @@ header h1 {
     margin-top: 2px;
 }
 
+/* Mobile optimization for scores - make them inline and match achievement text size */
+@media (max-width: 768px) {
+    .assessment-score-item {
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        text-align: left;
+    }
+    
+    .score-value {
+        font-size: 0.9em; /* Match achievement text size */
+        font-weight: 500; /* Match achievement text weight */
+    }
+    
+    .score-label {
+        font-size: 0.9em; /* Match achievement text size */
+        margin-top: 0;
+    }
+}
+
 .assessment-history-button-inline {
     flex: 0 0 auto;
 }
@@ -1311,14 +1331,6 @@ header h1 {
     .assessment-scores {
         gap: 8px;
         flex: 1;
-    }
-    
-    .score-value {
-        font-size: 1.2em;
-    }
-    
-    .score-label {
-        font-size: 0.75em;
     }
     
     .assessment-history-button-inline {
