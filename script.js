@@ -3604,6 +3604,45 @@ class MuseumCheckApp {
         
         // Update achievements
         this.updateAchievements(visitedCount);
+        
+        // 🐛 Fix: Update main page assessment scores on initialization
+        this.updateMainPageAssessmentScores();
+    }
+
+    // 🐛 Fix: Method to update main page assessment scores during initialization
+    updateMainPageAssessmentScores() {
+        try {
+            // getAssessmentResults() now returns an array (sorted by date, newest first)
+            const sortedResults = this.getAssessmentResults();
+            
+            // Calculate scores (same logic as updateHistorySummary)
+            const totalAssessments = sortedResults.length;
+            const averageScore = totalAssessments > 0 
+                ? Math.round(sortedResults.reduce((sum, r) => sum + r.score, 0) / totalAssessments)
+                : 0;
+            const latestScore = totalAssessments > 0 ? sortedResults[0].score : 0;
+            
+            // Update main page display elements
+            const mainAverageScore = document.getElementById('mainAverageScore');
+            const mainLatestScore = document.getElementById('mainLatestScore');
+            if (mainAverageScore) {
+                mainAverageScore.textContent = averageScore;
+            }
+            if (mainLatestScore) {
+                mainLatestScore.textContent = latestScore;
+            }
+        } catch (error) {
+            console.warn('Failed to update main page assessment scores:', error);
+            // Ensure scores show 0 if there's an error
+            const mainAverageScore = document.getElementById('mainAverageScore');
+            const mainLatestScore = document.getElementById('mainLatestScore');
+            if (mainAverageScore) {
+                mainAverageScore.textContent = '0';
+            }
+            if (mainLatestScore) {
+                mainLatestScore.textContent = '0';
+            }
+        }
     }
 
     updateDynamicMuseumCounts() {
@@ -3623,8 +3662,8 @@ class MuseumCheckApp {
         }
     }
 
-    // Fix 2: 新增方法 - 获取亲子测评结果
-    getAssessmentResults() {
+    // Fix 2: 新增方法 - 获取亲子测评结果（原始数据）
+    getRawAssessmentResults() {
         try {
             return JSON.parse(localStorage.getItem('assessmentResults') || '{}');
         } catch (error) {
@@ -4547,7 +4586,7 @@ class MuseumCheckApp {
         const achievedCount = achievements.filter(a => a.achieved).length;
         
         // ✅ 修复3: 深度融合亲子测评与博物馆成就系统
-        const assessmentResults = this.getAssessmentResults();
+        const assessmentResults = this.getRawAssessmentResults();
         const assessmentQuality = this.calculateAssessmentQuality(assessmentResults);
         
         // 更新统计信息 - 融合显示博物馆进度和亲子质量
