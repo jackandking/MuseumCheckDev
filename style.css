@@ -1242,15 +1242,15 @@ header h1 {
     }
     
     .stats {
-        margin-bottom: 20px;
-        padding: 12px;
+        margin-bottom: 15px;
+        padding: 8px;
         border-radius: 8px;
         position: sticky;
-        top: 10px;
+        top: 5px;
     }
     
     .progress-display {
-        margin-bottom: 8px;
+        margin-bottom: 5px;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
@@ -1265,8 +1265,8 @@ header h1 {
     }
     
     .achievement-stats {
-        margin-top: 12px;
-        padding: 10px;
+        margin-top: 6px;
+        padding: 8px;
         border-radius: 6px;
     }
     
@@ -1278,7 +1278,7 @@ header h1 {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
     }
     
@@ -1295,8 +1295,8 @@ header h1 {
     }
     
     .assessment-stats {
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 6px;
+        padding: 8px;
         border-radius: 6px;
     }
     
@@ -1304,12 +1304,12 @@ header h1 {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
     }
     
     .assessment-scores {
-        gap: 12px;
+        gap: 8px;
         flex: 1;
     }
     
