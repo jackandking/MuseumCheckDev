@@ -2797,6 +2797,7 @@ class MuseumCheckApp {
         this.db = null;
         this.searchQuery = '';
         this.filteredMuseums = MUSEUMS;
+        this.assessmentHidden = false; // Default to showing assessments
         
         // Initialize specialized modules
         this.modalManager = new ModalManager();
@@ -2870,6 +2871,12 @@ class MuseumCheckApp {
         const museumId = urlParams.get('museum');
         const checklistType = urlParams.get('type'); // 'parent' or 'child'
         const ageGroup = urlParams.get('age'); // '3-6', '7-12', '13-18'
+        const hideAssessment = urlParams.get('hideAssessment'); // 'true' to hide assessment features
+
+        // Handle assessment hiding for Douyin mini-program compliance
+        if (hideAssessment === 'true') {
+            this.hideAssessmentFeatures();
+        }
 
         if (museumId) {
             const museum = MUSEUMS.find(m => m.id === museumId);
@@ -2910,6 +2917,17 @@ class MuseumCheckApp {
         }
 
         return `${baseURL}?${params.toString()}`;
+    }
+
+    // Hide assessment features for Douyin mini-program compliance
+    hideAssessmentFeatures() {
+        // Add CSS class to body to enable CSS-based hiding
+        document.body.classList.add('hide-assessments');
+        
+        // Set a flag for JavaScript-based conditional rendering
+        this.assessmentHidden = true;
+        
+        console.log('Assessment features hidden for Douyin mini-program compliance');
     }
 
     // Share checklist functionality
@@ -3448,7 +3466,7 @@ class MuseumCheckApp {
                         <div class="museum-info">
                             <h3>
                                 ${museum.name}
-                                ${isVisited ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
+                                ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
                         </div>

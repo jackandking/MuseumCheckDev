@@ -4816,3 +4816,13 @@ main[role="main"] {
         padding: 20px;
     }
 }
+
+/* Assessment hiding for Douyin mini-program compliance */
+.hide-assessments .assessment-button,
+.hide-assessments .assessment-history-button,
+.hide-assessments .assessment-stats,
+.hide-assessments .assessment-inline,
+.hide-assessments #assessmentModal,
+.hide-assessments #assessmentHistoryModal {
+    display: none !important;
+}
