@@ -16,6 +16,15 @@ const UI_CONSTANTS = {
     }
 };
 
+// Remote Storage Configuration
+const REMOTE_STORAGE_CONFIG = {
+    API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
+    FIREWORK_KEY: 'museumcheck-firework',
+    DOWNLOAD_INTERVAL: 10000,  // 10 seconds
+    FIREWORK_EXPIRATION: 3600, // 1 hour in seconds
+    TIMESTAMP_2124: 4866674732  // Default expiration timestamp
+};
+
 // DOM Selector Constants for better maintainability
 const DOM_SELECTORS = {
     AGE_GROUP: {
@@ -150,6 +159,178 @@ const UtilityFunctions = {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    },
+    
+    // UUID generation for unique identifiers
+    generateUUID: () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+};
+
+// ===== REMOTE STORAGE MODULE =====
+// Remote key-value storage for shared fireworks across all users
+const RemoteStorage = {
+    /**
+     * Updates a key-value pair in the remote storage
+     * @param {string} key - The storage key
+     * @param {any} value - The value to store
+     * @param {string} sortKey - Sort key for organization
+     * @param {number} expireAt - Expiration timestamp
+     * @returns {Promise<Object>} Promise that resolves with the response data
+     */
+    async updateKeyValueStore(key, value, sortKey = 'None', expireAt = REMOTE_STORAGE_CONFIG.TIMESTAMP_2124) {
+        if (!key || typeof key !== 'string') {
+            throw new Error('Key must be a non-empty string');
+        }
+
+        console.log(`RemoteStorage: updateKeyValueStore with key: ${key}`);
+
+        try {
+            const response = await fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key,
+                    sortKey,
+                    value,
+                    expireAt
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(`RemoteStorage: updateKeyValueStore success for key: ${key}`);
+            return data;
+        } catch (error) {
+            console.error(`RemoteStorage: Error updating key-value store:`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * Reads a value from the remote key-value storage
+     * @param {string} key - The storage key to read
+     * @param {Function} callback - Callback function to handle the result
+     * @param {string} sortKey - Sort key for organization
+     */
+    readKeyValueStore(key, callback, sortKey = 'None') {
+        if (!key || typeof key !== 'string') {
+            callback(null);
+            return;
+        }
+
+        if (typeof callback !== 'function') {
+            throw new Error('Callback must be a function');
+        }
+
+        console.log(`RemoteStorage: readKeyValueStore for key=${key} sortKey=${sortKey}`);
+
+        const url = `${REMOTE_STORAGE_CONFIG.API_ENDPOINT}?key=${encodeURIComponent(key)}&sortKey=${encodeURIComponent(sortKey)}`;
+
+        fetch(url, {
+            method: "GET"
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('RemoteStorage: Read data:', data);
+            callback(data.value);
+        })
+        .catch(error => {
+            console.error('RemoteStorage: Error in readKeyValueStore:', error);
+            callback(null);
+        });
+    },
+
+    /**
+     * Uploads firework data to the remote storage
+     * @param {string} fireworkId - Unique identifier for the firework
+     * @param {Object} fireworkData - Firework data object
+     */
+    async uploadFirework(fireworkId, fireworkData) {
+        if (!fireworkId || typeof fireworkId !== 'string') {
+            console.error('RemoteStorage: Firework ID must be a non-empty string');
+            return;
+        }
+
+        const dataToStore = {
+            ...fireworkData,
+            id: fireworkId,
+            timestamp: Date.now()
+        };
+        
+        // Set expiration to 1 hour from now
+        const oneHourLater = Math.floor(Date.now() / 1000) + REMOTE_STORAGE_CONFIG.FIREWORK_EXPIRATION;
+        
+        try {
+            await this.updateKeyValueStore(
+                REMOTE_STORAGE_CONFIG.FIREWORK_KEY, 
+                JSON.stringify(dataToStore), 
+                fireworkId, 
+                oneHourLater
+            );
+            console.log('RemoteStorage: Firework uploaded successfully:', fireworkId);
+        } catch (error) {
+            console.error('RemoteStorage: Error uploading firework:', error);
+        }
+    },
+
+    /**
+     * Downloads all firework data from remote storage
+     * @param {Function} callback - Callback function to handle the fireworks data array
+     */
+    downloadFireworks(callback) {
+        if (typeof callback !== 'function') {
+            console.error('RemoteStorage: Callback must be a function');
+            return;
+        }
+
+        this.readKeyValueStore(REMOTE_STORAGE_CONFIG.FIREWORK_KEY, (rawdata) => {
+            if (!rawdata) {
+                console.log('RemoteStorage: No fireworks data found');
+                callback([]);
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawdata);
+                
+                if (Array.isArray(data)) {
+                    // Handle array of fireworks
+                    const fireworksData = data.map(item => {
+                        try {
+                            return typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+                        } catch (parseError) {
+                            console.warn('RemoteStorage: Error parsing individual firework item:', parseError);
+                            return null;
+                        }
+                    }).filter(item => item !== null);
+                    
+                    console.log('RemoteStorage: Downloaded fireworks:', fireworksData.length);
+                    callback(fireworksData);
+                } else {
+                    // Handle single firework data
+                    const fireworkData = typeof data === 'string' ? JSON.parse(data) : data;
+                    callback([fireworkData]);
+                }
+            } catch (err) {
+                console.error('RemoteStorage: Error parsing fireworks data:', err);
+                callback([]);
+            }
+        }, '*');
     }
 };
 
@@ -2793,6 +2974,9 @@ class MuseumCheckApp {
         this.museumChecklists = this.loadMuseumChecklists();
         this.taskPhotos = this.loadTaskPhotos(); // Will fallback to localStorage initially
         this.customChecklists = this.loadCustomChecklists();
+        this.fireworks = this.loadFireworks(); // Load local fireworks data
+        this.remoteFireworks = []; // Remote fireworks from other users
+        this.downloadTimer = null; // Timer for periodic remote firework downloads
         this.indexedDBSupported = false;
         this.db = null;
         this.searchQuery = '';
@@ -2861,6 +3045,44 @@ class MuseumCheckApp {
         this.renderMuseums();
         this.updateStats();
         this.handleURLParameters();
+        
+        // Initialize remote fireworks system
+        this.initRemoteFireworks();
+    }
+    
+    /**
+     * Initialize remote fireworks downloading
+     */
+    initRemoteFireworks() {
+        console.log('Initializing remote fireworks system...');
+        
+        // Download initial fireworks
+        this.downloadRemoteFireworks();
+        
+        // Setup periodic downloads every 10 seconds
+        this.downloadTimer = setInterval(() => {
+            this.downloadRemoteFireworks();
+        }, REMOTE_STORAGE_CONFIG.DOWNLOAD_INTERVAL);
+        
+        console.log('Remote fireworks system initialized');
+    }
+    
+    /**
+     * Download remote fireworks from all users
+     */
+    downloadRemoteFireworks() {
+        RemoteStorage.downloadFireworks((fireworksData) => {
+            if (fireworksData && Array.isArray(fireworksData)) {
+                console.log(`Downloaded ${fireworksData.length} remote fireworks`);
+                this.remoteFireworks = fireworksData;
+                
+                // Update fireworks display if modal is open
+                const modal = document.getElementById('fireworksModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    this.renderFireworks();
+                }
+            }
+        });
     }
 
 
@@ -3265,6 +3487,23 @@ class MuseumCheckApp {
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
         });
+
+        // Fireworks button
+        document.getElementById('fireworksButton').addEventListener('click', () => {
+            this.showFireworksModal();
+        });
+
+        // Fireworks modal close
+        document.querySelector('#fireworksModal .close').addEventListener('click', () => {
+            this.closeFireworksModal();
+        });
+
+        // Click outside fireworks modal to close
+        document.getElementById('fireworksModal').addEventListener('click', (e) => {
+            if (e.target.id === 'fireworksModal') {
+                this.closeFireworksModal();
+            }
+        });
     }
 
     // Search functionality methods
@@ -3415,6 +3654,91 @@ class MuseumCheckApp {
         } catch (error) {
             console.error('Failed to save custom checklists:', error);
         }
+    }
+
+    loadFireworks() {
+        try {
+            const saved = localStorage.getItem('fireworks');
+            return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+            console.error('Failed to load fireworks:', error);
+            return [];
+        }
+    }
+
+    saveFireworks() {
+        try {
+            localStorage.setItem('fireworks', JSON.stringify(this.fireworks));
+        } catch (error) {
+            console.error('Failed to save fireworks:', error);
+        }
+    }
+
+    addFirework(museumId, museumName, taskContent, ageGroup) {
+        const fireworkId = UtilityFunctions.generateUUID();
+        const firework = {
+            id: fireworkId,
+            museumId: museumId,
+            museumName: museumName,
+            taskContent: taskContent,
+            ageGroup: ageGroup,
+            timestamp: Date.now(),
+            date: new Date().toISOString()
+        };
+        
+        // Add to local fireworks
+        this.fireworks.push(firework);
+        this.saveFireworks();
+        
+        // Upload to remote storage for sharing with other users
+        RemoteStorage.uploadFirework(fireworkId, firework).catch(error => {
+            console.warn('Failed to upload firework to remote storage:', error);
+            // Continue even if remote upload fails - local storage still works
+        });
+        
+        // Track firework creation
+        this.trackEvent('firework_created', {
+            'museum_id': museumId,
+            'age_group': ageGroup,
+            'timestamp': new Date().toISOString(),
+            'uploaded_to_remote': true
+        });
+        
+        return firework;
+    }
+
+    getFireworksByMuseum(museumId) {
+        // Merge local and remote fireworks, then filter by museum
+        const allFireworks = [...this.fireworks, ...this.remoteFireworks];
+        return allFireworks.filter(fw => fw.museumId === museumId);
+    }
+
+    getAllFireworks() {
+        // Merge local and remote fireworks
+        const allFireworks = [...this.fireworks, ...this.remoteFireworks];
+        
+        // Remove duplicates based on ID (prefer local versions)
+        const uniqueFireworks = [];
+        const seenIds = new Set();
+        
+        // Add local fireworks first (priority)
+        this.fireworks.forEach(fw => {
+            if (!seenIds.has(fw.id)) {
+                uniqueFireworks.push(fw);
+                seenIds.add(fw.id);
+            }
+        });
+        
+        // Add remote fireworks if not already present
+        this.remoteFireworks.forEach(fw => {
+            if (fw.id && !seenIds.has(fw.id)) {
+                uniqueFireworks.push({...fw, isRemote: true});
+                seenIds.add(fw.id);
+            }
+        });
+        
+        // Sort by timestamp (newest first)
+        return uniqueFireworks.sort((a, b) => b.timestamp - a.timestamp);
     }
 
     saveMuseumChecklists() {
@@ -3622,6 +3946,12 @@ class MuseumCheckApp {
         
         // Update achievements
         this.updateAchievements(visitedCount);
+        
+        // Update fireworks count
+        const fireworksCountElement = document.getElementById('fireworksCount');
+        if (fireworksCountElement) {
+            fireworksCountElement.textContent = this.fireworks.length;
+        }
         
         // 🐛 Fix: Update main page assessment scores on initialization
         this.updateMainPageAssessmentScores();
@@ -4277,6 +4607,9 @@ class MuseumCheckApp {
                 <div class="checklist-header">
                     <h3>孩子探索任务</h3>
                     <div class="checklist-actions">
+                        <button class="fireworks-museum-button" data-museum-id="${museum.id}" title="查看本馆烟花">
+                            🎆
+                        </button>
                         <button class="share-button" data-type="child" title="分享孩子任务清单">
                             🔗
                         </button>
@@ -4330,6 +4663,18 @@ class MuseumCheckApp {
                 this.shareChecklist(museum, checklistType);
             });
         });
+
+        // Setup museum-specific fireworks button
+        const fireworksButton = content.querySelector('.fireworks-museum-button');
+        if (fireworksButton) {
+            fireworksButton.addEventListener('click', () => {
+                const museumId = fireworksButton.dataset.museumId;
+                this.closeModal();
+                setTimeout(() => {
+                    this.showFireworksModal(museumId);
+                }, 300);
+            });
+        }
 
         modal.classList.remove('hidden');
         
@@ -4452,6 +4797,11 @@ class MuseumCheckApp {
                 const museum = MUSEUMS.find(m => m.id === museumId);
                 const itemText = museum && museum.checklists[checklistType] && museum.checklists[checklistType][fullAgeGroup] ? 
                                museum.checklists[checklistType][fullAgeGroup][index] : '';
+                
+                // Create firework for completed child tasks
+                if (e.target.checked && checklistType === 'child' && museum) {
+                    this.addFirework(museumId, museum.name, itemText, fullAgeGroup);
+                }
                 
                 this.trackEvent('checklist_item_toggled', {
                     'museum_id': museumId,
@@ -4596,6 +4946,107 @@ class MuseumCheckApp {
     renderSettingsInfo() {
         // Update museum count
         document.getElementById('museumCountSettings').textContent = MUSEUMS.length;
+    }
+
+    // Fireworks Modal Functions
+    showFireworksModal(museumId = null) {
+        this.renderFireworks(museumId);
+        this.modalManager.showModal('fireworksModal');
+        
+        // Track fireworks view
+        this.trackEvent('fireworks_viewed', {
+            'total_fireworks': this.fireworks.length,
+            'museum_filter': museumId || 'all'
+        });
+    }
+
+    closeFireworksModal() {
+        this.modalManager.closeModal('fireworksModal');
+    }
+
+    renderFireworks(museumId = null) {
+        const fireworks = museumId ? this.getFireworksByMuseum(museumId) : this.getAllFireworks();
+        
+        // Update statistics
+        document.getElementById('totalFireworks').textContent = fireworks.length;
+        const uniqueMuseums = new Set(fireworks.map(fw => fw.museumId));
+        document.getElementById('museumsWithFireworks').textContent = uniqueMuseums.size;
+        
+        // Update museum filter dropdown
+        const filterSelect = document.getElementById('fireworksMuseumFilter');
+        filterSelect.innerHTML = '<option value="">所有博物馆</option>';
+        
+        // Populate museum filter
+        const museumsWithFireworks = Array.from(uniqueMuseums).map(id => {
+            const museum = MUSEUMS.find(m => m.id === id);
+            return { id, name: museum ? museum.name : id };
+        }).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+        
+        museumsWithFireworks.forEach(museum => {
+            const option = document.createElement('option');
+            option.value = museum.id;
+            option.textContent = museum.name;
+            if (museumId === museum.id) {
+                option.selected = true;
+            }
+            filterSelect.appendChild(option);
+        });
+        
+        // Filter select event listener
+        filterSelect.onchange = (e) => {
+            const selectedMuseumId = e.target.value;
+            this.renderFireworks(selectedMuseumId || null);
+        };
+        
+        // Render fireworks list
+        const emptyState = document.getElementById('fireworksEmptyState');
+        const fireworksList = document.getElementById('fireworksList');
+        
+        if (fireworks.length === 0) {
+            emptyState.style.display = 'block';
+            fireworksList.style.display = 'none';
+        } else {
+            emptyState.style.display = 'none';
+            fireworksList.style.display = 'block';
+            
+            // Sort fireworks by timestamp (newest first)
+            const sortedFireworks = [...fireworks].sort((a, b) => b.timestamp - a.timestamp);
+            
+            // Render fireworks with animation
+            fireworksList.innerHTML = sortedFireworks.map((firework, index) => {
+                const date = new Date(firework.timestamp);
+                const dateStr = date.toLocaleDateString('zh-CN', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Extract task summary (first 50 chars without emoji)
+                const taskSummary = firework.taskContent.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim().substring(0, 50);
+                
+                // Check if this is a remote firework (from other users)
+                const isRemote = firework.isRemote === true;
+                const remoteIndicator = isRemote ? '<span class="remote-badge" title="来自其他小朋友">🌐</span>' : '';
+                
+                return `
+                    <div class="firework-item ${isRemote ? 'remote-firework' : ''}" style="animation-delay: ${index * 0.1}s">
+                        <div class="firework-header">
+                            <div class="firework-icon">🎆</div>
+                            <div class="firework-info">
+                                <h4 class="firework-museum">${firework.museumName}${remoteIndicator}</h4>
+                                <p class="firework-date">${dateStr}</p>
+                            </div>
+                            <div class="firework-age-badge">${firework.ageGroup}</div>
+                        </div>
+                        <div class="firework-content">
+                            <p class="firework-task">${firework.taskContent}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     }
 
     renderAchievements() {

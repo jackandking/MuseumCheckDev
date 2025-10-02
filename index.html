@@ -193,6 +193,14 @@
 
                         </div>
                     </div>
+                    <div class="fireworks-stats">
+                        <div class="fireworks-inline">
+                            <div class="fireworks-text">
+                                🎆 烟花记录: <span id="fireworksCount">0</span>个
+                            </div>
+                            <button id="fireworksButton" class="fireworks-button fireworks-button-inline" title="查看烟花记录">🎆 烟花墙</button>
+                        </div>
+                    </div>
                     <div class="assessment-stats">
                         <div class="assessment-inline">
                             <div class="assessment-scores">
@@ -341,6 +349,41 @@
                 <div class="settings-item">
                     <label class="settings-label">博物馆数量：</label>
                     <span class="settings-value" id="museumCountSettings">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fireworks Modal -->
+    <div id="fireworksModal" class="modal fireworks-modal hidden">
+        <div class="modal-content fireworks-content">
+            <span class="close">&times;</span>
+            <h2>🎆 烟花墙 - 孩子任务完成记录</h2>
+            <div class="fireworks-summary">
+                <div class="fireworks-overview">
+                    <div class="fireworks-stat">
+                        <span class="stat-number" id="totalFireworks">0</span>
+                        <span class="stat-label">总烟花</span>
+                    </div>
+                    <div class="fireworks-stat">
+                        <span class="stat-number" id="museumsWithFireworks">0</span>
+                        <span class="stat-label">博物馆数</span>
+                    </div>
+                </div>
+                <div class="fireworks-filters">
+                    <select id="fireworksMuseumFilter" class="filter-select">
+                        <option value="">所有博物馆</option>
+                    </select>
+                </div>
+            </div>
+            <div id="fireworksContent" class="fireworks-content">
+                <div class="fireworks-empty" id="fireworksEmptyState">
+                    <div class="empty-icon">🎆</div>
+                    <p>还没有烟花记录</p>
+                    <p>完成孩子任务后，烟花将显示在这里</p>
+                </div>
+                <div class="fireworks-list" id="fireworksList" style="display: none;">
+                    <!-- Fireworks will be populated by JavaScript -->
                 </div>
             </div>
         </div>
