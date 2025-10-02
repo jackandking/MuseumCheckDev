@@ -65,7 +65,7 @@ MuseumCheck/
 
 #### 1. 数据层
 ```javascript
-// 博物馆数据库 (257家博物馆)
+// 博物馆数据库 (258家博物馆)
 const MUSEUMS = [
     {
         id: 'forbidden-city',
