@@ -2279,6 +2279,34 @@ main[role="main"] {
     align-items: center;
 }
 
+/* Fireworks wall launch text */
+.firework-launch-text {
+    position: absolute;
+    color: white;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+    animation: launchTextFade 3s ease-out forwards;
+}
+
+@keyframes launchTextFade {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+    }
+}
+
 .rocket-body {
     font-size: 2em;
     position: relative;
@@ -4999,13 +5027,136 @@ main[role="main"] {
     min-width: auto;
 }
 
-/* Fireworks Modal */
+/* Fireworks Modal - Full Screen Layout */
 .fireworks-modal .modal-content {
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: none;
+    max-height: none;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
+.fireworks-wall-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #0a0e27;
+}
+
+.fireworks-wall-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fireworks-wall-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.fireworks-wall-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Left Panel: Fireworks Animation Area */
+.fireworks-wall-left {
+    flex: 1;
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2a2f4a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.fireworks-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Right Panel: Achievement Cards */
+.fireworks-wall-right {
+    width: 400px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fireworks-wall-header {
+    padding: 30px 20px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+.fireworks-wall-header h2 {
+    color: white;
+    margin: 0 0 20px 0;
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.fireworks-wall-stats {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fireworks-wall-stat {
+    text-align: center;
+}
+
+.fireworks-wall-stat .stat-number {
+    display: block;
+    font-size: 2em;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.fireworks-wall-stat .stat-label {
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.fireworks-filters {
+    display: flex;
+    justify-content: center;
+}
+
+.fireworks-cards-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    position: relative;
+}
+
+.fireworks-cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Fireworks Content (backward compatibility) */
 .fireworks-content {
     padding: 20px;
 }
@@ -5086,12 +5237,25 @@ main[role="main"] {
 }
 
 .firework-item {
-    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-    border: 2px solid #667eea30;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 20px;
     transition: all 0.3s ease;
-    animation: fireworkFadeIn 0.5s ease-out;
+    animation: fireworkCardSlideIn 0.5s ease-out;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+@keyframes fireworkCardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fireworkFadeIn {
@@ -5107,8 +5271,28 @@ main[role="main"] {
 
 .firework-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Firework item being pushed out */
+.firework-item.exiting {
+    animation: fireworkCardExit 0.8s ease-in forwards;
+}
+
+@keyframes fireworkCardExit {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateY(30px) scale(0.9);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(60px) scale(0.7);
+    }
 }
 
 .firework-header {
@@ -5223,6 +5407,51 @@ main[role="main"] {
     .fireworks-overview {
         flex-direction: column;
         gap: 20px;
+    }
+    
+    /* Fireworks wall mobile layout */
+    .fireworks-wall-container {
+        flex-direction: column;
+    }
+    
+    .fireworks-wall-left {
+        height: 40vh;
+        order: 2;
+    }
+    
+    .fireworks-wall-right {
+        width: 100%;
+        height: 60vh;
+        order: 1;
+    }
+    
+    .fireworks-wall-header {
+        padding: 20px 15px 15px;
+    }
+    
+    .fireworks-wall-header h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    
+    .fireworks-wall-stats {
+        gap: 20px;
+    }
+    
+    .fireworks-wall-stat .stat-number {
+        font-size: 1.6em;
+    }
+    
+    .fireworks-cards-container {
+        padding: 15px;
+    }
+    
+    .firework-item {
+        padding: 15px;
+    }
+    
+    .firework-launch-text {
+        font-size: 1em;
     }
     
     .fireworks-filters {

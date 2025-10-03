@@ -5209,7 +5209,7 @@ class MuseumCheckApp {
         
         // Render fireworks list
         const emptyState = document.getElementById('fireworksEmptyState');
-        const fireworksList = document.getElementById('fireworksList');
+        const fireworksList = document.getElementById('fireworksCardsList');
         
         if (fireworks.length === 0) {
             emptyState.style.display = 'block';
@@ -5244,15 +5244,22 @@ class MuseumCheckApp {
                 const museumCity = firework.museumCity || '';
                 const cityDisplay = museumCity ? ` · ${museumCity}` : '';
                 
+                // Get age group text for display
+                const ageGroupText = firework.ageGroup || '小朋友';
+                
                 return `
-                    <div class="firework-item ${isRemote ? 'remote-firework' : ''}" style="animation-delay: ${index * 0.1}s">
+                    <div class="firework-item ${isRemote ? 'remote-firework' : ''}" 
+                         style="animation-delay: ${index * 0.1}s"
+                         data-firework-id="${firework.id}"
+                         data-age-group="${ageGroupText}"
+                         data-child-nickname="${childNickname}">
                         <div class="firework-header">
                             <div class="firework-icon">🎆</div>
                             <div class="firework-info">
                                 <h4 class="firework-museum">${firework.museumName}${cityDisplay}${remoteIndicator}</h4>
                                 <p class="firework-date">${childNickname} · ${dateStr}</p>
                             </div>
-                            <div class="firework-age-badge">${firework.ageGroup}</div>
+                            <div class="firework-age-badge">${ageGroupText}</div>
                         </div>
                         <div class="firework-content">
                             <p class="firework-task">${firework.taskContent}</p>
@@ -5260,7 +5267,95 @@ class MuseumCheckApp {
                     </div>
                 `;
             }).join('');
+            
+            // Setup scroll observer for card-to-firework animation
+            this.setupFireworksWallAnimations();
         }
+    }
+    
+    // New method: Setup fireworks wall animations
+    setupFireworksWallAnimations() {
+        const cardsContainer = document.getElementById('fireworksCardsContainer');
+        const fireworksCanvas = document.getElementById('fireworksCanvas');
+        
+        if (!cardsContainer || !fireworksCanvas) return;
+        
+        // Use IntersectionObserver to detect when cards scroll out of view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // When a card exits the viewport (scrolls off bottom)
+                if (!entry.isIntersecting && entry.boundingClientRect.top > 0) {
+                    const card = entry.target;
+                    const ageGroup = card.dataset.ageGroup || '小朋友';
+                    const childNickname = card.dataset.childNickname || '小朋友';
+                    
+                    // Launch firework animation
+                    this.launchFireworkFromCard(ageGroup, childNickname);
+                    
+                    // Mark card as exiting
+                    card.classList.add('exiting');
+                    
+                    // Stop observing this card
+                    observer.unobserve(card);
+                }
+            });
+        }, {
+            root: cardsContainer,
+            threshold: 0,
+            rootMargin: '0px 0px -100% 0px' // Trigger when card leaves bottom
+        });
+        
+        // Observe all firework cards
+        const cards = document.querySelectorAll('.firework-item');
+        cards.forEach(card => observer.observe(card));
+    }
+    
+    // New method: Launch firework animation
+    launchFireworkFromCard(ageGroup, childNickname) {
+        const fireworksCanvas = document.getElementById('fireworksCanvas');
+        if (!fireworksCanvas) return;
+        
+        // Create rocket element
+        const rocket = document.createElement('div');
+        rocket.className = 'rocket-animation launch-small';
+        
+        // Create rocket body (emoji)
+        const rocketBody = document.createElement('div');
+        rocketBody.className = 'rocket-body';
+        rocketBody.textContent = '🎆';
+        
+        // Create rocket trail
+        const rocketTrail = document.createElement('div');
+        rocketTrail.className = 'rocket-trail';
+        
+        // Create launch text
+        const launchText = document.createElement('div');
+        launchText.className = 'firework-launch-text';
+        launchText.textContent = `${ageGroup}的${childNickname}完成任务`;
+        launchText.style.bottom = '120px'; // Position above rocket
+        launchText.style.left = '50%';
+        launchText.style.transform = 'translateX(-50%)';
+        
+        rocket.appendChild(rocketBody);
+        rocket.appendChild(rocketTrail);
+        rocket.appendChild(launchText);
+        
+        // Random horizontal position (left 30% of screen)
+        const leftPosition = Math.random() * 30 + 10; // 10-40% from left
+        rocket.style.left = `${leftPosition}%`;
+        rocket.style.bottom = '0';
+        
+        fireworksCanvas.appendChild(rocket);
+        
+        // Trigger animation
+        setTimeout(() => {
+            rocket.style.opacity = '1';
+        }, 10);
+        
+        // Remove rocket after animation completes
+        setTimeout(() => {
+            rocket.remove();
+        }, 3500);
     }
 
     renderAchievements() {
