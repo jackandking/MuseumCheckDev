@@ -345,6 +345,21 @@
             <span class="close">&times;</span>
             <h2>⚙️ 设置</h2>
             <div class="settings-section">
+                <h3>👶 孩子信息</h3>
+                <div class="settings-item">
+                    <label class="settings-label" for="childNicknameInput">孩子昵称：</label>
+                    <div class="settings-input-group">
+                        <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="小淘气">
+                        <button id="saveNicknameButton" class="settings-save-button">保存</button>
+                    </div>
+                    <div class="settings-hint">最多5个中文字或10个英文字母</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label">当前年龄组：</label>
+                    <span class="settings-value" id="currentAgeGroupDisplay">-</span>
+                </div>
+            </div>
+            <div class="settings-section">
                 <h3>📊 应用信息</h3>
                 <div class="settings-item">
                     <label class="settings-label">博物馆数量：</label>

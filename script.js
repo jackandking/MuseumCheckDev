@@ -2970,6 +2970,7 @@ const EventHandlers = {
 class MuseumCheckApp {
     constructor() {
         this.currentAge = this.loadAgeGroup();
+        this.childNickname = this.loadChildNickname();
         this.visitedMuseums = this.loadVisitedMuseums();
         this.museumChecklists = this.loadMuseumChecklists();
         this.taskPhotos = this.loadTaskPhotos(); // Will fallback to localStorage initially
@@ -3478,6 +3479,27 @@ class MuseumCheckApp {
             }
         });
 
+        // Save nickname button
+        document.getElementById('saveNicknameButton').addEventListener('click', () => {
+            const nicknameInput = document.getElementById('childNicknameInput');
+            const nickname = nicknameInput.value.trim();
+            
+            const result = this.saveChildNickname(nickname);
+            
+            if (result.isValid) {
+                // Show success message
+                alert(result.message);
+                
+                // Track nickname saved event
+                this.trackEvent('nickname_saved', {
+                    'nickname_length': nickname.length
+                });
+            } else {
+                // Show error message
+                alert(result.message);
+            }
+        });
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -3752,10 +3774,10 @@ class MuseumCheckApp {
     loadAgeGroup() {
         try {
             const saved = localStorage.getItem('ageGroup');
-            return saved || '3-6'; // Default to '3-6' if not saved
+            return saved || '7-12'; // Default to '7-12' (8 years old) if not saved
         } catch (error) {
             console.error('Failed to load age group:', error);
-            return '3-6';
+            return '7-12';
         }
     }
 
@@ -3765,6 +3787,57 @@ class MuseumCheckApp {
         } catch (error) {
             console.error('Failed to save age group:', error);
         }
+    }
+
+    loadChildNickname() {
+        try {
+            const saved = localStorage.getItem('childNickname');
+            return saved || '小淘气'; // Default to '小淘气' if not saved
+        } catch (error) {
+            console.error('Failed to load child nickname:', error);
+            return '小淘气';
+        }
+    }
+
+    saveChildNickname(nickname) {
+        try {
+            // Validate nickname
+            const validation = this.validateNickname(nickname);
+            if (!validation.isValid) {
+                return validation;
+            }
+            
+            this.childNickname = nickname;
+            localStorage.setItem('childNickname', nickname);
+            
+            return { isValid: true, message: '昵称保存成功！' };
+        } catch (error) {
+            console.error('Failed to save child nickname:', error);
+            return { isValid: false, message: '保存失败，请重试' };
+        }
+    }
+
+    validateNickname(nickname) {
+        if (!nickname || nickname.trim() === '') {
+            return { isValid: false, message: '昵称不能为空' };
+        }
+
+        const trimmed = nickname.trim();
+        
+        // Count Chinese characters and English letters
+        const chineseChars = trimmed.match(/[\u4e00-\u9fa5]/g) || [];
+        const englishChars = trimmed.match(/[a-zA-Z]/g) || [];
+        const otherChars = trimmed.replace(/[\u4e00-\u9fa5a-zA-Z]/g, '');
+        
+        // Calculate length considering Chinese chars count as 2 and English as 1
+        const totalLength = chineseChars.length * 2 + englishChars.length + otherChars.length;
+        
+        // Max 5 Chinese chars (10 units) or 10 English chars (10 units)
+        if (totalLength > 10) {
+            return { isValid: false, message: '昵称过长（最多5个中文字或10个英文字母）' };
+        }
+        
+        return { isValid: true };
     }
 
     renderMuseums() {
@@ -4946,6 +5019,23 @@ class MuseumCheckApp {
     renderSettingsInfo() {
         // Update museum count
         document.getElementById('museumCountSettings').textContent = MUSEUMS.length;
+        
+        // Update child nickname input
+        const nicknameInput = document.getElementById('childNicknameInput');
+        if (nicknameInput) {
+            nicknameInput.value = this.childNickname;
+        }
+        
+        // Update current age group display
+        const ageGroupDisplay = document.getElementById('currentAgeGroupDisplay');
+        if (ageGroupDisplay) {
+            const ageGroupNames = {
+                '3-6': '3-6岁 (学龄前)',
+                '7-12': '7-12岁 (小学)',
+                '13-18': '13-18岁 (中学)'
+            };
+            ageGroupDisplay.textContent = ageGroupNames[this.currentAge] || this.currentAge;
+        }
     }
 
     // Fireworks Modal Functions

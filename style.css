@@ -4062,6 +4062,74 @@ main[role="main"] {
     border: 1px solid #c3e6c3;
 }
 
+/* Settings Input Group */
+.settings-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    max-width: 400px;
+}
+
+.settings-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    min-height: 44px; /* Touch-friendly */
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #f8f9ff;
+}
+
+.settings-input::placeholder {
+    color: #999;
+}
+
+.settings-save-button {
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-height: 44px; /* Touch-friendly */
+    min-width: 60px;
+}
+
+.settings-save-button:hover {
+    background: #1e3a6e;
+    transform: translateY(-1px);
+}
+
+.settings-save-button:active {
+    transform: translateY(0);
+}
+
+.settings-hint {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Settings item with vertical layout for inputs */
+.settings-item.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
 @media (max-width: 768px) {
     .settings-item {
         flex-direction: column;
@@ -4073,6 +4141,15 @@ main[role="main"] {
     .settings-value {
         align-self: flex-end;
         font-size: 12px;
+    }
+    
+    .settings-input-group {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .settings-input {
+        font-size: 16px; /* Prevent iOS zoom */
     }
 }
 
