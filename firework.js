@@ -689,4 +689,152 @@ async function loadInitialFireworks() {
     } catch (error) {
         console.error('Error loading initial fireworks:', error);
     }
-          }
+}
+
+/**
+ * MuseumCheck Integration API
+ * Provides integration points for the main MuseumCheck application
+ */
+
+/**
+ * Creates a fireworks system for a specific container (for modal usage)
+ * @param {HTMLElement} container - The container element for the fireworks
+ * @returns {Object} Fireworks system instance with start, stop, and launchFirework methods
+ */
+function createFireworksSystem(container) {
+    // Create canvas element
+    const localCanvas = document.createElement('canvas');
+    localCanvas.style.width = '100%';
+    localCanvas.style.height = '100%';
+    localCanvas.style.position = 'absolute';
+    localCanvas.style.top = '0';
+    localCanvas.style.left = '0';
+    localCanvas.style.pointerEvents = 'none';
+    
+    container.appendChild(localCanvas);
+    
+    const localCtx = localCanvas.getContext('2d');
+    const localFireworks = [];
+    const localParticles = [];
+    let localAnimationId = null;
+    let isRunning = false;
+    
+    // Set canvas dimensions
+    const resize = () => {
+        localCanvas.width = container.clientWidth;
+        localCanvas.height = container.clientHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // Local animation loop
+    function animateLocal() {
+        if (!isRunning) return;
+        
+        localAnimationId = requestAnimationFrame(animateLocal);
+        
+        // Clear canvas with fade effect
+        localCtx.fillStyle = 'rgba(10, 14, 39, 0.2)';
+        localCtx.fillRect(0, 0, localCanvas.width, localCanvas.height);
+        
+        // Update and draw fireworks
+        for (let i = localFireworks.length - 1; i >= 0; i--) {
+            const firework = localFireworks[i];
+            
+            if (!firework) continue;
+            
+            // Set context for firework drawing
+            const originalCtx = ctx;
+            const originalCanvas = canvas;
+            ctx = localCtx;
+            canvas = localCanvas;
+            
+            firework.draw();
+            firework.update();
+            
+            // Restore original context
+            ctx = originalCtx;
+            canvas = originalCanvas;
+            
+            // Check if firework reached target
+            const distance = Math.hypot(
+                firework.x - firework.targetX,
+                firework.y - firework.targetY
+            );
+            
+            if (distance < 5) {
+                firework.explode();
+                localParticles.push(...firework.particles);
+                localFireworks.splice(i, 1);
+            }
+        }
+        
+        // Update and draw particles
+        for (let i = localParticles.length - 1; i >= 0; i--) {
+            const particle = localParticles[i];
+            
+            if (!particle) continue;
+            
+            // Set context for particle drawing
+            const originalCtx = ctx;
+            ctx = localCtx;
+            
+            particle.draw();
+            particle.update();
+            
+            // Restore original context
+            ctx = originalCtx;
+            
+            // Remove faded particles
+            if (particle.alpha <= 0) {
+                localParticles.splice(i, 1);
+            }
+        }
+    }
+    
+    // Return API object
+    return {
+        start: function() {
+            if (isRunning) return;
+            isRunning = true;
+            animateLocal();
+        },
+        
+        stop: function() {
+            isRunning = false;
+            if (localAnimationId) {
+                cancelAnimationFrame(localAnimationId);
+            }
+        },
+        
+        launchFirework: function(ageGroup, childNickname) {
+            const startX = localCanvas.width * Math.random();
+            const targetX = localCanvas.width * 0.3 + Math.random() * localCanvas.width * 0.4;
+            const targetY = localCanvas.height * 0.1 + Math.random() * localCanvas.height * 0.4;
+            
+            // Create display string
+            const displayText = childNickname ? `${childNickname} (${ageGroup})` : ageGroup;
+            
+            // Set context temporarily for firework creation
+            const originalCtx = ctx;
+            const originalCanvas = canvas;
+            ctx = localCtx;
+            canvas = localCanvas;
+            
+            const firework = new Firework(startX, targetX, targetY, displayText);
+            localFireworks.push(firework);
+            
+            // Restore context
+            ctx = originalCtx;
+            canvas = originalCanvas;
+            
+            // Play sound if available
+            playFireworkSound();
+        },
+        
+        canvas: localCanvas,
+        getParticleCount: function() {
+            return localParticles.length + localFireworks.length;
+        }
+    };
+}
