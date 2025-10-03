@@ -3538,9 +3538,9 @@ class MuseumCheckApp {
             this.generateAchievementPoster();
         });
 
-        // Fireworks button
+        // Fireworks button - opens standalone fireworks page for true fullscreen effect
         document.getElementById('fireworksButton').addEventListener('click', () => {
-            this.showFireworksModal();
+            window.open('fireworks.html', '_blank');
         });
 
         // Fireworks modal close
