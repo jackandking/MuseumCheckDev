@@ -3500,6 +3500,34 @@ class MuseumCheckApp {
             }
         });
 
+        // Fireworks retention time slider
+        const retentionSlider = document.getElementById('fireworksRetentionInput');
+        if (retentionSlider) {
+            retentionSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value, 10);
+                this.updateFireworksRetentionDisplay(minutes);
+            });
+            
+            retentionSlider.addEventListener('change', (e) => {
+                const minutes = parseInt(e.target.value, 10);
+                const retentionMs = minutes * 60000;
+                
+                const result = this.saveFireworksRetentionTime(retentionMs);
+                
+                if (result.success) {
+                    // Track retention time change
+                    this.trackEvent('fireworks_retention_changed', {
+                        'retention_minutes': minutes,
+                        'retention_hours': minutes / 60
+                    });
+                    
+                    // Clean up expired fireworks immediately
+                    this.fireworks = this.cleanupExpiredFireworks(this.fireworks);
+                    this.updateStats();
+                }
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -3681,11 +3709,36 @@ class MuseumCheckApp {
     loadFireworks() {
         try {
             const saved = localStorage.getItem('fireworks');
-            return saved ? JSON.parse(saved) : [];
+            let fireworks = saved ? JSON.parse(saved) : [];
+            
+            // Clean up expired fireworks
+            fireworks = this.cleanupExpiredFireworks(fireworks);
+            
+            return fireworks;
         } catch (error) {
             console.error('Failed to load fireworks:', error);
             return [];
         }
+    }
+
+    cleanupExpiredFireworks(fireworks) {
+        const retentionTimeMs = this.loadFireworksRetentionTime();
+        const now = Date.now();
+        
+        // Filter out fireworks older than retention time
+        const validFireworks = fireworks.filter(firework => {
+            const age = now - firework.timestamp;
+            return age < retentionTimeMs;
+        });
+        
+        // Save cleaned fireworks if any were removed
+        if (validFireworks.length !== fireworks.length) {
+            console.log(`Cleaned up ${fireworks.length - validFireworks.length} expired fireworks`);
+            this.fireworks = validFireworks;
+            this.saveFireworks();
+        }
+        
+        return validFireworks;
     }
 
     saveFireworks() {
@@ -3807,6 +3860,37 @@ class MuseumCheckApp {
         } catch (error) {
             console.error('Failed to load child nickname:', error);
             return '小淘气';
+        }
+    }
+
+    loadFireworksRetentionTime() {
+        try {
+            const saved = localStorage.getItem('fireworksRetentionTime');
+            // Default to 1 minute (60000 ms)
+            return saved ? parseInt(saved, 10) : 60000;
+        } catch (error) {
+            console.error('Failed to load fireworks retention time:', error);
+            return 60000; // Default 1 minute
+        }
+    }
+
+    saveFireworksRetentionTime(retentionTimeMs) {
+        try {
+            // Validate retention time (1 minute to 1 day)
+            const minTime = 60000; // 1 minute
+            const maxTime = 86400000; // 1 day
+            
+            if (retentionTimeMs < minTime || retentionTimeMs > maxTime) {
+                console.warn('Invalid retention time, using default');
+                retentionTimeMs = 60000;
+            }
+            
+            localStorage.setItem('fireworksRetentionTime', retentionTimeMs.toString());
+            
+            return { success: true, message: '烟花留存时间已保存' };
+        } catch (error) {
+            console.error('Failed to save fireworks retention time:', error);
+            return { success: false, message: '保存失败，请重试' };
         }
     }
 
@@ -5046,6 +5130,30 @@ class MuseumCheckApp {
                 '13-18': '13-18岁 (中学)'
             };
             ageGroupDisplay.textContent = ageGroupNames[this.currentAge] || this.currentAge;
+        }
+        
+        // Update fireworks retention time slider
+        const retentionSlider = document.getElementById('fireworksRetentionInput');
+        const retentionDisplay = document.getElementById('fireworksRetentionDisplay');
+        if (retentionSlider && retentionDisplay) {
+            const retentionMs = this.loadFireworksRetentionTime();
+            const retentionMinutes = Math.round(retentionMs / 60000);
+            retentionSlider.value = retentionMinutes;
+            this.updateFireworksRetentionDisplay(retentionMinutes);
+        }
+    }
+
+    updateFireworksRetentionDisplay(minutes) {
+        const display = document.getElementById('fireworksRetentionDisplay');
+        if (!display) return;
+        
+        if (minutes < 60) {
+            display.textContent = `${minutes} 分钟`;
+        } else if (minutes < 1440) {
+            const hours = Math.round(minutes / 60 * 10) / 10;
+            display.textContent = `${hours} 小时`;
+        } else {
+            display.textContent = '1 天';
         }
     }
 

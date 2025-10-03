@@ -4123,6 +4123,57 @@ main[role="main"] {
     font-style: italic;
 }
 
+/* Settings Slider */
+.settings-slider {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #007bff, #28a745);
+    outline: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    min-height: 44px; /* Touch-friendly height for mobile */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.settings-slider:hover {
+    opacity: 1;
+}
+
+.settings-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--primary-color);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.settings-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.settings-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--primary-color);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.settings-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
 /* Settings item with vertical layout for inputs */
 .settings-item.vertical {
     flex-direction: column;
