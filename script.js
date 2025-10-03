@@ -3049,6 +3049,37 @@ class MuseumCheckApp {
         
         // Initialize remote fireworks system
         this.initRemoteFireworks();
+        
+        // Auto-hide age selector after 10 seconds
+        this.setupAgeSelectorAutoHide();
+    }
+    
+    /**
+     * Setup auto-hide functionality for age selector
+     * Hides the age selector after 10 seconds and shows a hint about settings
+     */
+    setupAgeSelectorAutoHide() {
+        const ageSelector = document.querySelector('.age-selector');
+        const hint = document.getElementById('ageSelectorHint');
+        
+        if (!ageSelector || !hint) {
+            return;
+        }
+        
+        // Hide age selector after 10 seconds
+        setTimeout(() => {
+            ageSelector.classList.add('hidden');
+            
+            // Show hint after age selector is hidden (wait for transition)
+            setTimeout(() => {
+                hint.classList.add('show');
+                
+                // Hide hint after 5 seconds
+                setTimeout(() => {
+                    hint.classList.remove('show');
+                }, 5000);
+            }, 500);
+        }, 10000);
     }
     
     /**
@@ -3499,6 +3530,55 @@ class MuseumCheckApp {
                 alert(result.message);
             }
         });
+
+        // Save age group button
+        const saveAgeGroupButton = document.getElementById('saveAgeGroupButton');
+        if (saveAgeGroupButton) {
+            saveAgeGroupButton.addEventListener('click', () => {
+                const ageGroupSelector = document.getElementById('ageGroupSelector');
+                const newAgeGroup = ageGroupSelector.value;
+                
+                if (newAgeGroup !== this.currentAge) {
+                    this.currentAge = newAgeGroup;
+                    LocalStorageManager.setItem('ageGroup', newAgeGroup);
+                    
+                    // Update display
+                    const ageGroupNames = {
+                        '3-6': '3-6岁 (学龄前)',
+                        '7-12': '7-12岁 (小学)',
+                        '13-18': '13-18岁 (中学)'
+                    };
+                    const ageGroupDisplay = document.getElementById('currentAgeGroupDisplay');
+                    if (ageGroupDisplay) {
+                        ageGroupDisplay.textContent = ageGroupNames[newAgeGroup] || newAgeGroup;
+                    }
+                    
+                    // Update age selector on main page
+                    const savedAgeRadio = document.querySelector(`input[name="ageGroup"][value="${newAgeGroup}"]`);
+                    if (savedAgeRadio) {
+                        savedAgeRadio.checked = true;
+                        // Update selected state
+                        document.querySelectorAll('.age-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        savedAgeRadio.closest('.age-option')?.classList.add('selected');
+                    }
+                    
+                    // Re-render museums with new age group
+                    this.renderMuseums();
+                    
+                    // Track age group changed event
+                    this.trackEvent('age_group_changed', {
+                        'new_age_group': newAgeGroup,
+                        'changed_from_settings': true
+                    });
+                    
+                    alert('年龄组已更新！');
+                } else {
+                    alert('年龄组未改变');
+                }
+            });
+        }
 
         // Fireworks retention time slider
         const retentionSlider = document.getElementById('fireworksRetentionInput');
@@ -5140,6 +5220,12 @@ class MuseumCheckApp {
                 '13-18': '13-18岁 (中学)'
             };
             ageGroupDisplay.textContent = ageGroupNames[this.currentAge] || this.currentAge;
+        }
+        
+        // Update age group selector to match current age
+        const ageGroupSelector = document.getElementById('ageGroupSelector');
+        if (ageGroupSelector) {
+            ageGroupSelector.value = this.currentAge;
         }
         
         // Update fireworks retention time slider

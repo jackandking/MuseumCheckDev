@@ -171,6 +171,11 @@
             <span id="age-help" class="sr-only">选择孩子的年龄段以获取适合的博物馆参观内容</span>
         </nav>
 
+        <!-- Age selector hint notification -->
+        <div id="ageSelectorHint" class="age-selector-hint">
+            💡 提示：您可以点击左上角 🏛️ 设置按钮来更改年龄选择
+        </div>
+
         <main role="main">
             <section class="museum-list" id="museums">
                 <h2>全国主要博物馆清单</h2>
@@ -357,6 +362,18 @@
                 <div class="settings-item">
                     <label class="settings-label">当前年龄组：</label>
                     <span class="settings-value" id="currentAgeGroupDisplay">-</span>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="ageGroupSelector">更改年龄组：</label>
+                    <div class="settings-input-group">
+                        <select id="ageGroupSelector" class="settings-input">
+                            <option value="3-6">3-6岁 (学龄前)</option>
+                            <option value="7-12">7-12岁 (小学)</option>
+                            <option value="13-18">13-18岁 (中学)</option>
+                        </select>
+                        <button id="saveAgeGroupButton" class="settings-save-button">保存</button>
+                    </div>
+                    <div class="settings-hint">更改后将重新加载博物馆内容</div>
                 </div>
             </div>
             <div class="settings-section">
