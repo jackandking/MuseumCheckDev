@@ -3696,14 +3696,23 @@ class MuseumCheckApp {
         }
     }
 
-    addFirework(museumId, museumName, taskContent, ageGroup) {
+    addFirework(museumId, museumName, taskContent, ageGroup, museumCity = null) {
         const fireworkId = UtilityFunctions.generateUUID();
+        
+        // Get museum city if not provided
+        if (!museumCity) {
+            const museum = MUSEUMS.find(m => m.id === museumId);
+            museumCity = museum ? museum.location : '';
+        }
+        
         const firework = {
             id: fireworkId,
             museumId: museumId,
             museumName: museumName,
+            museumCity: museumCity,
             taskContent: taskContent,
             ageGroup: ageGroup,
+            childNickname: this.childNickname || '小淘气',
             timestamp: Date.now(),
             date: new Date().toISOString()
         };
@@ -3721,7 +3730,9 @@ class MuseumCheckApp {
         // Track firework creation
         this.trackEvent('firework_created', {
             'museum_id': museumId,
+            'museum_city': museumCity,
             'age_group': ageGroup,
+            'child_nickname': this.childNickname || '小淘气',
             'timestamp': new Date().toISOString(),
             'uploaded_to_remote': true
         });
@@ -4873,7 +4884,7 @@ class MuseumCheckApp {
                 
                 // Create firework for completed child tasks
                 if (e.target.checked && checklistType === 'child' && museum) {
-                    this.addFirework(museumId, museum.name, itemText, fullAgeGroup);
+                    this.addFirework(museumId, museum.name, itemText, fullAgeGroup, museum.location);
                 }
                 
                 this.trackEvent('checklist_item_toggled', {
@@ -5120,13 +5131,18 @@ class MuseumCheckApp {
                 const isRemote = firework.isRemote === true;
                 const remoteIndicator = isRemote ? '<span class="remote-badge" title="来自其他小朋友">🌐</span>' : '';
                 
+                // Handle backward compatibility for old fireworks without new fields
+                const childNickname = firework.childNickname || '小朋友';
+                const museumCity = firework.museumCity || '';
+                const cityDisplay = museumCity ? ` · ${museumCity}` : '';
+                
                 return `
                     <div class="firework-item ${isRemote ? 'remote-firework' : ''}" style="animation-delay: ${index * 0.1}s">
                         <div class="firework-header">
                             <div class="firework-icon">🎆</div>
                             <div class="firework-info">
-                                <h4 class="firework-museum">${firework.museumName}${remoteIndicator}</h4>
-                                <p class="firework-date">${dateStr}</p>
+                                <h4 class="firework-museum">${firework.museumName}${cityDisplay}${remoteIndicator}</h4>
+                                <p class="firework-date">${childNickname} · ${dateStr}</p>
                             </div>
                             <div class="firework-age-badge">${firework.ageGroup}</div>
                         </div>
