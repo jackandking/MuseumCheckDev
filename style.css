@@ -384,6 +384,11 @@ header h1 {
     cursor: pointer;
 }
 
+.visit-checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .museum-info h3 {
     color: var(--primary-color);
     margin-bottom: 5px;

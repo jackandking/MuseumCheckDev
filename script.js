@@ -3327,6 +3327,7 @@ class MuseumCheckApp {
         this.searchQuery = '';
         this.filteredMuseums = MUSEUMS;
         this.assessmentHidden = false; // Default to showing assessments
+        this.readonlyCheckboxes = false; // Default to interactive checkboxes
         
         // Initialize specialized modules
         this.modalManager = new ModalManager();
@@ -3387,9 +3388,9 @@ class MuseumCheckApp {
         }
         
         this.setupEventListeners();
+        this.handleURLParameters(); // Process URL parameters before rendering
         this.renderMuseums();
         this.updateStats();
-        this.handleURLParameters();
         
         // Initialize remote fireworks system
         this.initRemoteFireworks();
@@ -3551,6 +3552,13 @@ class MuseumCheckApp {
         const checklistType = urlParams.get('type'); // 'parent' or 'child'
         const ageGroup = urlParams.get('age'); // '3-6', '7-12', '13-18'
         const hideAssessment = urlParams.get('hideAssessment'); // 'true' to hide assessment features
+        const affiliate = urlParams.get('affiliate'); // 'DY' for Douyin affiliate mode
+
+        // Handle affiliate parameter - when affiliate=DY, enable read-only mode and hide assessments
+        if (affiliate === 'DY') {
+            this.readonlyCheckboxes = true;
+            this.hideAssessmentFeatures();
+        }
 
         // Handle assessment hiding for Douyin mini-program compliance
         if (hideAssessment === 'true') {
@@ -4541,6 +4549,7 @@ class MuseumCheckApp {
                 card.innerHTML = `
                     <div class="museum-header">
                         <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
+                               ${this.readonlyCheckboxes ? 'disabled' : ''}
                                data-museum="${museum.id}">
                         <div class="museum-info">
                             <h3>
