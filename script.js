@@ -4301,6 +4301,17 @@ class MuseumCheckApp {
             museumCity = museum ? museum.location : '';
         }
         
+        // Get current firework type from localStorage
+        let fireworkType = 'heart';
+        try {
+            const saved = localStorage.getItem('fireworkType');
+            if (saved) {
+                fireworkType = saved;
+            }
+        } catch (error) {
+            console.warn('Could not load firework type, using default:', error);
+        }
+        
         const firework = {
             id: fireworkId,
             museumId: museumId,
@@ -4309,6 +4320,7 @@ class MuseumCheckApp {
             taskContent: taskContent,
             ageGroup: ageGroup,
             childNickname: this.childNickname || '小淘气',
+            fireworkType: fireworkType,
             timestamp: Date.now(),
             date: new Date().toISOString()
         };

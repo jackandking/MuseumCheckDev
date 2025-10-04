@@ -181,7 +181,7 @@
 
         // Firework class
         class Firework {
-            constructor(startX, targetX, targetY, displayText = 'test') {
+            constructor(startX, targetX, targetY, displayText = 'test', fireworkType = 'heart') {
                 this.x = startX;
                 this.y = canvas.height;
                 this.targetX = targetX;
@@ -200,6 +200,7 @@
                 this.particles = [];
                 this.color = this._generateRandomColor();
                 this.textStartTime = null;
+                this.fireworkType = fireworkType || 'heart';
             }
 
             _generateRandomColor() {
@@ -321,16 +322,8 @@
              * @returns {Array<{x: number, y: number}>} Array of shape points
              */
             _getShapePoints(pointCount) {
-                // Get firework type from localStorage, default to 'heart'
-                let fireworkType = 'heart';
-                try {
-                    const saved = localStorage.getItem('fireworkType');
-                    if (saved) {
-                        fireworkType = saved;
-                    }
-                } catch (error) {
-                    console.warn('Could not load firework type, using default:', error);
-                }
+                // Use instance firework type instead of localStorage
+                const fireworkType = this.fireworkType || 'heart';
 
                 // Generate points based on type
                 switch (fireworkType) {
@@ -424,7 +417,10 @@
             const museumName = fireworkData.museumName || '博物馆';
             const displayText = `${childNickname}打卡${museumName}`;
             
-            const firework = new Firework(startX, targetX, targetY, displayText);
+            // Get firework type from stored data, default to 'heart' for backward compatibility
+            const fireworkType = fireworkData.fireworkType || 'heart';
+            
+            const firework = new Firework(startX, targetX, targetY, displayText, fireworkType);
             fireworks.push(firework);
 
             updateStats();
