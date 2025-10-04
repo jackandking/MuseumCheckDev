@@ -2967,6 +2967,350 @@ const EventHandlers = {
     }
 };
 
+/**
+ * GlobalFireworksWall Class
+ * Manages the global fireworks display on the main page
+ * Shows fireworks for all museum check-ins from remote storage
+ * Launches fireworks sequentially with looping behavior
+ */
+class GlobalFireworksWall {
+    constructor(canvas, app) {
+        this.canvas = canvas;
+        this.app = app;
+        this.ctx = canvas.getContext('2d');
+        this.fireworks = [];
+        this.particles = [];
+        this.animationId = null;
+        this.isRunning = false;
+        
+        // Queue system for sequential launching
+        this.launchQueue = [];
+        this.currentQueueIndex = 0;
+        this.lastLaunchTime = 0;
+        this.launchInterval = 1000; // 1 second between launches
+        
+        // Setup canvas size
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    resizeCanvas() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+    
+    /**
+     * Update the fireworks queue from app's fireworks data
+     */
+    updateFireworksQueue() {
+        // Get all fireworks (local + remote) sorted by timestamp
+        const allFireworks = this.app.getAllFireworks();
+        
+        // Convert to launch queue format with proper text
+        this.launchQueue = allFireworks.map(fw => ({
+            text: this.formatFireworkText(fw),
+            museumName: fw.museumName,
+            ageGroup: fw.ageGroup,
+            childNickname: fw.childNickname || '小朋友',
+            timestamp: fw.timestamp
+        }));
+        
+        // Reset queue index if needed
+        if (this.currentQueueIndex >= this.launchQueue.length) {
+            this.currentQueueIndex = 0;
+        }
+        
+        console.log(`Global fireworks queue updated: ${this.launchQueue.length} fireworks`);
+    }
+    
+    /**
+     * Format firework text as: 孩子昵称（年龄段）打卡xx博物馆
+     */
+    formatFireworkText(firework) {
+        const nickname = firework.childNickname || '小朋友';
+        const ageGroup = firework.ageGroup || '未知';
+        const museumName = firework.museumName || '博物馆';
+        
+        return `${nickname} (${ageGroup}) 打卡 ${museumName}`;
+    }
+    
+    /**
+     * Start the global fireworks wall
+     */
+    start() {
+        if (this.isRunning) return;
+        
+        this.isRunning = true;
+        this.updateFireworksQueue();
+        this.animate();
+        
+        console.log('Global fireworks wall started');
+    }
+    
+    /**
+     * Stop the global fireworks wall
+     */
+    stop() {
+        this.isRunning = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+    }
+    
+    /**
+     * Launch next firework from queue
+     */
+    launchNextFirework() {
+        if (this.launchQueue.length === 0) {
+            // No fireworks to launch, try updating queue
+            this.updateFireworksQueue();
+            return;
+        }
+        
+        // Get next firework from queue
+        const fireworkData = this.launchQueue[this.currentQueueIndex];
+        
+        // Random starting position
+        const startX = this.canvas.width * Math.random();
+        
+        // Random target position (center area, random height)
+        const targetX = this.canvas.width * 0.3 + Math.random() * this.canvas.width * 0.4;
+        const targetY = this.canvas.height * 0.1 + Math.random() * this.canvas.height * 0.5; // Random height
+        
+        // Create firework with the formatted text
+        const firework = new GlobalFirework(
+            startX, 
+            targetX, 
+            targetY, 
+            fireworkData.text,
+            this.ctx,
+            this.canvas
+        );
+        
+        this.fireworks.push(firework);
+        
+        // Play sound if available
+        if (typeof playFireworkSound === 'function') {
+            playFireworkSound();
+        }
+        
+        // Move to next in queue (loop back to start if at end)
+        this.currentQueueIndex = (this.currentQueueIndex + 1) % this.launchQueue.length;
+        
+        console.log(`Launched firework: ${fireworkData.text}`);
+    }
+    
+    /**
+     * Animation loop
+     */
+    animate() {
+        if (!this.isRunning) return;
+        
+        // Clear canvas with slight fade effect
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Update and draw fireworks
+        for (let i = this.fireworks.length - 1; i >= 0; i--) {
+            const firework = this.fireworks[i];
+            firework.update();
+            firework.draw();
+            
+            // Remove completed fireworks
+            if (firework.isComplete()) {
+                this.fireworks.splice(i, 1);
+            }
+        }
+        
+        // Update and draw particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const particle = this.particles[i];
+            particle.update();
+            particle.draw();
+            
+            // Remove faded particles
+            if (particle.alpha <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+        
+        // Launch next firework at intervals
+        const now = Date.now();
+        if (now - this.lastLaunchTime >= this.launchInterval) {
+            this.launchNextFirework();
+            this.lastLaunchTime = now;
+        }
+        
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+    
+    /**
+     * Add particles from firework explosion
+     */
+    addParticles(particles) {
+        this.particles.push(...particles);
+    }
+}
+
+/**
+ * GlobalFirework Class
+ * Firework for the global wall (similar to modal firework but optimized)
+ */
+class GlobalFirework {
+    constructor(startX, targetX, targetY, text, ctx, canvas) {
+        this.startX = startX;
+        this.x = startX;
+        this.y = canvas.height;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.text = text;
+        this.ctx = ctx;
+        this.canvas = canvas;
+        
+        // Movement
+        this.speed = 2;
+        this.angle = Math.atan2(targetY - this.y, targetX - this.x);
+        this.velocity = {
+            x: Math.cos(this.angle) * this.speed,
+            y: Math.sin(this.angle) * this.speed
+        };
+        
+        // Visual
+        this.color = this.generateRandomColor();
+        this.hasExploded = false;
+        this.particles = [];
+    }
+    
+    generateRandomColor() {
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        return `${r}, ${g}, ${b}`;
+    }
+    
+    update() {
+        if (!this.hasExploded) {
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            
+            // Check if reached target
+            const distance = Math.sqrt(
+                Math.pow(this.targetX - this.x, 2) + 
+                Math.pow(this.targetY - this.y, 2)
+            );
+            
+            if (distance < 5) {
+                this.explode();
+            }
+        } else {
+            // Update particles
+            for (let i = this.particles.length - 1; i >= 0; i--) {
+                const particle = this.particles[i];
+                particle.update();
+                
+                if (particle.alpha <= 0) {
+                    this.particles.splice(i, 1);
+                }
+            }
+        }
+    }
+    
+    draw() {
+        if (!this.hasExploded) {
+            // Draw ascending firework
+            this.ctx.beginPath();
+            this.ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(${this.color}, 1)`;
+            this.ctx.fill();
+        } else {
+            // Draw particles
+            this.particles.forEach(particle => particle.draw());
+        }
+    }
+    
+    explode() {
+        this.hasExploded = true;
+        
+        // Create particles in a circle
+        const particleCount = 50;
+        for (let i = 0; i < particleCount; i++) {
+            const angle = (Math.PI * 2 * i) / particleCount;
+            const particle = new GlobalParticle(
+                this.targetX,
+                this.targetY,
+                this.color,
+                angle,
+                this.ctx
+            );
+            this.particles.push(particle);
+        }
+        
+        // Draw text
+        this.drawText();
+    }
+    
+    drawText() {
+        this.ctx.save();
+        this.ctx.font = 'bold 20px "PingFang SC", "Microsoft YaHei", sans-serif';
+        this.ctx.fillStyle = `rgba(${this.color}, 1)`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Add shadow for better visibility
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.shadowBlur = 10;
+        
+        this.ctx.fillText(this.text, this.targetX, this.targetY - 30);
+        this.ctx.restore();
+    }
+    
+    isComplete() {
+        return this.hasExploded && this.particles.length === 0;
+    }
+}
+
+/**
+ * GlobalParticle Class
+ * Particle for global firework explosions
+ */
+class GlobalParticle {
+    constructor(x, y, color, angle, ctx) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.ctx = ctx;
+        
+        // Movement
+        const speed = 2 + Math.random() * 2;
+        this.velocity = {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        };
+        
+        this.alpha = 1;
+        this.friction = 0.98;
+        this.gravity = 0.05;
+    }
+    
+    update() {
+        this.velocity.x *= this.friction;
+        this.velocity.y *= this.friction;
+        this.velocity.y += this.gravity;
+        
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+        
+        this.alpha -= 0.01;
+    }
+    
+    draw() {
+        this.ctx.beginPath();
+        this.ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        this.ctx.fill();
+    }
+}
+
 class MuseumCheckApp {
     constructor() {
         this.currentAge = this.loadAgeGroup();
@@ -3050,6 +3394,8 @@ class MuseumCheckApp {
         // Initialize remote fireworks system
         this.initRemoteFireworks();
         
+        // Initialize global fireworks wall
+        this.initGlobalFireworksWall();
         // Auto-hide age selector after 10 seconds
         this.setupAgeSelectorAutoHide();
     }
@@ -3113,8 +3459,34 @@ class MuseumCheckApp {
                 if (modal && !modal.classList.contains('hidden')) {
                     this.renderFireworks();
                 }
+                
+                // Update global fireworks wall queue with new data
+                if (this.globalFireworksWall) {
+                    this.globalFireworksWall.updateFireworksQueue();
+                }
             }
         });
+    }
+
+    /**
+     * Initialize the global fireworks wall on the main page
+     */
+    initGlobalFireworksWall() {
+        console.log('Initializing global fireworks wall...');
+        
+        const canvas = document.getElementById('globalFireworksCanvas');
+        const overlay = document.getElementById('globalFireworksOverlay');
+        
+        if (!canvas || !overlay) {
+            console.warn('Global fireworks canvas or overlay not found');
+            return;
+        }
+        
+        // Initialize the global fireworks wall manager
+        this.globalFireworksWall = new GlobalFireworksWall(canvas, this);
+        this.globalFireworksWall.start();
+        
+        console.log('Global fireworks wall initialized');
     }
 
 

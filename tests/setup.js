@@ -94,8 +94,11 @@ try {
   vm.createContext(context);
   vm.runInContext(scriptWithoutExecution, context);
   
-  // Make MuseumCheckApp available globally
+  // Make MuseumCheckApp and related classes available globally
   global.MuseumCheckApp = context.MuseumCheckApp;
+  global.GlobalFireworksWall = context.GlobalFireworksWall;
+  global.GlobalFirework = context.GlobalFirework;
+  global.GlobalParticle = context.GlobalParticle;
   
   console.log('✅ MuseumCheckApp loaded successfully and made globally available');
 } catch (error) {
