@@ -249,10 +249,120 @@
                 this.y += this.velocity.y;
             }
 
+            /**
+             * Generates points along a heart shape
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of heart shape points
+             */
+            _generateHeartShape(pointCount) {
+                const heartPoints = [];
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const t = (i / pointCount) * Math.PI * 2;
+                    // Heart shape parametric equations
+                    const x = 8 * Math.pow(Math.sin(t), 3);
+                    const y = 6.5 * Math.cos(t) - 2.5 * Math.cos(2*t) - 1 * Math.cos(3*t) - 0.5 * Math.cos(4*t);
+                    heartPoints.push({x: x, y: y});
+                }
+                
+                return heartPoints;
+            }
+
+            /**
+             * Generates points in a circular/burst pattern
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of circle shape points
+             */
+            _generateCircleShape(pointCount) {
+                const circlePoints = [];
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const angle = (i / pointCount) * Math.PI * 2;
+                    const radius = 8; // Consistent with heart shape scale
+                    const x = radius * Math.cos(angle);
+                    const y = radius * Math.sin(angle);
+                    circlePoints.push({x: x, y: y});
+                }
+                
+                return circlePoints;
+            }
+
+            /**
+             * Generates points in a star pattern
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of star shape points
+             */
+            _generateStarShape(pointCount) {
+                const starPoints = [];
+                const spikes = 5; // Five-pointed star
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const angle = (i / pointCount) * Math.PI * 2;
+                    // Alternate between outer and inner radius for star effect
+                    const cycle = (i / pointCount) * spikes;
+                    const isOuter = Math.sin(cycle * Math.PI * 2) > 0;
+                    const radius = isOuter ? 8 : 4; // Outer and inner radius
+                    
+                    const x = radius * Math.cos(angle);
+                    const y = radius * Math.sin(angle);
+                    starPoints.push({x: x, y: y});
+                }
+                
+                return starPoints;
+            }
+
+            /**
+             * Gets the shape points based on the selected firework type
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of shape points
+             */
+            _getShapePoints(pointCount) {
+                // Get firework type from localStorage, default to 'heart'
+                let fireworkType = 'heart';
+                try {
+                    const saved = localStorage.getItem('fireworkType');
+                    if (saved) {
+                        fireworkType = saved;
+                    }
+                } catch (error) {
+                    console.warn('Could not load firework type, using default:', error);
+                }
+
+                // Generate points based on type
+                switch (fireworkType) {
+                    case 'circle':
+                        return this._generateCircleShape(pointCount);
+                    case 'star':
+                        return this._generateStarShape(pointCount);
+                    case 'heart':
+                    default:
+                        return this._generateHeartShape(pointCount);
+                }
+            }
+
             explode() {
                 const particleCount = 100;
+                const shapePoints = this._getShapePoints(particleCount);
+
+                // Create particles along shape
                 for (let i = 0; i < particleCount; i++) {
-                    particles.push(new Particle(this.targetX, this.targetY, this.color));
+                    const particle = new Particle(this.targetX, this.targetY, this.color);
+                    const point = shapePoints[i];
+                    const scale = 0.1 + Math.random() * 0.2;
+                    
+                    // Scale and randomize the velocity based on shape
+                    particle.velocity.x = point.x * scale;
+                    particle.velocity.y = -point.y * scale;  // Negative to flip shape right side up
+                    
+                    // Add some randomness to make it more natural
+                    particle.velocity.x += (Math.random() - 0.5) * 0.5;
+                    particle.velocity.y += (Math.random() - 0.5) * 0.5;
+                    
+                    particles.push(particle);
                 }
                 this.textStartTime = Date.now();
             }
