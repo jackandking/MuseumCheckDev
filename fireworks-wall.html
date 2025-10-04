@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烟花墙 - 博物馆打卡成就</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .close-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-overlay {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .stats-overlay .stat-item {
+            margin: 5px 0;
+        }
+
+        .stats-overlay .stat-label {
+            opacity: 0.8;
+        }
+
+        .stats-overlay .stat-value {
+            font-weight: bold;
+            font-size: 18px;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .close-button {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .stats-overlay {
+                top: 15px;
+                left: 15px;
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+
+            .stats-overlay .stat-value {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="stats-overlay" id="statsOverlay">
+        <div class="stat-item">
+            <span class="stat-label">🎆 总烟花:</span>
+            <span class="stat-value" id="totalFireworks">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">🏛️ 博物馆:</span>
+            <span class="stat-value" id="uniqueMuseums">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">🎯 当前队列:</span>
+            <span class="stat-value" id="queueSize">0</span>
+        </div>
+    </div>
+
+    <button class="close-button" id="closeButton" title="关闭烟花墙">×</button>
+
+    <script src="museums-data.js"></script>
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let animationId = null;
+
+        // Fireworks configuration
+        const LAUNCH_INTERVAL = 2500; // 2.5 seconds between launches
+        const TEXT_DISPLAY_DURATION = 3000; // 3 seconds
+        const MIN_FIREWORKS_FOR_LOOP = 5; // Minimum fireworks before looping
+
+        // Global state
+        let fireworks = [];
+        let particles = [];
+        let fireworksQueue = [];
+        let allFireworksData = [];
+        let localFireworks = [];
+        let remoteFireworks = [];
+        let launchTimer = null;
+        let downloadTimer = null;
+        let seenFireworkIds = new Set();
+
+        // Set canvas size
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Particle class
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 2,
+                    y: (Math.random() - 0.5) * 2
+                };
+                this.alpha = 1;
+                this.friction = 0.98;
+                this.gravity = 0.01;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+                ctx.fill();
+            }
+
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.005;
+            }
+        }
+
+        // Firework class
+        class Firework {
+            constructor(startX, targetX, targetY, displayText = 'test') {
+                this.x = startX;
+                this.y = canvas.height;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.displayText = displayText;
+                this.textAlpha = 1;
+                this.showText = true;
+                this.explosionX = targetX;
+                this.explosionY = targetY;
+                this.speed = 2;
+                this.angle = Math.atan2(targetY - this.y, targetX - startX);
+                this.velocity = {
+                    x: Math.cos(this.angle) * this.speed,
+                    y: Math.sin(this.angle) * this.speed
+                };
+                this.particles = [];
+                this.color = this._generateRandomColor();
+                this.textStartTime = null;
+            }
+
+            _generateRandomColor() {
+                const colors = [
+                    '255, 50, 50',    // Red
+                    '50, 255, 50',    // Green
+                    '50, 50, 255',    // Blue
+                    '255, 255, 50',   // Yellow
+                    '255, 50, 255',   // Magenta
+                    '50, 255, 255',   // Cyan
+                    '255, 165, 0',    // Orange
+                    '138, 43, 226'    // Purple
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(${this.color})`;
+                ctx.fill();
+
+                if (this.showText && this.textAlpha > 0) {
+                    this._drawText();
+                }
+            }
+
+            _drawText() {
+                ctx.save();
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.textAlpha})`;
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 10;
+                ctx.fillText(this.displayText, this.explosionX, this.explosionY);
+                
+                // Start fading after TEXT_DISPLAY_DURATION
+                if (this.textStartTime && Date.now() - this.textStartTime > TEXT_DISPLAY_DURATION) {
+                    this.textAlpha -= 0.02;
+                }
+                ctx.restore();
+            }
+
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+            }
+
+            explode() {
+                const particleCount = 100;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(this.targetX, this.targetY, this.color));
+                }
+                this.textStartTime = Date.now();
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw fireworks
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                const firework = fireworks[i];
+                firework.draw();
+                firework.update();
+
+                const distance = Math.hypot(
+                    firework.x - firework.targetX,
+                    firework.y - firework.targetY
+                );
+
+                if (distance < 5) {
+                    firework.explode();
+                    fireworks.splice(i, 1);
+                }
+            }
+            
+            // Update and draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.draw();
+                particle.update();
+                
+                if (particle.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        // Launch a firework from queue
+        function launchNextFirework() {
+            if (fireworksQueue.length === 0) {
+                // If queue is empty but we have fireworks data, rebuild queue
+                if (allFireworksData.length > 0) {
+                    rebuildQueue();
+                }
+                return;
+            }
+
+            const fireworkData = fireworksQueue.shift();
+            const startX = canvas.width * Math.random();
+            const targetX = canvas.width * 0.3 + Math.random() * canvas.width * 0.4;
+            const targetY = canvas.height * 0.1 + Math.random() * canvas.height * 0.4;
+            
+            // Format: "{昵称}打卡{博物馆名}"
+            const childNickname = fireworkData.childNickname || '小淘气';
+            const museumName = fireworkData.museumName || '博物馆';
+            const displayText = `${childNickname}打卡${museumName}`;
+            
+            const firework = new Firework(startX, targetX, targetY, displayText);
+            fireworks.push(firework);
+
+            updateStats();
+        }
+
+        // Rebuild queue from all fireworks data
+        function rebuildQueue() {
+            // Check if we should loop (when fireworks count is low)
+            if (allFireworksData.length > 0 && allFireworksData.length < MIN_FIREWORKS_FOR_LOOP) {
+                // Loop: repeat the fireworks
+                fireworksQueue = [...allFireworksData];
+            } else if (allFireworksData.length >= MIN_FIREWORKS_FOR_LOOP) {
+                // Normal: just play once
+                fireworksQueue = [...allFireworksData];
+            }
+        }
+
+        // Load fireworks from localStorage
+        function loadLocalFireworks() {
+            try {
+                const stored = localStorage.getItem('museumCheckFireworks');
+                if (stored) {
+                    localFireworks = JSON.parse(stored);
+                    console.log(`Loaded ${localFireworks.length} local fireworks`);
+                    mergeFireworks();
+                }
+            } catch (error) {
+                console.error('Error loading local fireworks:', error);
+            }
+        }
+
+        // Download remote fireworks
+        function downloadRemoteFireworks() {
+            const API_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+            const FIREWORK_KEY = 'museumcheck-firework';
+            
+            const url = `${API_ENDPOINT}?key=${encodeURIComponent(FIREWORK_KEY)}&sortKey=*`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.value) {
+                        console.log('No remote fireworks data');
+                        return;
+                    }
+                    
+                    const parsed = JSON.parse(data.value);
+                    let newRemoteFireworks = [];
+                    
+                    if (Array.isArray(parsed)) {
+                        newRemoteFireworks = parsed.map(item => {
+                            try {
+                                return typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+                            } catch (e) {
+                                return null;
+                            }
+                        }).filter(item => item !== null);
+                    } else {
+                        const fireworkData = typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+                        newRemoteFireworks = [fireworkData];
+                    }
+                    
+                    console.log(`Downloaded ${newRemoteFireworks.length} remote fireworks`);
+                    remoteFireworks = newRemoteFireworks;
+                    mergeFireworks();
+                })
+                .catch(error => {
+                    console.error('Error downloading remote fireworks:', error);
+                });
+        }
+
+        // Merge local and remote fireworks with deduplication
+        function mergeFireworks() {
+            const merged = [];
+            const newSeenIds = new Set();
+            
+            // Add local fireworks first (priority)
+            localFireworks.forEach(fw => {
+                if (fw.id && !newSeenIds.has(fw.id)) {
+                    merged.push(fw);
+                    newSeenIds.add(fw.id);
+                }
+            });
+            
+            // Add remote fireworks if not already present
+            remoteFireworks.forEach(fw => {
+                if (fw.id && !newSeenIds.has(fw.id)) {
+                    merged.push({...fw, isRemote: true});
+                    newSeenIds.add(fw.id);
+                }
+            });
+            
+            // Sort by timestamp (newest first for display, but launch oldest first)
+            allFireworksData = merged.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Check for new fireworks
+            const hasNewFireworks = allFireworksData.some(fw => !seenFireworkIds.has(fw.id));
+            if (hasNewFireworks) {
+                console.log('New fireworks detected, rebuilding queue');
+                allFireworksData.forEach(fw => seenFireworkIds.add(fw.id));
+                rebuildQueue();
+            }
+            
+            updateStats();
+        }
+
+        // Update statistics display
+        function updateStats() {
+            document.getElementById('totalFireworks').textContent = allFireworksData.length;
+            
+            // Count unique museums
+            const uniqueMuseums = new Set(allFireworksData.map(fw => fw.museumId)).size;
+            document.getElementById('uniqueMuseums').textContent = uniqueMuseums;
+            
+            document.getElementById('queueSize').textContent = fireworksQueue.length;
+        }
+
+        // Start automatic launching
+        function startLaunching() {
+            if (launchTimer) {
+                clearInterval(launchTimer);
+            }
+            
+            // Launch first firework immediately
+            launchNextFirework();
+            
+            // Then launch at intervals
+            launchTimer = setInterval(() => {
+                launchNextFirework();
+            }, LAUNCH_INTERVAL);
+        }
+
+        // Start periodic downloads
+        function startPeriodicDownloads() {
+            if (downloadTimer) {
+                clearInterval(downloadTimer);
+            }
+            
+            // Download immediately
+            downloadRemoteFireworks();
+            
+            // Then download periodically
+            downloadTimer = setInterval(() => {
+                downloadRemoteFireworks();
+            }, 10000); // Every 10 seconds
+        }
+
+        // Initialize
+        function init() {
+            console.log('Initializing fireworks wall...');
+            
+            // Load data
+            loadLocalFireworks();
+            startPeriodicDownloads();
+            
+            // Start animation
+            animate();
+            
+            // Start launching fireworks
+            setTimeout(() => {
+                startLaunching();
+            }, 1000);
+        }
+
+        // Close button
+        document.getElementById('closeButton').addEventListener('click', () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            if (launchTimer) {
+                clearInterval(launchTimer);
+            }
+            if (downloadTimer) {
+                clearInterval(downloadTimer);
+            }
+            window.close();
+            // If window.close() doesn't work (popup blocker), go back
+            setTimeout(() => {
+                window.history.back();
+            }, 100);
+        });
+
+        // Start when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

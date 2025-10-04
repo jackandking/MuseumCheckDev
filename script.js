@@ -4050,9 +4050,9 @@ class MuseumCheckApp {
             this.generateAchievementPoster();
         });
 
-        // Fireworks button - opens standalone fireworks page for true fullscreen effect
+        // Fireworks button - opens fireworks wall page showing all museum achievements
         document.getElementById('fireworksButton').addEventListener('click', () => {
-            window.open('fireworks.html', '_blank');
+            window.open('fireworks-wall.html', '_blank');
         });
 
         // Fireworks modal close
