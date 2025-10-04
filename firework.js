@@ -201,6 +201,81 @@ class Firework {
     }
 
     /**
+     * Generates points in a circular/burst pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of circle shape points
+     */
+    _generateCircleShape(pointCount) {
+        const circlePoints = [];
+        
+        for (let i = 0; i < pointCount; i++) {
+            const angle = (i / pointCount) * Math.PI * 2;
+            const radius = 8; // Consistent with heart shape scale
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            circlePoints.push({x: x, y: y});
+        }
+        
+        return circlePoints;
+    }
+
+    /**
+     * Generates points in a star pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of star shape points
+     */
+    _generateStarShape(pointCount) {
+        const starPoints = [];
+        const spikes = 5; // Five-pointed star
+        
+        for (let i = 0; i < pointCount; i++) {
+            const angle = (i / pointCount) * Math.PI * 2;
+            // Alternate between outer and inner radius for star effect
+            const cycle = (i / pointCount) * spikes;
+            const isOuter = Math.sin(cycle * Math.PI * 2) > 0;
+            const radius = isOuter ? 8 : 4; // Outer and inner radius
+            
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            starPoints.push({x: x, y: y});
+        }
+        
+        return starPoints;
+    }
+
+    /**
+     * Gets the shape points based on the selected firework type
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of shape points
+     */
+    _getShapePoints(pointCount) {
+        // Get firework type from localStorage, default to 'heart'
+        let fireworkType = 'heart';
+        try {
+            const saved = localStorage.getItem('fireworkType');
+            if (saved) {
+                fireworkType = saved;
+            }
+        } catch (error) {
+            console.warn('Could not load firework type, using default:', error);
+        }
+
+        // Generate points based on type
+        switch (fireworkType) {
+            case 'circle':
+                return this._generateCircleShape(pointCount);
+            case 'star':
+                return this._generateStarShape(pointCount);
+            case 'heart':
+            default:
+                return this._generateHeartShape(pointCount);
+        }
+    }
+
+    /**
      * Creates an explosion effect at the firework's current position
      */
     explode() {
@@ -209,17 +284,17 @@ class Firework {
         this.explosionY = this.y;
         
         const particleCount = 300;
-        const heartPoints = this._generateHeartShape(particleCount);
+        const shapePoints = this._getShapePoints(particleCount);
 
-        // Create particles along heart shape
+        // Create particles along shape
         for (let i = 0; i < particleCount; i++) {
             const scale = 0.1 + Math.random() * 0.2;
             const particle = new Particle(this.x, this.y, this.color);
-            const point = heartPoints[i];
+            const point = shapePoints[i];
             
-            // Scale and randomize the velocity based on heart shape
+            // Scale and randomize the velocity based on shape
             particle.velocity.x = point.x * scale;
-            particle.velocity.y = -point.y * scale;  // Negative to flip heart right side up
+            particle.velocity.y = -point.y * scale;  // Negative to flip shape right side up
             
             // Add some randomness to make it more natural
             particle.velocity.x += (Math.random() - 0.5) * 0.5;
@@ -239,7 +314,7 @@ class Firework {
             this.showText = false;
         }, 10000); // Show text for 10 seconds
 
-        // Add sparkle effect around heart shape
+        // Add sparkle effect around shape
         this._addSparkleEffect();
     }
 

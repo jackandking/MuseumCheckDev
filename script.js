@@ -4040,6 +4040,27 @@ class MuseumCheckApp {
             });
         }
 
+        // Firework type selector
+        const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
+        const saveFireworkTypeButton = document.getElementById('saveFireworkTypeButton');
+        if (fireworkTypeSelector && saveFireworkTypeButton) {
+            saveFireworkTypeButton.addEventListener('click', () => {
+                const selectedType = fireworkTypeSelector.value;
+                const result = this.saveFireworkType(selectedType);
+                
+                if (result.success) {
+                    alert('烟花类型已更新！下次放烟花时将使用新的形状。');
+                    
+                    // Track firework type change
+                    this.trackEvent('firework_type_changed', {
+                        'firework_type': selectedType
+                    });
+                } else {
+                    alert(result.message);
+                }
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -4412,6 +4433,35 @@ class MuseumCheckApp {
             return { success: true, message: '烟花留存时间已保存' };
         } catch (error) {
             console.error('Failed to save fireworks retention time:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    loadFireworkType() {
+        try {
+            const saved = localStorage.getItem('fireworkType');
+            // Default to 'heart' if not saved
+            return saved || 'heart';
+        } catch (error) {
+            console.error('Failed to load firework type:', error);
+            return 'heart'; // Default to heart shape
+        }
+    }
+
+    saveFireworkType(fireworkType) {
+        try {
+            // Validate firework type
+            const validTypes = ['heart', 'circle', 'star'];
+            if (!validTypes.includes(fireworkType)) {
+                console.warn('Invalid firework type, using default');
+                fireworkType = 'heart';
+            }
+            
+            localStorage.setItem('fireworkType', fireworkType);
+            
+            return { success: true, message: '烟花类型已保存' };
+        } catch (error) {
+            console.error('Failed to save firework type:', error);
             return { success: false, message: '保存失败，请重试' };
         }
     }
@@ -5668,6 +5718,13 @@ class MuseumCheckApp {
             const retentionMinutes = Math.round(retentionMs / 60000);
             retentionSlider.value = retentionMinutes;
             this.updateFireworksRetentionDisplay(retentionMinutes);
+        }
+        
+        // Update firework type selector
+        const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
+        if (fireworkTypeSelector) {
+            const currentType = this.loadFireworkType();
+            fireworkTypeSelector.value = currentType;
         }
     }
 
