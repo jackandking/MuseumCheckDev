@@ -35,8 +35,9 @@ function downloadFireworks(callback) {
  * @param {number} x - X coordinate of the firework
  * @param {number} y - Y coordinate of the firework
  * @param {string} city - City where the firework was created
+ * @param {string} fireworkType - Type of firework shape ('heart', 'circle', 'star')
  */
-function uploadFirework(fireworkId, timestamp, x, y, city) {
+function uploadFirework(fireworkId, timestamp, x, y, city, fireworkType = 'heart') {
     // Stub implementation - logs to console
     // In production, this would send to a server
     console.log('Firework created:', {
@@ -44,6 +45,7 @@ function uploadFirework(fireworkId, timestamp, x, y, city) {
         timestamp: timestamp,
         x: x,
         y: y,
-        city: city
+        city: city,
+        fireworkType: fireworkType
     });
 }

@@ -87,8 +87,9 @@ class Firework {
      * @param {number} targetX - Target x position for explosion
      * @param {number} targetY - Target y position for explosion
      * @param {string} fireworkString - Text to display with the firework
+     * @param {string} fireworkType - Type of firework shape ('heart', 'circle', 'star')
      */
-    constructor(startX, targetX, targetY, fireworkString = 'test') {
+    constructor(startX, targetX, targetY, fireworkString = 'test', fireworkType = 'heart') {
         // Validate canvas exists
         if (!canvas) {
             console.error('Canvas not initialized for firework');
@@ -105,6 +106,9 @@ class Firework {
         this.fireworkString = fireworkString || 'test';
         this.textAlpha = 1;
         this.showText = true;
+        
+        // Firework type (determines explosion shape)
+        this.fireworkType = fireworkType || 'heart';
         
         // Explosion properties
         this.explosionX = targetX;
@@ -252,16 +256,8 @@ class Firework {
      * @returns {Array<{x: number, y: number}>} Array of shape points
      */
     _getShapePoints(pointCount) {
-        // Get firework type from localStorage, default to 'heart'
-        let fireworkType = 'heart';
-        try {
-            const saved = localStorage.getItem('fireworkType');
-            if (saved) {
-                fireworkType = saved;
-            }
-        } catch (error) {
-            console.warn('Could not load firework type, using default:', error);
-        }
+        // Use instance firework type instead of localStorage
+        const fireworkType = this.fireworkType || 'heart';
 
         // Generate points based on type
         switch (fireworkType) {
@@ -599,16 +595,27 @@ async function handleCanvasClick(e) {
     const startX = canvas.width * Math.random();
     const currentCity = window.currentCity || '未知城市';
     
-    // Create new firework
-    const firework = new Firework(startX, e.clientX, e.clientY, currentCity);
+    // Get current firework type from localStorage
+    let fireworkType = 'heart';
+    try {
+        const saved = localStorage.getItem('fireworkType');
+        if (saved) {
+            fireworkType = saved;
+        }
+    } catch (error) {
+        console.warn('Could not load firework type, using default:', error);
+    }
+    
+    // Create new firework with the selected type
+    const firework = new Firework(startX, e.clientX, e.clientY, currentCity, fireworkType);
     window.fireworks.push(firework);
     
     // Play launch sound
     playFireworkSound();
     
-    // Upload firework data
+    // Upload firework data with firework type
     const fireworkId = generateUUID();
-    uploadFirework(fireworkId, 0, e.clientX, e.clientY, currentCity);
+    uploadFirework(fireworkId, 0, e.clientX, e.clientY, currentCity, fireworkType);
 }
 
 /**
@@ -756,7 +763,9 @@ function createFireworkFromData(data) {
     }
 
     const startX = canvas.width * Math.random();
-    const firework = new Firework(startX, data.x, data.y, data.string || 'Unknown');
+    // Use the firework type from the data, default to 'heart' if not specified
+    const fireworkType = data.fireworkType || data.type || 'heart';
+    const firework = new Firework(startX, data.x, data.y, data.string || 'Unknown', fireworkType);
     
     window.fireworks.push(firework);
     playFireworkSound();
@@ -897,13 +906,24 @@ function createFireworksSystem(container) {
             // Create display string
             const displayText = childNickname ? `${childNickname} (${ageGroup})` : ageGroup;
             
+            // Get current firework type from localStorage
+            let fireworkType = 'heart';
+            try {
+                const saved = localStorage.getItem('fireworkType');
+                if (saved) {
+                    fireworkType = saved;
+                }
+            } catch (error) {
+                console.warn('Could not load firework type, using default:', error);
+            }
+            
             // Set context temporarily for firework creation
             const originalCtx = ctx;
             const originalCanvas = canvas;
             ctx = localCtx;
             canvas = localCanvas;
             
-            const firework = new Firework(startX, targetX, targetY, displayText);
+            const firework = new Firework(startX, targetX, targetY, displayText, fireworkType);
             localFireworks.push(firework);
             
             // Restore context
