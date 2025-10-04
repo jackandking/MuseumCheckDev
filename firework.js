@@ -423,9 +423,16 @@ let textY;
 
 /**
  * Application Initialization
+ * Only initialize on standalone fireworks page (fireworks.html)
+ * Check for presence of canvas#canvas element to determine if we're on that page
  */
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApplication();
+    // Only initialize if we're on the standalone fireworks page
+    // The standalone page has a canvas element with id="canvas"
+    const standaloneCanvas = document.getElementById('canvas');
+    if (standaloneCanvas) {
+        initializeApplication();
+    }
 });
 
 /**

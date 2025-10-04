@@ -3482,11 +3482,12 @@ class MuseumCheckApp {
             return;
         }
         
-        // Initialize the global fireworks wall manager
+        // Initialize the global fireworks wall manager but don't start it automatically
+        // The wall should only start when explicitly triggered by user action
         this.globalFireworksWall = new GlobalFireworksWall(canvas, this);
-        this.globalFireworksWall.start();
+        // DO NOT auto-start: this.globalFireworksWall.start();
         
-        console.log('Global fireworks wall initialized');
+        console.log('Global fireworks wall initialized (not started)');
     }
 
 
