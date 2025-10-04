@@ -4533,6 +4533,9 @@ class MuseumCheckApp {
 
             this.filteredMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
+                const museumFireworks = this.getFireworksByMuseum(museum.id);
+                const hasFireworks = museumFireworks.length > 0;
+                
                 const card = document.createElement('div');
                 card.className = `museum-card ${isVisited ? 'visited' : ''}`;
                 card.innerHTML = `
@@ -4542,6 +4545,7 @@ class MuseumCheckApp {
                         <div class="museum-info">
                             <h3>
                                 ${museum.name}
+                                ${hasFireworks ? '<button class="museum-fireworks-button" data-museum-id="' + museum.id + '" title="查看本馆烟花">🎆</button>' : ''}
                                 ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
@@ -4553,9 +4557,10 @@ class MuseumCheckApp {
                     </div>
                 `;
 
-                // Add click event for the card (excluding checkbox and assessment button)
+                // Add click event for the card (excluding checkbox, fireworks button, and assessment button)
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
+                        !e.target.classList.contains('museum-fireworks-button') &&
                         !e.target.classList.contains('assessment-button')) {
                         this.openMuseumModal(museum);
                     }
@@ -4581,6 +4586,16 @@ class MuseumCheckApp {
                     assessmentButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.openAssessmentModal(museum.id);
+                    });
+                }
+                
+                // Add museum fireworks button event
+                const museumFireworksButton = card.querySelector('.museum-fireworks-button');
+                if (museumFireworksButton) {
+                    museumFireworksButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const museumId = museumFireworksButton.dataset.museumId;
+                        this.showFireworksModal(museumId);
                     });
                 }
 

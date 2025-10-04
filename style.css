@@ -440,6 +440,44 @@ header h1 {
     transform: translateY(0);
 }
 
+/* Museum fireworks button on home page cards */
+.museum-fireworks-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.museum-fireworks-button:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5568d3 0%, #653a8e 100%);
+}
+
+.museum-fireworks-button:active {
+    transform: translateY(0);
+}
+
+/* Mobile responsive styles for museum fireworks button */
+@media (max-width: 768px) {
+    .museum-fireworks-button {
+        padding: 8px 12px;
+        font-size: 0.85em;
+        margin-left: 8px;
+    }
+}
+
 /* Modal Styles */
 /* Modal styles - Enhanced UX for parent-child experience */
 .modal {
