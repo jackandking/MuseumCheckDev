@@ -3402,7 +3402,11 @@ class MuseumCheckApp {
     
     /**
      * Setup auto-hide functionality for age selector
-     * Hides the age selector after 10 seconds and shows a hint about settings
+     * For first-time users: keeps selector visible until they make a selection
+     * For returning users: hides selector immediately (they've already chosen)
+     * 
+     * Bug fix: Removed 10-second auto-hide timer for first-time users
+     * Issue: 自动消失bug - Age selector should only hide after user makes a selection
      */
     setupAgeSelectorAutoHide() {
         const ageSelector = document.querySelector('.age-selector');
@@ -3412,20 +3416,68 @@ class MuseumCheckApp {
             return;
         }
         
-        // Hide age selector after 10 seconds
-        setTimeout(() => {
+        // Check if user has already saved their age preference
+        let hasSavedAge = null;
+        
+        try {
+            hasSavedAge = localStorage.getItem('ageGroup');
+        } catch (error) {
+            console.error('Failed to check localStorage:', error);
+            // Treat as first-time user if localStorage fails
+        }
+        
+        if (hasSavedAge) {
+            // Returning user - hide age selector immediately
             ageSelector.classList.add('hidden');
-            
+            return;
+        }
+        
+        // First-time user - keep selector visible until they make a selection
+        // The selector will be hidden when user selects an age (see age group change handler)
+    }
+    
+    /**
+     * Hide age selector and show hint notification
+     * Called after user selects an age for the first time
+     */
+    hideAgeSelectorAndShowHint() {
+        const ageSelector = document.querySelector('.age-selector');
+        const hint = document.getElementById('ageSelectorHint');
+        
+        if (!ageSelector || !hint) {
+            return;
+        }
+        
+        // Check if hint has already been shown
+        let hasSeenHint = null;
+        try {
+            hasSeenHint = localStorage.getItem('ageSelectorHintShown');
+        } catch (error) {
+            console.error('Failed to check hint status:', error);
+        }
+        
+        // Hide age selector
+        ageSelector.classList.add('hidden');
+        
+        // Only show hint if it hasn't been shown before
+        if (!hasSeenHint) {
             // Show hint after age selector is hidden (wait for transition)
             setTimeout(() => {
                 hint.classList.add('show');
+                
+                // Mark hint as shown
+                try {
+                    localStorage.setItem('ageSelectorHintShown', 'true');
+                } catch (error) {
+                    console.error('Failed to save hint status:', error);
+                }
                 
                 // Hide hint after 5 seconds
                 setTimeout(() => {
                     hint.classList.remove('show');
                 }, 5000);
             }, 500);
-        }, 10000);
+        }
     }
     
     /**
@@ -3766,6 +3818,8 @@ class MuseumCheckApp {
             radio.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     const oldAge = this.currentAge;
+                    const isFirstSelection = !localStorage.getItem('ageGroup');
+                    
                     this.currentAge = e.target.value;
                     this.saveAgeGroup(); // Save age group to localStorage
                     this.renderMuseums();
@@ -3775,6 +3829,11 @@ class MuseumCheckApp {
                         option.classList.remove('selected');
                     });
                     e.target.closest('.age-option').classList.add('selected');
+                    
+                    // If this is the first time user selects an age, hide selector and show hint
+                    if (isFirstSelection) {
+                        this.hideAgeSelectorAndShowHint();
+                    }
                     
                     // Track age group change
                     this.trackEvent('age_group_changed', {
