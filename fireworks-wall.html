@@ -646,10 +646,25 @@
             const targetX = canvas.width * 0.3 + Math.random() * canvas.width * 0.4;
             const targetY = canvas.height * 0.1 + Math.random() * canvas.height * 0.4;
             
-            // Format: "{昵称}打卡{博物馆名}"
+            // Extract task name from task content
+            // Format: "{昵称}完成任务{任务名}"
             const childNickname = fireworkData.childNickname || '小淘气';
-            const museumName = fireworkData.museumName || '博物馆';
-            const displayText = `${childNickname}打卡${museumName}`;
+            const taskContent = fireworkData.taskContent || '';
+            
+            // Extract task name: the part before "：" or first few characters
+            let taskName = '';
+            if (taskContent) {
+                const colonIndex = taskContent.indexOf('：');
+                if (colonIndex > 0) {
+                    // Use the part before the colon as task name
+                    taskName = taskContent.substring(0, colonIndex);
+                } else {
+                    // If no colon, use first 5-7 characters as task name
+                    taskName = taskContent.substring(0, Math.min(7, taskContent.length));
+                }
+            }
+            
+            const displayText = taskName ? `${childNickname}完成任务${taskName}` : `${childNickname}打卡${fireworkData.museumName || '博物馆'}`;
             
             // Get firework type from stored data, default to 'heart' for backward compatibility
             const fireworkType = fireworkData.fireworkType || 'heart';
