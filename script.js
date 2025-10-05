@@ -3980,7 +3980,7 @@ class MuseumCheckApp {
                 
                 if (newAgeGroup !== this.currentAge) {
                     this.currentAge = newAgeGroup;
-                    LocalStorageManager.setItem('ageGroup', newAgeGroup);
+                    localStorage.setItem('ageGroup', newAgeGroup);
                     
                     // Update display
                     const ageGroupNames = {
