@@ -596,6 +596,49 @@ header h1 {
     padding-bottom: 16px;
 }
 
+/* Modal header with action buttons */
+.modal-header-with-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.modal-header-with-actions h2 {
+    flex: 1;
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+
+/* Museum fireworks button in modal header */
+.museum-fireworks-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.museum-fireworks-button:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.museum-fireworks-button:active {
+    transform: scale(1.05) rotate(10deg);
+}
+
 /* Museum Image Styles */
 .museum-image-section {
     margin: 16px 0 20px 0;

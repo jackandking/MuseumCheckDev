@@ -4541,8 +4541,6 @@ class MuseumCheckApp {
 
             this.filteredMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
-                const museumFireworks = this.getFireworksByMuseum(museum.id);
-                const hasFireworks = museumFireworks.length > 0;
                 
                 const card = document.createElement('div');
                 card.className = `museum-card ${isVisited ? 'visited' : ''}`;
@@ -4554,7 +4552,6 @@ class MuseumCheckApp {
                         <div class="museum-info">
                             <h3>
                                 ${museum.name}
-                                ${hasFireworks ? '<button class="museum-fireworks-button" data-museum-id="' + museum.id + '" title="查看本馆烟花">🎆</button>' : ''}
                                 ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
@@ -4566,10 +4563,9 @@ class MuseumCheckApp {
                     </div>
                 `;
 
-                // Add click event for the card (excluding checkbox, fireworks button, and assessment button)
+                // Add click event for the card (excluding checkbox and assessment button)
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
-                        !e.target.classList.contains('museum-fireworks-button') &&
                         !e.target.classList.contains('assessment-button')) {
                         this.openMuseumModal(museum);
                     }
@@ -4595,16 +4591,6 @@ class MuseumCheckApp {
                     assessmentButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.openAssessmentModal(museum.id);
-                    });
-                }
-                
-                // Add museum fireworks button event
-                const museumFireworksButton = card.querySelector('.museum-fireworks-button');
-                if (museumFireworksButton) {
-                    museumFireworksButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const museumId = museumFireworksButton.dataset.museumId;
-                        this.showFireworksModal(museumId);
                     });
                 }
 
@@ -5383,9 +5369,6 @@ class MuseumCheckApp {
                 <div class="checklist-header">
                     <h3>孩子探索任务</h3>
                     <div class="checklist-actions">
-                        <button class="fireworks-museum-button" data-museum-id="${museum.id}" title="查看本馆烟花">
-                            🎆
-                        </button>
                         <button class="share-button" data-type="child" title="分享孩子任务清单">
                             🔗
                         </button>
@@ -5440,19 +5423,31 @@ class MuseumCheckApp {
             });
         });
 
-        // Setup museum-specific fireworks button
-        const fireworksButton = content.querySelector('.fireworks-museum-button');
+        modal.classList.remove('hidden');
+        
+        // Setup museum fireworks button
+        const fireworksButton = document.getElementById('museumFireworksButton');
         if (fireworksButton) {
-            fireworksButton.addEventListener('click', () => {
-                const museumId = fireworksButton.dataset.museumId;
-                this.closeModal();
-                setTimeout(() => {
-                    this.showFireworksModal(museumId);
-                }, 300);
+            // Always show the button (even if no fireworks yet)
+            fireworksButton.style.display = 'flex';
+            
+            // Remove any existing click listeners
+            const newButton = fireworksButton.cloneNode(true);
+            fireworksButton.parentNode.replaceChild(newButton, fireworksButton);
+            
+            // Add click handler to open fireworks-wall.html with museum filter
+            newButton.addEventListener('click', () => {
+                // Open fireworks-wall.html in new tab with museum ID parameter
+                window.open(`fireworks-wall.html?museumId=${encodeURIComponent(museum.id)}`, '_blank');
+                
+                // Track event
+                this.trackEvent('museum_fireworks_wall_opened', {
+                    'museum_id': museum.id,
+                    'museum_name': museum.name,
+                    'museum_location': museum.location
+                });
             });
         }
-
-        modal.classList.remove('hidden');
         
         // Enhanced UX: Ensure modal content starts at the top
         setTimeout(() => {

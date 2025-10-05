@@ -73,6 +73,22 @@
             margin-left: 8px;
         }
 
+        .museum-filter-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 20px;
+            z-index: 1000;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .close-button {
                 top: 15px;
@@ -113,6 +129,8 @@
         </div>
     </div>
 
+    <div class="museum-filter-indicator" id="museumFilterIndicator"></div>
+
     <button class="close-button" id="closeButton" title="关闭烟花墙">×</button>
 
     <script src="museums-data.js"></script>
@@ -137,6 +155,25 @@
         let launchTimer = null;
         let downloadTimer = null;
         let seenFireworkIds = new Set();
+
+        // Get museum ID from URL parameter for filtering
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterMuseumId = urlParams.get('museumId');
+        const filterMuseumName = filterMuseumId ? getMuseumNameById(filterMuseumId) : null;
+
+        // Helper function to get museum name by ID
+        function getMuseumNameById(museumId) {
+            if (typeof MUSEUMS !== 'undefined') {
+                const museum = MUSEUMS.find(m => m.id === museumId);
+                return museum ? museum.name : null;
+            }
+            return null;
+        }
+
+        // Update page title if filtering by museum
+        if (filterMuseumName) {
+            document.title = `${filterMuseumName} - 烟花墙`;
+        }
 
         // Set canvas size
         function setCanvasSize() {
@@ -500,16 +537,22 @@
             // Add local fireworks first (priority)
             localFireworks.forEach(fw => {
                 if (fw.id && !newSeenIds.has(fw.id)) {
-                    merged.push(fw);
-                    newSeenIds.add(fw.id);
+                    // Apply museum filter if set
+                    if (!filterMuseumId || fw.museumId === filterMuseumId) {
+                        merged.push(fw);
+                        newSeenIds.add(fw.id);
+                    }
                 }
             });
             
             // Add remote fireworks if not already present
             remoteFireworks.forEach(fw => {
                 if (fw.id && !newSeenIds.has(fw.id)) {
-                    merged.push({...fw, isRemote: true});
-                    newSeenIds.add(fw.id);
+                    // Apply museum filter if set
+                    if (!filterMuseumId || fw.museumId === filterMuseumId) {
+                        merged.push({...fw, isRemote: true});
+                        newSeenIds.add(fw.id);
+                    }
                 }
             });
             
@@ -571,6 +614,14 @@
         // Initialize
         function init() {
             console.log('Initializing fireworks wall...');
+            
+            // Show museum filter indicator if filtering
+            if (filterMuseumName) {
+                const indicator = document.getElementById('museumFilterIndicator');
+                indicator.textContent = `🏛️ ${filterMuseumName} 烟花墙`;
+                indicator.style.display = 'block';
+                console.log(`Filtering fireworks for museum: ${filterMuseumName} (${filterMuseumId})`);
+            }
             
             // Load data
             loadLocalFireworks();
