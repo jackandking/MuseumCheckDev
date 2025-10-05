@@ -477,9 +477,41 @@ header h1 {
 /* Mobile responsive styles for museum fireworks button */
 @media (max-width: 768px) {
     .museum-fireworks-button {
-        padding: 8px 12px;
-        font-size: 0.85em;
-        margin-left: 8px;
+        padding: 6px 10px;
+        font-size: 0.75em;
+        margin-left: 6px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .assessment-button {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        margin-left: 6px;
+    }
+}
+
+/* Extra small screens - further optimize button sizes */
+@media (max-width: 480px) {
+    .museum-info h3 {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .museum-fireworks-button {
+        padding: 5px 8px;
+        font-size: 0.7em;
+        margin-left: 4px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .assessment-button {
+        padding: 5px 8px;
+        font-size: 0.7em;
+        margin-left: 4px;
     }
 }
 
