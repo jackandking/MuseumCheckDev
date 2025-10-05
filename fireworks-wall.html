@@ -47,6 +47,30 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 74px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .settings-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(45deg);
+        }
+
         .stats-overlay {
             position: fixed;
             top: 20px;
@@ -89,10 +113,141 @@
             display: none;
         }
 
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.show {
+            display: flex;
+        }
+
+        .settings-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .settings-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .settings-modal-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .settings-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+
+        .settings-modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+
+        .settings-option-label {
+            color: #495057;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .settings-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .settings-toggle.active {
+            background: #667eea;
+        }
+
+        .settings-toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-toggle.active .settings-toggle-knob {
+            transform: translateX(24px);
+        }
+
         @media (max-width: 768px) {
             .close-button {
                 top: 15px;
                 right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .settings-button {
+                right: 64px;
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
@@ -107,6 +262,10 @@
 
             .stats-overlay .stat-value {
                 font-size: 16px;
+            }
+
+            .settings-modal-content {
+                padding: 20px;
             }
         }
     </style>
@@ -131,7 +290,40 @@
 
     <div class="museum-filter-indicator" id="museumFilterIndicator"></div>
 
+    <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
     <button class="close-button" id="closeButton" title="关闭烟花墙">×</button>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-modal-content">
+            <div class="settings-modal-header">
+                <h2>⚙️ 烟花墙设置</h2>
+                <button class="settings-modal-close" id="settingsModalClose">×</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>📝 文字显示</h3>
+                <div class="settings-option">
+                    <span class="settings-option-label">统计信息</span>
+                    <div class="settings-toggle active" id="toggleStats">
+                        <div class="settings-toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="settings-option">
+                    <span class="settings-option-label">博物馆过滤器</span>
+                    <div class="settings-toggle active" id="toggleFilter">
+                        <div class="settings-toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="settings-option">
+                    <span class="settings-option-label">烟花文字</span>
+                    <div class="settings-toggle active" id="toggleFireworkText">
+                        <div class="settings-toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="museums-data.js"></script>
     <script>
@@ -266,6 +458,11 @@
             }
 
             _drawText() {
+                // Check global setting for firework text visibility
+                if (window.showFireworkText === false) {
+                    return;
+                }
+                
                 ctx.save();
                 ctx.fillStyle = `rgba(255, 255, 255, ${this.textAlpha})`;
                 ctx.font = 'bold 24px Arial';
@@ -653,6 +850,101 @@
                 window.history.back();
             }, 100);
         });
+
+        // Settings functionality
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsModalClose = document.getElementById('settingsModalClose');
+        const statsOverlay = document.getElementById('statsOverlay');
+        const museumFilterIndicator = document.getElementById('museumFilterIndicator');
+        
+        // Settings toggles
+        const toggleStats = document.getElementById('toggleStats');
+        const toggleFilter = document.getElementById('toggleFilter');
+        const toggleFireworkText = document.getElementById('toggleFireworkText');
+        
+        // Load settings from localStorage
+        const SETTINGS_KEY = 'fireworksWallSettings';
+        let settings = {
+            showStats: true,
+            showFilter: true,
+            showFireworkText: true
+        };
+        
+        function loadSettings() {
+            try {
+                const stored = localStorage.getItem(SETTINGS_KEY);
+                if (stored) {
+                    settings = {...settings, ...JSON.parse(stored)};
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+            applySettings();
+        }
+        
+        function saveSettings() {
+            try {
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+            } catch (error) {
+                console.error('Error saving settings:', error);
+            }
+        }
+        
+        function applySettings() {
+            // Apply stats visibility
+            statsOverlay.style.display = settings.showStats ? 'block' : 'none';
+            toggleStats.classList.toggle('active', settings.showStats);
+            
+            // Apply filter visibility
+            if (filterMuseumName) {
+                museumFilterIndicator.style.display = settings.showFilter ? 'block' : 'none';
+            }
+            toggleFilter.classList.toggle('active', settings.showFilter);
+            
+            // Apply firework text visibility (will be applied in Firework class)
+            toggleFireworkText.classList.toggle('active', settings.showFireworkText);
+            
+            // Update global flag for firework text
+            window.showFireworkText = settings.showFireworkText;
+        }
+        
+        // Settings modal handlers
+        settingsButton.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
+        
+        settingsModalClose.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+        });
+        
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
+            }
+        });
+        
+        // Toggle handlers
+        toggleStats.addEventListener('click', () => {
+            settings.showStats = !settings.showStats;
+            saveSettings();
+            applySettings();
+        });
+        
+        toggleFilter.addEventListener('click', () => {
+            settings.showFilter = !settings.showFilter;
+            saveSettings();
+            applySettings();
+        });
+        
+        toggleFireworkText.addEventListener('click', () => {
+            settings.showFireworkText = !settings.showFireworkText;
+            saveSettings();
+            applySettings();
+        });
+        
+        // Initialize settings on load
+        loadSettings();
 
         // Start when page loads
         window.addEventListener('load', init);
