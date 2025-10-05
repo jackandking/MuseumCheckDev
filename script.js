@@ -3950,32 +3950,32 @@ class MuseumCheckApp {
             }
         });
 
-        // Save nickname button
-        document.getElementById('saveNicknameButton').addEventListener('click', () => {
-            const nicknameInput = document.getElementById('childNicknameInput');
-            const nickname = nicknameInput.value.trim();
-            
-            const result = this.saveChildNickname(nickname);
-            
-            if (result.isValid) {
-                // Show success message
-                alert(result.message);
+        // Auto-save nickname on blur (when user leaves the input field)
+        const nicknameInput = document.getElementById('childNicknameInput');
+        if (nicknameInput) {
+            nicknameInput.addEventListener('blur', () => {
+                const nickname = nicknameInput.value.trim();
                 
-                // Track nickname saved event
-                this.trackEvent('nickname_saved', {
-                    'nickname_length': nickname.length
-                });
-            } else {
-                // Show error message
-                alert(result.message);
-            }
-        });
+                // Only save if there's a change
+                const savedNickname = localStorage.getItem('childNickname') || '';
+                if (nickname !== savedNickname) {
+                    const result = this.saveChildNickname(nickname);
+                    
+                    if (result.isValid) {
+                        // Track nickname saved event
+                        this.trackEvent('nickname_saved', {
+                            'nickname_length': nickname.length,
+                            'auto_saved': true
+                        });
+                    }
+                }
+            });
+        }
 
-        // Save age group button
-        const saveAgeGroupButton = document.getElementById('saveAgeGroupButton');
-        if (saveAgeGroupButton) {
-            saveAgeGroupButton.addEventListener('click', () => {
-                const ageGroupSelector = document.getElementById('ageGroupSelector');
+        // Auto-save age group on change
+        const ageGroupSelector = document.getElementById('ageGroupSelector');
+        if (ageGroupSelector) {
+            ageGroupSelector.addEventListener('change', () => {
                 const newAgeGroup = ageGroupSelector.value;
                 
                 if (newAgeGroup !== this.currentAge) {
@@ -4010,12 +4010,9 @@ class MuseumCheckApp {
                     // Track age group changed event
                     this.trackEvent('age_group_changed', {
                         'new_age_group': newAgeGroup,
-                        'changed_from_settings': true
+                        'changed_from_settings': true,
+                        'auto_saved': true
                     });
-                    
-                    alert('年龄组已更新！');
-                } else {
-                    alert('年龄组未改变');
                 }
             });
         }
@@ -4048,23 +4045,19 @@ class MuseumCheckApp {
             });
         }
 
-        // Firework type selector
+        // Auto-save firework type on change
         const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
-        const saveFireworkTypeButton = document.getElementById('saveFireworkTypeButton');
-        if (fireworkTypeSelector && saveFireworkTypeButton) {
-            saveFireworkTypeButton.addEventListener('click', () => {
+        if (fireworkTypeSelector) {
+            fireworkTypeSelector.addEventListener('change', () => {
                 const selectedType = fireworkTypeSelector.value;
                 const result = this.saveFireworkType(selectedType);
                 
                 if (result.success) {
-                    alert('烟花类型已更新！下次放烟花时将使用新的形状。');
-                    
                     // Track firework type change
                     this.trackEvent('firework_type_changed', {
-                        'firework_type': selectedType
+                        'firework_type': selectedType,
+                        'auto_saved': true
                     });
-                } else {
-                    alert(result.message);
                 }
             });
         }

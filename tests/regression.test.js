@@ -3461,16 +3461,14 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
     });
   });
 
-  describe('Settings Page Age Group Save Bug', () => {
+  describe('Settings Page Age Group Auto-Save', () => {
     /**
-     * Bug: 主页设置页面修改孩子年龄段保存无效
-     * Description: When user changes age group in settings page and clicks save,
-     *              the change is not persisted to localStorage.
-     * Root Cause: Line 3983 used undefined `LocalStorageManager.setItem()` instead of
-     *             standard `localStorage.setItem()`, causing JavaScript error.
-     * Fixed: 2025-01-XX - Changed LocalStorageManager.setItem to localStorage.setItem
+     * Feature: 主页设置页面修改即时生效
+     * Description: Age group changes in settings page are auto-saved immediately
+     *              when the dropdown changes (no save button needed).
+     * Implementation: Changed from button click to 'change' event on select element
      * 
-     * This regression test ensures the age group save functionality works correctly.
+     * This test ensures the auto-save functionality works correctly.
      */
 
     let mockLocalStorage;
@@ -3491,7 +3489,7 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       // Mock global localStorage
       global.localStorage = mockLocalStorage;
       
-      // Setup settings page DOM structure
+      // Setup settings page DOM structure (without save button)
       document.body.innerHTML = `
         <div id="settingsModal" class="modal">
           <div class="modal-content">
@@ -3509,7 +3507,6 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
                     <option value="7-12">7-12岁 (小学)</option>
                     <option value="13-18">13-18岁 (中学)</option>
                   </select>
-                  <button id="saveAgeGroupButton" class="settings-save-button">保存</button>
                 </div>
               </div>
             </div>
@@ -3518,63 +3515,59 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       `;
     });
 
-    test('should save age group to localStorage when save button is clicked', () => {
+    test('should auto-save age group to localStorage on change', () => {
       // Setup: Initialize with default age
       let currentAge = '7-12';
       
-      // Get DOM elements
+      // Get DOM element
       const ageGroupSelector = document.getElementById('ageGroupSelector');
-      const saveButton = document.getElementById('saveAgeGroupButton');
       
       expect(ageGroupSelector).toBeTruthy();
-      expect(saveButton).toBeTruthy();
       
-      // User action: Select different age group
-      ageGroupSelector.value = '13-18';
-      
-      // Simulate the fixed save button click handler
-      saveButton.addEventListener('click', () => {
+      // Simulate the auto-save change handler
+      ageGroupSelector.addEventListener('change', () => {
         const newAgeGroup = ageGroupSelector.value;
         if (newAgeGroup !== currentAge) {
-          // This should use localStorage.setItem, NOT LocalStorageManager.setItem
+          // Auto-save to localStorage
           mockLocalStorage.setItem('ageGroup', newAgeGroup);
           currentAge = newAgeGroup; // Update current age
         }
       });
       
-      // Click save button
-      saveButton.click();
+      // User action: Select different age group
+      ageGroupSelector.value = '13-18';
       
-      // Verify: Age group was saved to localStorage
+      // Trigger change event (simulating user selection)
+      const changeEvent = new Event('change', { bubbles: true });
+      ageGroupSelector.dispatchEvent(changeEvent);
+      
+      // Verify: Age group was auto-saved to localStorage
       expect(mockLocalStorage.getItem('ageGroup')).toBe('13-18');
     });
 
-    test('should use standard localStorage API, not undefined LocalStorageManager', () => {
+    test('should use standard localStorage API for auto-save', () => {
       // This test ensures we're using the correct API
-      const saveButton = document.getElementById('saveAgeGroupButton');
       const ageGroupSelector = document.getElementById('ageGroupSelector');
       
-      ageGroupSelector.value = '3-6';
-      
-      // The bug was using LocalStorageManager.setItem which is undefined
-      // This test verifies we use the standard localStorage API
-      saveButton.addEventListener('click', () => {
+      ageGroupSelector.addEventListener('change', () => {
         const newAgeGroup = ageGroupSelector.value;
         
-        // Should NOT throw error (would throw if using LocalStorageManager)
+        // Should NOT throw error
         expect(() => {
           localStorage.setItem('ageGroup', newAgeGroup);
         }).not.toThrow();
         
-        // Verify localStorage (not LocalStorageManager) was called
+        // Verify localStorage was called
         expect(global.localStorage.setItem).toHaveBeenCalled();
       });
       
-      saveButton.click();
+      ageGroupSelector.value = '3-6';
+      const changeEvent = new Event('change', { bubbles: true });
+      ageGroupSelector.dispatchEvent(changeEvent);
     });
 
     test('should persist age group across page reloads', () => {
-      // Simulate user saving age group
+      // Simulate user changing age group (auto-saved)
       mockLocalStorage.setItem('ageGroup', '3-6');
       
       // Verify it's saved
@@ -3593,7 +3586,14 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       localStorage.setItem('ageGroup', currentAge);
       
       const ageGroupSelector = document.getElementById('ageGroupSelector');
-      const saveButton = document.getElementById('saveAgeGroupButton');
+      
+      // Set up auto-save handler
+      ageGroupSelector.addEventListener('change', () => {
+        const newAgeGroup = ageGroupSelector.value;
+        if (newAgeGroup !== currentAge) {
+          localStorage.setItem('ageGroup', newAgeGroup);
+        }
+      });
       
       // Select the SAME age group
       ageGroupSelector.value = currentAge;
@@ -3601,15 +3601,9 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       // Clear mock call history
       mockLocalStorage.setItem.mockClear();
       
-      // Simulate save button handler with condition
-      saveButton.addEventListener('click', () => {
-        const newAgeGroup = ageGroupSelector.value;
-        if (newAgeGroup !== currentAge) {
-          localStorage.setItem('ageGroup', newAgeGroup);
-        }
-      });
-      
-      saveButton.click();
+      // Trigger change event with same value
+      const changeEvent = new Event('change', { bubbles: true });
+      ageGroupSelector.dispatchEvent(changeEvent);
       
       // Verify: setItem was NOT called (because age didn't change)
       expect(mockLocalStorage.setItem).not.toHaveBeenCalled();
@@ -3624,7 +3618,7 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
         // Select age group
         ageGroupSelector.value = ageGroup;
         
-        // Directly call localStorage.setItem to simulate the fix
+        // Directly call localStorage.setItem to simulate auto-save
         mockLocalStorage.setItem('ageGroup', ageGroupSelector.value);
         
         // Verify correct value was saved
