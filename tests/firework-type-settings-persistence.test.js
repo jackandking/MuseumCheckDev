@@ -2,8 +2,12 @@
  * Regression Test for Firework Type Settings Persistence
  * Issue: 设置烟花类型无效 (Firework type settings not being saved)
  * 
- * Tests that all 6 firework types (including new types: diamond, spiral, butterfly)
- * are properly validated and saved to localStorage when selected in settings.
+ * Tests that all 11 firework types (heart, circle, star, diamond, spiral, butterfly, 
+ * rose, sunburst, cascade, ring, crosshatch) are properly validated and saved to 
+ * localStorage when selected in settings.
+ * 
+ * Bug Report: When selecting "rose" (玫瑰) or other new firework types in settings,
+ * the selection would revert to "heart" after closing and reopening settings modal.
  */
 
 const fs = require('fs');
@@ -41,8 +45,8 @@ describe('Firework Type Settings Persistence Regression Test', () => {
         mockApp = {
             saveFireworkType: function(fireworkType) {
                 try {
-                    // Validate firework type - should include all 6 types
-                    const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly'];
+                    // Validate firework type - should include all 11 types
+                    const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly', 'rose', 'sunburst', 'cascade', 'ring', 'crosshatch'];
                     if (!validTypes.includes(fireworkType)) {
                         console.warn('Invalid firework type, using default');
                         fireworkType = 'heart';
@@ -68,7 +72,7 @@ describe('Firework Type Settings Persistence Regression Test', () => {
         };
     });
 
-    describe('All 6 Firework Types Should Be Validated and Saved', () => {
+    describe('All 11 Firework Types Should Be Validated and Saved', () => {
         test('should save "heart" firework type', () => {
             const result = mockApp.saveFireworkType('heart');
             
@@ -102,7 +106,7 @@ describe('Firework Type Settings Persistence Regression Test', () => {
             expect(console.warn).not.toHaveBeenCalled();
         });
 
-        test('should save "spiral" firework type (NEW TYPE - REPORTED IN BUG)', () => {
+        test('should save "spiral" firework type (NEW TYPE)', () => {
             const result = mockApp.saveFireworkType('spiral');
             
             expect(result.success).toBe(true);
@@ -117,6 +121,51 @@ describe('Firework Type Settings Persistence Regression Test', () => {
             expect(result.success).toBe(true);
             expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'butterfly');
             expect(mockApp.loadFireworkType()).toBe('butterfly');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
+
+        test('should save "rose" firework type (REPORTED IN BUG - 玫瑰)', () => {
+            const result = mockApp.saveFireworkType('rose');
+            
+            expect(result.success).toBe(true);
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'rose');
+            expect(mockApp.loadFireworkType()).toBe('rose');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
+
+        test('should save "sunburst" firework type (ADDITIONAL TYPE)', () => {
+            const result = mockApp.saveFireworkType('sunburst');
+            
+            expect(result.success).toBe(true);
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'sunburst');
+            expect(mockApp.loadFireworkType()).toBe('sunburst');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
+
+        test('should save "cascade" firework type (ADDITIONAL TYPE)', () => {
+            const result = mockApp.saveFireworkType('cascade');
+            
+            expect(result.success).toBe(true);
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'cascade');
+            expect(mockApp.loadFireworkType()).toBe('cascade');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
+
+        test('should save "ring" firework type (ADDITIONAL TYPE)', () => {
+            const result = mockApp.saveFireworkType('ring');
+            
+            expect(result.success).toBe(true);
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'ring');
+            expect(mockApp.loadFireworkType()).toBe('ring');
+            expect(console.warn).not.toHaveBeenCalled();
+        });
+
+        test('should save "crosshatch" firework type (ADDITIONAL TYPE)', () => {
+            const result = mockApp.saveFireworkType('crosshatch');
+            
+            expect(result.success).toBe(true);
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'crosshatch');
+            expect(mockApp.loadFireworkType()).toBe('crosshatch');
             expect(console.warn).not.toHaveBeenCalled();
         });
     });
@@ -140,7 +189,20 @@ describe('Firework Type Settings Persistence Regression Test', () => {
     });
 
     describe('Settings Persistence Across Sessions', () => {
-        test('should persist spiral selection after page reload (MAIN BUG SCENARIO)', () => {
+        test('should persist rose selection after page reload (MAIN BUG SCENARIO - 玫瑰)', () => {
+            // User selects rose in settings
+            mockApp.saveFireworkType('rose');
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'rose');
+            
+            // User closes and reopens settings (simulated by loading the value)
+            const loadedType = mockApp.loadFireworkType();
+            expect(loadedType).toBe('rose');
+            
+            // Setting should still be rose, not reverted to heart
+            expect(loadedType).not.toBe('heart');
+        });
+
+        test('should persist spiral selection after page reload', () => {
             // User selects spiral in settings
             mockApp.saveFireworkType('spiral');
             expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'spiral');
@@ -170,17 +232,26 @@ describe('Firework Type Settings Persistence Regression Test', () => {
             expect(loadedType).toBe('butterfly');
             expect(loadedType).not.toBe('heart');
         });
+
+        test('should persist sunburst selection after page reload', () => {
+            mockApp.saveFireworkType('sunburst');
+            expect(localStorage.setItem).toHaveBeenCalledWith('fireworkType', 'sunburst');
+            
+            const loadedType = mockApp.loadFireworkType();
+            expect(loadedType).toBe('sunburst');
+            expect(loadedType).not.toBe('heart');
+        });
     });
 
     describe('Code Validation', () => {
-        test('script.js should have all 6 firework types in validTypes array', () => {
-            // Check that the fixed code includes all 6 types
-            expect(scriptContent).toContain("const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly']");
+        test('script.js should have all 11 firework types in validTypes array', () => {
+            // Check that the fixed code includes all 11 types
+            expect(scriptContent).toContain("const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly', 'rose', 'sunburst', 'cascade', 'ring', 'crosshatch']");
         });
 
-        test('script.js should NOT have the old 3-type validation array', () => {
+        test('script.js should NOT have the old 6-type validation array', () => {
             // Ensure the old buggy validation is removed
-            const oldValidation = "const validTypes = ['heart', 'circle', 'star'];";
+            const oldValidation = "const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly'];";
             expect(scriptContent).not.toContain(oldValidation);
         });
     });

@@ -4463,8 +4463,8 @@ class MuseumCheckApp {
 
     saveFireworkType(fireworkType) {
         try {
-            // Validate firework type
-            const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly'];
+            // Validate firework type - includes all 11 types available in the UI
+            const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly', 'rose', 'sunburst', 'cascade', 'ring', 'crosshatch'];
             if (!validTypes.includes(fireworkType)) {
                 console.warn('Invalid firework type, using default');
                 fireworkType = 'heart';
