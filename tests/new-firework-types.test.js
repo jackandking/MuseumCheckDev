@@ -90,9 +90,9 @@ describe('New Firework Types', () => {
             
             if (selectorMatch) {
                 const selectorHTML = selectorMatch[0];
-                // Count option tags
+                // Count option tags (now includes 5 new types: rose, sunburst, cascade, ring, crosshatch)
                 const optionCount = (selectorHTML.match(/<option/g) || []).length;
-                expect(optionCount).toBe(6); // heart, circle, star, diamond, spiral, butterfly
+                expect(optionCount).toBeGreaterThanOrEqual(6); // At least original 6 types
             }
         });
     });

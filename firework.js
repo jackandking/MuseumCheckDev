@@ -320,6 +320,138 @@ class Firework {
     }
 
     /**
+     * Generates points in a rose pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of rose shape points
+     */
+    _generateRoseShape(pointCount) {
+        const rosePoints = [];
+        const petals = 5; // Five petals for the rose
+        
+        for (let i = 0; i < pointCount; i++) {
+            const t = (i / pointCount) * Math.PI * 2;
+            // Rose curve using polar equation: r = cos(k*theta)
+            const r = 8 * Math.cos(petals * t);
+            const x = Math.abs(r) * Math.cos(t);
+            const y = Math.abs(r) * Math.sin(t);
+            rosePoints.push({x: x, y: y});
+        }
+        
+        return rosePoints;
+    }
+
+    /**
+     * Generates points in a sunburst pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of sunburst shape points
+     */
+    _generateSunburstShape(pointCount) {
+        const sunburstPoints = [];
+        const rays = 12; // Number of rays
+        
+        for (let i = 0; i < pointCount; i++) {
+            const angle = (i / pointCount) * Math.PI * 2;
+            // Varying ray lengths create sunburst effect
+            const rayIndex = Math.floor((i / pointCount) * rays);
+            const rayProgress = ((i / pointCount) * rays) - rayIndex;
+            // Alternate between long and short rays with smooth transitions
+            const radiusMultiplier = 0.5 + 0.5 * (1 - Math.abs(Math.sin(rayIndex * Math.PI)));
+            const radius = 4 + 4 * radiusMultiplier * (1 - rayProgress);
+            
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            sunburstPoints.push({x: x, y: y});
+        }
+        
+        return sunburstPoints;
+    }
+
+    /**
+     * Generates points in a cascade/willow pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of cascade shape points
+     */
+    _generateCascadeShape(pointCount) {
+        const cascadePoints = [];
+        const streamCount = 8; // Number of cascading streams
+        
+        for (let i = 0; i < pointCount; i++) {
+            const streamIndex = i % streamCount;
+            const streamProgress = Math.floor(i / streamCount) / Math.floor(pointCount / streamCount);
+            const angle = (streamIndex / streamCount) * Math.PI * 2;
+            
+            // Start wide at top, curve downward like a willow
+            const radius = 8 * (1 - streamProgress * 0.5);
+            const dropFactor = streamProgress * 10;
+            
+            const x = radius * Math.cos(angle) * (1 - streamProgress * 0.3);
+            const y = radius * Math.sin(angle) * (1 - streamProgress * 0.3) - dropFactor;
+            cascadePoints.push({x: x, y: y});
+        }
+        
+        return cascadePoints;
+    }
+
+    /**
+     * Generates points in a ring pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of ring shape points
+     */
+    _generateRingShape(pointCount) {
+        const ringPoints = [];
+        const rings = 3; // Number of concentric rings
+        
+        for (let i = 0; i < pointCount; i++) {
+            const ringIndex = i % rings;
+            const angleProgress = Math.floor(i / rings) / Math.floor(pointCount / rings);
+            const angle = angleProgress * Math.PI * 2;
+            const radius = 3 + (ringIndex + 1) * 2; // Expanding rings
+            
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            ringPoints.push({x: x, y: y});
+        }
+        
+        return ringPoints;
+    }
+
+    /**
+     * Generates points in a crosshatch/grid pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of crosshatch shape points
+     */
+    _generateCrosshatchShape(pointCount) {
+        const crosshatchPoints = [];
+        const lines = 6; // Number of lines in each direction
+        
+        for (let i = 0; i < pointCount; i++) {
+            const progress = i / pointCount;
+            const isVertical = Math.floor(progress * lines * 2) % 2 === 0;
+            const lineIndex = Math.floor(progress * lines * 2);
+            const lineProgress = (progress * lines * 2) - lineIndex;
+            
+            if (isVertical) {
+                // Vertical lines
+                const x = -8 + (lineIndex / 2) * (16 / lines);
+                const y = -8 + lineProgress * 16;
+                crosshatchPoints.push({x: x, y: y});
+            } else {
+                // Horizontal lines
+                const x = -8 + lineProgress * 16;
+                const y = -8 + ((lineIndex - 1) / 2) * (16 / lines);
+                crosshatchPoints.push({x: x, y: y});
+            }
+        }
+        
+        return crosshatchPoints;
+    }
+
+    /**
      * Gets the shape points based on the selected firework type
      * @private
      * @param {number} pointCount - Number of points to generate
@@ -341,6 +473,16 @@ class Firework {
                 return this._generateSpiralShape(pointCount);
             case 'butterfly':
                 return this._generateButterflyShape(pointCount);
+            case 'rose':
+                return this._generateRoseShape(pointCount);
+            case 'sunburst':
+                return this._generateSunburstShape(pointCount);
+            case 'cascade':
+                return this._generateCascadeShape(pointCount);
+            case 'ring':
+                return this._generateRingShape(pointCount);
+            case 'crosshatch':
+                return this._generateCrosshatchShape(pointCount);
             case 'heart':
             default:
                 return this._generateHeartShape(pointCount);
