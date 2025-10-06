@@ -572,6 +572,76 @@
             }
 
             /**
+             * Generates points in a diamond/rhombus pattern
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of diamond shape points
+             */
+            _generateDiamondShape(pointCount) {
+                const diamondPoints = [];
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const t = (i / pointCount) * Math.PI * 2;
+                    // Diamond/rhombus shape using absolute value of sine/cosine
+                    const radius = 8 / (Math.abs(Math.cos(t)) + Math.abs(Math.sin(t)));
+                    const x = radius * Math.cos(t);
+                    const y = radius * Math.sin(t);
+                    diamondPoints.push({x: x, y: y});
+                }
+                
+                return diamondPoints;
+            }
+
+            /**
+             * Generates points in a spiral/galaxy pattern
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of spiral shape points
+             */
+            _generateSpiralShape(pointCount) {
+                const spiralPoints = [];
+                const arms = 3; // Three spiral arms
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const progress = i / pointCount;
+                    const angle = progress * Math.PI * 4; // Two full rotations
+                    const radius = 8 * progress; // Expanding radius
+                    
+                    // Create multiple spiral arms
+                    for (let arm = 0; arm < arms; arm++) {
+                        const armAngle = angle + (arm * Math.PI * 2 / arms);
+                        const x = radius * Math.cos(armAngle);
+                        const y = radius * Math.sin(armAngle);
+                        spiralPoints.push({x: x, y: y});
+                    }
+                }
+                
+                return spiralPoints;
+            }
+
+            /**
+             * Generates points in a butterfly pattern
+             * @private
+             * @param {number} pointCount - Number of points to generate
+             * @returns {Array<{x: number, y: number}>} Array of butterfly shape points
+             */
+            _generateButterflyShape(pointCount) {
+                const butterflyPoints = [];
+                
+                for (let i = 0; i < pointCount; i++) {
+                    const t = (i / pointCount) * Math.PI * 2;
+                    // Butterfly curve (polar rose variant)
+                    const r = Math.exp(Math.sin(t)) - 2 * Math.cos(4 * t) + Math.pow(Math.sin((2 * t - Math.PI) / 24), 5);
+                    const scale = 2.5; // Scale to match other shapes
+                    const x = scale * r * Math.sin(t);
+                    const y = scale * r * Math.cos(t);
+                    butterflyPoints.push({x: x, y: y});
+                }
+                
+                return butterflyPoints;
+            }
+
+            /**
              * Gets the shape points based on the selected firework type
              * @private
              * @param {number} pointCount - Number of points to generate
@@ -587,6 +657,12 @@
                         return this._generateCircleShape(pointCount);
                     case 'star':
                         return this._generateStarShape(pointCount);
+                    case 'diamond':
+                        return this._generateDiamondShape(pointCount);
+                    case 'spiral':
+                        return this._generateSpiralShape(pointCount);
+                    case 'butterfly':
+                        return this._generateButterflyShape(pointCount);
                     case 'heart':
                     default:
                         return this._generateHeartShape(pointCount);
