@@ -113,6 +113,18 @@
             display: none;
         }
 
+        .museum-name-header {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 999;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
         .settings-modal {
             display: none;
             position: fixed;
@@ -239,29 +251,38 @@
 
         @media (max-width: 768px) {
             .close-button {
-                top: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+                border-width: 1px;
             }
 
             .settings-button {
-                right: 64px;
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
+                top: 10px;
+                right: 52px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+                border-width: 1px;
             }
 
             .stats-overlay {
-                top: 15px;
-                left: 15px;
-                padding: 10px 15px;
-                font-size: 12px;
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 11px;
             }
 
             .stats-overlay .stat-value {
-                font-size: 16px;
+                font-size: 14px;
+            }
+
+            .museum-name-header {
+                top: 10px;
+                left: 10px;
+                font-size: 14px;
             }
 
             .settings-modal-content {
@@ -288,6 +309,7 @@
         </div>
     </div>
 
+    <div class="museum-name-header" id="museumNameHeader"></div>
     <div class="museum-filter-indicator" id="museumFilterIndicator"></div>
 
     <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
@@ -310,7 +332,7 @@
                     </div>
                 </div>
                 <div class="settings-option">
-                    <span class="settings-option-label">博物馆过滤器</span>
+                    <span class="settings-option-label">博物馆名称</span>
                     <div class="settings-toggle active" id="toggleFilter">
                         <div class="settings-toggle-knob"></div>
                     </div>
@@ -835,11 +857,11 @@
         function init() {
             console.log('Initializing fireworks wall...');
             
-            // Show museum filter indicator if filtering
+            // Show museum name in header if filtering
             if (filterMuseumName) {
-                const indicator = document.getElementById('museumFilterIndicator');
-                indicator.textContent = `🏛️ ${filterMuseumName} 烟花墙`;
-                indicator.style.display = 'block';
+                const museumNameHeader = document.getElementById('museumNameHeader');
+                museumNameHeader.textContent = filterMuseumName;
+                museumNameHeader.style.display = 'block';
                 console.log(`Filtering fireworks for museum: ${filterMuseumName} (${filterMuseumId})`);
             }
             
@@ -879,7 +901,7 @@
         const settingsModal = document.getElementById('settingsModal');
         const settingsModalClose = document.getElementById('settingsModalClose');
         const statsOverlay = document.getElementById('statsOverlay');
-        const museumFilterIndicator = document.getElementById('museumFilterIndicator');
+        const museumNameHeader = document.getElementById('museumNameHeader');
         
         // Settings toggles
         const toggleStats = document.getElementById('toggleStats');
@@ -919,9 +941,9 @@
             statsOverlay.style.display = settings.showStats ? 'block' : 'none';
             toggleStats.classList.toggle('active', settings.showStats);
             
-            // Apply filter visibility
+            // Apply museum name header visibility
             if (filterMuseumName) {
-                museumFilterIndicator.style.display = settings.showFilter ? 'block' : 'none';
+                museumNameHeader.style.display = settings.showFilter ? 'block' : 'none';
             }
             toggleFilter.classList.toggle('active', settings.showFilter);
             
