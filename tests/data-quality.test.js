@@ -193,11 +193,12 @@ describe('Museum Data Quality', () => {
         // After comprehensive deduplication (v4.7.0):
         // - Removed 45 duplicate/invalid entries (40 duplicate names + 24 duplicate IDs + 3 missing data)
         // - Final count: 258 high-quality unique museums (including Huzhou Science and Technology Museum)
+        // - After adding Li Shutong Memorial Hall (Pinghu): 259 museums
         
         console.log(`Current museum count: ${museums.length}`);
         
         // Exact count after systematic deduplication
-        expect(museums.length).toBe(258);
+        expect(museums.length).toBe(259);
         
         // Validate that this is within reasonable operational range
         expect(museums.length).toBeGreaterThan(200);
