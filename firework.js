@@ -44,6 +44,7 @@ class Particle {
         this.alpha = 1;
         this.friction = 0.98; // Higher friction for slower decay
         this.gravity = 0.01;  // Lower gravity for floating effect
+        this.size = 2; // Default size, can be overridden
     }
 
     /**
@@ -52,10 +53,40 @@ class Particle {
     draw() {
         if (!ctx) return;
         
+        const baseSize = this.size || 2;
+        
+        // Add glow effect for more visual impact
+        ctx.save();
+        
+        // Outer glow (larger, more transparent)
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, baseSize * 2, 0, Math.PI * 2);
+        const glowAlpha = this.alpha * 0.3;
+        ctx.fillStyle = `rgba(${this.color}, ${glowAlpha})`;
+        ctx.fill();
+        
+        // Middle glow
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, baseSize * 1.5, 0, Math.PI * 2);
+        const midGlowAlpha = this.alpha * 0.5;
+        ctx.fillStyle = `rgba(${this.color}, ${midGlowAlpha})`;
+        ctx.fill();
+        
+        // Core particle (bright)
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, baseSize, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
         ctx.fill();
+        
+        // Add white sparkle in center for twinkle effect
+        if (this.alpha > 0.7) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, baseSize * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+            ctx.fill();
+        }
+        
+        ctx.restore();
     }
 
     /**
@@ -128,15 +159,25 @@ class Firework {
     }
 
     /**
-     * Generates a random RGB color string
+     * Generates a vibrant child-friendly color
      * @private
      * @returns {string} RGB color values as comma-separated string
      */
     _generateRandomColor() {
-        const r = Math.floor(Math.random() * 255);
-        const g = Math.floor(Math.random() * 255);
-        const b = Math.floor(Math.random() * 255);
-        return `${r}, ${g}, ${b}`;
+        // Child-friendly vibrant colors - brighter and more saturated
+        const brightColors = [
+            '255, 50, 100',   // Hot Pink
+            '255, 100, 50',   // Orange Red
+            '255, 200, 0',    // Golden Yellow
+            '100, 255, 100',  // Bright Green
+            '50, 200, 255',   // Sky Blue
+            '150, 100, 255',  // Purple
+            '255, 50, 200',   // Magenta
+            '50, 255, 200',   // Turquoise
+            '255, 150, 50',   // Orange
+            '200, 50, 255'    // Violet
+        ];
+        return brightColors[Math.floor(Math.random() * brightColors.length)];
     }
 
     /**
@@ -145,31 +186,76 @@ class Firework {
     draw() {
         if (!ctx) return;
 
-        // Draw firework trail
+        // Draw firework trail with glow effect
+        ctx.save();
+        
+        // Outer glow trail
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.velocity.x * 2, this.y - this.velocity.y * 2);
+        ctx.strokeStyle = `rgba(${this.color}, 0.3)`;
+        ctx.lineWidth = 12;
+        ctx.stroke();
+        
+        // Middle glow trail
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.velocity.x * 1.5, this.y - this.velocity.y * 1.5);
+        ctx.strokeStyle = `rgba(${this.color}, 0.6)`;
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        
+        // Main trail (bright)
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x - this.velocity.x, this.y - this.velocity.y);
         ctx.strokeStyle = `rgb(${this.color})`;
         ctx.lineWidth = 8;
         ctx.stroke();
+        
+        ctx.restore();
 
         // Draw text overlay if active
         this._drawText();
     }
 
     /**
-     * Draws the firework text overlay
+     * Draws the firework text overlay with animations
      * @private
      */
     _drawText() {
         if (!this.showText || this.textAlpha <= 0) return;
 
         ctx.save();
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.textAlpha})`;
-        ctx.font = 'bold 24px Arial';
+        
+        // Add pulsing effect for first 2 seconds
+        const timeSinceExplosion = Date.now() - (this.explosionTime || Date.now());
+        let scale = 1;
+        if (timeSinceExplosion < 2000) {
+            scale = 1 + Math.sin(timeSinceExplosion / 200) * 0.1; // Pulsing effect
+        }
+        
+        // Add colorful outline/shadow for better visibility
+        ctx.shadowColor = `rgba(${this.color}, ${this.textAlpha * 0.8})`;
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        // Draw text with scale
+        ctx.translate(this.explosionX, this.explosionY);
+        ctx.scale(scale, scale);
+        
+        // Outline for better readability
+        ctx.strokeStyle = `rgba(0, 0, 0, ${this.textAlpha * 0.8})`;
+        ctx.lineWidth = 4;
+        ctx.font = 'bold 28px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.fireworkString, this.explosionX, this.explosionY);
+        ctx.strokeText(this.fireworkString, 0, 0);
+        
+        // Main text with gradient-like effect
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.textAlpha})`;
+        ctx.fillText(this.fireworkString, 0, 0);
         
         // Fade out text slowly
         this.textAlpha -= 0.002;
@@ -493,16 +579,21 @@ class Firework {
      * Creates an explosion effect at the firework's current position
      */
     explode() {
-        // Store explosion coordinates
+        // Store explosion coordinates and time
         this.explosionX = this.x;
         this.explosionY = this.y;
+        this.explosionTime = Date.now();
         
-        const particleCount = 300;
+        // More particles for fuller, more impressive explosions
+        const particleCount = 400;
         const shapePoints = this._getShapePoints(particleCount);
 
-        // Create particles along shape
+        // Add initial flash effect particles (bright white burst)
+        this._addFlashEffect();
+
+        // Create main shape particles with size variation
         for (let i = 0; i < particleCount; i++) {
-            const scale = 0.1 + Math.random() * 0.2;
+            const scale = 0.1 + Math.random() * 0.25;
             const particle = new Particle(this.x, this.y, this.color);
             const point = shapePoints[i];
             
@@ -514,8 +605,13 @@ class Firework {
             particle.velocity.x += (Math.random() - 0.5) * 0.5;
             particle.velocity.y += (Math.random() - 0.5) * 0.5;
             
-            particle.gravity = 0.01;
-            particle.friction = 0.98;
+            // Vary particle properties for more visual interest
+            particle.gravity = 0.01 + Math.random() * 0.005;
+            particle.friction = 0.97 + Math.random() * 0.02;
+            
+            // Add size property for varied particle sizes
+            particle.size = 1.5 + Math.random() * 1.5;
+            
             this.particles.push(particle);
         }
         
@@ -528,8 +624,13 @@ class Firework {
             this.showText = false;
         }, 10000); // Show text for 10 seconds
 
-        // Add sparkle effect around shape
+        // Add multiple layers of sparkle effects for more magical feel
         this._addSparkleEffect();
+        
+        // Add trailing sparkles with delay for cascading effect
+        setTimeout(() => {
+            this._addTrailingSparkles();
+        }, 200);
     }
 
     /**
@@ -548,20 +649,70 @@ class Firework {
     }
 
     /**
+     * Adds initial flash effect for explosion
+     * @private
+     */
+    _addFlashEffect() {
+        // Create bright white flash particles for initial burst
+        for (let i = 0; i < 30; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 2;
+            const particle = new Particle(this.x, this.y, '255, 255, 255');
+            
+            particle.velocity.x = Math.cos(angle) * speed;
+            particle.velocity.y = Math.sin(angle) * speed;
+            particle.gravity = 0.02;
+            particle.friction = 0.95;
+            particle.alpha = 1;
+            particle.size = 2 + Math.random() * 2;
+            
+            this.particles.push(particle);
+        }
+    }
+
+    /**
      * Adds sparkle particles around the explosion
      * @private
      */
     _addSparkleEffect() {
-        for (let i = 0; i < 50; i++) {
+        // More sparkles for magical effect
+        for (let i = 0; i < 80; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 0.5 + Math.random();
-            const particle = new Particle(this.x, this.y, this.color);
+            const speed = 0.5 + Math.random() * 1.5;
+            
+            // Mix of colored sparkles and white sparkles
+            const isWhiteSparkle = Math.random() > 0.5;
+            const sparkleColor = isWhiteSparkle ? '255, 255, 255' : this.color;
+            const particle = new Particle(this.x, this.y, sparkleColor);
             
             particle.velocity.x = Math.cos(angle) * speed;
             particle.velocity.y = Math.sin(angle) * speed;
             particle.gravity = 0.005;
             particle.friction = 0.995;
-            particle.alpha = 0.1;
+            particle.alpha = 0.8;
+            particle.size = 1 + Math.random();
+            
+            this.particles.push(particle);
+        }
+    }
+
+    /**
+     * Adds trailing sparkle particles with delayed effect
+     * @private
+     */
+    _addTrailingSparkles() {
+        // Add secondary wave of sparkles for cascading magical effect
+        for (let i = 0; i < 50; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 0.3 + Math.random() * 0.8;
+            const particle = new Particle(this.explosionX, this.explosionY, '255, 255, 200');
+            
+            particle.velocity.x = Math.cos(angle) * speed;
+            particle.velocity.y = Math.sin(angle) * speed;
+            particle.gravity = 0.003;
+            particle.friction = 0.997;
+            particle.alpha = 0.6;
+            particle.size = 0.5 + Math.random() * 0.5;
             
             this.particles.push(particle);
         }
