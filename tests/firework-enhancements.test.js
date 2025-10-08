@@ -81,12 +81,21 @@ describe('Enhanced Firework Visual Effects', () => {
 
     describe('Enhanced Particle System', () => {
         test('should have increased particle count for fuller explosions', () => {
-            // Check for higher particle count in main explosion
-            const particleCountMatch = fireworkContent.match(/const particleCount = (\d+)/);
+            // Check for particle count (now tier-based: 150 for basic, 400 for premium)
+            const particleCountMatch = fireworkContent.match(/const particleCount = isBasicTier \? (\d+) : (\d+)/);
             expect(particleCountMatch).toBeTruthy();
             if (particleCountMatch) {
-                const count = parseInt(particleCountMatch[1]);
-                expect(count).toBeGreaterThanOrEqual(400); // Should be 400 or more
+                const basicCount = parseInt(particleCountMatch[1]);
+                const premiumCount = parseInt(particleCountMatch[2]);
+                
+                // Basic tier should have at least 100 particles
+                expect(basicCount).toBeGreaterThanOrEqual(100);
+                
+                // Premium tier should have 400 or more particles
+                expect(premiumCount).toBeGreaterThanOrEqual(400);
+                
+                // Premium tier should have significantly more particles
+                expect(premiumCount).toBeGreaterThan(basicCount);
             }
         });
 

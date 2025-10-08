@@ -584,12 +584,17 @@ class Firework {
         this.explosionY = this.y;
         this.explosionTime = Date.now();
         
-        // More particles for fuller, more impressive explosions
-        const particleCount = 400;
+        // Determine effect tier based on firework type
+        const isBasicTier = this._isBasicTierFirework();
+        
+        // Tier-based particle count: basic tier gets simpler effects
+        const particleCount = isBasicTier ? 150 : 400;
         const shapePoints = this._getShapePoints(particleCount);
 
-        // Add initial flash effect particles (bright white burst)
-        this._addFlashEffect();
+        // Premium tier gets initial flash effect particles (bright white burst)
+        if (!isBasicTier) {
+            this._addFlashEffect();
+        }
 
         // Create main shape particles with size variation
         for (let i = 0; i < particleCount; i++) {
@@ -624,13 +629,25 @@ class Firework {
             this.showText = false;
         }, 10000); // Show text for 10 seconds
 
-        // Add multiple layers of sparkle effects for more magical feel
-        this._addSparkleEffect();
-        
-        // Add trailing sparkles with delay for cascading effect
-        setTimeout(() => {
-            this._addTrailingSparkles();
-        }, 200);
+        // Premium tier gets multiple layers of sparkle effects for more magical feel
+        if (!isBasicTier) {
+            this._addSparkleEffect();
+            
+            // Add trailing sparkles with delay for cascading effect
+            setTimeout(() => {
+                this._addTrailingSparkles();
+            }, 200);
+        }
+    }
+
+    /**
+     * Determines if this firework is basic tier (simple effects)
+     * @private
+     * @returns {boolean} True if basic tier (heart, circle, star), false if premium tier
+     */
+    _isBasicTierFirework() {
+        const basicTierTypes = ['heart', 'circle', 'star'];
+        return basicTierTypes.includes(this.fireworkType);
     }
 
     /**
