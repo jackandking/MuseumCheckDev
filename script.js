@@ -3374,6 +3374,12 @@ class MuseumCheckApp {
     }
 
     async init() {
+        // Check affiliate parameter FIRST - before initializing anything else
+        if (!this.checkAffiliateAccess()) {
+            this.showUnderConstructionMessage();
+            return; // Exit init - don't load any app content
+        }
+        
         await this.initIndexedDB();
         
         // Initialize age selector visual state
@@ -3399,6 +3405,41 @@ class MuseumCheckApp {
         this.initGlobalFireworksWall();
         // Auto-hide age selector after 10 seconds
         this.setupAgeSelectorAutoHide();
+    }
+    
+    /**
+     * Check if affiliate parameter is present in URL
+     * @returns {boolean} - true if affiliate parameter is present, false otherwise
+     */
+    checkAffiliateAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const affiliate = urlParams.get('affiliate');
+        
+        // Allow access only if affiliate parameter is present (any value)
+        return affiliate !== null && affiliate !== '';
+    }
+    
+    /**
+     * Show "under construction" message when no affiliate parameter
+     */
+    showUnderConstructionMessage() {
+        const constructionMessage = document.getElementById('underConstructionMessage');
+        const container = document.querySelector('.container');
+        
+        if (constructionMessage) {
+            constructionMessage.style.display = 'flex';
+        }
+        
+        // Hide main content
+        if (container) {
+            container.style.display = 'none';
+        }
+        
+        // Hide all modals
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
     }
     
     /**

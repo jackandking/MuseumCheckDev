@@ -1,8 +1,10 @@
 /**
  * Affiliate Parameter Tests
  * 
- * Tests for the URL parameter feature to handle affiliate mode (affiliate=DY)
- * which makes checkboxes read-only and hides assessment features.
+ * Tests for the URL parameter requirement - app requires affiliate parameter to show content.
+ * Without affiliate parameter, shows "under construction" message.
+ * With affiliate parameter (any value), shows full app content.
+ * When affiliate=DY specifically, also makes checkboxes read-only and hides assessments.
  */
 
 describe('Affiliate Parameter Feature', () => {
@@ -11,6 +13,14 @@ describe('Affiliate Parameter Feature', () => {
     beforeEach(() => {
         // Setup DOM elements needed for testing
         document.body.innerHTML = `
+            <div id="underConstructionMessage" class="under-construction-message" style="display: none;">
+                <div class="construction-content">
+                    <div class="construction-icon">🏗️</div>
+                    <h1 class="construction-title">网站建设中</h1>
+                    <p class="construction-text">敬请期待</p>
+                </div>
+            </div>
+            
             <div class="container">
                 <div class="stats">
                     <div class="assessment-stats">
@@ -93,8 +103,73 @@ describe('Affiliate Parameter Feature', () => {
         window.location = new URL('http://localhost:8000/');
     });
 
+    describe('Construction Message When No Affiliate Parameter', () => {
+        test('should show construction message when no affiliate parameter', () => {
+            // Mock window.location without affiliate parameter
+            delete window.location;
+            window.location = new URL('http://localhost:8000/');
+            
+            if (museumCheck) {
+                // Manually call init to test it
+                const hasAccess = museumCheck.checkAffiliateAccess();
+                
+                // Should not have access
+                expect(hasAccess).toBe(false);
+            }
+        });
+        
+        test('should hide main content and show construction message', () => {
+            // Mock window.location without affiliate parameter
+            delete window.location;
+            window.location = new URL('http://localhost:8000/');
+            
+            if (museumCheck) {
+                museumCheck.showUnderConstructionMessage();
+                
+                const constructionMessage = document.getElementById('underConstructionMessage');
+                const container = document.querySelector('.container');
+                
+                // Construction message should be visible
+                expect(constructionMessage.style.display).toBe('flex');
+                
+                // Main container should be hidden
+                expect(container.style.display).toBe('none');
+            }
+        });
+    });
+
     describe('URL Parameter Detection', () => {
-        test('should detect affiliate=DY parameter', () => {
+        test('should allow access with affiliate=DY parameter', () => {
+            // Mock window.location with affiliate parameter
+            delete window.location;
+            window.location = new URL('http://localhost:8000/?affiliate=DY');
+            
+            if (museumCheck) {
+                // Check affiliate access
+                const hasAccess = museumCheck.checkAffiliateAccess();
+                
+                // Should have access
+                expect(hasAccess).toBe(true);
+            }
+        });
+        
+        test('should allow access with any affiliate parameter value', () => {
+            const testValues = ['DY', 'TEST', 'WX', 'TT', '123', 'any-value'];
+            
+            testValues.forEach(value => {
+                delete window.location;
+                window.location = new URL(`http://localhost:8000/?affiliate=${value}`);
+                
+                if (museumCheck) {
+                    const hasAccess = museumCheck.checkAffiliateAccess();
+                    
+                    // Should have access with any affiliate value
+                    expect(hasAccess).toBe(true);
+                }
+            });
+        });
+        
+        test('should detect affiliate=DY parameter and enable special mode', () => {
             // Mock window.location with affiliate parameter
             delete window.location;
             window.location = new URL('http://localhost:8000/?affiliate=DY');
@@ -279,57 +354,35 @@ describe('Affiliate Parameter Feature', () => {
             }
         });
         
-        test('should work normally without affiliate parameter', () => {
+        test('should show construction message without affiliate parameter', () => {
             // Mock window.location without affiliate parameter
             delete window.location;
             window.location = new URL('http://localhost:8000/');
             
-            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
-                // Set up some visited museums
-                const testMuseum = MUSEUMS[0];
-                museumCheck.visitedMuseums = [testMuseum.id];
-                museumCheck.filteredMuseums = [testMuseum];
+            if (museumCheck) {
+                // Check affiliate access
+                const hasAccess = museumCheck.checkAffiliateAccess();
                 
-                // Handle URL parameters (should not change anything)
-                museumCheck.handleURLParameters();
-                
-                // Render museums
-                museumCheck.renderMuseums();
-                
-                // Verify readonly mode is not enabled
-                expect(museumCheck.readonlyCheckboxes).toBe(false);
-                
-                // Verify assessments are shown
-                expect(museumCheck.assessmentHidden).toBe(false);
-                expect(document.body.classList.contains('hide-assessments')).toBe(false);
-                
-                // Verify assessment buttons are rendered for visited museums
-                const assessmentButtons = document.querySelectorAll('.assessment-button');
-                expect(assessmentButtons.length).toBeGreaterThan(0);
-                
-                // Verify checkboxes are not disabled
-                const checkboxes = document.querySelectorAll('.visit-checkbox');
-                checkboxes.forEach(checkbox => {
-                    expect(checkbox.disabled).toBe(false);
-                });
+                // Should not have access - will show construction message
+                expect(hasAccess).toBe(false);
             }
         });
     });
 
     describe('Edge Cases', () => {
-        test('should handle empty affiliate parameter value', () => {
+        test('should not allow access with empty affiliate parameter value', () => {
             delete window.location;
             window.location = new URL('http://localhost:8000/?affiliate=');
             
             if (museumCheck) {
-                museumCheck.handleURLParameters();
+                const hasAccess = museumCheck.checkAffiliateAccess();
                 
-                // Empty string should not enable readonly mode
-                expect(museumCheck.readonlyCheckboxes).toBe(false);
+                // Empty string should not grant access
+                expect(hasAccess).toBe(false);
             }
         });
         
-        test('should handle different affiliate values', () => {
+        test('should allow access with different affiliate values but only DY enables readonly', () => {
             const testValues = ['TT', 'WX', 'OTHER', '123'];
             
             testValues.forEach(value => {
@@ -337,14 +390,20 @@ describe('Affiliate Parameter Feature', () => {
                 window.location = new URL(`http://localhost:8000/?affiliate=${value}`);
                 
                 if (museumCheck) {
-                    museumCheck.readonlyCheckboxes = false; // Reset
+                    // Should have access with any non-empty affiliate value
+                    const hasAccess = museumCheck.checkAffiliateAccess();
+                    expect(hasAccess).toBe(true);
+                    
+                    // Reset flags
+                    museumCheck.readonlyCheckboxes = false;
                     museumCheck.assessmentHidden = false;
                     document.body.classList.remove('hide-assessments');
                     
                     museumCheck.handleURLParameters();
                     
-                    // Only 'DY' should enable readonly mode
+                    // Only 'DY' should enable readonly mode (these values should not)
                     expect(museumCheck.readonlyCheckboxes).toBe(false);
+                    expect(museumCheck.assessmentHidden).toBe(false);
                 }
             });
         });
