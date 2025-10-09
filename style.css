@@ -5448,7 +5448,7 @@ main[role="main"] {
 }
 
 .demo-firework-button {
-    margin-top: 20px;
+    margin: 20px auto;
     padding: 12px 24px;
     font-size: 1.1em;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -5458,6 +5458,9 @@ main[role="main"] {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    display: block;
+    width: fit-content;
+    min-width: 200px;
 }
 
 .demo-firework-button:hover {

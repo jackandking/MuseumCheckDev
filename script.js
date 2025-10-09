@@ -3398,6 +3398,9 @@ class MuseumCheckApp {
         this.renderMuseums();
         this.updateStats();
         
+        // Update fireworks button visibility based on available fireworks
+        this.updateFireworksButtonVisibility();
+        
         // Initialize remote fireworks system
         this.initRemoteFireworks();
         
@@ -3547,6 +3550,9 @@ class MuseumCheckApp {
             if (fireworksData && Array.isArray(fireworksData)) {
                 console.log(`Downloaded ${fireworksData.length} remote fireworks`);
                 this.remoteFireworks = fireworksData;
+                
+                // Update fireworks button visibility
+                this.updateFireworksButtonVisibility();
                 
                 // Update fireworks display if modal is open
                 const modal = document.getElementById('fireworksModal');
@@ -4371,6 +4377,9 @@ class MuseumCheckApp {
         this.fireworks.push(firework);
         this.saveFireworks();
         
+        // Update fireworks button visibility
+        this.updateFireworksButtonVisibility();
+        
         // Upload to remote storage for sharing with other users
         RemoteStorage.uploadFirework(fireworkId, firework).catch(error => {
             console.warn('Failed to upload firework to remote storage:', error);
@@ -4388,6 +4397,27 @@ class MuseumCheckApp {
         });
         
         return firework;
+    }
+
+    updateFireworksButtonVisibility() {
+        // Update main fireworks button
+        const fireworksButton = document.getElementById('fireworksButton');
+        if (fireworksButton) {
+            // Show button only when there are fireworks (local or remote)
+            const hasFireworks = this.fireworks.length > 0 || this.remoteFireworks.length > 0;
+            fireworksButton.style.display = hasFireworks ? '' : 'none';
+        }
+        
+        // Update museum-level fireworks buttons
+        const museumFireworksButtons = document.querySelectorAll('.museum-fireworks-button');
+        museumFireworksButtons.forEach(button => {
+            const museumId = button.getAttribute('data-museum');
+            if (museumId) {
+                const museumFireworks = this.getFireworksByMuseum(museumId);
+                // Show button only if this museum has fireworks
+                button.style.display = museumFireworks.length > 0 ? '' : 'none';
+            }
+        });
     }
 
     getFireworksByMuseum(museumId) {
@@ -4586,7 +4616,7 @@ class MuseumCheckApp {
                         <div class="museum-info">
                             <h3>
                                 ${museum.name}
-                                <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙">🎆</button>
+                                <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
@@ -4651,6 +4681,9 @@ class MuseumCheckApp {
             });
 
             this.updateStats();
+            
+            // Update fireworks button visibility for all museum cards
+            this.updateFireworksButtonVisibility();
             
             // If no museums were rendered, show error message
             if (grid.children.length === 0) {
@@ -5894,13 +5927,16 @@ class MuseumCheckApp {
         // Render fireworks list
         const emptyState = document.getElementById('fireworksEmptyState');
         const fireworksList = document.getElementById('fireworksCardsList');
+        const demoButton = document.getElementById('demoFireworkButton');
         
         if (fireworks.length === 0) {
             emptyState.style.display = 'block';
             fireworksList.style.display = 'none';
+            if (demoButton) demoButton.style.display = 'none';
         } else {
             emptyState.style.display = 'none';
             fireworksList.style.display = 'block';
+            if (demoButton) demoButton.style.display = 'block';
             
             // Sort fireworks by timestamp (newest first)
             const sortedFireworks = [...fireworks].sort((a, b) => b.timestamp - a.timestamp);
@@ -9715,6 +9751,8 @@ class MuseumCheckApp {
                 localStorage.removeItem('ageGroup');
                 localStorage.removeItem('assessmentResults');
                 localStorage.removeItem('assessmentProgress'); // Clear assessment progress
+                localStorage.removeItem('fireworks'); // Clear fireworks data
+                localStorage.removeItem('museumCheckFireworks'); // Clear shared fireworks data
                 
                 // Clear IndexedDB data if supported
                 if (this.indexedDBSupported) {
@@ -9726,11 +9764,14 @@ class MuseumCheckApp {
                 this.museumChecklists = {};
                 this.taskPhotos = {};
                 this.currentAgeGroup = '7-12';
+                this.fireworks = []; // Clear fireworks array
+                this.remoteFireworks = []; // Clear remote fireworks
                 
                 // Update UI
                 this.updateStats();
                 this.renderMuseums();
                 this.updateAgeGroupSelector();
+                this.updateFireworksButtonVisibility(); // Update fireworks button visibility
                 
                 // Show success message
                 alert('✅ 所有数据已成功清空！');
