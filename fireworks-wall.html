@@ -249,6 +249,38 @@
             transform: translateX(24px);
         }
 
+        .wechat-qr-code {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .wechat-qr-code img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .wechat-qr-code .qr-label {
+            font-size: 11px;
+            color: #333;
+            margin-top: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .close-button {
                 top: 10px;
@@ -288,6 +320,19 @@
             .settings-modal-content {
                 padding: 20px;
             }
+
+            .wechat-qr-code {
+                bottom: 10px;
+                right: 10px;
+                width: 120px;
+                height: 120px;
+                padding: 8px;
+            }
+
+            .wechat-qr-code .qr-label {
+                font-size: 10px;
+                margin-top: 4px;
+            }
         }
     </style>
 </head>
@@ -315,6 +360,12 @@
     <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
     <button class="close-button" id="closeButton" title="关闭烟花墙">×</button>
 
+    <!-- WeChat QR Code -->
+    <div class="wechat-qr-code" id="wechatQrCode">
+        <img src="MuseumCheck_QRCode_WX.jpg" alt="微信小程序二维码">
+        <div class="qr-label">扫码放烟花</div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-modal-content">
@@ -340,6 +391,12 @@
                 <div class="settings-option">
                     <span class="settings-option-label">烟花文字</span>
                     <div class="settings-toggle active" id="toggleFireworkText">
+                        <div class="settings-toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="settings-option">
+                    <span class="settings-option-label">微信二维码</span>
+                    <div class="settings-toggle active" id="toggleQrCode">
                         <div class="settings-toggle-knob"></div>
                     </div>
                 </div>
@@ -1353,12 +1410,14 @@
         const settingsModalClose = document.getElementById('settingsModalClose');
         const statsOverlay = document.getElementById('statsOverlay');
         const museumNameHeader = document.getElementById('museumNameHeader');
+        const wechatQrCode = document.getElementById('wechatQrCode');
         
         // Settings toggles
         const toggleStats = document.getElementById('toggleStats');
         const toggleFilter = document.getElementById('toggleFilter');
         const toggleFireworkText = document.getElementById('toggleFireworkText');
         const toggleSound = document.getElementById('toggleSound');
+        const toggleQrCode = document.getElementById('toggleQrCode');
         
         // Load settings from localStorage
         const SETTINGS_KEY = 'fireworksWallSettings';
@@ -1366,7 +1425,8 @@
             showStats: true,
             showFilter: true,
             showFireworkText: true,
-            soundEnabled: true
+            soundEnabled: true,
+            showQrCode: true
         };
         
         function loadSettings() {
@@ -1411,6 +1471,10 @@
             
             // Update global flag for sound
             window.soundEnabled = settings.soundEnabled;
+            
+            // Apply QR code visibility
+            wechatQrCode.style.display = settings.showQrCode ? 'flex' : 'none';
+            toggleQrCode.classList.toggle('active', settings.showQrCode);
         }
         
         // Settings modal handlers
@@ -1449,6 +1513,12 @@
         
         toggleSound.addEventListener('click', () => {
             settings.soundEnabled = !settings.soundEnabled;
+            saveSettings();
+            applySettings();
+        });
+        
+        toggleQrCode.addEventListener('click', () => {
+            settings.showQrCode = !settings.showQrCode;
             saveSettings();
             applySettings();
         });
