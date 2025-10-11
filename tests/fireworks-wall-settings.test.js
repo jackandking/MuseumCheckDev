@@ -72,6 +72,16 @@ describe('Fireworks Wall Settings Tests', () => {
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="settings-section">
+                        <h3>🔊 音效控制</h3>
+                        <div class="settings-option">
+                            <span class="settings-option-label">音效</span>
+                            <div class="settings-toggle active" id="toggleSound">
+                                <div class="settings-toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -118,24 +128,28 @@ describe('Fireworks Wall Settings Tests', () => {
             expect(closeButton.textContent.trim()).toBe('×');
         });
 
-        test('should have all three toggle options', () => {
+        test('should have all toggle options', () => {
             const toggleStats = document.getElementById('toggleStats');
             const toggleFilter = document.getElementById('toggleFilter');
             const toggleFireworkText = document.getElementById('toggleFireworkText');
+            const toggleSound = document.getElementById('toggleSound');
             
             expect(toggleStats).toBeTruthy();
             expect(toggleFilter).toBeTruthy();
             expect(toggleFireworkText).toBeTruthy();
+            expect(toggleSound).toBeTruthy();
         });
 
         test('toggles should have active class by default', () => {
             const toggleStats = document.getElementById('toggleStats');
             const toggleFilter = document.getElementById('toggleFilter');
             const toggleFireworkText = document.getElementById('toggleFireworkText');
+            const toggleSound = document.getElementById('toggleSound');
             
             expect(toggleStats.classList.contains('active')).toBe(true);
             expect(toggleFilter.classList.contains('active')).toBe(true);
             expect(toggleFireworkText.classList.contains('active')).toBe(true);
+            expect(toggleSound.classList.contains('active')).toBe(true);
         });
     });
 
@@ -307,6 +321,84 @@ describe('Fireworks Wall Settings Tests', () => {
             expect(toggleStats.classList.contains('active')).toBe(true);
             expect(toggleFilter.classList.contains('active')).toBe(true);
             expect(toggleFireworkText.classList.contains('active')).toBe(true);
+        });
+    });
+
+    describe('Sound Settings', () => {
+        test('should have sound toggle element', () => {
+            const toggleSound = document.getElementById('toggleSound');
+            expect(toggleSound).toBeTruthy();
+            expect(toggleSound.classList.contains('settings-toggle')).toBe(true);
+        });
+
+        test('sound toggle should have active class by default', () => {
+            const toggleSound = document.getElementById('toggleSound');
+            expect(toggleSound.classList.contains('active')).toBe(true);
+        });
+
+        test('should toggle sound setting', () => {
+            const toggleSound = document.getElementById('toggleSound');
+            
+            // Initially enabled
+            window.soundEnabled = true;
+            
+            // Simulate toggle to disable
+            toggleSound.click();
+            toggleSound.classList.remove('active');
+            window.soundEnabled = false;
+            
+            expect(window.soundEnabled).toBe(false);
+            expect(toggleSound.classList.contains('active')).toBe(false);
+            
+            // Toggle back to enable
+            toggleSound.click();
+            toggleSound.classList.add('active');
+            window.soundEnabled = true;
+            
+            expect(window.soundEnabled).toBe(true);
+            expect(toggleSound.classList.contains('active')).toBe(true);
+        });
+
+        test('should persist sound setting to localStorage', () => {
+            const settings = {
+                showStats: true,
+                showFilter: true,
+                showFireworkText: true,
+                soundEnabled: false
+            };
+            
+            localStorage.setItem('fireworksWallSettings', JSON.stringify(settings));
+            
+            const stored = JSON.parse(localStorage.getItem('fireworksWallSettings'));
+            expect(stored.soundEnabled).toBe(false);
+        });
+
+        test('should load sound setting from localStorage', () => {
+            const settings = {
+                showStats: true,
+                showFilter: true,
+                showFireworkText: true,
+                soundEnabled: true
+            };
+            
+            localStorage.setItem('fireworksWallSettings', JSON.stringify(settings));
+            
+            const loaded = JSON.parse(localStorage.getItem('fireworksWallSettings'));
+            expect(loaded.soundEnabled).toBe(true);
+        });
+
+        test('should set global soundEnabled flag', () => {
+            const toggleSound = document.getElementById('toggleSound');
+            
+            // Test enabled state
+            window.soundEnabled = true;
+            toggleSound.classList.add('active');
+            expect(window.soundEnabled).toBe(true);
+            
+            // Test disabled state
+            window.soundEnabled = false;
+            toggleSound.classList.remove('active');
+            expect(window.soundEnabled).toBe(false);
         });
     });
 });

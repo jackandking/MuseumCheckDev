@@ -344,6 +344,16 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="settings-section">
+                <h3>🔊 音效控制</h3>
+                <div class="settings-option">
+                    <span class="settings-option-label">音效</span>
+                    <div class="settings-toggle active" id="toggleSound">
+                        <div class="settings-toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -353,6 +363,49 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let animationId = null;
+
+        // Audio setup
+        let launchSound = null;
+        let explosionSound = null;
+        
+        function initializeAudio() {
+            try {
+                launchSound = new Audio('launch.wav');
+                explosionSound = new Audio('explode.wav');
+                
+                // Set audio properties
+                launchSound.volume = 0.3;
+                explosionSound.volume = 0.5;
+            } catch (error) {
+                console.warn('Error initializing audio:', error);
+            }
+        }
+        
+        function playLaunchSound() {
+            try {
+                if (launchSound && window.soundEnabled !== false) {
+                    launchSound.currentTime = 0;
+                    launchSound.play().catch(error => {
+                        console.warn('Could not play launch sound:', error);
+                    });
+                }
+            } catch (error) {
+                console.warn('Error playing launch sound:', error);
+            }
+        }
+        
+        function playExplosionSound() {
+            try {
+                if (explosionSound && window.soundEnabled !== false) {
+                    explosionSound.currentTime = 0;
+                    explosionSound.play().catch(error => {
+                        console.warn('Could not play explosion sound:', error);
+                    });
+                }
+            } catch (error) {
+                console.warn('Error playing explosion sound:', error);
+            }
+        }
 
         // Fireworks configuration
         const LAUNCH_INTERVAL = 2500; // 2.5 seconds between launches
@@ -893,6 +946,9 @@
                 // Store explosion time for pulsing text effect
                 this.explosionTime = Date.now();
                 
+                // Play explosion sound
+                playExplosionSound();
+                
                 // Determine effect tier based on firework type
                 const isBasicTier = this._isBasicTierFirework();
                 
@@ -1090,6 +1146,9 @@
             
             const firework = new Firework(startX, targetX, targetY, displayText, fireworkType);
             fireworks.push(firework);
+            
+            // Play launch sound
+            playLaunchSound();
 
             updateStats();
         }
@@ -1246,6 +1305,9 @@
         function init() {
             console.log('Initializing fireworks wall...');
             
+            // Initialize audio
+            initializeAudio();
+            
             // Show museum name in header if filtering
             if (filterMuseumName) {
                 const museumNameHeader = document.getElementById('museumNameHeader');
@@ -1296,13 +1358,15 @@
         const toggleStats = document.getElementById('toggleStats');
         const toggleFilter = document.getElementById('toggleFilter');
         const toggleFireworkText = document.getElementById('toggleFireworkText');
+        const toggleSound = document.getElementById('toggleSound');
         
         // Load settings from localStorage
         const SETTINGS_KEY = 'fireworksWallSettings';
         let settings = {
             showStats: true,
             showFilter: true,
-            showFireworkText: true
+            showFireworkText: true,
+            soundEnabled: true
         };
         
         function loadSettings() {
@@ -1341,6 +1405,12 @@
             
             // Update global flag for firework text
             window.showFireworkText = settings.showFireworkText;
+            
+            // Apply sound setting
+            toggleSound.classList.toggle('active', settings.soundEnabled);
+            
+            // Update global flag for sound
+            window.soundEnabled = settings.soundEnabled;
         }
         
         // Settings modal handlers
@@ -1373,6 +1443,12 @@
         
         toggleFireworkText.addEventListener('click', () => {
             settings.showFireworkText = !settings.showFireworkText;
+            saveSettings();
+            applySettings();
+        });
+        
+        toggleSound.addEventListener('click', () => {
+            settings.soundEnabled = !settings.soundEnabled;
             saveSettings();
             applySettings();
         });
