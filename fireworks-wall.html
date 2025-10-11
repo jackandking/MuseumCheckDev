@@ -249,6 +249,68 @@
             transform: translateX(24px);
         }
 
+        .settings-item {
+            margin-bottom: 15px;
+        }
+
+        .settings-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-label {
+            display: block;
+            color: #495057;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .settings-value {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #e8f5e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #c3e6c3;
+        }
+
+        .settings-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .settings-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+            min-height: 38px;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .settings-input::placeholder {
+            color: #999;
+        }
+
+        .settings-hint {
+            font-size: 12px;
+            color: #868e96;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
         .wechat-qr-code {
             position: fixed;
             bottom: 20px;
@@ -372,6 +434,40 @@
             <div class="settings-modal-header">
                 <h2>⚙️ 烟花墙设置</h2>
                 <button class="settings-modal-close" id="settingsModalClose">×</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>👶 孩子信息</h3>
+                <div class="settings-item">
+                    <label class="settings-label" for="childNicknameInput">孩子昵称：</label>
+                    <div class="settings-input-group">
+                        <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="小淘气">
+                    </div>
+                    <div class="settings-hint">最多5个中文字或10个英文字母，输入后自动保存</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>🎆 烟花设置</h3>
+                <div class="settings-item">
+                    <label class="settings-label" for="fireworkTypeSelector">烟花类型：</label>
+                    <div class="settings-input-group">
+                        <select id="fireworkTypeSelector" class="settings-input">
+                            <option value="heart">❤️ 爱心</option>
+                            <option value="circle">⭕ 圆形</option>
+                            <option value="star">⭐ 星形</option>
+                            <option value="diamond">💎 菱形</option>
+                            <option value="spiral">🌀 螺旋</option>
+                            <option value="butterfly">🦋 蝴蝶</option>
+                            <option value="rose">🌹 玫瑰</option>
+                            <option value="sunburst">☀️ 太阳爆发</option>
+                            <option value="cascade">💧 瀑布</option>
+                            <option value="ring">⭕ 光环</option>
+                            <option value="crosshatch">🔲 网格</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">选择烟花绽放的形状，更改后立即生效</div>
+                </div>
             </div>
             
             <div class="settings-section">
@@ -1522,6 +1618,58 @@
             saveSettings();
             applySettings();
         });
+        
+        // Child nickname input handler
+        const childNicknameInput = document.getElementById('childNicknameInput');
+        if (childNicknameInput) {
+            // Load saved nickname
+            try {
+                const savedNickname = localStorage.getItem('childNickname') || '';
+                childNicknameInput.value = savedNickname;
+            } catch (error) {
+                console.error('Error loading child nickname:', error);
+            }
+            
+            // Auto-save on input with debounce
+            let nicknameTimeout;
+            childNicknameInput.addEventListener('input', () => {
+                clearTimeout(nicknameTimeout);
+                nicknameTimeout = setTimeout(() => {
+                    try {
+                        const nickname = childNicknameInput.value.trim();
+                        if (nickname.length <= 10) {
+                            localStorage.setItem('childNickname', nickname);
+                            console.log('Child nickname saved:', nickname);
+                        }
+                    } catch (error) {
+                        console.error('Error saving child nickname:', error);
+                    }
+                }, 500); // 500ms debounce
+            });
+        }
+        
+        // Firework type selector handler
+        const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
+        if (fireworkTypeSelector) {
+            // Load saved firework type
+            try {
+                const savedType = localStorage.getItem('fireworkType') || 'heart';
+                fireworkTypeSelector.value = savedType;
+            } catch (error) {
+                console.error('Error loading firework type:', error);
+            }
+            
+            // Save on change
+            fireworkTypeSelector.addEventListener('change', () => {
+                try {
+                    const selectedType = fireworkTypeSelector.value;
+                    localStorage.setItem('fireworkType', selectedType);
+                    console.log('Firework type saved:', selectedType);
+                } catch (error) {
+                    console.error('Error saving firework type:', error);
+                }
+            });
+        }
         
         // Initialize settings on load
         loadSettings();
