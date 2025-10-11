@@ -3408,6 +3408,8 @@ class MuseumCheckApp {
         this.initGlobalFireworksWall();
         // Auto-hide age selector after 10 seconds
         this.setupAgeSelectorAutoHide();
+        // Show settings hint for new users
+        this.setupSettingsHint();
     }
     
     /**
@@ -3523,6 +3525,58 @@ class MuseumCheckApp {
                 }, 5000);
             }, 500);
         }
+    }
+    
+    /**
+     * Show settings hint for new users
+     * Displays a notification telling users they can modify nickname and age group in settings
+     * Only shown once for first-time users who haven't configured settings yet
+     */
+    setupSettingsHint() {
+        const settingsHint = document.getElementById('settingsHint');
+        
+        if (!settingsHint) {
+            return;
+        }
+        
+        // Check if user is a new user (no settings configured)
+        let hasConfiguredSettings = false;
+        let hasSeenHint = false;
+        
+        try {
+            // User is considered "configured" if they have set a nickname or age group
+            const hasNickname = localStorage.getItem('childNickname');
+            const hasAgeGroup = localStorage.getItem('ageGroup');
+            hasConfiguredSettings = hasNickname || hasAgeGroup;
+            
+            // Check if hint was already shown
+            hasSeenHint = localStorage.getItem('settingsHintShown') === 'true';
+        } catch (error) {
+            console.error('Failed to check settings hint status:', error);
+            return;
+        }
+        
+        // Only show hint for new users who haven't seen it
+        if (hasConfiguredSettings || hasSeenHint) {
+            return;
+        }
+        
+        // Show hint after a short delay (2 seconds) to let user orient
+        setTimeout(() => {
+            settingsHint.classList.add('show');
+            
+            // Mark hint as shown
+            try {
+                localStorage.setItem('settingsHintShown', 'true');
+            } catch (error) {
+                console.error('Failed to save settings hint status:', error);
+            }
+            
+            // Auto-hide hint after 8 seconds
+            setTimeout(() => {
+                settingsHint.classList.remove('show');
+            }, 8000);
+        }, 2000);
     }
     
     /**
