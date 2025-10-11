@@ -5567,6 +5567,7 @@ class MuseumCheckApp {
             return `
                 <div class="checklist-item ${isCompleted ? 'completed' : ''}" data-checklist-key="${checklistKey}" data-item-index="${index}">
                     <input type="checkbox" id="${itemId}" ${isCompleted ? 'checked' : ''} 
+                           ${this.readonlyCheckboxes ? 'disabled' : ''}
                            data-checklist="${checklistKey}" data-index="${index}">
                     <label for="${itemId}" class="checklist-label" data-original-text="${item}">${item}</label>
                     <div class="checklist-controls">

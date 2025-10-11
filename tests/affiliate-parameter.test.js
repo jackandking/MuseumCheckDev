@@ -317,6 +317,107 @@ describe('Affiliate Parameter Feature', () => {
         });
     });
 
+    describe('Checklist Checkbox Readonly Mode', () => {
+        beforeEach(() => {
+            // Add modal content container to DOM
+            const modalContent = document.createElement('div');
+            modalContent.id = 'modalContent';
+            document.body.appendChild(modalContent);
+        });
+        
+        afterEach(() => {
+            const modalContent = document.getElementById('modalContent');
+            if (modalContent) {
+                modalContent.remove();
+            }
+        });
+        
+        test('should render checklist checkboxes with disabled attribute when readonly mode is active', () => {
+            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                // Enable readonly mode
+                museumCheck.readonlyCheckboxes = true;
+                
+                // Get a test museum with checklists
+                const testMuseum = MUSEUMS[0];
+                const parentTasks = testMuseum.checklists.parent['7-12'];
+                
+                // Render checklist
+                const checklistHTML = museumCheck.renderChecklist(testMuseum.id, 'parent', parentTasks);
+                
+                // Insert into modal
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = checklistHTML;
+                
+                // Verify all checklist checkboxes have disabled attribute
+                const checkboxes = modalContent.querySelectorAll('input[type="checkbox"]');
+                expect(checkboxes.length).toBeGreaterThan(0);
+                
+                checkboxes.forEach(checkbox => {
+                    expect(checkbox.disabled).toBe(true);
+                });
+            }
+        });
+        
+        test('should render checklist checkboxes without disabled attribute in normal mode', () => {
+            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                // Ensure readonly mode is disabled
+                museumCheck.readonlyCheckboxes = false;
+                
+                // Get a test museum with checklists
+                const testMuseum = MUSEUMS[0];
+                const childTasks = testMuseum.checklists.child['7-12'];
+                
+                // Render checklist
+                const checklistHTML = museumCheck.renderChecklist(testMuseum.id, 'child', childTasks);
+                
+                // Insert into modal
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = checklistHTML;
+                
+                // Verify checkboxes do not have disabled attribute
+                const checkboxes = modalContent.querySelectorAll('input[type="checkbox"]');
+                expect(checkboxes.length).toBeGreaterThan(0);
+                
+                checkboxes.forEach(checkbox => {
+                    expect(checkbox.disabled).toBe(false);
+                });
+            }
+        });
+        
+        test('should preserve checked state in readonly mode for checklist items', () => {
+            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                // Enable readonly mode
+                museumCheck.readonlyCheckboxes = true;
+                
+                // Get a test museum
+                const testMuseum = MUSEUMS[0];
+                const checklistKey = `${testMuseum.id}-parent-7-12`;
+                
+                // Mark some items as completed
+                museumCheck.museumChecklists[checklistKey] = [0, 2];
+                
+                // Render checklist
+                const parentTasks = testMuseum.checklists.parent['7-12'];
+                const checklistHTML = museumCheck.renderChecklist(testMuseum.id, 'parent', parentTasks);
+                
+                // Insert into modal
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = checklistHTML;
+                
+                // Verify checkboxes are checked and disabled
+                const checkboxes = modalContent.querySelectorAll('input[type="checkbox"]');
+                expect(checkboxes.length).toBeGreaterThan(0);
+                
+                checkboxes.forEach((checkbox, index) => {
+                    expect(checkbox.disabled).toBe(true);
+                    if ([0, 2].includes(index)) {
+                        expect(checkbox.checked).toBe(true);
+                    }
+                });
+            }
+        });
+    });
+
     describe('Complete Integration Test', () => {
         test('should apply all affiliate=DY changes when URL parameter is set', () => {
             // Mock window.location with affiliate parameter
