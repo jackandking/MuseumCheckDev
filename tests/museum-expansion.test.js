@@ -3,6 +3,7 @@
  * After v4.7.0: Museum count reduced from 302 to 257 high-quality unique museums
  * After adding Huzhou Science and Technology Museum: 258 museums
  * After adding Li Shutong Memorial Hall (Pinghu): 259 museums
+ * After adding Zhaoyuan Hengli Clock Museum: 260 museums
  */
 
 const fs = require('fs');
@@ -23,12 +24,12 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         }
     });
 
-    test('should have exactly 259 high-quality museums after deduplication', () => {
+    test('should have exactly 260 high-quality museums after deduplication', () => {
         // Count museum names within the MUSEUMS array (this is what users see)
         const museumsSection = scriptContent.match(/const MUSEUMS = \[([\s\S]*?)\];/)[1];
         const museumNames = museumsSection.match(/name: '[^']*'/g);
         expect(museumNames).not.toBeNull();
-        expect(museumNames.length).toBe(259);
+        expect(museumNames.length).toBe(260);
     });
 
     test('should have no duplicate museum names or IDs', () => {
@@ -47,9 +48,9 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         const uniqueIds = [...new Set(ids)];
         expect(uniqueIds.length).toBe(ids.length); // No duplicates
         
-        // Should have exactly 259 unique museums
-        expect(uniqueNames.length).toBe(259);
-        expect(uniqueIds.length).toBe(259);
+        // Should have exactly 260 unique museums
+        expect(uniqueNames.length).toBe(260);
+        expect(uniqueIds.length).toBe(260);
     });
 
 
@@ -62,11 +63,11 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         const descriptionCount = museumsSection.match(/description: '[^']*'/g)?.length || 0;
         const tagsCount = museumsSection.match(/tags: \[/g)?.length || 0;
         
-        // Should have exactly 259 entries of each type (no missing fields)
-        expect(nameCount).toBe(259);
-        expect(locationCount).toBe(259);
-        expect(descriptionCount).toBe(259);
-        expect(tagsCount).toBe(259);
+        // Should have exactly 260 entries of each type (no missing fields)
+        expect(nameCount).toBe(260);
+        expect(locationCount).toBe(260);
+        expect(descriptionCount).toBe(260);
+        expect(tagsCount).toBe(260);
     });
 
     test('should have Chinese content for all museums', () => {
@@ -77,8 +78,8 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         
         expect(chineseNameMatches).not.toBeNull();
         expect(chineseLocationMatches).not.toBeNull();
-        expect(chineseNameMatches.length).toBe(259);
-        expect(chineseLocationMatches.length).toBe(259);
+        expect(chineseNameMatches.length).toBe(260);
+        expect(chineseLocationMatches.length).toBe(260);
     });
 
     test('should have complete checklists for all age groups', () => {
@@ -89,10 +90,10 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         const ageGroup1318Count = museumsSection.match(/'13-18': \[/g)?.length || 0;
         
         // Each museum should have 2 checklists (parent + child) × 3 age groups = 6 entries per museum
-        // Should have exactly 1554 entries for 259 museums (259 × 6 = 1554)
-        expect(ageGroup36Count).toBe(518); // 259 × 2 (parent + child)
-        expect(ageGroup712Count).toBe(518); // 259 × 2 (parent + child)
-        expect(ageGroup1318Count).toBe(518); // 259 × 2 (parent + child)
+        // Should have exactly 1560 entries for 260 museums (260 × 6 = 1560)
+        expect(ageGroup36Count).toBe(520); // 260 × 2 (parent + child)
+        expect(ageGroup712Count).toBe(520); // 260 × 2 (parent + child)
+        expect(ageGroup1318Count).toBe(520); // 260 × 2 (parent + child)
     });
 
     test('should maintain diverse geographic coverage', () => {
@@ -136,6 +137,6 @@ describe('Museum Data Quality After Systematic Deduplication', () => {
         // All entries should be properly structured
         const museumObjects = museumsSection.match(/{\s*id:/g);
         expect(museumObjects).not.toBeNull();
-        expect(museumObjects.length).toBe(259);
+        expect(museumObjects.length).toBe(260);
     });
 });
