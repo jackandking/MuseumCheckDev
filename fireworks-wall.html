@@ -595,6 +595,28 @@
             document.title = `${filterMuseumName} - 烟花墙`;
         }
 
+        // Function to update QR code based on museum filter
+        function updateQrCode() {
+            const wechatQrCodeImg = document.querySelector('#wechatQrCode img');
+            const qrLabel = document.querySelector('#wechatQrCode .qr-label');
+            
+            if (filterMuseumId && wechatQrCodeImg && qrLabel) {
+                // Use museum-specific QR code for specific museums
+                const museumQrCodes = {
+                    'forbidden-city': 'MuseumCheck_QRCode_ForbiddenCity.png'
+                };
+                
+                if (museumQrCodes[filterMuseumId]) {
+                    wechatQrCodeImg.src = museumQrCodes[filterMuseumId];
+                    wechatQrCodeImg.alt = `${filterMuseumName}打卡二维码`;
+                    qrLabel.textContent = '扫码打卡';
+                }
+            }
+        }
+
+        // Update QR code on page load
+        window.addEventListener('DOMContentLoaded', updateQrCode);
+
         // Set canvas size
         function setCanvasSize() {
             canvas.width = window.innerWidth;
