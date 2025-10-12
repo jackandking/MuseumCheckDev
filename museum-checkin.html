@@ -44,7 +44,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .support-button {
+        .settings-button {
             width: 44px;
             height: 44px;
             background: white;
@@ -386,6 +386,78 @@
         .edit-mode-indicator.show {
             display: block;
         }
+
+        /* Settings Modal Styles */
+        .settings-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .settings-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .settings-value {
+            color: #764ba2;
+            font-weight: 500;
+        }
+
+        .settings-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .settings-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .settings-input::placeholder {
+            color: #adb5bd;
+        }
+
+        .settings-hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .settings-content {
+            max-width: 600px;
+        }
     </style>
 </head>
 <body>
@@ -395,7 +467,7 @@
 
     <div class="header">
         <button class="menu-button" id="menuButton" title="菜单">☰</button>
-        <button class="support-button" id="supportButton" title="客服支持">🎧</button>
+        <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
     </div>
 
     <h1 class="title">孩子任务</h1>
@@ -452,6 +524,41 @@
                 <button class="button button-primary" id="viewAssessment">亲子关系测评</button>
                 <button class="button button-secondary" id="viewFireworks">查看烟花墙</button>
                 <button class="button button-secondary" id="backToHome">返回主页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings modal -->
+    <div class="modal settings-modal" id="settingsModal">
+        <div class="modal-content settings-content">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙️ 设置</h2>
+                <button class="close-button" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-section">
+                <h3>👶 孩子信息</h3>
+                <div class="settings-item">
+                    <label class="settings-label" for="childNicknameInput">孩子昵称：</label>
+                    <div class="settings-input-group">
+                        <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="小淘气">
+                    </div>
+                    <div class="settings-hint">最多5个中文字或10个英文字母，输入后自动保存</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label">当前年龄组：</label>
+                    <span class="settings-value" id="currentAgeGroupDisplay">-</span>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="ageGroupSelector">更改年龄组：</label>
+                    <div class="settings-input-group">
+                        <select id="ageGroupSelector" class="settings-input">
+                            <option value="3-6">3-6岁 (学龄前)</option>
+                            <option value="7-12">7-12岁 (小学)</option>
+                            <option value="13-18">13-18岁 (中学)</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">更改后将重新加载页面以应用新的年龄组设置</div>
+                </div>
             </div>
         </div>
     </div>
@@ -804,10 +911,45 @@
                 document.getElementById('menuModal').classList.remove('show');
             };
 
-            // Support button
-            document.getElementById('supportButton').onclick = () => {
-                alert('客服功能开发中，敬请期待！');
+            // Settings button
+            document.getElementById('settingsButton').onclick = () => {
+                openSettings();
             };
+
+            document.getElementById('closeSettings').onclick = () => {
+                document.getElementById('settingsModal').classList.remove('show');
+            };
+
+            // Click outside modal to close
+            document.getElementById('settingsModal').onclick = (e) => {
+                if (e.target.id === 'settingsModal') {
+                    document.getElementById('settingsModal').classList.remove('show');
+                }
+            };
+
+            // Auto-save nickname on blur
+            const nicknameInput = document.getElementById('childNicknameInput');
+            if (nicknameInput) {
+                nicknameInput.addEventListener('blur', () => {
+                    const nickname = nicknameInput.value.trim();
+                    if (nickname) {
+                        saveChildNickname(nickname);
+                    }
+                });
+            }
+
+            // Handle age group change
+            const ageGroupSelector = document.getElementById('ageGroupSelector');
+            if (ageGroupSelector) {
+                ageGroupSelector.addEventListener('change', (e) => {
+                    const newAgeGroup = e.target.value;
+                    saveAgeGroup(newAgeGroup);
+                    // Reload page with new age group
+                    const url = new URL(window.location);
+                    url.searchParams.set('age', newAgeGroup);
+                    window.location.href = url.toString();
+                });
+            }
 
             // Menu actions
             document.getElementById('viewParentTasks').onclick = () => {
@@ -873,6 +1015,67 @@
             .catch(error => {
                 console.error('Error saving tasks:', error);
             });
+        }
+
+        // Settings management functions
+        function loadChildNickname() {
+            try {
+                const saved = localStorage.getItem('childNickname');
+                return saved || '小淘气';
+            } catch (error) {
+                console.error('Failed to load child nickname:', error);
+                return '小淘气';
+            }
+        }
+
+        function saveChildNickname(nickname) {
+            try {
+                if (!nickname || nickname.trim() === '') {
+                    return { success: false, message: '昵称不能为空' };
+                }
+                
+                localStorage.setItem('childNickname', nickname.trim());
+                return { success: true, message: '昵称保存成功！' };
+            } catch (error) {
+                console.error('Failed to save child nickname:', error);
+                return { success: false, message: '保存失败，请重试' };
+            }
+        }
+
+        function saveAgeGroup(ageGroup) {
+            try {
+                localStorage.setItem('selectedAgeGroup', ageGroup);
+                return { success: true };
+            } catch (error) {
+                console.error('Failed to save age group:', error);
+                return { success: false };
+            }
+        }
+
+        function openSettings() {
+            // Load current settings
+            const nickname = loadChildNickname();
+            const nicknameInput = document.getElementById('childNicknameInput');
+            if (nicknameInput) {
+                nicknameInput.value = nickname;
+            }
+
+            // Display current age group
+            const ageGroupMap = {
+                '3-6': '3-6岁 (学龄前)',
+                '7-12': '7-12岁 (小学)',
+                '13-18': '13-18岁 (中学)'
+            };
+            document.getElementById('currentAgeGroupDisplay').textContent = ageGroupMap[ageGroup] || ageGroup;
+
+            // Set age group selector
+            const ageGroupSelector = document.getElementById('ageGroupSelector');
+            if (ageGroupSelector) {
+                ageGroupSelector.value = ageGroup;
+            }
+
+            // Show modal
+            document.getElementById('settingsModal').classList.add('show');
         }
 
         // Initialize on page load
