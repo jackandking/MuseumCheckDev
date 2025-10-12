@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孩子任务 - 博物馆打卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #a8d8ea 0%, #7fc8dc 50%, #5ab4d1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .menu-button {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .support-button {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .museum-name {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .task-grid {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 180px;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-card.completed {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .task-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .task-subtitle {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+
+        .completion-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-card.completed .completion-badge {
+            opacity: 1;
+        }
+
+        .add-task-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+
+        .add-task-card:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .progress-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .close-button {
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-detail-icon {
+            font-size: 80px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .task-detail-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .task-detail-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .task-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .button-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .parent-hint {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .parent-hint.show {
+            display: block;
+        }
+
+        .parent-hint-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .parent-hint-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .parent-hint-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #764ba2;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        /* Fireworks celebration */
+        .fireworks-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @media (max-width: 768px) {
+            .task-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .title {
+                font-size: 28px;
+            }
+        }
+
+        /* Edit mode styles */
+        .edit-mode-indicator {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f5576c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1001;
+            display: none;
+        }
+
+        .edit-mode-indicator.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-mode-indicator" id="editModeIndicator">
+        ✏️ 编辑模式
+    </div>
+
+    <div class="header">
+        <button class="menu-button" id="menuButton" title="菜单">☰</button>
+        <button class="support-button" id="supportButton" title="客服支持">🎧</button>
+    </div>
+
+    <h1 class="title">孩子任务</h1>
+    <div class="museum-name" id="museumName">加载中...</div>
+
+    <div class="progress-container">
+        <div class="progress-text">
+            已完成 <span id="completedCount">0</span>/<span id="totalCount">0</span> 个任务
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="task-grid" id="taskGrid">
+        <div class="loading">正在加载任务...</div>
+    </div>
+
+    <!-- Task detail modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">任务详情</h2>
+                <button class="close-button" id="closeModal">&times;</button>
+            </div>
+            <div class="task-detail-icon" id="modalIcon"></div>
+            <img id="modalImage" class="task-image" style="display: none;" />
+            <h3 class="task-detail-title" id="modalTaskTitle"></h3>
+            <div class="task-detail-description" id="modalDescription"></div>
+            <div class="action-buttons">
+                <button class="button button-secondary" id="cancelButton">取消</button>
+                <button class="button button-primary" id="completeButton">完成任务 🎉</button>
+            </div>
+            <div class="parent-hint" id="parentHint">
+                <div class="parent-hint-title">💡 给家长的提示</div>
+                <div class="parent-hint-text">
+                    孩子完成任务很棒！想让博物馆之旅更有意义吗？
+                    <br>查看<a href="#" class="parent-hint-link" id="parentTasksLink">家长任务清单</a>，
+                    了解如何通过参观增进亲子关系。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu modal -->
+    <div class="modal" id="menuModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">菜单</h2>
+                <button class="close-button" id="closeMenu">&times;</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="button button-primary" id="viewParentTasks">查看家长任务</button>
+                <button class="button button-primary" id="viewAssessment">亲子关系测评</button>
+                <button class="button button-secondary" id="viewFireworks">查看烟花墙</button>
+                <button class="button button-secondary" id="backToHome">返回主页</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas class="fireworks-overlay" id="fireworksCanvas"></canvas>
+
+    <!-- Load dependencies -->
+    <script src="museums-data.js"></script>
+    <script src="firework.js"></script>
+    
+    <script>
+        // Configuration
+        const REMOTE_STORAGE_CONFIG = {
+            API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
+            FIREWORK_KEY: 'museumcheck-firework',
+            CHECKIN_KEY_PREFIX: 'museumcheck-checkin-'
+        };
+
+        // Get museum ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const museumId = urlParams.get('museum') || 'forbidden-city';
+        const ageGroup = urlParams.get('age') || '7-12';
+        const editMode = urlParams.get('edit') === 'true';
+
+        // State management
+        let currentMuseum = null;
+        let childTasks = [];
+        let completedTasks = new Set();
+        let currentTaskIndex = null;
+
+        // Initialize the application
+        function init() {
+            if (editMode) {
+                document.getElementById('editModeIndicator').classList.add('show');
+            }
+
+            loadMuseumData();
+            setupEventListeners();
+            loadCompletedTasks();
+        }
+
+        // Load museum data
+        function loadMuseumData() {
+            currentMuseum = MUSEUMS.find(m => m.id === museumId);
+            
+            if (!currentMuseum) {
+                document.getElementById('museumName').textContent = '博物馆未找到';
+                document.getElementById('taskGrid').innerHTML = '<div class="loading">未找到该博物馆的信息</div>';
+                return;
+            }
+
+            document.getElementById('museumName').textContent = currentMuseum.name;
+            
+            // Get child tasks for the age group
+            if (currentMuseum.checklists && currentMuseum.checklists.child) {
+                childTasks = currentMuseum.checklists.child[ageGroup] || [];
+            }
+
+            renderTasks();
+            updateProgress();
+        }
+
+        // Render task cards
+        function renderTasks() {
+            const taskGrid = document.getElementById('taskGrid');
+            taskGrid.innerHTML = '';
+
+            if (childTasks.length === 0) {
+                taskGrid.innerHTML = '<div class="loading">暂无任务</div>';
+                return;
+            }
+
+            childTasks.forEach((task, index) => {
+                const card = createTaskCard(task, index);
+                taskGrid.appendChild(card);
+            });
+
+            // Add "add task" card in edit mode
+            if (editMode) {
+                const addCard = document.createElement('div');
+                addCard.className = 'task-card add-task-card';
+                addCard.innerHTML = `
+                    <div class="task-icon">➕</div>
+                    <div class="task-title">添加任务</div>
+                `;
+                addCard.onclick = () => addNewTask();
+                taskGrid.appendChild(addCard);
+            }
+        }
+
+        // Create a task card element
+        function createTaskCard(task, index) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            
+            if (completedTasks.has(index)) {
+                card.classList.add('completed');
+            }
+
+            // Extract icon and title from task string
+            const { icon, title, subtitle } = parseTaskString(task);
+
+            card.innerHTML = `
+                <div class="completion-badge">✓</div>
+                <div class="task-icon">${icon}</div>
+                <div class="task-title">${title}</div>
+                ${subtitle ? `<div class="task-subtitle">${subtitle}</div>` : ''}
+            `;
+
+            card.onclick = () => openTaskDetail(index);
+
+            return card;
+        }
+
+        // Parse task string to extract icon, title, and subtitle
+        function parseTaskString(taskString) {
+            // Default icon
+            let icon = '🎯';
+            
+            // Extract emoji if present at the start
+            const emojiMatch = taskString.match(/^([\u{1F000}-\u{1F9FF}])/u);
+            if (emojiMatch) {
+                icon = emojiMatch[1];
+                taskString = taskString.substring(emojiMatch[1].length).trim();
+            }
+
+            // Extract title and subtitle (split by '：' or ':')
+            const parts = taskString.split(/[：:]/);
+            const title = parts[0].trim();
+            const subtitle = parts.slice(1).join('：').trim();
+
+            return { icon, title, subtitle };
+        }
+
+        // Open task detail modal
+        function openTaskDetail(index) {
+            currentTaskIndex = index;
+            const task = childTasks[index];
+            const { icon, title, subtitle } = parseTaskString(task);
+            const isCompleted = completedTasks.has(index);
+
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTaskTitle').textContent = title;
+            document.getElementById('modalDescription').textContent = subtitle || '完成这个有趣的任务吧！';
+            
+            // Show/hide complete button based on completion status
+            const completeButton = document.getElementById('completeButton');
+            if (isCompleted) {
+                completeButton.textContent = '已完成 ✓';
+                completeButton.disabled = true;
+                completeButton.style.opacity = '0.6';
+            } else {
+                completeButton.textContent = '完成任务 🎉';
+                completeButton.disabled = false;
+                completeButton.style.opacity = '1';
+            }
+
+            // Show parent hint if this is the 2nd or 3rd completed task
+            if (completedTasks.size >= 1 && completedTasks.size <= 2 && !isCompleted) {
+                document.getElementById('parentHint').classList.add('show');
+            } else {
+                document.getElementById('parentHint').classList.remove('show');
+            }
+
+            document.getElementById('taskModal').classList.add('show');
+        }
+
+        // Complete a task
+        function completeTask() {
+            if (currentTaskIndex === null) return;
+
+            completedTasks.add(currentTaskIndex);
+            saveCompletedTasks();
+            
+            // Close modal
+            document.getElementById('taskModal').classList.remove('show');
+            
+            // Show fireworks celebration
+            celebrateWithFireworks();
+            
+            // Re-render tasks
+            renderTasks();
+            updateProgress();
+
+            // Upload firework to remote
+            uploadFireworkEvent(currentTaskIndex);
+        }
+
+        // Celebrate with fireworks animation
+        function celebrateWithFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Create a simple firework celebration
+            const firework = new Firework(
+                canvas.width / 2,
+                canvas.height,
+                canvas.width / 2,
+                canvas.height / 3,
+                '#FF6B9D'
+            );
+
+            let particles = [];
+            
+            function explode() {
+                const colors = ['#FF6B9D', '#C44569', '#F8B500', '#54A0FF', '#5F27CD'];
+                for (let i = 0; i < 50; i++) {
+                    particles.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 3,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                particles = particles.filter(p => p.life > 0);
+                particles.forEach(p => {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, 3, 3);
+                    
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2;
+                    p.life -= 0.02;
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            explode();
+            animate();
+
+            // Play sound if available
+            if (typeof playFireworkSound === 'function') {
+                playFireworkSound();
+            }
+        }
+
+        // Upload firework event to remote storage
+        function uploadFireworkEvent(taskIndex) {
+            const task = childTasks[taskIndex];
+            const { title } = parseTaskString(task);
+            
+            const fireworkData = {
+                id: `${museumId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                museumId: museumId,
+                museumName: currentMuseum.name,
+                taskContent: task,
+                taskName: title,
+                childNickname: '小朋友',
+                timestamp: Date.now(),
+                ageGroup: ageGroup
+            };
+
+            // Save to local storage
+            const localFireworks = JSON.parse(localStorage.getItem('museumCheckFireworks') || '[]');
+            localFireworks.push(fireworkData);
+            localStorage.setItem('museumCheckFireworks', JSON.stringify(localFireworks));
+
+            // Upload to remote storage
+            uploadToRemoteStorage(fireworkData);
+        }
+
+        // Upload to remote KV store
+        function uploadToRemoteStorage(fireworkData) {
+            const url = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
+            const key = REMOTE_STORAGE_CONFIG.FIREWORK_KEY;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key: key,
+                    sortKey: fireworkData.id,
+                    value: JSON.stringify(fireworkData),
+                    ttl: 3600
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Firework uploaded successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error uploading firework:', error);
+            });
+        }
+
+        // Update progress display
+        function updateProgress() {
+            const completed = completedTasks.size;
+            const total = childTasks.length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        // Save completed tasks to local storage
+        function saveCompletedTasks() {
+            const key = `museumCheckin_${museumId}_${ageGroup}`;
+            localStorage.setItem(key, JSON.stringify([...completedTasks]));
+        }
+
+        // Load completed tasks from local storage
+        function loadCompletedTasks() {
+            const key = `museumCheckin_${museumId}_${ageGroup}`;
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                completedTasks = new Set(JSON.parse(saved));
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Close modal buttons
+            document.getElementById('closeModal').onclick = () => {
+                document.getElementById('taskModal').classList.remove('show');
+            };
+
+            document.getElementById('cancelButton').onclick = () => {
+                document.getElementById('taskModal').classList.remove('show');
+            };
+
+            document.getElementById('completeButton').onclick = completeTask;
+
+            // Menu button
+            document.getElementById('menuButton').onclick = () => {
+                document.getElementById('menuModal').classList.add('show');
+            };
+
+            document.getElementById('closeMenu').onclick = () => {
+                document.getElementById('menuModal').classList.remove('show');
+            };
+
+            // Support button
+            document.getElementById('supportButton').onclick = () => {
+                alert('客服功能开发中，敬请期待！');
+            };
+
+            // Menu actions
+            document.getElementById('viewParentTasks').onclick = () => {
+                window.location.href = `index.html?museum=${museumId}&focus=parent`;
+            };
+
+            document.getElementById('viewAssessment').onclick = () => {
+                window.location.href = `index.html?assessment=true`;
+            };
+
+            document.getElementById('viewFireworks').onclick = () => {
+                window.location.href = `fireworks-wall.html?museum=${museumId}`;
+            };
+
+            document.getElementById('backToHome').onclick = () => {
+                window.location.href = 'index.html';
+            };
+
+            document.getElementById('parentTasksLink').onclick = (e) => {
+                e.preventDefault();
+                window.location.href = `index.html?museum=${museumId}&focus=parent`;
+            };
+
+            // Close modals on background click
+            window.onclick = (event) => {
+                if (event.target.classList.contains('modal')) {
+                    event.target.classList.remove('show');
+                }
+            };
+        }
+
+        // Add new task (edit mode)
+        function addNewTask() {
+            const taskText = prompt('请输入新任务内容（格式：🎯 任务名称：任务描述）');
+            if (taskText && taskText.trim()) {
+                childTasks.push(taskText.trim());
+                saveTasksToRemote();
+                renderTasks();
+                updateProgress();
+            }
+        }
+
+        // Save tasks to remote storage (edit mode)
+        function saveTasksToRemote() {
+            const url = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
+            const key = `${REMOTE_STORAGE_CONFIG.CHECKIN_KEY_PREFIX}${museumId}_${ageGroup}`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key: key,
+                    sortKey: 'tasks',
+                    value: JSON.stringify(childTasks)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Tasks saved successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error saving tasks:', error);
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
