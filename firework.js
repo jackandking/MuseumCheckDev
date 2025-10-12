@@ -877,6 +877,7 @@ let ctx;
 let particles = [];
 let currentTextIndex = 0;
 let textY;
+let lastClickTime = 0; // Track last click time for throttling
 
 /**
  * Application Initialization
@@ -978,6 +979,25 @@ function setupEventHandlers() {
  * @param {MouseEvent} e - The click event
  */
 async function handleCanvasClick(e) {
+    // Load firework launch interval from localStorage (default: 1000ms = 1 second)
+    let launchInterval = 1000;
+    try {
+        const saved = localStorage.getItem('fireworkLaunchInterval');
+        if (saved) {
+            launchInterval = parseInt(saved, 10);
+        }
+    } catch (error) {
+        console.warn('Could not load firework launch interval, using default:', error);
+    }
+    
+    // Throttle clicks based on the configured interval
+    const currentTime = Date.now();
+    if (currentTime - lastClickTime < launchInterval) {
+        // Too soon, ignore this click
+        return;
+    }
+    lastClickTime = currentTime;
+    
     const startX = canvas.width * Math.random();
     const currentCity = window.currentCity || '未知城市';
     
