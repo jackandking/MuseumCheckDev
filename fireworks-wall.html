@@ -1500,6 +1500,60 @@
             }, 100);
         });
 
+        // Canvas click handler - allow users to launch fireworks by clicking
+        let lastClickTime = 0;
+        canvas.addEventListener('click', (e) => {
+            // Throttle clicks based on launch interval to prevent rapid clicking
+            const currentTime = Date.now();
+            if (currentTime - lastClickTime < LAUNCH_INTERVAL) {
+                return; // Too soon, ignore this click
+            }
+            lastClickTime = currentTime;
+            
+            // Get child nickname from localStorage
+            let childNickname = '小淘气'; // Default nickname
+            try {
+                const savedNickname = localStorage.getItem('childNickname');
+                if (savedNickname && savedNickname.trim()) {
+                    childNickname = savedNickname.trim();
+                }
+            } catch (error) {
+                console.error('Error loading child nickname:', error);
+            }
+            
+            // Determine display text based on viewing context
+            let displayText;
+            if (filterMuseumId) {
+                // Museum-specific fireworks wall: "{nickname}打卡{museum name}"
+                displayText = `${childNickname}打卡${filterMuseumName || '博物馆'}`;
+            } else {
+                // Total fireworks wall: "大家好，我是{nickname}"
+                displayText = `大家好，我是${childNickname}`;
+            }
+            
+            // Get firework type from localStorage
+            let fireworkType = 'heart'; // Default type
+            try {
+                const savedType = localStorage.getItem('fireworkType');
+                if (savedType) {
+                    fireworkType = savedType;
+                }
+            } catch (error) {
+                console.error('Error loading firework type:', error);
+            }
+            
+            // Launch firework at click position
+            const startX = canvas.width * Math.random();
+            const targetX = e.clientX;
+            const targetY = e.clientY;
+            
+            const firework = new Firework(startX, targetX, targetY, displayText, fireworkType);
+            fireworks.push(firework);
+            
+            // Play launch sound
+            playLaunchSound();
+        });
+
         // Settings functionality
         const settingsButton = document.getElementById('settingsButton');
         const settingsModal = document.getElementById('settingsModal');
