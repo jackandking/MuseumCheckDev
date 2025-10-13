@@ -504,4 +504,147 @@ describe('Affiliate Parameter Feature', () => {
             });
         });
     });
+
+    describe('Museum Modal Blocking for Douyin', () => {
+        beforeEach(() => {
+            // Add museum modal to DOM
+            const modal = document.createElement('div');
+            modal.id = 'museumModal';
+            modal.className = 'hidden';
+            
+            const modalContent = document.createElement('div');
+            modalContent.id = 'modalContent';
+            modal.appendChild(modalContent);
+            
+            const modalTitle = document.createElement('h2');
+            modalTitle.id = 'modalTitle';
+            modal.appendChild(modalTitle);
+            
+            document.body.appendChild(modal);
+        });
+        
+        afterEach(() => {
+            const modal = document.getElementById('museumModal');
+            if (modal) {
+                modal.remove();
+            }
+        });
+        
+        test('should block museum modal from opening when affiliate=DY', () => {
+            // Mock window.location with affiliate=DY
+            delete window.location;
+            window.location = new URL('http://localhost:8000/?affiliate=DY');
+            
+            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                // Handle URL parameters to set Douyin mode
+                museumCheck.handleURLParameters();
+                
+                // Verify Douyin affiliate flag is set
+                expect(museumCheck.isDouyinAffiliate).toBe(true);
+                
+                const modal = document.getElementById('museumModal');
+                const testMuseum = MUSEUMS[0];
+                
+                // Ensure modal is hidden initially
+                modal.classList.add('hidden');
+                
+                // Try to open museum modal
+                museumCheck.openMuseumModal(testMuseum);
+                
+                // Modal should remain hidden (not opened)
+                expect(modal.classList.contains('hidden')).toBe(true);
+            }
+        });
+        
+        test('should allow museum modal to open without affiliate parameter', () => {
+            // Mock window.location without affiliate parameter
+            delete window.location;
+            window.location = new URL('http://localhost:8000/');
+            
+            if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                // Handle URL parameters
+                museumCheck.handleURLParameters();
+                
+                // Verify Douyin affiliate flag is not set
+                expect(museumCheck.isDouyinAffiliate).toBe(false);
+                
+                const modal = document.getElementById('museumModal');
+                const testMuseum = MUSEUMS[0];
+                
+                // Ensure modal is hidden initially
+                modal.classList.add('hidden');
+                
+                // Try to open museum modal
+                museumCheck.openMuseumModal(testMuseum);
+                
+                // Modal should be opened (hidden class removed)
+                expect(modal.classList.contains('hidden')).toBe(false);
+            }
+        });
+        
+        test('should allow museum modal to open with non-DY affiliate values', () => {
+            const testValues = ['TT', 'WX', 'OTHER', '123'];
+            
+            testValues.forEach(value => {
+                // Mock window.location with different affiliate values
+                delete window.location;
+                window.location = new URL(`http://localhost:8000/?affiliate=${value}`);
+                
+                if (museumCheck && MUSEUMS && MUSEUMS.length > 0) {
+                    // Reset Douyin flag
+                    museumCheck.isDouyinAffiliate = false;
+                    
+                    // Handle URL parameters
+                    museumCheck.handleURLParameters();
+                    
+                    // Verify Douyin affiliate flag is not set for non-DY values
+                    expect(museumCheck.isDouyinAffiliate).toBe(false);
+                    
+                    const modal = document.getElementById('museumModal');
+                    const testMuseum = MUSEUMS[0];
+                    
+                    // Ensure modal is hidden initially
+                    modal.classList.add('hidden');
+                    
+                    // Try to open museum modal
+                    museumCheck.openMuseumModal(testMuseum);
+                    
+                    // Modal should be opened (hidden class removed)
+                    expect(modal.classList.contains('hidden')).toBe(false);
+                }
+            });
+        });
+        
+        test('should set isDouyinAffiliate flag only when affiliate=DY', () => {
+            // Test with DY
+            delete window.location;
+            window.location = new URL('http://localhost:8000/?affiliate=DY');
+            
+            if (museumCheck) {
+                museumCheck.isDouyinAffiliate = false;
+                museumCheck.handleURLParameters();
+                expect(museumCheck.isDouyinAffiliate).toBe(true);
+            }
+            
+            // Test with other value
+            delete window.location;
+            window.location = new URL('http://localhost:8000/?affiliate=WX');
+            
+            if (museumCheck) {
+                museumCheck.isDouyinAffiliate = false;
+                museumCheck.handleURLParameters();
+                expect(museumCheck.isDouyinAffiliate).toBe(false);
+            }
+            
+            // Test without affiliate
+            delete window.location;
+            window.location = new URL('http://localhost:8000/');
+            
+            if (museumCheck) {
+                museumCheck.isDouyinAffiliate = false;
+                museumCheck.handleURLParameters();
+                expect(museumCheck.isDouyinAffiliate).toBe(false);
+            }
+        });
+    });
 });

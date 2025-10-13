@@ -3328,6 +3328,7 @@ class MuseumCheckApp {
         this.filteredMuseums = MUSEUMS;
         this.assessmentHidden = false; // Default to showing assessments
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
+        this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         
         // Initialize specialized modules
         this.modalManager = new ModalManager();
@@ -3651,6 +3652,7 @@ class MuseumCheckApp {
 
         // Handle affiliate parameter - when affiliate=DY, enable read-only mode and hide assessments
         if (affiliate === 'DY') {
+            this.isDouyinAffiliate = true;
             this.readonlyCheckboxes = true;
             this.hideAssessmentFeatures();
         }
@@ -5373,6 +5375,11 @@ class MuseumCheckApp {
     }
 
     openMuseumModal(museum, activeTab = 'parent') {
+        // Block museum modal when in Douyin affiliate mode
+        if (this.isDouyinAffiliate) {
+            return;
+        }
+        
         const modal = document.getElementById('museumModal');
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
