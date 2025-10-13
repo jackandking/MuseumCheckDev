@@ -1,8 +1,8 @@
 /**
  * Affiliate Parameter Tests
  * 
- * Tests for the URL parameter requirement - app requires affiliate parameter to show content.
- * Without affiliate parameter, shows "under construction" message.
+ * Tests for the URL parameter feature - affiliate parameter enables special modes.
+ * App works without affiliate parameter (no longer shows "under construction" message).
  * With affiliate parameter (any value), shows full app content.
  * When affiliate=DY specifically, also makes checkboxes read-only and hides assessments.
  */
@@ -103,37 +103,31 @@ describe('Affiliate Parameter Feature', () => {
         window.location = new URL('http://localhost:8000/');
     });
 
-    describe('Construction Message When No Affiliate Parameter', () => {
-        test('should show construction message when no affiliate parameter', () => {
+    describe('Affiliate Parameter Check (Legacy)', () => {
+        test('checkAffiliateAccess returns false when no affiliate parameter', () => {
             // Mock window.location without affiliate parameter
             delete window.location;
             window.location = new URL('http://localhost:8000/');
             
             if (museumCheck) {
-                // Manually call init to test it
+                // Check affiliate access method still works
                 const hasAccess = museumCheck.checkAffiliateAccess();
                 
-                // Should not have access
+                // Should return false (no affiliate parameter)
                 expect(hasAccess).toBe(false);
             }
         });
         
-        test('should hide main content and show construction message', () => {
-            // Mock window.location without affiliate parameter
+        test('checkAffiliateAccess returns true with affiliate parameter', () => {
+            // Mock window.location with affiliate parameter
             delete window.location;
-            window.location = new URL('http://localhost:8000/');
+            window.location = new URL('http://localhost:8000/?affiliate=DY');
             
             if (museumCheck) {
-                museumCheck.showUnderConstructionMessage();
+                const hasAccess = museumCheck.checkAffiliateAccess();
                 
-                const constructionMessage = document.getElementById('underConstructionMessage');
-                const container = document.querySelector('.container');
-                
-                // Construction message should be visible
-                expect(constructionMessage.style.display).toBe('flex');
-                
-                // Main container should be hidden
-                expect(container.style.display).toBe('none');
+                // Should return true
+                expect(hasAccess).toBe(true);
             }
         });
     });
@@ -455,17 +449,18 @@ describe('Affiliate Parameter Feature', () => {
             }
         });
         
-        test('should show construction message without affiliate parameter', () => {
+        test('should work normally without affiliate parameter', () => {
             // Mock window.location without affiliate parameter
             delete window.location;
             window.location = new URL('http://localhost:8000/');
             
             if (museumCheck) {
-                // Check affiliate access
-                const hasAccess = museumCheck.checkAffiliateAccess();
+                // App should work normally
+                museumCheck.handleURLParameters();
                 
-                // Should not have access - will show construction message
-                expect(hasAccess).toBe(false);
+                // Verify normal mode
+                expect(museumCheck.readonlyCheckboxes).toBe(false);
+                expect(museumCheck.assessmentHidden).toBe(false);
             }
         });
     });

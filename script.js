@@ -3374,12 +3374,6 @@ class MuseumCheckApp {
     }
 
     async init() {
-        // Check affiliate parameter FIRST - before initializing anything else
-        if (!this.checkAffiliateAccess()) {
-            this.showUnderConstructionMessage();
-            return; // Exit init - don't load any app content
-        }
-        
         await this.initIndexedDB();
         
         // Initialize age selector visual state
