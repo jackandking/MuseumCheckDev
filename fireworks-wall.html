@@ -1522,6 +1522,32 @@
             }, 100);
         });
 
+        // Upload click-launched firework to remote storage
+        function uploadClickFireworkToRemote(fireworkData) {
+            const API_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+            const FIREWORK_KEY = 'museumcheck-firework';
+            
+            fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key: FIREWORK_KEY,
+                    sortKey: fireworkData.id,
+                    value: JSON.stringify(fireworkData),
+                    ttl: 3600
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Click firework uploaded successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error uploading click firework:', error);
+            });
+        }
+
         // Canvas click handler - allow users to launch fireworks by clicking
         let lastClickTime = 0;
         canvas.addEventListener('click', (e) => {
@@ -1574,6 +1600,31 @@
             
             // Play launch sound
             playLaunchSound();
+            
+            // Create firework data for storage and remote upload
+            const fireworkData = {
+                id: `click-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                museumId: filterMuseumId || null,
+                museumName: filterMuseumName || null,
+                taskContent: displayText, // Use display text as task content
+                taskName: displayText,
+                childNickname: childNickname,
+                timestamp: Date.now(),
+                fireworkType: fireworkType,
+                isClickLaunched: true // Mark as click-launched to distinguish from task completion
+            };
+            
+            // Save to local storage
+            try {
+                const localFireworks = JSON.parse(localStorage.getItem('museumCheckFireworks') || '[]');
+                localFireworks.push(fireworkData);
+                localStorage.setItem('museumCheckFireworks', JSON.stringify(localFireworks));
+            } catch (error) {
+                console.error('Error saving click firework to localStorage:', error);
+            }
+            
+            // Upload to remote storage
+            uploadClickFireworkToRemote(fireworkData);
         });
 
         // Settings functionality

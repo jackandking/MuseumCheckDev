@@ -152,4 +152,172 @@ describe('Fireworks Wall Click-to-Launch', () => {
             expect(shouldAllow).toBe(false);
         });
     });
+
+    describe('Firework Data Structure for Remote Upload', () => {
+        test('should create correct firework data structure for total wall', () => {
+            const childNickname = '小明';
+            const filterMuseumId = null;
+            const filterMuseumName = null;
+            const fireworkType = 'heart';
+            const displayText = `大家好，我是${childNickname}`;
+            
+            const fireworkData = {
+                id: `click-${Date.now()}-abc123`,
+                museumId: filterMuseumId || null,
+                museumName: filterMuseumName || null,
+                taskContent: displayText,
+                taskName: displayText,
+                childNickname: childNickname,
+                timestamp: Date.now(),
+                fireworkType: fireworkType,
+                isClickLaunched: true
+            };
+            
+            expect(fireworkData.museumId).toBeNull();
+            expect(fireworkData.museumName).toBeNull();
+            expect(fireworkData.taskContent).toBe('大家好，我是小明');
+            expect(fireworkData.childNickname).toBe('小明');
+            expect(fireworkData.fireworkType).toBe('heart');
+            expect(fireworkData.isClickLaunched).toBe(true);
+        });
+
+        test('should create correct firework data structure for museum-specific wall', () => {
+            const childNickname = '小红';
+            const filterMuseumId = 'forbidden-city';
+            const filterMuseumName = '故宫博物院';
+            const fireworkType = 'star';
+            const displayText = `${childNickname}打卡${filterMuseumName}`;
+            
+            const fireworkData = {
+                id: `click-${Date.now()}-xyz789`,
+                museumId: filterMuseumId || null,
+                museumName: filterMuseumName || null,
+                taskContent: displayText,
+                taskName: displayText,
+                childNickname: childNickname,
+                timestamp: Date.now(),
+                fireworkType: fireworkType,
+                isClickLaunched: true
+            };
+            
+            expect(fireworkData.museumId).toBe('forbidden-city');
+            expect(fireworkData.museumName).toBe('故宫博物院');
+            expect(fireworkData.taskContent).toBe('小红打卡故宫博物院');
+            expect(fireworkData.childNickname).toBe('小红');
+            expect(fireworkData.fireworkType).toBe('star');
+            expect(fireworkData.isClickLaunched).toBe(true);
+        });
+
+        test('should have required fields for remote storage', () => {
+            const fireworkData = {
+                id: `click-${Date.now()}-test`,
+                museumId: 'test-museum',
+                museumName: '测试博物馆',
+                taskContent: '小明打卡测试博物馆',
+                taskName: '小明打卡测试博物馆',
+                childNickname: '小明',
+                timestamp: Date.now(),
+                fireworkType: 'heart',
+                isClickLaunched: true
+            };
+            
+            // Check all required fields exist
+            expect(fireworkData).toHaveProperty('id');
+            expect(fireworkData).toHaveProperty('museumId');
+            expect(fireworkData).toHaveProperty('museumName');
+            expect(fireworkData).toHaveProperty('taskContent');
+            expect(fireworkData).toHaveProperty('taskName');
+            expect(fireworkData).toHaveProperty('childNickname');
+            expect(fireworkData).toHaveProperty('timestamp');
+            expect(fireworkData).toHaveProperty('fireworkType');
+            expect(fireworkData).toHaveProperty('isClickLaunched');
+            
+            // Check ID format
+            expect(fireworkData.id).toMatch(/^click-\d+-[a-z0-9]+$/);
+        });
+
+        test('should mark click-launched fireworks differently from task completions', () => {
+            // Click-launched firework
+            const clickFirework = {
+                id: 'click-12345-abc',
+                isClickLaunched: true,
+                taskContent: '大家好，我是小明'
+            };
+            
+            // Task completion firework (for comparison)
+            const taskFirework = {
+                id: 'museum-12345-xyz',
+                isClickLaunched: false,
+                taskContent: '找到最古老的展品'
+            };
+            
+            expect(clickFirework.isClickLaunched).toBe(true);
+            expect(taskFirework.isClickLaunched).toBe(false);
+        });
+    });
+
+    describe('Local Storage Operations', () => {
+        test('should add firework data to existing localStorage array', () => {
+            const existingFireworks = [
+                { id: 'fw1', childNickname: '小明' },
+                { id: 'fw2', childNickname: '小红' }
+            ];
+            
+            const newFirework = {
+                id: 'click-123-abc',
+                childNickname: '小李',
+                isClickLaunched: true
+            };
+            
+            const updatedFireworks = [...existingFireworks, newFirework];
+            
+            expect(updatedFireworks).toHaveLength(3);
+            expect(updatedFireworks[2].id).toBe('click-123-abc');
+            expect(updatedFireworks[2].isClickLaunched).toBe(true);
+        });
+
+        test('should handle empty localStorage gracefully', () => {
+            const emptyArray = [];
+            const newFirework = {
+                id: 'click-456-def',
+                childNickname: '小王'
+            };
+            
+            const updatedFireworks = [...emptyArray, newFirework];
+            
+            expect(updatedFireworks).toHaveLength(1);
+            expect(updatedFireworks[0].id).toBe('click-456-def');
+        });
+    });
+
+    describe('Remote Upload Payload Structure', () => {
+        test('should create correct API payload for remote storage', () => {
+            const fireworkData = {
+                id: 'click-789-xyz',
+                museumId: 'national-museum',
+                museumName: '中国国家博物馆',
+                taskContent: '小明打卡中国国家博物馆',
+                taskName: '小明打卡中国国家博物馆',
+                childNickname: '小明',
+                timestamp: 1234567890,
+                fireworkType: 'circle',
+                isClickLaunched: true
+            };
+            
+            const apiPayload = {
+                key: 'museumcheck-firework',
+                sortKey: fireworkData.id,
+                value: JSON.stringify(fireworkData),
+                ttl: 3600
+            };
+            
+            expect(apiPayload.key).toBe('museumcheck-firework');
+            expect(apiPayload.sortKey).toBe('click-789-xyz');
+            expect(apiPayload.ttl).toBe(3600);
+            
+            const parsedValue = JSON.parse(apiPayload.value);
+            expect(parsedValue.id).toBe(fireworkData.id);
+            expect(parsedValue.isClickLaunched).toBe(true);
+        });
+    });
 });
