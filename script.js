@@ -4244,6 +4244,44 @@ class MuseumCheckApp {
                 setTimeout(() => this.fireworksCanvasSystem.launchFirework('演示', '预览'), 600);
             }
         });
+        
+        // Scroll event listener - toggle compact mode for stats section
+        this.setupScrollCompactMode();
+    }
+    
+    /**
+     * Setup scroll event listener to toggle compact mode for stats section
+     * When user scrolls down, hide progress bar and detailed stats to save space
+     * When user scrolls back to top, show full stats again
+     */
+    setupScrollCompactMode() {
+        const statsElement = document.querySelector('.stats');
+        if (!statsElement) return;
+        
+        let scrollThreshold = 100; // Scroll threshold in pixels
+        let ticking = false; // Throttle scroll events using requestAnimationFrame
+        
+        const handleScroll = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > scrollThreshold) {
+                statsElement.classList.add('scrolled');
+            } else {
+                statsElement.classList.remove('scrolled');
+            }
+            
+            ticking = false;
+        };
+        
+        // Use requestAnimationFrame to throttle scroll events for better performance
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    handleScroll();
+                });
+                ticking = true;
+            }
+        }, { passive: true });
     }
 
     // Search functionality methods

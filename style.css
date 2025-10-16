@@ -357,6 +357,28 @@ header h1 {
     transition: all 0.3s ease;
 }
 
+/* Compact mode when scrolled - hide progress bar and detailed stats */
+.stats.scrolled {
+    padding: 10px 15px;
+}
+
+.stats.scrolled .minecraft-progress-bar {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stats.scrolled .achievement-stats,
+.stats.scrolled .assessment-stats {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
 .stats > span:first-child {
     font-size: 1.8em;
     font-weight: bold;
@@ -1664,6 +1686,15 @@ header h1 {
         border-radius: 8px;
         position: sticky;
         top: 5px;
+    }
+    
+    /* Mobile compact mode when scrolled */
+    .stats.scrolled {
+        padding: 6px 10px;
+    }
+    
+    .stats.scrolled .progress-text {
+        font-size: 1.1em;
     }
     
     .progress-display {
