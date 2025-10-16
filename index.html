@@ -431,6 +431,28 @@
                 </div>
             </div>
             <div class="settings-section">
+                <h3>🔀 博物馆排序</h3>
+                <div class="settings-item">
+                    <label class="settings-label" for="sortBySelector">排序方式：</label>
+                    <div class="settings-input-group">
+                        <select id="sortBySelector" class="settings-input">
+                            <option value="default">默认（综合排序）</option>
+                            <option value="name">名称</option>
+                            <option value="location">地区</option>
+                            <option value="visited">参观状态</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">选择博物馆列表的排序方式，更改后立即生效</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label">综合排序规则：</label>
+                    <div class="settings-hint" style="margin-top: 0;">
+                        默认排序优先级：<br>
+                        1️⃣ 有烟花的博物馆 → 2️⃣ 未参观的博物馆 → 3️⃣ 离你较近的博物馆
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
                 <h3>📊 应用信息</h3>
                 <div class="settings-item">
                     <label class="settings-label">博物馆数量：</label>

@@ -66,7 +66,8 @@ const APP_CONFIG = {
         MUSEUM_CHECKLISTS: 'museumChecklists',
         CURRENT_AGE: 'currentAge',
         ASSESSMENT_HISTORY: 'museumCheckAssessmentHistory',
-        SHARING_STATE: 'museumCheckSharingState'
+        SHARING_STATE: 'museumCheckSharingState',
+        SORT_PREFERENCE: 'museumSortPreference'
     },
     
     AGE_GROUPS: ['3-6', '7-12', '13-18'],   // Supported age groups
@@ -3326,6 +3327,8 @@ class MuseumCheckApp {
         this.db = null;
         this.searchQuery = '';
         this.filteredMuseums = MUSEUMS;
+        this.sortBy = this.loadSortPreference(); // Load sorting preference
+        this.userLocation = null; // Will be set if user grants location permission
         this.assessmentHidden = false; // Default to showing assessments
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
@@ -3390,6 +3393,10 @@ class MuseumCheckApp {
         
         this.setupEventListeners();
         this.handleURLParameters(); // Process URL parameters before rendering
+        
+        // Request user location for better sorting (optional, non-blocking)
+        this.requestUserLocation();
+        
         this.renderMuseums();
         this.updateStats();
         
@@ -4182,6 +4189,25 @@ class MuseumCheckApp {
             });
         }
 
+        // Sort by selector
+        const sortBySelector = document.getElementById('sortBySelector');
+        if (sortBySelector) {
+            sortBySelector.addEventListener('change', () => {
+                const selectedSort = sortBySelector.value;
+                this.sortBy = selectedSort;
+                this.saveSortPreference();
+                
+                // Re-render museums with new sorting
+                this.renderMuseums();
+                
+                // Track sort preference change
+                this.trackEvent('sort_preference_changed', {
+                    'sort_by': selectedSort,
+                    'auto_saved': true
+                });
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -4553,6 +4579,24 @@ class MuseumCheckApp {
         }
     }
 
+    loadSortPreference() {
+        try {
+            const saved = localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.SORT_PREFERENCE);
+            return saved || 'default'; // Default to comprehensive sorting
+        } catch (error) {
+            console.error('Failed to load sort preference:', error);
+            return 'default';
+        }
+    }
+
+    saveSortPreference() {
+        try {
+            localStorage.setItem(APP_CONFIG.LOCAL_STORAGE_KEYS.SORT_PREFERENCE, this.sortBy);
+        } catch (error) {
+            console.error('Failed to save sort preference:', error);
+        }
+    }
+
     loadChildNickname() {
         try {
             const saved = localStorage.getItem('childNickname');
@@ -4695,6 +4739,196 @@ class MuseumCheckApp {
         return { isValid: true };
     }
 
+    // Calculate distance between two coordinates using Haversine formula
+    calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of Earth in kilometers
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c; // Distance in km
+    }
+
+    // Get approximate coordinates for major Chinese cities
+    getCityCoordinates(cityName) {
+        const cityCoords = {
+            '北京': { lat: 39.9042, lon: 116.4074 },
+            '上海': { lat: 31.2304, lon: 121.4737 },
+            '广州': { lat: 23.1291, lon: 113.2644 },
+            '深圳': { lat: 22.5431, lon: 114.0579 },
+            '成都': { lat: 30.5728, lon: 104.0668 },
+            '杭州': { lat: 30.2741, lon: 120.1551 },
+            '重庆': { lat: 29.4316, lon: 106.9123 },
+            '武汉': { lat: 30.5928, lon: 114.3055 },
+            '西安': { lat: 34.3416, lon: 108.9398 },
+            '天津': { lat: 39.3434, lon: 117.3616 },
+            '南京': { lat: 32.0603, lon: 118.7969 },
+            '苏州': { lat: 31.2989, lon: 120.5853 },
+            '长沙': { lat: 28.2282, lon: 112.9388 },
+            '郑州': { lat: 34.7466, lon: 113.6253 },
+            '沈阳': { lat: 41.8057, lon: 123.4328 },
+            '大连': { lat: 38.9140, lon: 121.6147 },
+            '济南': { lat: 36.6512, lon: 117.1209 },
+            '青岛': { lat: 36.0671, lon: 120.3826 },
+            '厦门': { lat: 24.4798, lon: 118.0894 },
+            '福州': { lat: 26.0745, lon: 119.2965 },
+            '昆明': { lat: 25.0406, lon: 102.7123 },
+            '兰州': { lat: 36.0611, lon: 103.8343 },
+            '乌鲁木齐': { lat: 43.8256, lon: 87.6168 },
+            '拉萨': { lat: 29.6520, lon: 91.1722 },
+            '哈尔滨': { lat: 45.8038, lon: 126.5340 },
+            '长春': { lat: 43.8171, lon: 125.3235 },
+            '石家庄': { lat: 38.0428, lon: 114.5149 },
+            '太原': { lat: 37.8706, lon: 112.5489 },
+            '合肥': { lat: 31.8206, lon: 117.2272 },
+            '南昌': { lat: 28.6829, lon: 115.8579 },
+            '贵阳': { lat: 26.6470, lon: 106.6302 },
+            '海口': { lat: 20.0458, lon: 110.1991 },
+            '三亚': { lat: 18.2528, lon: 109.5117 },
+            '银川': { lat: 38.4872, lon: 106.2309 },
+            '西宁': { lat: 36.6171, lon: 101.7782 },
+            '呼和浩特': { lat: 40.8414, lon: 111.7519 }
+        };
+        return cityCoords[cityName] || null;
+    }
+
+    // Get museum distance from user
+    getMuseumDistance(museum) {
+        if (!this.userLocation) {
+            return Infinity; // No user location, place at end
+        }
+        
+        const museumCoords = this.getCityCoordinates(museum.location);
+        if (!museumCoords) {
+            return Infinity; // Unknown city, place at end
+        }
+        
+        return this.calculateDistance(
+            this.userLocation.lat,
+            this.userLocation.lon,
+            museumCoords.lat,
+            museumCoords.lon
+        );
+    }
+
+    // Request user location (optional, non-blocking)
+    requestUserLocation() {
+        // Only request if default sorting is enabled
+        if (this.sortBy !== 'default') {
+            return;
+        }
+        
+        // Check if geolocation is supported
+        if (!navigator.geolocation) {
+            console.log('Geolocation is not supported by this browser.');
+            return;
+        }
+        
+        // Request location silently without blocking UI
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                this.userLocation = {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude
+                };
+                console.log('User location obtained:', this.userLocation);
+                
+                // Re-render museums with location-based sorting if in default mode
+                if (this.sortBy === 'default') {
+                    this.renderMuseums();
+                }
+                
+                // Track location permission granted
+                this.trackEvent('location_permission_granted', {
+                    'latitude': position.coords.latitude,
+                    'longitude': position.coords.longitude
+                });
+            },
+            (error) => {
+                console.log('Location permission denied or unavailable:', error.message);
+                // Don't show any error to user, just continue without location
+                
+                // Track location permission denied
+                this.trackEvent('location_permission_denied', {
+                    'error_code': error.code,
+                    'error_message': error.message
+                });
+            },
+            {
+                enableHighAccuracy: false, // Use coarse location for better performance
+                timeout: 5000, // 5 second timeout
+                maximumAge: 600000 // Accept cached location up to 10 minutes old
+            }
+        );
+    }
+
+    // Check if museum has fireworks
+    hasFireworks(museumId) {
+        const museumFireworks = this.getFireworksByMuseum(museumId);
+        return museumFireworks && museumFireworks.length > 0;
+    }
+
+    // Sort museums based on current sort preference
+    sortMuseums(museums) {
+        const sorted = [...museums]; // Create a copy to avoid mutating original
+        
+        if (this.sortBy === 'default') {
+            // Comprehensive sorting: fireworks > unvisited > distance
+            sorted.sort((a, b) => {
+                // Priority 1: Museums with fireworks first
+                const aHasFireworks = this.hasFireworks(a.id);
+                const bHasFireworks = this.hasFireworks(b.id);
+                if (aHasFireworks !== bHasFireworks) {
+                    return bHasFireworks ? 1 : -1;
+                }
+                
+                // Priority 2: Unvisited museums first
+                const aVisited = this.visitedMuseums.includes(a.id);
+                const bVisited = this.visitedMuseums.includes(b.id);
+                if (aVisited !== bVisited) {
+                    return aVisited ? 1 : -1;
+                }
+                
+                // Priority 3: Closer museums first (if location available)
+                if (this.userLocation) {
+                    const aDist = this.getMuseumDistance(a);
+                    const bDist = this.getMuseumDistance(b);
+                    if (aDist !== bDist) {
+                        return aDist - bDist;
+                    }
+                }
+                
+                // Fallback: alphabetical by name
+                return a.name.localeCompare(b.name, 'zh-CN');
+            });
+        } else if (this.sortBy === 'name') {
+            // Sort by name alphabetically
+            sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+        } else if (this.sortBy === 'location') {
+            // Sort by location, then by name
+            sorted.sort((a, b) => {
+                const locCompare = a.location.localeCompare(b.location, 'zh-CN');
+                if (locCompare !== 0) return locCompare;
+                return a.name.localeCompare(b.name, 'zh-CN');
+            });
+        } else if (this.sortBy === 'visited') {
+            // Sort by visit status (unvisited first), then by name
+            sorted.sort((a, b) => {
+                const aVisited = this.visitedMuseums.includes(a.id);
+                const bVisited = this.visitedMuseums.includes(b.id);
+                if (aVisited !== bVisited) {
+                    return aVisited ? 1 : -1;
+                }
+                return a.name.localeCompare(b.name, 'zh-CN');
+            });
+        }
+        
+        return sorted;
+    }
+
     renderMuseums() {
         try {
             const grid = document.getElementById('museumGrid');
@@ -4707,7 +4941,10 @@ class MuseumCheckApp {
             
             grid.innerHTML = '';
 
-            this.filteredMuseums.forEach(museum => {
+            // Sort museums before rendering
+            const sortedMuseums = this.sortMuseums(this.filteredMuseums);
+
+            sortedMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
                 
                 const card = document.createElement('div');
@@ -5981,6 +6218,12 @@ class MuseumCheckApp {
             const intervalMs = this.loadFireworkLaunchInterval();
             launchIntervalSlider.value = intervalMs;
             this.updateFireworkLaunchIntervalDisplay(intervalMs);
+        }
+        
+        // Update sort by selector
+        const sortBySelector = document.getElementById('sortBySelector');
+        if (sortBySelector) {
+            sortBySelector.value = this.sortBy;
         }
     }
 
