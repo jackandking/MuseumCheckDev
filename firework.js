@@ -118,7 +118,7 @@ class Firework {
      * @param {number} targetX - Target x position for explosion
      * @param {number} targetY - Target y position for explosion
      * @param {string} fireworkString - Text to display with the firework
-     * @param {string} fireworkType - Type of firework shape ('heart', 'circle', 'star')
+     * @param {string} fireworkType - Type of firework shape ('heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly', 'rose', 'sunburst', 'cascade', 'ring', 'crosshatch', 'minecraft')
      */
     constructor(startX, targetX, targetY, fireworkString = 'test', fireworkType = 'heart') {
         // Validate canvas exists
@@ -538,6 +538,69 @@ class Firework {
     }
 
     /**
+     * Generates points in a Minecraft-style blocky/pixelated pattern
+     * @private
+     * @param {number} pointCount - Number of points to generate
+     * @returns {Array<{x: number, y: number}>} Array of Minecraft shape points
+     */
+    _generateMinecraftShape(pointCount) {
+        const minecraftPoints = [];
+        const blockSize = 1.5; // Size of each "block" in the pattern
+        const gridSize = 8; // Number of blocks in each direction from center
+        
+        // Create a blocky explosion pattern with multiple layers
+        // This creates a cubic/blocky feel like Minecraft blocks exploding
+        const layers = 3; // Number of block layers
+        
+        for (let layer = 0; layer < layers; layer++) {
+            const layerRadius = 3 + layer * 2.5; // Expanding layers
+            const blocksInLayer = Math.floor(pointCount / (layers * 4)); // Blocks per layer face
+            
+            // Create blocks on 4 main faces (top, bottom, left, right)
+            for (let i = 0; i < blocksInLayer; i++) {
+                const progress = i / blocksInLayer;
+                const angle = progress * Math.PI * 2;
+                
+                // Create blocky positions (quantized to grid)
+                const rawX = layerRadius * Math.cos(angle);
+                const rawY = layerRadius * Math.sin(angle);
+                
+                // Quantize to block grid for pixelated look
+                const blockX = Math.round(rawX / blockSize) * blockSize;
+                const blockY = Math.round(rawY / blockSize) * blockSize;
+                
+                minecraftPoints.push({x: blockX, y: blockY});
+                
+                // Add some random blocks around each position for texture
+                if (Math.random() > 0.5) {
+                    minecraftPoints.push({
+                        x: blockX + (Math.random() > 0.5 ? blockSize : -blockSize),
+                        y: blockY
+                    });
+                }
+                if (Math.random() > 0.5) {
+                    minecraftPoints.push({
+                        x: blockX,
+                        y: blockY + (Math.random() > 0.5 ? blockSize : -blockSize)
+                    });
+                }
+            }
+        }
+        
+        // Add some central explosion blocks
+        const centralBlocks = 20;
+        for (let i = 0; i < centralBlocks; i++) {
+            const angle = (i / centralBlocks) * Math.PI * 2;
+            const radius = 2 + Math.random() * 2;
+            const x = Math.round((radius * Math.cos(angle)) / blockSize) * blockSize;
+            const y = Math.round((radius * Math.sin(angle)) / blockSize) * blockSize;
+            minecraftPoints.push({x: x, y: y});
+        }
+        
+        return minecraftPoints;
+    }
+
+    /**
      * Gets the shape points based on the selected firework type
      * @private
      * @param {number} pointCount - Number of points to generate
@@ -569,6 +632,8 @@ class Firework {
                 return this._generateRingShape(pointCount);
             case 'crosshatch':
                 return this._generateCrosshatchShape(pointCount);
+            case 'minecraft':
+                return this._generateMinecraftShape(pointCount);
             case 'heart':
             default:
                 return this._generateHeartShape(pointCount);
@@ -600,7 +665,7 @@ class Firework {
         for (let i = 0; i < particleCount; i++) {
             const scale = 0.1 + Math.random() * 0.25;
             const particle = new Particle(this.x, this.y, this.color);
-            const point = shapePoints[i];
+            const point = shapePoints[i % shapePoints.length]; // Use modulo to wrap around if needed
             
             // Scale and randomize the velocity based on shape
             particle.velocity.x = point.x * scale;
