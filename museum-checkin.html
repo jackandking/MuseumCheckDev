@@ -876,16 +876,35 @@
 
         // Save completed tasks to local storage
         function saveCompletedTasks() {
-            const key = `museumCheckin_${museumId}_${ageGroup}`;
-            localStorage.setItem(key, JSON.stringify([...completedTasks]));
+            // Use the same structure as the main app: museumChecklists
+            const checklistKey = `${museumId}-child-${ageGroup}`;
+            const checklistsData = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
+            checklistsData[checklistKey] = [...completedTasks];
+            localStorage.setItem('museumChecklists', JSON.stringify(checklistsData));
+            
+            // Also save to legacy format for backward compatibility (temporary)
+            const legacyKey = `museumCheckin_${museumId}_${ageGroup}`;
+            localStorage.setItem(legacyKey, JSON.stringify([...completedTasks]));
         }
 
         // Load completed tasks from local storage
         function loadCompletedTasks() {
-            const key = `museumCheckin_${museumId}_${ageGroup}`;
-            const saved = localStorage.getItem(key);
-            if (saved) {
-                completedTasks = new Set(JSON.parse(saved));
+            // First try to load from main app's structure
+            const checklistKey = `${museumId}-child-${ageGroup}`;
+            const checklistsData = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
+            
+            if (checklistsData[checklistKey]) {
+                // Load from main app's structure
+                completedTasks = new Set(checklistsData[checklistKey]);
+            } else {
+                // Fallback to legacy format for migration
+                const legacyKey = `museumCheckin_${museumId}_${ageGroup}`;
+                const saved = localStorage.getItem(legacyKey);
+                if (saved) {
+                    completedTasks = new Set(JSON.parse(saved));
+                    // Migrate to new format
+                    saveCompletedTasks();
+                }
             }
         }
 

@@ -10168,6 +10168,16 @@ class MuseumCheckApp {
                 localStorage.removeItem('fireworks'); // Clear fireworks data
                 localStorage.removeItem('museumCheckFireworks'); // Clear shared fireworks data
                 
+                // Clear museum checkin page data (museumCheckin_* keys)
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('museumCheckin_')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
                 // Clear IndexedDB data if supported
                 if (this.indexedDBSupported) {
                     this.clearIndexedDBData();
@@ -10243,6 +10253,10 @@ class MuseumCheckApp {
         if (confirmed) {
             const childKey = `${museumId}-child-${ageGroup}`;
             delete this.museumChecklists[childKey];
+            
+            // Also clear the checkin page data for this museum/age group
+            const checkinKey = `museumCheckin_${museumId}_${ageGroup}`;
+            localStorage.removeItem(checkinKey);
             
             // Save updated data
             this.saveMuseumChecklists();
