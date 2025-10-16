@@ -653,9 +653,46 @@ header h1 {
     transform: translateY(0);
 }
 
+/* Museum check-in button on home page cards */
+.museum-checkin-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(245, 87, 108, 0.3);
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.museum-checkin-button:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(245, 87, 108, 0.4);
+    background: linear-gradient(135deg, #e182ea 0%, #e4465b 100%);
+}
+
+.museum-checkin-button:active {
+    transform: translateY(0);
+}
+
 /* Mobile responsive styles for museum fireworks button */
 @media (max-width: 768px) {
     .museum-fireworks-button {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        margin-left: 6px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .museum-checkin-button {
         padding: 6px 10px;
         font-size: 0.75em;
         margin-left: 6px;
@@ -680,6 +717,14 @@ header h1 {
     }
     
     .museum-fireworks-button {
+        padding: 5px 8px;
+        font-size: 0.7em;
+        margin-left: 4px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .museum-checkin-button {
         padding: 5px 8px;
         font-size: 0.7em;
         margin-left: 4px;

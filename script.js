@@ -4721,6 +4721,7 @@ class MuseumCheckApp {
                             <h3>
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
+                                ${museum.id === 'forbidden-city' ? '<button class="museum-checkin-button" data-museum="' + museum.id + '" title="进入打卡页面">🔗 打卡</button>' : ''}
                                 ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
@@ -4736,7 +4737,8 @@ class MuseumCheckApp {
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
                         !e.target.classList.contains('assessment-button') &&
-                        !e.target.classList.contains('museum-fireworks-button')) {
+                        !e.target.classList.contains('museum-fireworks-button') &&
+                        !e.target.classList.contains('museum-checkin-button')) {
                         this.openMuseumModal(museum);
                     }
                 });
@@ -4778,6 +4780,25 @@ class MuseumCheckApp {
                     assessmentButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.openAssessmentModal(museum.id);
+                    });
+                }
+
+                // Add check-in button event
+                const checkinButton = card.querySelector('.museum-checkin-button');
+                if (checkinButton) {
+                    checkinButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Navigate to museum-checkin.html with museum ID and age group
+                        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+                        const ageGroup = checkedRadio ? checkedRadio.value : this.currentAge;
+                        window.location.href = `museum-checkin.html?museum=${museum.id}&age=${ageGroup}`;
+                        
+                        // Track event
+                        this.trackEvent('museum_checkin_opened', {
+                            'museum_id': museum.id,
+                            'museum_name': museum.name,
+                            'age_group': ageGroup
+                        });
                     });
                 }
 
