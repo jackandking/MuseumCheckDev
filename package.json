@@ -11,13 +11,20 @@
     "validate-data": "node tools/validate-museum-data.js",
     "serve": "python3 -m http.server 8000"
   },
-  "keywords": ["museum", "checklist", "education", "travel", "china"],
+  "keywords": [
+    "museum",
+    "checklist",
+    "education",
+    "travel",
+    "china"
+  ],
   "author": "jackandking",
   "license": "MIT",
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "@jest/globals": "^29.7.0"
+    "qrcode": "^1.5.4"
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -29,6 +36,8 @@
       "script.js",
       "!**/node_modules/**"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ]
   }
 }
