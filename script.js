@@ -4896,6 +4896,9 @@ class MuseumCheckApp {
         document.getElementById('totalCount').textContent = totalCount;
         document.getElementById('visitedPercentage').textContent = percentage;
         
+        // Update Minecraft-style progress bar
+        this.updateMinecraftProgressBar(percentage);
+        
         // Update achievements
         this.updateAchievements(visitedCount);
         
@@ -5061,18 +5064,18 @@ class MuseumCheckApp {
     calculateAchievements(visitedCount) {
         const achievements = [];
         
-        // 🥉 基础层：单馆打卡成就 - 鼓励开始和坚持
+        // 🥉 基础层：单馆打卡成就 - 鼓励开始和坚持 (Minecraft themed)
         const milestones = [
-            { visits: 1, name: '博物馆初心者', emoji: '🌱', description: '踏出博物馆之旅的第一步，开启文化探索之门', level: 'basic' },
-            { visits: 3, name: '文化体验者', emoji: '🌟', description: '连续体验3家博物馆，展现对文化的热爱', level: 'basic' },
-            { visits: 5, name: '探索新手', emoji: '🎯', description: '稳步前进，已探索5家不同的博物馆', level: 'basic' },
-            { visits: 10, name: '文化爱好者', emoji: '📖', description: '深度参与，成为真正的文化爱好者', level: 'basic' },
-            { visits: 15, name: '博物馆达人', emoji: '🎪', description: '持续探索15家博物馆，实现质的飞跃', level: 'intermediate' },
-            { visits: 25, name: '文化探索家', emoji: '🧭', description: '广泛涉猎25家博物馆，视野更加开阔', level: 'intermediate' },
-            { visits: 50, name: '博物馆专家', emoji: '🎓', description: '深度探索50家博物馆，成为行家里手', level: 'intermediate' },
-            { visits: 75, name: '文化大师', emoji: '👑', description: '参观75家博物馆，达到大师级水平', level: 'advanced' },
-            { visits: 100, name: '文化学者', emoji: '📚', description: '百家博物馆巡礼，成为真正的文化学者', level: 'advanced' },
-            { visits: MUSEUM_COUNT, name: '博物馆收藏家', emoji: '💎', description: `完成全部${MUSEUM_COUNT}家博物馆，成就文化收藏家传奇`, level: 'master' }
+            { visits: 1, name: '新手矿工', emoji: '⛏️', description: '挖到第一个博物馆方块！开启文化探索之旅', level: 'basic' },
+            { visits: 3, name: '采集者', emoji: '🪵', description: '收集3个文化方块，开始建造知识基地', level: 'basic' },
+            { visits: 5, name: '建筑学徒', emoji: '🧱', description: '稳步积累5个文化方块，知识之塔初具规模', level: 'basic' },
+            { visits: 10, name: '工匠', emoji: '🔨', description: '收集10个文化方块，成为真正的文化工匠', level: 'basic' },
+            { visits: 15, name: '红石工程师', emoji: '🔴', description: '15个文化方块连接，创造出知识的红石电路', level: 'intermediate' },
+            { visits: 25, name: '探险家', emoji: '🗺️', description: '探索25个文化遗迹，地图越来越完整', level: 'intermediate' },
+            { visits: 50, name: '钻石矿工', emoji: '💎', description: '挖掘50个珍贵的文化钻石，闪耀夺目', level: 'intermediate' },
+            { visits: 75, name: '绿宝石大师', emoji: '💚', description: '收集75颗文化绿宝石，富甲一方', level: 'advanced' },
+            { visits: 100, name: '末影龙挑战者', emoji: '🐉', description: '百馆巡礼，如同击败末影龙般的壮举', level: 'advanced' },
+            { visits: MUSEUM_COUNT, name: '世界建造者', emoji: '🌍', description: `完成全部${MUSEUM_COUNT}个文化方块，建造出完整的知识世界`, level: 'master' }
         ];
         
         // Add achieved milestones
@@ -5108,12 +5111,12 @@ class MuseumCheckApp {
             const visitedMuseums = this.visitedMuseums.map(id => MUSEUMS.find(m => m.id === id)).filter(Boolean);
             const visitedIds = visitedMuseums.map(m => m.id);
             
-            // Famous museum achievements - immediate rewards for visiting top destinations
+            // Famous museum achievements - immediate rewards for visiting top destinations (Minecraft themed)
             const famousMuseums = [
-                { id: 'forbidden-city', name: '紫禁城守护者', emoji: '🏯', description: '深度探索世界文化遗产故宫博物院', level: 'advanced' },
-                { id: 'terracotta-warriors', name: '兵马俑见证者', emoji: '⚔️', description: '亲临世界第八大奇迹秦始皇帝陵博物院', level: 'advanced' },
-                { id: 'national-museum', name: '国家记忆传承者', emoji: '🏛️', description: '在中国国家博物馆感受民族记忆', level: 'advanced' },
-                { id: 'shanghai-museum', name: '艺术品鉴大师', emoji: '🎨', description: '在上海博物馆这座中华艺术宫提升艺术修养', level: 'advanced' }
+                { id: 'forbidden-city', name: '紫禁城要塞守护者', emoji: '🏰', description: '探索故宫这座华丽的要塞，发现皇家宝藏', level: 'advanced' },
+                { id: 'terracotta-warriors', name: '兵马俑军团召唤师', emoji: '⚔️', description: '在秦始皇陵召唤古代战士，见证世界奇迹', level: 'advanced' },
+                { id: 'national-museum', name: '国家图书馆管理员', emoji: '📚', description: '在国家博物馆收集最珍贵的历史卷轴', level: 'advanced' },
+                { id: 'shanghai-museum', name: '艺术品交易大师', emoji: '🎨', description: '在上海博物馆交易稀有的艺术品', level: 'advanced' }
             ];
             
             famousMuseums.forEach(famous => {
@@ -5130,11 +5133,11 @@ class MuseumCheckApp {
                 }
             });
             
-            // City achievements - early rewards for exploring major cities
+            // City achievements - early rewards for exploring major cities (Minecraft themed)
             const cityGroups = {
-                '北京': { name: '首都文化大使', emoji: '🇨🇳', description: '深度体验首都北京的博物馆文化群落', level: 'intermediate' },
-                '上海': { name: '海派文化达人', emoji: '🌃', description: '全方位感受上海海派文化的独特魅力', level: 'intermediate' },
-                '西安': { name: '古都文明探秘者', emoji: '🏺', description: '在十三朝古都探寻中华文明的深厚根基', level: 'intermediate' }
+                '北京': { name: '首都生物群系大师', emoji: '🗼', description: '在北京生物群系中建立多个文化前哨站', level: 'intermediate' },
+                '上海': { name: '海派村落领主', emoji: '🌃', description: '在上海建造繁华的文化交易村落', level: 'intermediate' },
+                '西安': { name: '古都遗迹猎人', emoji: '🏺', description: '在十三朝古都发掘珍贵的历史遗迹', level: 'intermediate' }
             };
             
             Object.entries(cityGroups).forEach(([city, achievement]) => {
@@ -5358,6 +5361,26 @@ class MuseumCheckApp {
         }
         
         return achievements;
+    }
+    
+    updateMinecraftProgressBar(percentage) {
+        // Update the Minecraft-styled progress bar
+        const progressFill = document.getElementById('minecraftProgressFill');
+        const progressBlocks = document.getElementById('minecraftProgressBlocks');
+        
+        if (progressFill) {
+            progressFill.style.width = percentage + '%';
+        }
+        
+        // Add pixel blocks based on percentage
+        if (progressBlocks) {
+            const blockCount = Math.floor(percentage / 5); // One block every 5%
+            let blocksHTML = '';
+            for (let i = 0; i < blockCount; i++) {
+                blocksHTML += '<span class="pixel-block"></span>';
+            }
+            progressBlocks.innerHTML = blocksHTML;
+        }
     }
     
     updateAchievements(visitedCount) {

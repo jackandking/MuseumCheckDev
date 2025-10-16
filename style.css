@@ -5,6 +5,18 @@
     --text-color: #333;
     --border-color: #ddd;
     --hover-color: #e9ecef;
+    
+    /* Minecraft theme colors */
+    --minecraft-grass: #7cbd6b;
+    --minecraft-dirt: #8b6542;
+    --minecraft-stone: #7d7d7d;
+    --minecraft-diamond: #5dcde3;
+    --minecraft-gold: #fcee4b;
+    --minecraft-emerald: #41cd34;
+    --minecraft-iron: #d8d8d8;
+    --minecraft-wood: #9c6f3c;
+    --minecraft-cobblestone: #7a7a7a;
+    --minecraft-redstone: #c41919;
 }
 
 * {
@@ -356,8 +368,8 @@ header h1 {
 
 .progress-display {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
@@ -366,6 +378,119 @@ header h1 {
     font-weight: bold;
     color: var(--primary-color);
     line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.minecraft-themed {
+    font-family: 'Courier New', monospace;
+    color: var(--minecraft-wood);
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+.minecraft-icon {
+    font-size: 1.2em;
+    display: inline-block;
+    animation: minecraftBob 2s ease-in-out infinite;
+}
+
+@keyframes minecraftBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* Minecraft Progress Bar */
+.minecraft-progress-bar {
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(to bottom, 
+        #4a4a4a 0%, 
+        #3a3a3a 50%, 
+        #2a2a2a 100%);
+    border: 3px solid #1a1a1a;
+    box-shadow: 
+        inset 0 -2px 0 rgba(255,255,255,0.1),
+        inset 0 2px 0 rgba(0,0,0,0.5),
+        0 3px 0 rgba(0,0,0,0.3);
+    position: relative;
+    image-rendering: pixelated;
+    border-radius: 2px;
+}
+
+.minecraft-progress-fill {
+    height: 100%;
+    background: linear-gradient(to bottom,
+        var(--minecraft-emerald) 0%,
+        #2fb82f 50%,
+        #27a827 100%);
+    transition: width 0.5s ease;
+    position: relative;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.minecraft-progress-blocks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 8px,
+        rgba(0,0,0,0.1) 8px,
+        rgba(0,0,0,0.1) 9px
+    );
+}
+
+/* Minecraft Achievements Styling */
+.minecraft-achievements {
+    background: linear-gradient(135deg, 
+        rgba(252,238,75,0.1) 0%,
+        rgba(93,205,227,0.1) 100%);
+    border: 2px solid var(--minecraft-gold);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 
+        inset 0 -1px 0 rgba(0,0,0,0.2),
+        0 3px 0 rgba(252,238,75,0.2);
+}
+
+.minecraft-button {
+    background: linear-gradient(to bottom,
+        var(--minecraft-diamond) 0%,
+        #4ab8d4 50%,
+        #3fa4bf 100%);
+    border: 2px solid #2a8ca5;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    box-shadow: 
+        inset 0 2px 0 rgba(255,255,255,0.3),
+        inset 0 -2px 0 rgba(0,0,0,0.2),
+        0 3px 0 rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.minecraft-button:hover {
+    background: linear-gradient(to bottom,
+        #6ee0f7 0%,
+        var(--minecraft-diamond) 50%,
+        #4ab8d4 100%);
+    transform: translateY(-2px);
+    box-shadow: 
+        inset 0 2px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 0 rgba(0,0,0,0.2),
+        0 5px 0 rgba(0,0,0,0.2);
+}
+
+.minecraft-button:active {
+    transform: translateY(1px);
+    box-shadow: 
+        inset 0 2px 0 rgba(0,0,0,0.2),
+        0 1px 0 rgba(0,0,0,0.2);
 }
 
 .museum-grid {
@@ -381,17 +506,47 @@ header h1 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 3px solid #8b7355;
+    box-shadow: 
+        inset 0 -2px 0 rgba(0,0,0,0.2),
+        inset 0 2px 0 rgba(255,255,255,0.2),
+        0 4px 8px rgba(0,0,0,0.15);
+    position: relative;
+    image-rendering: pixelated;
+}
+
+.museum-card::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, 
+        transparent 0%, transparent 40%,
+        rgba(139,115,85,0.1) 40%, rgba(139,115,85,0.1) 60%,
+        transparent 60%, transparent 100%);
+    pointer-events: none;
+    border-radius: 10px;
 }
 
 .museum-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        inset 0 -2px 0 rgba(0,0,0,0.3),
+        inset 0 2px 0 rgba(255,255,255,0.3),
+        0 6px 12px rgba(0,0,0,0.2);
+    border-color: var(--minecraft-gold);
 }
 
 .museum-card.visited {
-    border-color: var(--accent-color);
-    background-color: #f8fff9;
+    border-color: var(--minecraft-emerald);
+    background: linear-gradient(135deg, #f0fff4 0%, #e6f9ec 100%);
+    box-shadow: 
+        inset 0 -2px 0 rgba(65,205,52,0.3),
+        inset 0 2px 0 rgba(255,255,255,0.3),
+        0 4px 8px rgba(65,205,52,0.2),
+        0 0 20px rgba(65,205,52,0.1);
 }
 
 .museum-header {
