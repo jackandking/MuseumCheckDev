@@ -560,6 +560,26 @@
                     <div class="settings-hint">更改后将重新加载页面以应用新的年龄组设置</div>
                 </div>
             </div>
+            <div class="settings-section">
+                <h3>🎆 本馆功能</h3>
+                <div class="settings-item">
+                    <label class="settings-label">本馆烟花墙：</label>
+                    <button class="button button-primary" id="viewFireworksFromSettings" style="width: 100%; margin-top: 8px;">
+                        🎆 查看本馆烟花墙
+                    </button>
+                    <div class="settings-hint">查看本博物馆所有小朋友完成的任务烟花</div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>🗑️ 数据管理</h3>
+                <div class="settings-item">
+                    <label class="settings-label">清空打卡数据：</label>
+                    <button class="button button-secondary" id="clearCheckinData" style="width: 100%; margin-top: 8px; background: #f8d7da; color: #721c24; font-weight: 600;">
+                        🗑️ 清空本馆打卡数据
+                    </button>
+                    <div class="settings-hint">清空后可以重新完成所有任务，此操作不可撤销</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1015,6 +1035,15 @@
                 window.location.href = `index.html?museum=${museumId}&focus=parent`;
             };
 
+            // Settings actions
+            document.getElementById('viewFireworksFromSettings').onclick = () => {
+                window.location.href = `fireworks-wall.html?museum=${museumId}`;
+            };
+
+            document.getElementById('clearCheckinData').onclick = () => {
+                clearCheckinData();
+            };
+
             // Close modals on background click
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) {
@@ -1091,6 +1120,55 @@
             } catch (error) {
                 console.error('Failed to save age group:', error);
                 return { success: false };
+            }
+        }
+
+        function clearCheckinData() {
+            // Get current museum name for confirmation message
+            const museumName = currentMuseum ? currentMuseum.name : '本博物馆';
+            
+            // Show confirmation dialog
+            const confirmMessage = 
+                `⚠️ 清空打卡数据 ⚠️\n\n` +
+                `您即将清空「${museumName}」的所有打卡数据。\n\n` +
+                `清空后：\n` +
+                `✓ 可以重新完成所有任务\n` +
+                `✓ 所有任务将回到未完成状态\n` +
+                `✗ 此操作不可撤销\n\n` +
+                `确定要清空吗？`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            try {
+                // Clear from main app's structure
+                const checklistKey = `${museumId}-child-${ageGroup}`;
+                const checklistsData = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
+                delete checklistsData[checklistKey];
+                localStorage.setItem('museumChecklists', JSON.stringify(checklistsData));
+                
+                // Also clear from legacy format for backward compatibility
+                const legacyKey = `museumCheckin_${museumId}_${ageGroup}`;
+                localStorage.removeItem(legacyKey);
+                
+                // Clear in-memory state
+                completedTasks.clear();
+                
+                // Re-render UI
+                renderTasks();
+                updateProgress();
+                
+                // Close settings modal
+                document.getElementById('settingsModal').classList.remove('show');
+                
+                // Show success message
+                alert('✅ 打卡数据已成功清空！\n\n您现在可以重新完成所有任务了。');
+                
+                console.log('Check-in data cleared successfully for:', museumName);
+            } catch (error) {
+                console.error('Failed to clear check-in data:', error);
+                alert('❌ 清空数据失败，请重试');
             }
         }
 
