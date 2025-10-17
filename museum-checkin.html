@@ -817,15 +817,38 @@
             const task = childTasks[taskIndex];
             const { title } = parseTaskString(task);
             
+            // Load child nickname from localStorage
+            let childNickname = '小朋友'; // Default nickname
+            try {
+                const savedNickname = localStorage.getItem('childNickname');
+                if (savedNickname && savedNickname.trim()) {
+                    childNickname = savedNickname.trim();
+                }
+            } catch (error) {
+                console.error('Error loading child nickname:', error);
+            }
+            
+            // Load firework type from localStorage
+            let fireworkType = 'heart'; // Default type
+            try {
+                const savedType = localStorage.getItem('fireworkType');
+                if (savedType) {
+                    fireworkType = savedType;
+                }
+            } catch (error) {
+                console.error('Error loading firework type:', error);
+            }
+            
             const fireworkData = {
                 id: `${museumId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 museumId: museumId,
                 museumName: currentMuseum.name,
                 taskContent: task,
                 taskName: title,
-                childNickname: '小朋友',
+                childNickname: childNickname,
                 timestamp: Date.now(),
-                ageGroup: ageGroup
+                ageGroup: ageGroup,
+                fireworkType: fireworkType
             };
 
             // Save to local storage
