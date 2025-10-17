@@ -6199,4 +6199,55 @@ main[role="main"] {
         font-size: 18px;
     }
 }
+
+/* About Us Section in Settings */
+.about-content {
+    width: 100%;
+}
+
+.about-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+}
+
+.about-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0 0 15px 0;
+    font-style: italic;
+}
+
+.about-features {
+    font-size: 14px;
+    color: #495057;
+    margin: 0 0 15px 0;
+    line-height: 1.6;
+}
+
+.about-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.about-features-list li {
+    font-size: 14px;
+    color: #495057;
+    padding: 6px 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .about-title {
+        font-size: 15px;
+    }
+    
+    .about-description,
+    .about-features,
+    .about-features-list li {
+        font-size: 13px;
+    }
+}
 }
