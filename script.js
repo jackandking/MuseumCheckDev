@@ -4015,6 +4015,11 @@ class MuseumCheckApp {
             this.showAssessmentHistoryModal();
         });
 
+        // Settings button
+        document.getElementById('settingsButton').addEventListener('click', () => {
+            this.showSettingsModal();
+        });
+
         // Achievement modal close
         document.querySelector('#achievementModal .close').addEventListener('click', () => {
             this.closeAchievementModal();

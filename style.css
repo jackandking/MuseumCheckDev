@@ -2314,6 +2314,43 @@ main[role="main"] {
     transform: translateY(-2px);
 }
 
+/* Settings button icon - same style as other icon buttons */
+.settings-button-icon {
+    min-width: auto;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(25, 118, 210, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-display .settings-button-icon {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    font-size: 16px;
+}
+
+.settings-button-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(25, 118, 210, 0.4);
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+}
+
+.settings-button-icon:active {
+    transform: translateY(0);
+}
+
 .clear-checklist-button {
     background: linear-gradient(135deg, #f39c12, #e67e22);
     font-size: 12px;
