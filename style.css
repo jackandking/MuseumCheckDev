@@ -390,8 +390,10 @@ header h1 {
 
 .progress-display {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
     margin-bottom: 15px;
 }
 
@@ -403,6 +405,43 @@ header h1 {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 0 0 auto;
+}
+
+.icon-buttons-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.achievement-button-icon,
+.assessment-history-button-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    padding: 8px;
+    font-size: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.achievement-button-icon:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+    border-color: #ffd700;
+    transform: scale(1.1);
+}
+
+.assessment-history-button-icon:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    border-color: #007bff;
+    transform: scale(1.1);
 }
 
 .minecraft-themed {
@@ -438,6 +477,7 @@ header h1 {
     position: relative;
     image-rendering: pixelated;
     border-radius: 2px;
+    margin-bottom: 15px;
 }
 
 .minecraft-progress-fill {
@@ -1703,13 +1743,29 @@ header h1 {
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+        flex-wrap: nowrap;
     }
     
     .progress-text {
         font-size: 1.3em;
         line-height: 1.1;
-        flex: 1;
+        flex: 0 0 auto;
         text-align: left;
+        white-space: nowrap;
+    }
+    
+    .icon-buttons-row {
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+    
+    .achievement-button-icon,
+    .assessment-history-button-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        padding: 6px;
+        font-size: 18px;
     }
     
     .achievement-stats {

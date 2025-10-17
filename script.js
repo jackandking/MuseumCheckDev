@@ -5190,7 +5190,10 @@ class MuseumCheckApp {
 
         document.getElementById('visitedCount').textContent = visitedCount;
         document.getElementById('totalCount').textContent = totalCount;
-        document.getElementById('visitedPercentage').textContent = percentage;
+        const percentageElement = document.getElementById('visitedPercentage');
+        if (percentageElement) {
+            percentageElement.textContent = percentage;
+        }
         
         // Update Minecraft-style progress bar
         this.updateMinecraftProgressBar(percentage);
