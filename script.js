@@ -4204,6 +4204,11 @@ class MuseumCheckApp {
                 this.sortBy = selectedSort;
                 this.saveSortPreference();
                 
+                // Request user location if distance sorting is selected
+                if (selectedSort === 'distance' || selectedSort === 'default') {
+                    this.requestUserLocation();
+                }
+                
                 // Re-render museums with new sorting
                 this.renderMuseums();
                 
@@ -4879,8 +4884,8 @@ class MuseumCheckApp {
 
     // Request user location (optional, non-blocking)
     requestUserLocation() {
-        // Only request if default sorting is enabled
-        if (this.sortBy !== 'default') {
+        // Only request if default or distance sorting is enabled
+        if (this.sortBy !== 'default' && this.sortBy !== 'distance') {
             return;
         }
         
@@ -4899,8 +4904,8 @@ class MuseumCheckApp {
                 };
                 console.log('User location obtained:', this.userLocation);
                 
-                // Re-render museums with location-based sorting if in default mode
-                if (this.sortBy === 'default') {
+                // Re-render museums with location-based sorting if in default or distance mode
+                if (this.sortBy === 'default' || this.sortBy === 'distance') {
                     this.renderMuseums();
                 }
                 
@@ -4991,6 +4996,16 @@ class MuseumCheckApp {
                 const bVisited = this.visitedMuseums.includes(b.id);
                 if (aVisited !== bVisited) {
                     return aVisited ? 1 : -1;
+                }
+                return a.name.localeCompare(b.name, 'zh-CN');
+            });
+        } else if (this.sortBy === 'distance') {
+            // Sort by distance (closest first), then by name
+            sorted.sort((a, b) => {
+                const aDist = this.getMuseumDistance(a);
+                const bDist = this.getMuseumDistance(b);
+                if (aDist !== bDist) {
+                    return aDist - bDist;
                 }
                 return a.name.localeCompare(b.name, 'zh-CN');
             });
