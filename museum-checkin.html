@@ -522,7 +522,8 @@
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <button class="button button-primary" id="viewParentTasks">查看家长任务</button>
                 <button class="button button-primary" id="viewAssessment">亲子关系测评</button>
-                <button class="button button-secondary" id="viewFireworks">查看烟花墙</button>
+                <button class="button button-secondary" id="viewMuseumFireworks">🎆 查看本馆烟花墙</button>
+                <button class="button button-secondary" id="viewFireworks">查看总烟花墙</button>
                 <button class="button button-secondary" id="backToHome">返回主页</button>
             </div>
         </div>
@@ -560,16 +561,7 @@
                     <div class="settings-hint">更改后将重新加载页面以应用新的年龄组设置</div>
                 </div>
             </div>
-            <div class="settings-section">
-                <h3>🎆 本馆功能</h3>
-                <div class="settings-item">
-                    <label class="settings-label">本馆烟花墙：</label>
-                    <button class="button button-primary" id="viewFireworksFromSettings" style="width: 100%; margin-top: 8px;">
-                        🎆 查看本馆烟花墙
-                    </button>
-                    <div class="settings-hint">查看本博物馆所有小朋友完成的任务烟花</div>
-                </div>
-            </div>
+
             <div class="settings-section">
                 <h3>🗑️ 数据管理</h3>
                 <div class="settings-item">
@@ -1022,8 +1014,12 @@
                 window.location.href = `index.html?assessment=true`;
             };
 
-            document.getElementById('viewFireworks').onclick = () => {
+            document.getElementById('viewMuseumFireworks').onclick = () => {
                 window.location.href = `fireworks-wall.html?museum=${museumId}`;
+            };
+
+            document.getElementById('viewFireworks').onclick = () => {
+                window.location.href = `fireworks-wall.html`;
             };
 
             document.getElementById('backToHome').onclick = () => {
@@ -1036,10 +1032,6 @@
             };
 
             // Settings actions
-            document.getElementById('viewFireworksFromSettings').onclick = () => {
-                window.location.href = `fireworks-wall.html?museum=${museumId}`;
-            };
-
             document.getElementById('clearCheckinData').onclick = () => {
                 clearCheckinData();
             };

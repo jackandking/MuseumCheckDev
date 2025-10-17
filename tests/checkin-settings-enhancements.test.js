@@ -1,16 +1,17 @@
 /**
- * Tests for Museum Check-in Page Settings Enhancements
- * Issue: checkin页面设置 - Add fireworks wall entry and clear check-in data functionality
+ * Tests for Museum Check-in Page Settings and Menu Enhancements
+ * Issue: checkin页面 - Fireworks wall moved from settings to menu, clear check-in data functionality
  * 
- * Ensures the new settings features work correctly:
- * - Fireworks wall button in settings
- * - Clear check-in data functionality
+ * Ensures the features work correctly:
+ * - Museum fireworks wall button in menu (本馆烟花墙)
+ * - Total fireworks wall button in menu (总烟花墙)
+ * - Clear check-in data functionality in settings
  */
 
 const fs = require('fs');
 const path = require('path');
 
-describe('Museum Check-in Settings Enhancements', () => {
+describe('Museum Check-in Settings and Menu Enhancements', () => {
     let htmlContent;
     
     beforeAll(() => {
@@ -20,30 +21,46 @@ describe('Museum Check-in Settings Enhancements', () => {
         );
     });
 
-    describe('Fireworks Wall Entry in Settings', () => {
-        test('should have settings section for museum features', () => {
-            expect(htmlContent).toContain('<h3>🎆 本馆功能</h3>');
-        });
-
-        test('should have button to view museum fireworks wall from settings', () => {
-            expect(htmlContent).toContain('id="viewFireworksFromSettings"');
+    describe('Fireworks Wall Entry in Menu', () => {
+        test('should have button to view museum fireworks wall in menu', () => {
+            expect(htmlContent).toContain('id="viewMuseumFireworks"');
             expect(htmlContent).toContain('查看本馆烟花墙');
         });
 
-        test('should have hint text explaining fireworks wall', () => {
-            expect(htmlContent).toContain('查看本博物馆所有小朋友完成的任务烟花');
+        test('should have separate button for total fireworks wall', () => {
+            expect(htmlContent).toContain('id="viewFireworks"');
+            expect(htmlContent).toContain('查看总烟花墙');
         });
 
-        test('should navigate to fireworks wall with museum filter when clicked', () => {
-            // Check for event handler
-            expect(htmlContent).toContain('viewFireworksFromSettings');
+        test('should navigate museum fireworks to fireworks wall with museum filter', () => {
+            // Check for event handler for museum-specific fireworks
+            expect(htmlContent).toContain('viewMuseumFireworks');
             // Check it navigates to fireworks-wall.html with museum parameter
             expect(htmlContent).toContain('fireworks-wall.html?museum=');
         });
 
-        test('fireworks wall button should be primary style', () => {
-            expect(htmlContent).toContain('button-primary');
-            expect(htmlContent).toContain('viewFireworksFromSettings');
+        test('should navigate total fireworks to fireworks wall without filter', () => {
+            // Check for event handler for total fireworks
+            expect(htmlContent).toContain('viewFireworks');
+            // Find the viewFireworks onclick handler
+            const viewFireworksMatch = htmlContent.match(/getElementById\(['"]viewFireworks['"]\)\.onclick[\s\S]*?fireworks-wall\.html/);
+            expect(viewFireworksMatch).toBeTruthy();
+            // Make sure it doesn't have ?museum= in the same statement
+            const handlerCode = viewFireworksMatch[0];
+            expect(handlerCode).not.toContain('?museum=');
+        });
+
+        test('museum fireworks button should be in menu modal', () => {
+            // Check that viewMuseumFireworks button is within menuModal
+            const menuModalStart = htmlContent.indexOf('id="menuModal"');
+            const menuModalEnd = htmlContent.indexOf('</div>', htmlContent.indexOf('</div>', menuModalStart) + 1);
+            const menuModalContent = htmlContent.substring(menuModalStart, menuModalEnd);
+            expect(menuModalContent).toContain('viewMuseumFireworks');
+        });
+
+        test('should NOT have museum features section in settings', () => {
+            expect(htmlContent).not.toContain('<h3>🎆 本馆功能</h3>');
+            expect(htmlContent).not.toContain('id="viewFireworksFromSettings"');
         });
     });
 
@@ -111,10 +128,14 @@ describe('Museum Check-in Settings Enhancements', () => {
     });
 
     describe('Settings Modal Structure', () => {
-        test('should have three settings sections', () => {
+        test('should have at least two settings sections', () => {
             const sectionMatches = htmlContent.match(/<div class="settings-section">/g);
             expect(sectionMatches).toBeTruthy();
-            expect(sectionMatches.length).toBeGreaterThanOrEqual(3);
+            expect(sectionMatches.length).toBeGreaterThanOrEqual(2); // Child info and data management at minimum
+        });
+
+        test('should NOT have museum features section', () => {
+            expect(htmlContent).not.toContain('<h3>🎆 本馆功能</h3>');
         });
 
         test('should maintain existing child info section', () => {
@@ -131,8 +152,13 @@ describe('Museum Check-in Settings Enhancements', () => {
     });
 
     describe('Event Listeners', () => {
-        test('should set up event listener for fireworks wall button', () => {
-            expect(htmlContent).toContain('viewFireworksFromSettings');
+        test('should set up event listener for museum fireworks button in menu', () => {
+            expect(htmlContent).toContain('viewMuseumFireworks');
+            expect(htmlContent).toContain('.onclick');
+        });
+
+        test('should set up event listener for total fireworks button in menu', () => {
+            expect(htmlContent).toContain('viewFireworks');
             expect(htmlContent).toContain('.onclick');
         });
 
@@ -143,16 +169,16 @@ describe('Museum Check-in Settings Enhancements', () => {
     });
 
     describe('Integration with Existing Features', () => {
-        test('should maintain compatibility with existing menu fireworks button', () => {
-            // Both should navigate to the same place
+        test('should have both museum-specific and total fireworks buttons in menu', () => {
+            // Both should be in menu now
+            expect(htmlContent).toContain('id="viewMuseumFireworks"');
             expect(htmlContent).toContain('id="viewFireworks"');
-            expect(htmlContent).toContain('id="viewFireworksFromSettings"');
         });
 
-        test('should use consistent museum ID parameter', () => {
+        test('should use consistent museum ID parameter for museum fireworks', () => {
             const matches = htmlContent.match(/fireworks-wall\.html\?museum=\${museumId}/g);
             expect(matches).toBeTruthy();
-            expect(matches.length).toBeGreaterThanOrEqual(2); // At least menu and settings
+            expect(matches.length).toBeGreaterThanOrEqual(1); // At least in menu
         });
 
         test('should preserve existing localStorage structure', () => {
@@ -160,6 +186,15 @@ describe('Museum Check-in Settings Enhancements', () => {
             expect(htmlContent).toContain('checklistKey');
             expect(htmlContent).toContain('localStorage.getItem');
             expect(htmlContent).toContain('localStorage.setItem');
+        });
+
+        test('total fireworks should navigate without museum filter', () => {
+            // Check that viewFireworks navigates to fireworks-wall.html without museum parameter
+            const viewFireworksMatch = htmlContent.match(/getElementById\(['"]viewFireworks['"]\)\.onclick[\s\S]*?fireworks-wall\.html/);
+            expect(viewFireworksMatch).toBeTruthy();
+            // Make sure it doesn't have ?museum= in the same statement
+            const handlerCode = viewFireworksMatch[0];
+            expect(handlerCode).not.toContain('?museum=');
         });
     });
 

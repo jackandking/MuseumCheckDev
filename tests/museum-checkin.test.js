@@ -32,9 +32,9 @@ describe('Museum Check-in Page', () => {
             expect(htmlContent).toContain('<script src="firework.js"></script>');
         });
 
-        test('should have header with menu and support buttons', () => {
+        test('should have header with menu and settings buttons', () => {
             expect(htmlContent).toContain('id="menuButton"');
-            expect(htmlContent).toContain('id="supportButton"');
+            expect(htmlContent).toContain('id="settingsButton"');
         });
 
         test('should have task grid container', () => {
