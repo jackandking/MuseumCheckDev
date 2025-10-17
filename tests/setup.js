@@ -99,6 +99,8 @@ try {
   global.GlobalFireworksWall = context.GlobalFireworksWall;
   global.GlobalFirework = context.GlobalFirework;
   global.GlobalParticle = context.GlobalParticle;
+  global.APP_CONFIG = context.APP_CONFIG;
+  global.DOM_SELECTORS = context.DOM_SELECTORS;
   
   console.log('✅ MuseumCheckApp loaded successfully and made globally available');
 } catch (error) {

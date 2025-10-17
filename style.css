@@ -744,6 +744,39 @@ header h1 {
     transform: translateY(0);
 }
 
+/* Favorite button on museum cards */
+.favorite-button {
+    background: none;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 8px;
+    transition: all 0.2s ease;
+    color: #ffd700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.favorite-button:hover {
+    transform: scale(1.15);
+    filter: brightness(1.2);
+}
+
+.favorite-button:active {
+    transform: scale(1.05);
+}
+
+/* Visual indicator for favorited museums */
+.museum-card.favorite {
+    border-left: 4px solid #ffd700;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.15);
+}
+
 /* Mobile responsive styles for museum fireworks button */
 @media (max-width: 768px) {
     .museum-fireworks-button {
@@ -766,6 +799,13 @@ header h1 {
         padding: 6px 10px;
         font-size: 0.75em;
         margin-left: 6px;
+    }
+    
+    .favorite-button {
+        font-size: 1.2em;
+        min-width: 28px;
+        min-height: 28px;
+        margin-right: 6px;
     }
 }
 
@@ -798,6 +838,13 @@ header h1 {
         padding: 5px 8px;
         font-size: 0.7em;
         margin-left: 4px;
+    }
+    
+    .favorite-button {
+        font-size: 1.1em;
+        min-width: 26px;
+        min-height: 26px;
+        margin-right: 4px;
     }
 }
 

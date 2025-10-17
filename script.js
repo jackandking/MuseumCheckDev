@@ -67,7 +67,8 @@ const APP_CONFIG = {
         CURRENT_AGE: 'currentAge',
         ASSESSMENT_HISTORY: 'museumCheckAssessmentHistory',
         SHARING_STATE: 'museumCheckSharingState',
-        SORT_PREFERENCE: 'museumSortPreference'
+        SORT_PREFERENCE: 'museumSortPreference',
+        FAVORITE_MUSEUMS: 'favoriteMuseums'
     },
     
     AGE_GROUPS: ['3-6', '7-12', '13-18'],   // Supported age groups
@@ -3332,6 +3333,7 @@ class MuseumCheckApp {
         this.assessmentHidden = false; // Default to showing assessments
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
+        this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
         
         // Initialize specialized modules
         this.modalManager = new ModalManager();
@@ -4346,6 +4348,24 @@ class MuseumCheckApp {
         }
     }
 
+    loadFavoriteMuseums() {
+        try {
+            const saved = localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.FAVORITE_MUSEUMS);
+            return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+            console.error('Failed to load favorite museums:', error);
+            return [];
+        }
+    }
+
+    saveFavoriteMuseums() {
+        try {
+            localStorage.setItem(APP_CONFIG.LOCAL_STORAGE_KEYS.FAVORITE_MUSEUMS, JSON.stringify(this.favoriteMuseums));
+        } catch (error) {
+            console.error('Failed to save favorite museums:', error);
+        }
+    }
+
     loadMuseumChecklists() {
         try {
             const saved = localStorage.getItem('museumChecklists');
@@ -4914,8 +4934,15 @@ class MuseumCheckApp {
         const sorted = [...museums]; // Create a copy to avoid mutating original
         
         if (this.sortBy === 'default') {
-            // Comprehensive sorting: fireworks > unvisited > distance
+            // Comprehensive sorting: favorites > fireworks > unvisited > distance
             sorted.sort((a, b) => {
+                // Priority 0: Favorite museums first (NEW)
+                const aFavorite = this.favoriteMuseums.includes(a.id);
+                const bFavorite = this.favoriteMuseums.includes(b.id);
+                if (aFavorite !== bFavorite) {
+                    return bFavorite ? 1 : -1;
+                }
+                
                 // Priority 1: Museums with fireworks first
                 const aHasFireworks = this.hasFireworks(a.id);
                 const bHasFireworks = this.hasFireworks(b.id);
@@ -4984,9 +5011,10 @@ class MuseumCheckApp {
 
             sortedMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
+                const isFavorite = this.favoriteMuseums.includes(museum.id);
                 
                 const card = document.createElement('div');
-                card.className = `museum-card ${isVisited ? 'visited' : ''}`;
+                card.className = `museum-card ${isVisited ? 'visited' : ''} ${isFavorite ? 'favorite' : ''}`;
                 card.innerHTML = `
                     <div class="museum-header">
                         <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
@@ -4994,6 +5022,7 @@ class MuseumCheckApp {
                                data-museum="${museum.id}">
                         <div class="museum-info">
                             <h3>
+                                <button class="favorite-button" data-museum="${museum.id}" title="${isFavorite ? '取消收藏' : '收藏博物馆'}">${isFavorite ? '⭐' : '☆'}</button>
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 ${(museum.id === 'forbidden-city' || museum.id === 'zhaoyuan-hengli-watch-museum') ? '<button class="museum-checkin-button" data-museum="' + museum.id + '" title="进入打卡页面">🔗 打卡</button>' : ''}
@@ -5008,15 +5037,25 @@ class MuseumCheckApp {
                     </div>
                 `;
 
-                // Add click event for the card (excluding checkbox and assessment button)
+                // Add click event for the card (excluding checkbox, buttons)
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
                         !e.target.classList.contains('assessment-button') &&
                         !e.target.classList.contains('museum-fireworks-button') &&
-                        !e.target.classList.contains('museum-checkin-button')) {
+                        !e.target.classList.contains('museum-checkin-button') &&
+                        !e.target.classList.contains('favorite-button')) {
                         this.openMuseumModal(museum);
                     }
                 });
+
+                // Add favorite button event
+                const favoriteButton = card.querySelector('.favorite-button');
+                if (favoriteButton) {
+                    favoriteButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleFavorite(museum.id);
+                    });
+                }
 
                 // Add checkbox event
                 const checkbox = card.querySelector('.visit-checkbox');
@@ -5178,6 +5217,37 @@ class MuseumCheckApp {
         }
         
         return 'no_action';
+    }
+
+    toggleFavorite(museumId) {
+        const index = this.favoriteMuseums.indexOf(museumId);
+        const museum = MUSEUMS.find(m => m.id === museumId);
+        
+        if (index > -1) {
+            // Remove from favorites
+            this.favoriteMuseums.splice(index, 1);
+            this.saveFavoriteMuseums();
+            this.renderMuseums();
+            
+            // Track favorite toggle
+            this.trackEvent('museum_favorite_toggled', {
+                'museum_id': museumId,
+                'museum_name': museum ? museum.name : '',
+                'favorited': false
+            });
+        } else {
+            // Add to favorites
+            this.favoriteMuseums.push(museumId);
+            this.saveFavoriteMuseums();
+            this.renderMuseums();
+            
+            // Track favorite toggle
+            this.trackEvent('museum_favorite_toggled', {
+                'museum_id': museumId,
+                'museum_name': museum ? museum.name : '',
+                'favorited': true
+            });
+        }
     }
 
     updateStats() {
