@@ -5071,7 +5071,7 @@ class MuseumCheckApp {
                                 <button class="favorite-button" data-museum="${museum.id}" title="${isFavorite ? '取消收藏' : '收藏博物馆'}">${isFavorite ? '⭐' : '☆'}</button>
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
-                                ${(museum.id === 'forbidden-city' || museum.id === 'zhaoyuan-hengli-watch-museum') ? '<button class="museum-checkin-button" data-museum="' + museum.id + '" title="进入打卡页面">🔗 打卡</button>' : ''}
+                                <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
                                 ${isVisited && !this.assessmentHidden ? '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>' : ''}
                             </h3>
                             <div class="museum-location">📍 ${museum.location}</div>
