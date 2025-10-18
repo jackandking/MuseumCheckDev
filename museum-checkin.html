@@ -854,16 +854,18 @@
                 console.error('Error loading firework type:', error);
             }
             
+            const timestamp = Date.now();
             const fireworkData = {
-                id: `${museumId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                id: `${museumId}-${timestamp}-${Math.random().toString(36).substr(2, 9)}`,
                 museumId: museumId,
                 museumName: currentMuseum.name,
+                museumCity: currentMuseum.city,
                 taskContent: task,
-                taskName: title,
-                childNickname: childNickname,
-                timestamp: Date.now(),
                 ageGroup: ageGroup,
-                fireworkType: fireworkType
+                childNickname: childNickname,
+                fireworkType: fireworkType,
+                timestamp: timestamp,
+                date: new Date(timestamp).toISOString()
             };
 
             // Save to local storage
@@ -903,7 +905,7 @@
                     key: key,
                     sortKey: fireworkData.id,
                     value: JSON.stringify(fireworkData),
-                    ttl: ttlSeconds  // Use user's fireworks retention setting
+                    expireAt: timestamp + (ttlSeconds * 1000)  // Convert TTL to absolute expiration timestamp
                 })
             })
             .then(response => response.json())
