@@ -5123,7 +5123,7 @@ class MuseumCheckApp {
                     fireworksButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         // Open fireworks-wall.html in new tab with museum ID parameter
-                        window.open(`fireworks-wall.html?museumId=${encodeURIComponent(museum.id)}`, '_blank');
+                        window.open(`fireworks-wall.html?museum=${encodeURIComponent(museum.id)}`, '_blank');
                         
                         // Track event
                         this.trackEvent('museum_fireworks_wall_opened', {

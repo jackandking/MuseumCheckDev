@@ -578,7 +578,7 @@
 
         // Get museum ID from URL parameter for filtering
         const urlParams = new URLSearchParams(window.location.search);
-        const filterMuseumId = urlParams.get('museumId');
+        const filterMuseumId = urlParams.get('museum');
         const filterMuseumName = filterMuseumId ? getMuseumNameById(filterMuseumId) : null;
 
         // Helper function to get museum name by ID
