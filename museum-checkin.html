@@ -613,6 +613,9 @@
             loadMuseumData();
             setupEventListeners();
             loadCompletedTasks();
+            // Re-render after loading persisted completion state so counts and badges reflect correctly
+            renderTasks();
+            updateProgress();
         }
 
         // Load museum data

@@ -468,6 +468,13 @@
                     </div>
                     <div class="settings-hint">选择烟花绽放的形状，更改后立即生效</div>
                 </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="launchIntervalInput">发射间隔（秒）：</label>
+                    <div class="settings-input-group">
+                        <input type="number" id="launchIntervalInput" class="settings-input" min="0.1" step="0.1" placeholder="1.0">
+                    </div>
+                    <div class="settings-hint">范围：≥0.1秒。更改后立即生效（会重启自动发射定时器）</div>
+                </div>
             </div>
             
             <div class="settings-section">
@@ -561,7 +568,8 @@
         }
 
         // Fireworks configuration
-        const LAUNCH_INTERVAL = 2500; // 2.5 seconds between launches
+        const DEFAULT_LAUNCH_INTERVAL = 1000; // 1.0 seconds between launches (default)
+        let LAUNCH_INTERVAL = DEFAULT_LAUNCH_INTERVAL; // configurable via settings
         const TEXT_DISPLAY_DURATION = 3000; // 3 seconds
         const MIN_FIREWORKS_FOR_LOOP = 5; // Minimum fireworks before looping
 
@@ -1692,7 +1700,8 @@
             showFilter: true,
             showFireworkText: true,
             soundEnabled: true,
-            showQrCode: true
+            showQrCode: true,
+            launchIntervalSeconds: DEFAULT_LAUNCH_INTERVAL / 1000
         };
         
         function loadSettings() {
@@ -1703,6 +1712,13 @@
                 }
             } catch (error) {
                 console.error('Error loading settings:', error);
+            }
+            // Apply launch interval from settings (min 100ms)
+            const seconds = Number(settings.launchIntervalSeconds);
+            if (!isNaN(seconds) && seconds > 0) {
+                LAUNCH_INTERVAL = Math.max(100, Math.round(seconds * 1000));
+            } else {
+                LAUNCH_INTERVAL = DEFAULT_LAUNCH_INTERVAL;
             }
             applySettings();
         }
@@ -1741,6 +1757,14 @@
             // Apply QR code visibility
             wechatQrCode.style.display = settings.showQrCode ? 'flex' : 'none';
             toggleQrCode.classList.toggle('active', settings.showQrCode);
+
+            // Reflect launch interval input if present
+            const launchIntervalInput = document.getElementById('launchIntervalInput');
+            if (launchIntervalInput) {
+                const valSec = Number(settings.launchIntervalSeconds) || (DEFAULT_LAUNCH_INTERVAL / 1000);
+                // Use fixed 1 decimal for display
+                launchIntervalInput.value = (Math.max(0.1, valSec)).toFixed(1);
+            }
         }
         
         // Settings modal handlers
@@ -1838,6 +1862,46 @@
                 } catch (error) {
                     console.error('Error saving firework type:', error);
                 }
+            });
+        }
+        
+        const launchIntervalInput = document.getElementById('launchIntervalInput');
+        if (launchIntervalInput) {
+            // Initialize from settings
+            try {
+                const valSec = Number(settings.launchIntervalSeconds) || (DEFAULT_LAUNCH_INTERVAL / 1000);
+                launchIntervalInput.value = (Math.max(0.1, valSec)).toFixed(1);
+            } catch (error) {
+                console.error('Error initializing launch interval input:', error);
+            }
+
+            // Helper to persist and apply
+            const applyLaunchInterval = (sec) => {
+                try {
+                    const normalized = Math.max(0.1, Number(sec));
+                    if (isNaN(normalized)) return;
+                    settings.launchIntervalSeconds = normalized;
+                    saveSettings();
+                    LAUNCH_INTERVAL = Math.max(100, Math.round(normalized * 1000));
+                    console.log('Launch interval updated (ms):', LAUNCH_INTERVAL);
+                    startLaunching();
+                } catch (error) {
+                    console.error('Error applying launch interval:', error);
+                }
+            };
+
+            // Save and apply on change (blur/enter)
+            launchIntervalInput.addEventListener('change', () => {
+                applyLaunchInterval(launchIntervalInput.value);
+            });
+
+            // Save and apply while typing with debounce
+            let liDebounce;
+            launchIntervalInput.addEventListener('input', () => {
+                clearTimeout(liDebounce);
+                liDebounce = setTimeout(() => {
+                    applyLaunchInterval(launchIntervalInput.value);
+                }, 500);
             });
         }
         
