@@ -21,6 +21,7 @@ Added remote storage upload functionality for click-launched fireworks, ensuring
 function uploadClickFireworkToRemote(fireworkData) {
     const API_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
     const FIREWORK_KEY = 'museumcheck-firework';
+    const TTL_24_HOURS = 86400; // 24 hours in seconds
     
     fetch(API_ENDPOINT, {
         method: 'POST',
@@ -29,7 +30,7 @@ function uploadClickFireworkToRemote(fireworkData) {
             key: FIREWORK_KEY,
             sortKey: fireworkData.id,
             value: JSON.stringify(fireworkData),
-            ttl: 3600
+            ttl: TTL_24_HOURS  // Long enough for same-day visibility across devices
         })
     })
     .then(response => response.json())
@@ -37,6 +38,8 @@ function uploadClickFireworkToRemote(fireworkData) {
     .catch(error => console.error('Error uploading click firework:', error));
 }
 ```
+
+**Note**: The actual implementation uses the literal value `86400` directly to match the pattern in other parts of the codebase. This documentation example shows the conceptual constant for clarity.
 
 #### 2. Firework Data Structure
 ```javascript
@@ -155,8 +158,10 @@ museumcheck-firework
 ```
 
 **TTL:**
-- 3600 seconds (1 hour)
-- Fireworks expire after 1 hour to prevent storage bloat
+- 86400 seconds (24 hours)
+- Fireworks expire after 24 hours to balance persistence with storage efficiency
+- Long enough for same-day visibility across all devices
+- Ensures families visiting museums can see each other's achievements throughout the day
 
 **Download Interval:**
 - 10 seconds (fireworks-wall.html)

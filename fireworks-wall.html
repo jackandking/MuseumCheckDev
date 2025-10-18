@@ -1528,6 +1528,20 @@
             const API_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
             const FIREWORK_KEY = 'museumcheck-firework';
             
+            // Load fireworks retention time from localStorage (in milliseconds)
+            let retentionTimeMs = 60000; // Default: 1 minute
+            try {
+                const saved = localStorage.getItem('fireworksRetentionTime');
+                if (saved) {
+                    retentionTimeMs = parseInt(saved, 10);
+                }
+            } catch (error) {
+                console.error('Error loading fireworks retention time:', error);
+            }
+            
+            // Convert milliseconds to seconds for TTL
+            const ttlSeconds = Math.round(retentionTimeMs / 1000);
+            
             fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {
@@ -1537,7 +1551,7 @@
                     key: FIREWORK_KEY,
                     sortKey: fireworkData.id,
                     value: JSON.stringify(fireworkData),
-                    ttl: 3600
+                    ttl: ttlSeconds  // Use user's fireworks retention setting
                 })
             })
             .then(response => response.json())

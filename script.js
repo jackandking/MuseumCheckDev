@@ -21,7 +21,7 @@ const REMOTE_STORAGE_CONFIG = {
     API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
     FIREWORK_KEY: 'museumcheck-firework',
     DOWNLOAD_INTERVAL: 10000,  // 10 seconds
-    FIREWORK_EXPIRATION: 3600, // 1 hour in seconds
+    DEFAULT_FIREWORK_EXPIRATION: 60, // Default: 1 minute in seconds (used if user setting not found)
     TIMESTAMP_2124: 4866674732  // Default expiration timestamp
 };
 
@@ -274,15 +274,27 @@ const RemoteStorage = {
             timestamp: Date.now()
         };
         
-        // Set expiration to 1 hour from now
-        const oneHourLater = Math.floor(Date.now() / 1000) + REMOTE_STORAGE_CONFIG.FIREWORK_EXPIRATION;
+        // Load fireworks retention time from localStorage (in milliseconds)
+        let retentionTimeMs = 60000; // Default: 1 minute
+        try {
+            const saved = localStorage.getItem('fireworksRetentionTime');
+            if (saved) {
+                retentionTimeMs = parseInt(saved, 10);
+            }
+        } catch (error) {
+            console.error('Error loading fireworks retention time:', error);
+        }
+        
+        // Convert milliseconds to seconds for expiration timestamp
+        const retentionSeconds = Math.round(retentionTimeMs / 1000);
+        const expirationTime = Math.floor(Date.now() / 1000) + retentionSeconds;
         
         try {
             await this.updateKeyValueStore(
                 REMOTE_STORAGE_CONFIG.FIREWORK_KEY, 
                 JSON.stringify(dataToStore), 
                 fireworkId, 
-                oneHourLater
+                expirationTime
             );
             console.log('RemoteStorage: Firework uploaded successfully:', fireworkId);
         } catch (error) {

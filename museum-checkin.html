@@ -877,6 +877,20 @@
             const url = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
             const key = REMOTE_STORAGE_CONFIG.FIREWORK_KEY;
             
+            // Load fireworks retention time from localStorage (in milliseconds)
+            let retentionTimeMs = 60000; // Default: 1 minute
+            try {
+                const saved = localStorage.getItem('fireworksRetentionTime');
+                if (saved) {
+                    retentionTimeMs = parseInt(saved, 10);
+                }
+            } catch (error) {
+                console.error('Error loading fireworks retention time:', error);
+            }
+            
+            // Convert milliseconds to seconds for TTL
+            const ttlSeconds = Math.round(retentionTimeMs / 1000);
+            
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -886,7 +900,7 @@
                     key: key,
                     sortKey: fireworkData.id,
                     value: JSON.stringify(fireworkData),
-                    ttl: 3600
+                    ttl: ttlSeconds  // Use user's fireworks retention setting
                 })
             })
             .then(response => response.json())
