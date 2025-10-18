@@ -1029,7 +1029,7 @@
 
             // Menu actions
             document.getElementById('viewParentTasks').onclick = () => {
-                window.location.href = `index.html?museum=${museumId}&focus=parent`;
+                window.location.href = `index.html?museum=${museumId}&type=parent&age=${ageGroup}`;
             };
 
             document.getElementById('viewAssessment').onclick = () => {
@@ -1050,7 +1050,7 @@
 
             document.getElementById('parentTasksLink').onclick = (e) => {
                 e.preventDefault();
-                window.location.href = `index.html?museum=${museumId}&focus=parent`;
+                window.location.href = `index.html?museum=${museumId}&type=parent&age=${ageGroup}`;
             };
 
             // Settings actions
