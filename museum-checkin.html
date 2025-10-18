@@ -592,7 +592,9 @@
         // Get museum ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const museumId = urlParams.get('museum') || 'forbidden-city';
-        const ageGroup = urlParams.get('age') || '7-12';
+        // Use saved age group from localStorage first, then URL parameter as fallback
+        const savedAgeGroup = localStorage.getItem('ageGroup');
+        const ageGroup = savedAgeGroup || urlParams.get('age') || '7-12';
         const editMode = urlParams.get('edit') === 'true';
 
         // State management
@@ -1013,9 +1015,9 @@
                 ageGroupSelector.addEventListener('change', (e) => {
                     const newAgeGroup = e.target.value;
                     saveAgeGroup(newAgeGroup);
-                    // Reload page with new age group
+                    // Reload page without age parameter (will use localStorage)
                     const url = new URL(window.location);
-                    url.searchParams.set('age', newAgeGroup);
+                    url.searchParams.delete('age');
                     window.location.href = url.toString();
                 });
             }
@@ -1141,7 +1143,7 @@
 
         function saveAgeGroup(ageGroup) {
             try {
-                localStorage.setItem('selectedAgeGroup', ageGroup);
+                localStorage.setItem('ageGroup', ageGroup);
                 return { success: true };
             } catch (error) {
                 console.error('Failed to save age group:', error);
