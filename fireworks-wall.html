@@ -600,18 +600,46 @@
             const wechatQrCodeImg = document.querySelector('#wechatQrCode img');
             const qrLabel = document.querySelector('#wechatQrCode .qr-label');
             
-            if (filterMuseumId && wechatQrCodeImg && qrLabel) {
-                // Use museum-specific QR code for specific museums
+            if (!wechatQrCodeImg || !qrLabel) return;
+
+            // Helper: kebab-case id -> PascalCase (for filename convention)
+            function toPascalCase(id) {
+                return String(id)
+                    .split('-')
+                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join('');
+            }
+
+            if (filterMuseumId) {
+                // Explicit overrides for special naming (optional)
                 const museumQrCodes = {
                     'forbidden-city': 'MuseumCheck_QRCode_ForbiddenCity.png',
                     'zhaoyuan-hengli-watch-museum': 'MuseumCheck_QRCode_ZhaoyuanHengliWatchMuseum.png'
                 };
-                
-                if (museumQrCodes[filterMuseumId]) {
-                    wechatQrCodeImg.src = museumQrCodes[filterMuseumId];
+
+                // Prefer explicit map; otherwise auto-generate by naming convention
+                const explicit = museumQrCodes[filterMuseumId];
+                const candidate = explicit || `MuseumCheck_QRCode_${toPascalCase(filterMuseumId)}.png`;
+
+                // Set label/alt on successful load; fallback to default on error
+                wechatQrCodeImg.onload = () => {
                     wechatQrCodeImg.alt = `${filterMuseumName}打卡二维码`;
                     qrLabel.textContent = '扫码打卡';
-                }
+                };
+                wechatQrCodeImg.onerror = () => {
+                    // Fallback to default WeChat QR
+                    wechatQrCodeImg.onerror = null; // prevent loop
+                    wechatQrCodeImg.src = 'MuseumCheck_QRCode_WX.jpg';
+                    wechatQrCodeImg.alt = '微信小程序二维码';
+                    qrLabel.textContent = '扫码放烟花';
+                };
+
+                wechatQrCodeImg.src = candidate;
+            } else {
+                // No museum filter: show default
+                wechatQrCodeImg.src = 'MuseumCheck_QRCode_WX.jpg';
+                wechatQrCodeImg.alt = '微信小程序二维码';
+                qrLabel.textContent = '扫码放烟花';
             }
         }
 

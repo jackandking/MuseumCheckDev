@@ -45,8 +45,27 @@ async function generateMuseumQRCode(museumId, outputFilename) {
     console.log(`Output: ${outputFilename}`);
     
     try {
+        // Determine standardized output filename if not provided
+        function toPascalCase(id) {
+            return String(id)
+                .split('-')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join('');
+        }
+        function trimSuffix(id, suffix) {
+            return String(id).endsWith(suffix) ? String(id).slice(0, -suffix.length) : id;
+        }
+        const standardizedName = (() => {
+            if (outputFilename && typeof outputFilename === 'string' && outputFilename.trim()) {
+                return outputFilename;
+            }
+            const trimmed = trimSuffix(museumId, '-museum');
+            const base = toPascalCase(trimmed);
+            return `MuseumCheck_QRCode_${base}.png`;
+        })();
+
         // Generate QR code
-        const outputPath = path.join(__dirname, '..', outputFilename);
+        const outputPath = path.join(__dirname, '..', standardizedName);
         await QRCode.toFile(outputPath, url, QR_CODE_OPTIONS);
         
         console.log(`✓ QR code generated successfully: ${outputPath}`);
