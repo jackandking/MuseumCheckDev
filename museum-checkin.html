@@ -470,7 +470,7 @@
         <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
     </div>
 
-    <h1 class="title">孩子任务</h1>
+    <h1 class="title" id="pageTitle">孩子任务</h1>
     <div class="museum-name" id="museumName">加载中...</div>
 
     <div class="progress-container">
@@ -607,6 +607,7 @@
                 document.getElementById('editModeIndicator').classList.add('show');
             }
 
+            updatePageTitle();
             loadMuseumData();
             setupEventListeners();
             loadCompletedTasks();
@@ -1094,6 +1095,21 @@
             });
         }
 
+        // Update page title with child nickname
+        function updatePageTitle() {
+            const nickname = loadChildNickname();
+            const title = `${nickname}的任务`;
+            
+            // Update h1 title
+            const pageTitleElement = document.getElementById('pageTitle');
+            if (pageTitleElement) {
+                pageTitleElement.textContent = title;
+            }
+            
+            // Update page title tag
+            document.title = `${title} - 博物馆打卡`;
+        }
+
         // Settings management functions
         function loadChildNickname() {
             try {
@@ -1112,6 +1128,10 @@
                 }
                 
                 localStorage.setItem('childNickname', nickname.trim());
+                
+                // Update page title after saving nickname
+                updatePageTitle();
+                
                 return { success: true, message: '昵称保存成功！' };
             } catch (error) {
                 console.error('Failed to save child nickname:', error);

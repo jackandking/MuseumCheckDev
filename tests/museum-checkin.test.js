@@ -23,8 +23,21 @@ describe('Museum Check-in Page', () => {
     });
 
     describe('Page Structure', () => {
-        test('should have correct page title', () => {
+        test('should have correct page title (default)', () => {
+            // Default title before nickname is loaded
             expect(htmlContent).toContain('<title>孩子任务 - 博物馆打卡</title>');
+        });
+
+        test('should update page title with child nickname', () => {
+            // Check for updatePageTitle function
+            expect(htmlContent).toContain('function updatePageTitle()');
+            expect(htmlContent).toContain('loadChildNickname()');
+            expect(htmlContent).toContain('的任务');
+            expect(htmlContent).toContain('document.title =');
+        });
+
+        test('should have page title element with id', () => {
+            expect(htmlContent).toContain('id="pageTitle"');
         });
 
         test('should include required JavaScript dependencies', () => {
@@ -113,6 +126,20 @@ describe('Museum Check-in Page', () => {
         test('should save completed tasks to local storage', () => {
             expect(htmlContent).toContain('saveCompletedTasks');
             expect(htmlContent).toContain('loadCompletedTasks');
+        });
+
+        test('should load and save child nickname', () => {
+            expect(htmlContent).toContain('loadChildNickname');
+            expect(htmlContent).toContain('saveChildNickname');
+            expect(htmlContent).toContain('childNickname');
+        });
+
+        test('should update title when nickname is saved', () => {
+            expect(htmlContent).toContain('updatePageTitle()');
+            // Check that saveChildNickname function exists and contains updatePageTitle call
+            expect(htmlContent).toContain('function saveChildNickname');
+            const saveNicknameFnMatch = htmlContent.match(/function saveChildNickname[\s\S]{0,500}updatePageTitle\(\)/);
+            expect(saveNicknameFnMatch).toBeTruthy();
         });
     });
 
@@ -257,6 +284,13 @@ describe('Museum Check-in Page', () => {
         test('should initialize on DOM content loaded', () => {
             expect(htmlContent).toContain('DOMContentLoaded');
             expect(htmlContent).toContain('init');
+        });
+
+        test('should update page title on initialization', () => {
+            // Check that init function exists and contains updatePageTitle call
+            expect(htmlContent).toContain('function init()');
+            const initFnMatch = htmlContent.match(/function init\(\)[\s\S]{0,300}updatePageTitle\(\)/);
+            expect(initFnMatch).toBeTruthy();
         });
     });
 });
