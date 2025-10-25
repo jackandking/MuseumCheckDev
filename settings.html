@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>设置 | MuseumCheck</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Helvetica,Arial; background:#f7f9fb; color:#2c3e50;}
+    .wrap{max-width:760px;margin:0 auto;padding:16px}
+    .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:16px;margin-bottom:16px}
+    .title{font-size:22px;font-weight:800;margin:4px 0 12px}
+    .row{margin:12px 0}
+    label{display:block;font-size:14px;margin-bottom:6px;color:#445}
+    select{width:100%;padding:12px;border-radius:12px;border:2px solid #dee2e6;font-size:16px}
+    .actions{display:flex;gap:10px;margin-top:14px}
+    .btn{padding:12px 16px;border:none;border-radius:12px;cursor:pointer;font-size:16px;font-weight:700}
+    .btn-primary{background:linear-gradient(135deg,#2c5aa0,#5b8bd9);color:#fff}
+    .btn-secondary{background:#eef2f6;color:#2c3e50}
+    .hint{font-size:13px;color:#667;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="title">偏好设置</h1>
+
+    <div class="card">
+      <div class="title" style="font-size:18px">孩子信息</div>
+      <div class="row">
+        <label for="ageGroup">孩子年龄段</label>
+        <select id="ageGroup">
+          <option value="3-6">3-6 岁（学龄前）</option>
+          <option value="7-12">7-12 岁（小学）</option>
+          <option value="13-18">13-18 岁（初高中）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title" style="font-size:18px">陪同者信息</div>
+      <div class="row">
+        <label for="caregiverRole">陪同者与孩子关系</label>
+        <select id="caregiverRole">
+          <option value="parent">父母</option>
+          <option value="grandparent">祖父母</option>
+          <option value="relative">其他亲属</option>
+          <option value="teacher">老师/带队</option>
+        </select>
+        <div class="hint">将据此优先推荐更合适的路线与任务.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="saveBtn" class="btn btn-primary">保存</button>
+      <button id="backBtn" class="btn btn-secondary">返回</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      function load(){
+        try{
+          const age = localStorage.getItem('ageGroup') || '7-12';
+          const role = localStorage.getItem('caregiverRole') || 'parent';
+          document.getElementById('ageGroup').value = age;
+          document.getElementById('caregiverRole').value = role;
+        }catch(e){}
+      }
+      function save(){
+        try{
+          const age = document.getElementById('ageGroup').value;
+          const role = document.getElementById('caregiverRole').value;
+          localStorage.setItem('ageGroup', age);
+          localStorage.setItem('caregiverRole', role);
+          alert('设置已保存');
+        }catch(e){ alert('保存失败，请重试'); }
+      }
+      function back(){
+        const ref = document.referrer || 'index.html';
+        location.href = ref;
+      }
+      document.getElementById('saveBtn').onclick = save;
+      document.getElementById('backBtn').onclick = back;
+      load();
+    })();
+  </script>
+</body>
+</html>

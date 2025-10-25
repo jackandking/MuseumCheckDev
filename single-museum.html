@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单馆模式 - 省心逛馆引导页 | MuseumCheck</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* 单馆模式内联补充样式：强调大字号与高对比 */
+    :root{
+      --bg:#f7f9fc; --card:#ffffff; --text:#2c3e50; --muted:#6b7280; --primary:#2e7cf6; --accent:#ffb703; --success:#22c55e;
+      --radius:14px; --shadow:0 8px 24px rgba(0,0,0,0.08);
+      --space-1:8px; --space-2:12px; --space-3:16px; --space-4:20px;
+    }
+    body{ background: var(--bg); }
+    .sg-container { max-width: 760px; margin: 0 auto; padding: 16px; position: relative; }
+    .sg-title { font-size: 24px; font-weight: 800; color: #2c3e50; margin: 12px 0 8px; }
+    .sg-subtitle { font-size: 16px; color: #555; margin-bottom: 16px; }
+    .sg-section { background: var(--card); border-radius: var(--radius); padding: var(--space-3); box-shadow: var(--shadow); margin-bottom: var(--space-3); }
+    .sg-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .sg-btn { padding: 12px 16px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
+    .sg-btn-primary { background: linear-gradient(135deg,var(--primary),#61a1ff); color: #fff; }
+    .sg-btn-secondary { background: #f1f3f5; color: #2c3e50; }
+    .sg-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px; }
+    .sg-card { background:#fff; border-radius: 12px; overflow: hidden; border: 1px solid #e9ecef; cursor: pointer; display:flex; flex-direction:column; }
+    .sg-card img { width: 100%; height: 140px; object-fit: cover; display:block; }
+    .sg-card-name { font-size: 18px; font-weight: 800; padding: 10px 12px 4px; color:#2c3e50; }
+    .sg-card-desc { font-size: 14px; padding: 0 12px 12px; color:#666; }
+    .sg-search { position: relative; }
+    .sg-search input { width: 100%; padding: 12px 44px 12px 14px; border: 2px solid #dee2e6; border-radius: 12px; font-size: 16px; outline: none; }
+    .sg-search button { position:absolute; right: 8px; top: 50%; transform: translateY(-50%); border:none; background:#f1f3f5; border-radius: 10px; padding: 6px 10px; cursor:pointer; }
+    .sg-list { list-style: none; }
+    .sg-list li { display:flex; align-items:center; justify-content:space-between; padding:12px; border:1px solid #e9ecef; border-radius:10px; margin-bottom:8px; }
+    .sg-list label { font-size: 16px; }
+    .sg-tts { display:flex; gap:8px; align-items:center; margin:8px 0; }
+    .sg-tts button { min-width:44px; min-height:44px; }
+    .sg-stepper { display:flex; gap:8px; margin: 8px 0 12px; flex-wrap: wrap; }
+    .sg-step { padding:8px 12px; border-radius: 999px; background:#f1f3f5; font-size:14px; }
+    .sg-step.active { background:#2c5aa0; color:#fff; font-weight:700; }
+    .sg-photo { display:flex; gap:8px; flex-wrap:wrap; }
+    .sg-photo img { width:96px; height:96px; object-fit:cover; border-radius:8px; border:1px solid #e9ecef; }
+    .sg-poster { text-align:center; }
+    .sg-poster canvas { max-width:100%; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
+    .sr-btn { font-size: 14px; color:#666; }
+    .sg-settings-btn { position:absolute; top:8px; right:8px; background:#fff; color:#2c3e50; border:1px solid #e9ecef; border-radius:10px; padding:8px 10px; font-size:14px; font-weight:700; text-decoration:none; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; }
+    .sg-settings-btn:active { transform: translateY(1px); }
+    /* Modal */
+    .sg-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+    .sg-modal { background:#fff; width:100%; max-width:500px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+    .sg-modal header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #eef2f6; }
+    .sg-modal h2 { font-size:18px; margin:0; }
+    .sg-modal .body { padding: 12px 16px; }
+    .sg-form-row { margin:12px 0; }
+    .sg-form-row label { display:block; font-size:14px; margin-bottom:6px; color:#445; }
+    .sg-form-row select { width:100%; padding:10px; border-radius:10px; border:2px solid #dee2e6; font-size:16px; }
+    .sg-modal .actions { display:flex; gap:10px; justify-content:flex-end; padding:12px 16px; border-top:1px solid #eef2f6; }
+  </style>
+</head>
+<body>
+  <div class="sg-container">
+    <button id="sgSettingsBtn" class="sg-settings-btn" type="button" title="设置年龄与陪同者">⚙️ 设置</button>
+    <h1 class="sg-title">单馆模式 · 省心逛馆</h1>
+    <div class="sg-subtitle">一步进入 · 一步完成 · 一步分享</div>
+
+    <!-- 步骤条 -->
+    <div id="sgStepper" class="sg-stepper" aria-label="流程步骤">
+      <div class="sg-step" data-step="select">选择博物馆</div>
+      <div class="sg-step" data-step="prep">行前准备</div>
+      <div class="sg-step" data-step="enroute">路上引导</div>
+      <div class="sg-step" data-step="visit">参观任务</div>
+      <div class="sg-step" data-step="share">分享纪念</div>
+    </div>
+
+    <!-- 选择博物馆 -->
+    <section id="step-select" class="sg-section" role="region" aria-labelledby="select-title">
+      <div class="sg-title" id="select-title">今天我们去哪儿玩？</div>
+      <div class="sg-search" style="margin:8px 0 12px;">
+        <input id="sgSearch" placeholder="🔍 搜索博物馆名称、城市或标签" aria-label="搜索博物馆">
+        <button id="sgClear">清空</button>
+      </div>
+      <div id="sgGrid" class="sg-grid" role="list" aria-label="博物馆列表"></div>
+    </section>
+
+    <!-- 行前准备 -->
+    <section id="step-prep" class="sg-section" role="region" aria-labelledby="prep-title" hidden>
+      <div class="sg-title" id="prep-title">出发前，我们先准备好</div>
+      <!-- Workflow Picker (only visible when workflows exist for the selected museum) -->
+      <div id="sgWorkflowPickerWrap" class="sg-section" style="display:none; margin-bottom:12px;">
+        <div class="sg-title" style="font-size:18px;">选择逛馆方式（Workflow）</div>
+        <div class="sg-subtitle">每一种是不同的亲子路线组织方式</div>
+        <label class="sr-only" for="sgWorkflowPicker">选择逛馆方式</label>
+        <select id="sgWorkflowPicker" style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:2px solid #dee2e6;">
+          <option value="">请选择一个亲子路线</option>
+        </select>
+      </div>
+      <ul class="sg-list" id="sgPrepList">
+        <li>
+          <label>预约门票 · 帮我们预约好门票了吗？</label>
+          <div class="sg-actions">
+            <button class="sg-btn sg-btn-secondary" id="sgGoReserve" aria-label="去预约">去预约</button>
+          </div>
+        </li>
+        <li>
+          <label>物品准备 · 宝贝的水壶和小零食</label>
+          <input type="checkbox" id="sgItemPack" aria-label="已准备水壶和零食">
+        </li>
+        <li>
+          <label>穿着建议 · 穿舒服的鞋子，今天要走很多路</label>
+          <input type="checkbox" id="sgItemWear" aria-label="已穿舒适的鞋子">
+        </li>
+      </ul>
+      <div class="sg-actions">
+        <button class="sg-btn sg-btn-primary" id="sgPrepDone" disabled>准备好了，出发！</button>
+      </div>
+    </section>
+
+    <!-- 路上引导 -->
+    <section id="step-enroute" class="sg-section" role="region" aria-labelledby="enroute-title" hidden>
+      <div class="sg-title" id="enroute-title">路上可以玩个小游戏</div>
+      <div>
+        <div id="sgParentTips" style="margin:10px 0; font-size:15px; line-height:1.6;"></div>
+        <!-- Workflow Enroute tasks rendered here (if any) -->
+        <div id="sgWorkflowEnroute" style="margin-top:8px; display:none;"></div>
+      </div>
+      <div class="sg-actions">
+        <button class="sg-btn sg-btn-primary" id="sgArrived">到达博物馆</button>
+      </div>
+    </section>
+
+    <!-- 参观任务 -->
+    <section id="step-visit" class="sg-section" role="region" aria-labelledby="visit-title" hidden>
+      <div class="sg-title" id="visit-title">探险开始啦！</div>
+      <div id="sgVisitProgress" class="sg-progress" aria-live="polite" style="display:none;">
+        <span id="sgVisitProgressText" style="font-size:14px;color:var(--muted);">步骤 1/1</span>
+        <div class="bar"><i id="sgVisitProgressBar"></i></div>
+      </div>
+      <!-- Workflow Visit tasks container (hidden by default). When shown, it replaces the static tasks below. -->
+      <div id="sgWorkflowVisit" style="display:none;"></div>
+      <div id="sgVisitTasks">
+        <!-- 步骤一：门口打卡 -->
+        <div class="sg-section" id="task-1">
+          <div class="sg-title">步骤一：门口打卡</div>
+          <div class="sg-subtitle">先和宝贝在博物馆门口拍张照吧！</div>
+          <input type="file" id="camEntrance" accept="image/*" capture="environment" aria-label="打开相机">
+          <div class="sg-photo" id="photoEntrance"></div>
+        </div>
+        <!-- 步骤二：寻找宝藏（玉琮示例） -->
+        <div class="sg-section" id="task-2">
+          <div class="sg-title">步骤二：寻找宝藏</div>
+          <div class="sg-subtitle">请找到这个“玉琮”，它是方形的，上面有小眼睛图案。</div>
+          <img alt="玉琮示意图" src="https://img.alicdn.com/imgextra/i3/O1CN01XQm7XG1I2aQF4hgyb_!!6000000000818-2-tps-800-600.png" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;border:1px solid #e9ecef;"/>
+          <div class="sg-actions">
+            <button class="sg-btn sg-btn-primary" id="foundJade">我找到了</button>
+          </div>
+        </div>
+        <!-- 步骤三：胜利合影 -->
+        <div class="sg-section" id="task-3">
+          <div class="sg-title">步骤三：胜利合影</div>
+          <div class="sg-subtitle">参观快要结束了，和宝贝在大厅合个影吧！</div>
+          <input type="file" id="camVictory" accept="image/*" capture="environment" aria-label="打开相机">
+          <div class="sg-photo" id="photoVictory"></div>
+        </div>
+      </div>
+      <div class="sg-actions sg-sticky-actions">
+        <button class="sg-btn sg-btn-secondary" id="sgVisitPrev">上一步</button>
+        <button class="sg-btn sg-btn-primary" id="sgVisitNext">下一步</button>
+        <span id="sgVisitHint" class="sg-next-hint"></span>
+      </div>
+    </section>
+
+    <!-- 分享纪念 -->
+    <section id="step-share" class="sg-section" role="region" aria-labelledby="share-title" hidden>
+      <div class="sg-title" id="share-title">今天的探险圆满结束！</div>
+      <div class="sg-subtitle" id="share-sub">将为你自动生成成就海报</div>
+      <div class="sg-poster">
+        <canvas id="posterCanvas" width="720" height="1280" style="display:none"></canvas>
+        <div id="posterPreview"></div>
+        <div class="sg-actions">
+          <button class="sg-btn sg-btn-primary" id="savePoster">保存到相册</button>
+          <button class="sg-btn sg-btn-secondary" id="sharePoster">分享给家人</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="museums-data.js"></script>
+  <script src="workflows-data.js"></script>
+  <script src="single-museum.js"></script>
+
+  <!-- Inline Settings Modal -->
+  <div id="sgSettingsModal" class="sg-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sgSettingsTitle">
+    <div class="sg-modal">
+      <header>
+        <h2 id="sgSettingsTitle">偏好设置</h2>
+        <button id="sgSettingsClose" class="sg-btn sg-btn-secondary" type="button">关闭</button>
+      </header>
+      <div class="body">
+        <div class="sg-form-row">
+          <label for="sgAgeGroup">孩子年龄段</label>
+          <select id="sgAgeGroup">
+            <option value="3-6">3-6 岁（学龄前）</option>
+            <option value="7-12">7-12 岁（小学）</option>
+            <option value="13-18">13-18 岁（初高中）</option>
+          </select>
+        </div>
+        <div class="sg-form-row">
+          <label for="sgCaregiverRole">陪同者与孩子关系</label>
+          <select id="sgCaregiverRole">
+            <option value="parent">父母</option>
+            <option value="grandparent">祖父母</option>
+            <option value="relative">其他亲属</option>
+            <option value="teacher">老师/带队</option>
+          </select>
+        </div>
+        <div class="sg-form-row">
+          <label for="sgWorkflowSetting">逛馆方式（可选）</label>
+          <select id="sgWorkflowSetting">
+            <option value="">自动推荐（按年龄与陪同者）</option>
+          </select>
+        </div>
+        <div class="sr-btn" aria-live="polite">保存后将按设置推荐更合适的路线</div>
+      </div>
+      <div class="actions">
+        <button id="sgSettingsSave" class="sg-btn sg-btn-primary" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+  <div id="sgToast" role="status" aria-live="polite"></div>
+</body>
+</html>

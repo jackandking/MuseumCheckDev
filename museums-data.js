@@ -175,6 +175,7 @@ const MUSEUMS = [
         location: '上海',
         description: '以古代艺术为主的综合性博物馆，被誉为"中华艺术宫"',
         tags: ['艺术', '文物', '收藏'],
+        image: 'https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&',  
         checklists: {
             parent: {
                 '3-6': [
@@ -2529,6 +2530,7 @@ const MUSEUMS = [
         location: '上海',
         description: '大型科技类博物馆，展示现代科技发展和科学原理',
         tags: ['科技创新', '科学教育', '互动体验'],
+        image: 'https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&',
         checklists: {
             parent: {
                 '3-6': [
