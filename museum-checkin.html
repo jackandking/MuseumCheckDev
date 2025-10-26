@@ -1,3 +1,18 @@
+        // Build parent tasks URL with focus=parent
+        function buildParentTasksURL() {
+            const params = new URLSearchParams();
+            params.set('museum', museumId);
+            params.set('focus', 'parent');
+            return `index.html?${params.toString()}`;
+        }
+
+        // Wire parent tasks links
+        document.addEventListener('DOMContentLoaded', () => {
+            const link = document.getElementById('parentTasksLink');
+            if (link) link.setAttribute('href', buildParentTasksURL());
+            const btn = document.getElementById('viewParentTasks');
+            if (btn) btn.addEventListener('click', () => { window.location.href = buildParentTasksURL(); });
+        });
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -505,7 +520,7 @@
                 <div class="parent-hint-title">💡 给家长的提示</div>
                 <div class="parent-hint-text">
                     孩子完成任务很棒！想让博物馆之旅更有意义吗？
-                    <br>查看<a href="#" class="parent-hint-link" id="parentTasksLink">家长任务清单</a>，
+                    <br>查看<a href="index.html?museum=&focus=parent" class="parent-hint-link" id="parentTasksLink">家长任务清单</a>，
                     了解如何通过参观增进亲子关系。
                 </div>
             </div>
@@ -520,7 +535,7 @@
                 <button class="close-button" id="closeMenu">&times;</button>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="button button-primary" id="viewParentTasks">查看家长任务</button>
+                <button class="button button-primary" id="viewParentTasks" data-target="index.html?museum=&focus=parent">查看家长任务</button>
                 <button class="button button-primary" id="viewAssessment">亲子关系测评</button>
                 <button class="button button-secondary" id="viewMuseumFireworks">🎆 查看本馆烟花墙</button>
                 <button class="button button-secondary" id="viewFireworks">查看总烟花墙</button>

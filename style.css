@@ -19,6 +19,19 @@
     --minecraft-redstone: #c41919;
 }
 
+.assessment-label {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-left: 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    background: #f1f3f5;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    cursor: default;
+    user-select: none;
+}
+
 * {
     margin: 0;
     padding: 0;

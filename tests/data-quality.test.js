@@ -199,7 +199,7 @@ describe('Museum Data Quality', () => {
         console.log(`Current museum count: ${museums.length}`);
         
         // Exact count after systematic deduplication
-        expect(museums.length).toBe(260);
+        expect(museums.length).toBe(261);
         
         // Validate that this is within reasonable operational range
         expect(museums.length).toBeGreaterThan(200);

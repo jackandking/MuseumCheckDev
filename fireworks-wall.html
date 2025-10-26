@@ -1498,19 +1498,45 @@
             }, LAUNCH_INTERVAL);
         }
 
-        // Start periodic downloads
+        // Adaptive polling state
+        let pollMinMs = 2000;
+        let pollMaxMs = 60000; // cap at 60s
+        let pollIntervalMs = pollMinMs;
+
+        // Start adaptive downloads (immediate fetch, then backoff)
         function startPeriodicDownloads() {
             if (downloadTimer) {
-                clearInterval(downloadTimer);
+                clearTimeout(downloadTimer);
+                downloadTimer = null;
             }
-            
-            // Download immediately
-            downloadRemoteFireworks();
-            
-            // Then download periodically
-            downloadTimer = setInterval(() => {
-                downloadRemoteFireworks();
-            }, 10000); // Every 10 seconds
+            pollIntervalMs = pollMinMs; // reset when starting
+            scheduleNextDownload(0, true);
+        }
+
+        function scheduleNextDownload(delayMs, immediate = false) {
+            if (document.hidden && !immediate) return; // pause when hidden
+            downloadTimer = setTimeout(async () => {
+                if (document.hidden) return; // skip if hidden
+                const prevMax = getMaxTimestamp(allFireworksData);
+                try {
+                    await downloadRemoteFireworks();
+                } catch (_) {}
+                const currMax = getMaxTimestamp(allFireworksData);
+                const hadNew = currMax > prevMax;
+                if (hadNew) {
+                    pollIntervalMs = pollMinMs; // reset faster on new data
+                } else {
+                    pollIntervalMs = Math.min(pollMaxMs, Math.max(pollMinMs, Math.floor(pollIntervalMs * 2)));
+                }
+                const jitter = 0.85 + Math.random() * 0.30; // ±15%
+                const nextDelay = Math.floor(pollIntervalMs * jitter);
+                scheduleNextDownload(nextDelay, false);
+            }, Math.max(0, delayMs|0));
+        }
+
+        function getMaxTimestamp(list) {
+            if (!Array.isArray(list) || list.length === 0) return 0;
+            return list.reduce((m, x) => Math.max(m, typeof x?.timestamp === 'number' ? x.timestamp : 0), 0);
         }
 
         // Initialize
@@ -1531,6 +1557,15 @@
             // Load data
             loadLocalFireworks();
             startPeriodicDownloads();
+
+            // Pause/resume on visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    if (downloadTimer) { clearTimeout(downloadTimer); downloadTimer = null; }
+                } else {
+                    startPeriodicDownloads();
+                }
+            });
             
             // Start animation
             animate();

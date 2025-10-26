@@ -36,6 +36,10 @@
     <meta name="msvalidate.01" content="bing-verification-museum-check">
     
     <link rel="stylesheet" href="style.css">
+    <!-- Performance: preconnect/dns-prefetch to CDN hosting images -->
+    <link rel="preconnect" href="https://eb118-file.cdn.bcebos.com" crossorigin>
+    <link rel="dns-prefetch" href="//eb118-file.cdn.bcebos.com">
+    <script>window.performance && performance.mark && performance.mark('mc_head_loaded');</script>
     
     <!-- Cache busting meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -555,8 +559,59 @@
         </div>
     </div>
 
-    <script src="museums-data.js"></script>
+    <script>
+      // Meta cache shim (versioned)
+      (function(){
+        try{
+          const V='v1';
+          const KEY='museumsMeta:'+V;
+          const cached=localStorage.getItem(KEY);
+          if(cached){
+            window.MUSEUMS_META = JSON.parse(cached);
+          }
+          window.__updateMuseumsMetaCache = function(meta){
+            try{ localStorage.setItem(KEY, JSON.stringify(meta||[])); }catch(e){}
+          };
+        }catch(e){}
+      })();
+    </script>
+    <script src="museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
+    <script>
+      // Adopt meta as default dataset before main script executes
+      (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
+    </script>
     <script src="firework.js"></script>
     <script src="script.js"></script>
+    <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
+    <span id="sectionMuseumCount" style="display:none"></span>
+    <script>
+      // Use meta as initial MUSEUMS, lazy-load full data on first interaction
+      (function(){
+        function adoptMeta(){
+          if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; }
+        }
+        adoptMeta();
+        let loaded=false; let loading=false;
+        async function ensureFull(){
+          if(loaded||loading) return; loading=true;
+          await new Promise((res,rej)=>{
+            const s=document.createElement('script');
+            s.src='museums-data.js'; s.defer=true; s.onload=()=>{ loaded=true; res(); };
+            s.onerror=()=>{ loading=false; rej(new Error('load museums-data.js failed')); };
+            document.head.appendChild(s);
+          }).catch(()=>{});
+        }
+        const once = (type)=>{
+          const fn = async ()=>{ window.removeEventListener(type, fn, {capture:true}); await ensureFull(); };
+          window.addEventListener(type, fn, { once:true, capture:true });
+        };
+        once('pointerdown'); once('keydown'); once('touchstart');
+        // Fallback: after modal is opened attempt ensure (script.js opens quickly after click)
+        document.addEventListener('click', (e)=>{
+          const card = e.target && (e.target.closest && e.target.closest('.museum-card, .sg-card'));
+          if(card) ensureFull();
+        }, true);
+      })();
+    </script>
 </body>
 </html>
