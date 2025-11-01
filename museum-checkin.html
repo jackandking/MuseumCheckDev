@@ -579,6 +579,24 @@
 
     <!-- Load dependencies -->
     <script src="museums-data.js"></script>
+    <!-- Per-museum data file(s) override -->
+    <script src="museums/pinghu-museum.js"></script>
+    <script>
+      (function(){
+        try{
+          if(Array.isArray(window.MUSEUMS)){
+            var overrides=[];
+            if(window.MUSEUM_PINGHU) overrides.push(window.MUSEUM_PINGHU);
+            overrides.forEach(function(m){
+              if(!m||!m.id) return;
+              var idx = window.MUSEUMS.findIndex(function(x){ return x && x.id===m.id; });
+              if(idx>=0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], m);
+              else window.MUSEUMS.push(m);
+            });
+          }
+        }catch(e){}
+      })();
+    </script>
     <script src="firework.js"></script>
     
     <script>
@@ -633,6 +651,19 @@
             // Get child tasks for the age group
             if (currentMuseum.checklists && currentMuseum.checklists.child) {
                 childTasks = currentMuseum.checklists.child[ageGroup] || [];
+            }
+            // Append collection-derived tasks (top 3)
+            if (Array.isArray(currentMuseum.collections) && currentMuseum.collections.length) {
+                const extras = currentMuseum.collections.slice(0, 3).map(c => `🏺 镇馆之宝：找到「${c.name}」并合影`);
+                childTasks = childTasks.concat(extras);
+            }
+            // Pinghu-specific: child tasks reduced to 3 items
+            if (currentMuseum.id === 'pinghu-museum') {
+                const colls = Array.isArray(currentMuseum.collections) ? currentMuseum.collections : [];
+                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+                const collTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
+                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+                childTasks = [start].concat(collTasks, [end]);
             }
 
             renderTasks();
@@ -721,7 +752,23 @@
             document.getElementById('modalIcon').textContent = icon;
             document.getElementById('modalTaskTitle').textContent = title;
             document.getElementById('modalDescription').textContent = subtitle || '完成这个有趣的任务吧！';
-            
+            // Try show collection image
+            try {
+                const imgEl = document.getElementById('modalImage');
+                const m = currentMuseum;
+                let matchedUrl = '';
+                if (imgEl && m && Array.isArray(m.collections)) {
+                    const nameMatch = subtitle && subtitle.match(/「([^」]+)」/);
+                    const collName = nameMatch && nameMatch[1];
+                    const found = m.collections.find(c => c && c.name === collName);
+                    matchedUrl = found && found.url || '';
+                }
+                if (imgEl) {
+                    if (matchedUrl) { imgEl.src = matchedUrl; imgEl.style.display = 'block'; }
+                    else { imgEl.removeAttribute('src'); imgEl.style.display = 'none'; }
+                }
+            } catch(e) {}
+
             // Show/hide complete button based on completion status
             const completeButton = document.getElementById('completeButton');
             if (isCompleted) {
