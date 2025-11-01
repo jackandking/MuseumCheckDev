@@ -399,9 +399,67 @@
     state.selectedWorkflow = null;
     state.wfMode = false;
     state.wfVisitCount = 0;
-    // Keep legacy picker hidden to reduce cognitive load
-    const wrap = $('#sgWorkflowPickerWrap');
-    if(wrap) wrap.style.display = 'none';
+    
+    // Show workflow display if workflows exist
+    const displayWrap = $('#sgWorkflowDisplayWrap');
+    const workflowCard = $('#sgWorkflowCard');
+    const pickerSection = $('#sgWorkflowPickerSection');
+    const picker = $('#sgWorkflowPicker');
+    
+    if(list.length === 0){
+      // No workflows, hide everything
+      if(displayWrap) displayWrap.style.display = 'none';
+    } else if(list.length === 1){
+      // Single workflow: show as informative card
+      if(displayWrap) displayWrap.style.display = 'block';
+      if(workflowCard) workflowCard.style.display = 'block';
+      if(pickerSection) pickerSection.style.display = 'none';
+      
+      const wf = list[0];
+      const totalTasks = ((wf.tasks?.enroute || []).length + (wf.tasks?.visit || []).length);
+      const cardName = $('#sgWorkflowCardName');
+      const cardDesc = $('#sgWorkflowCardDesc');
+      const cardTasks = $('#sgWorkflowCardTasks');
+      
+      if(cardName) cardName.textContent = wf.name;
+      if(cardDesc) cardDesc.textContent = wf.description;
+      if(cardTasks) cardTasks.textContent = `📋 包含 ${totalTasks} 个任务`;
+    } else {
+      // Multiple workflows: show picker with enhanced display
+      if(displayWrap) displayWrap.style.display = 'block';
+      if(workflowCard) workflowCard.style.display = 'none';
+      if(pickerSection) pickerSection.style.display = 'block';
+      
+      if(picker){
+        // Clear and populate picker
+        picker.innerHTML = '<option value="">请选择一个参观路线</option>';
+        list.forEach(wf => {
+          const opt = document.createElement('option');
+          opt.value = wf.id;
+          opt.textContent = wf.name;
+          picker.appendChild(opt);
+        });
+        
+        // Add change handler to update description
+        picker.onchange = ()=>{
+          const selectedId = picker.value;
+          const wf = list.find(w => w.id === selectedId);
+          const descDiv = $('#sgWorkflowPickerDesc');
+          
+          if(wf && descDiv){
+            const totalTasks = ((wf.tasks?.enroute || []).length + (wf.tasks?.visit || []).length);
+            descDiv.innerHTML = `<strong>${wf.description}</strong><br><span style="font-size: 13px; color: #6c757d;">📋 包含 ${totalTasks} 个任务</span>`;
+            descDiv.style.display = 'block';
+            
+            // Apply the selected workflow
+            setWorkflowSetting(museum.id, selectedId);
+            applyWorkflowSettingForMuseum(museum);
+          } else if(descDiv){
+            descDiv.style.display = 'none';
+          }
+        };
+      }
+    }
   }
 
   function getWorkflowSetting(museumId){

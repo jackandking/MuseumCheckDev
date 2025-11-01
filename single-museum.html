@@ -117,14 +117,29 @@
     <!-- 行前准备 -->
     <section id="step-prep" class="sg-section" role="region" aria-labelledby="prep-title" hidden>
       <div class="sg-title" id="prep-title">出发前，我们先准备好</div>
-      <!-- Workflow Picker (only visible when workflows exist for the selected museum) -->
-      <div id="sgWorkflowPickerWrap" class="sg-section" style="display:none; margin-bottom:12px;">
-        <div class="sg-title" style="font-size:18px;">选择逛馆方式（Workflow）</div>
-        <div class="sg-subtitle">每一种是不同的亲子路线组织方式</div>
-        <label class="sr-only" for="sgWorkflowPicker">选择逛馆方式</label>
-        <select id="sgWorkflowPicker" style="width:100%; padding:10px; font-size:16px; border-radius:10px; border:2px solid #dee2e6;">
-          <option value="">请选择一个亲子路线</option>
-        </select>
+      <!-- Workflow Display (visible when workflows exist for the selected museum) -->
+      <div id="sgWorkflowDisplayWrap" class="sg-section" style="display:none; margin-bottom:12px;">
+        <div class="sg-title" style="font-size:18px;">📍 参观路线</div>
+        
+        <!-- Single workflow display (card) -->
+        <div id="sgWorkflowCard" style="display:none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+          <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;" id="sgWorkflowCardName">路线名称</div>
+          <div style="font-size: 14px; opacity: 0.95; margin-bottom: 12px;" id="sgWorkflowCardDesc">路线描述</div>
+          <div style="font-size: 13px; opacity: 0.9; display: flex; align-items: center; gap: 4px;">
+            <span id="sgWorkflowCardTasks">包含 X 个任务</span>
+          </div>
+        </div>
+        
+        <!-- Multiple workflow picker (dropdown with enhanced display) -->
+        <div id="sgWorkflowPickerSection" style="display:none;">
+          <div class="sg-subtitle">根据您的需求选择合适的路线</div>
+          <label class="sr-only" for="sgWorkflowPicker">选择参观路线</label>
+          <select id="sgWorkflowPicker" style="width:100%; padding:12px; font-size:16px; border-radius:10px; border:2px solid #dee2e6; background: white;">
+            <option value="">请选择一个参观路线</option>
+          </select>
+          <div id="sgWorkflowPickerDesc" style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #495057; display: none;">
+          </div>
+        </div>
       </div>
       <ul class="sg-list" id="sgPrepList">
         <li>
