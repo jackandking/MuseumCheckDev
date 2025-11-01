@@ -1,18 +1,3 @@
-        // Build parent tasks URL with focus=parent
-        function buildParentTasksURL() {
-            const params = new URLSearchParams();
-            params.set('museum', museumId);
-            params.set('focus', 'parent');
-            return `index.html?${params.toString()}`;
-        }
-
-        // Wire parent tasks links
-        document.addEventListener('DOMContentLoaded', () => {
-            const link = document.getElementById('parentTasksLink');
-            if (link) link.setAttribute('href', buildParentTasksURL());
-            const btn = document.getElementById('viewParentTasks');
-            if (btn) btn.addEventListener('click', () => { window.location.href = buildParentTasksURL(); });
-        });
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
