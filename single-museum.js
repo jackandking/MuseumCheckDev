@@ -250,6 +250,13 @@
     setupWorkflowPicker(m);
     // Apply default/explicit workflow selection without showing picker
     applyWorkflowSettingForMuseum(m);
+    // Skip prep/enroute steps for Pinghu Museum (simplified workflow)
+    if(m && m.id === 'pinghu-museum'){
+      state.innerTaskIndex = 0;
+      setStep('visit');
+      updateInnerTaskVisibility();
+      return;
+    }
     // Only show prep if reservation is required; otherwise jump to enroute
     if(hasReservation(m)){
       preparePrepUIForReservation(m);
@@ -666,7 +673,16 @@
         input.style.cursor = 'pointer';
         input.style.marginBottom = '12px';
         input.addEventListener('change', (e)=> {
-          handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
+          const success = handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
+          if(!success) return;
+          
+          // Show immediate feedback for treasure photos
+          if(t.role === 'child' && t.type === 'photo'){
+            showToast('📸 拍照成功！找到宝藏了！');
+          } else {
+            showToast('📸 照片已保存！');
+          }
+          
           state.completedVisit[idx] = true;
           try{ if(state.selectedMuseum && t && t.id){ __markDone(state.selectedMuseum.id, t.id, true); } }catch(err){}
           const last = Math.max(0, state.wfVisitCount - 1);
@@ -779,8 +795,20 @@
     // Camera inputs
     const camEntrance = $('#camEntrance');
     const camVictory = $('#camVictory');
-    if(camEntrance) camEntrance.addEventListener('change', (e)=> { handlePhotoInput(e, 'entrance', '#photoEntrance'); state.completedVisit[0]=true; if(state.innerTaskIndex===0){ state.prevInnerTaskIndex=0; state.innerTaskIndex=1; } updateInnerTaskVisibility(); });
-    if(camVictory) camVictory.addEventListener('change', (e)=> { handlePhotoInput(e, 'victory', '#photoVictory'); state.completedVisit[2]=true; setStep('share'); updateInnerTaskVisibility(); });
+    if(camEntrance) camEntrance.addEventListener('change', (e)=> { 
+      const success = handlePhotoInput(e, 'entrance', '#photoEntrance'); 
+      if(success) showToast('📸 门口打卡成功！');
+      state.completedVisit[0]=true; 
+      if(state.innerTaskIndex===0){ state.prevInnerTaskIndex=0; state.innerTaskIndex=1; } 
+      updateInnerTaskVisibility(); 
+    });
+    if(camVictory) camVictory.addEventListener('change', (e)=> { 
+      const success = handlePhotoInput(e, 'victory', '#photoVictory'); 
+      if(success) showToast('📸 胜利合影完成！');
+      state.completedVisit[2]=true; 
+      setStep('share'); 
+      updateInnerTaskVisibility(); 
+    });
 
     updateInnerTaskVisibility();
   }
@@ -903,20 +931,28 @@
   }
 
   function handlePhotoInput(evt, key, previewSel){
-    const files = Array.from(evt.target.files || []);
-    if(!files.length) return;
-    const preview = document.querySelector(previewSel);
-    preview.innerHTML = '';
-    const limit = Math.min(files.length, 3);
-    for(let i=0;i<limit;i++){
-      const f = files[i];
-      const url = URL.createObjectURL(f);
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = 'photo';
-      preview.appendChild(img);
+    try {
+      const files = Array.from(evt.target.files || []);
+      if(!files.length) return false;
+      const preview = document.querySelector(previewSel);
+      if(!preview) return false;
+      preview.innerHTML = '';
+      const limit = Math.min(files.length, 3);
+      for(let i=0;i<limit;i++){
+        const f = files[i];
+        const url = URL.createObjectURL(f);
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'photo';
+        preview.appendChild(img);
+      }
+      state.photos[key] = files;
+      return true;
+    } catch(e) {
+      console.error('Photo handling error:', e);
+      showToast('照片加载失败，请重试 ⚠️');
+      return false;
     }
-    state.photos[key] = files;
   }
 
   // Poster generation
@@ -1153,7 +1189,22 @@
     if(h) h.textContent = `点击屏幕，开始${nick}的${museumName}之旅`;
     if(s) s.textContent = '轻触任意位置开始';
     ov.style.display = 'flex';
-    const start = ()=>{ ov.style.display = 'none'; try{ document.documentElement.classList.add('sg-immersive'); }catch(e){} tryRequestWakeLock(); setStep('prep'); document.removeEventListener('click', pageTapOnce, true); };
+    const start = ()=>{ 
+      ov.style.display = 'none'; 
+      try{ document.documentElement.classList.add('sg-immersive'); }catch(e){} 
+      tryRequestWakeLock(); 
+      // Skip prep/enroute for Pinghu Museum (simplified workflow)
+      if(state.selectedMuseum && state.selectedMuseum.id === 'pinghu-museum'){
+        state.innerTaskIndex = 0;
+        // Ensure workflow is rendered before setting step
+        renderWorkflowVisit();
+        setStep('visit');
+        updateInnerTaskVisibility();
+      } else {
+        setStep('prep');
+      }
+      document.removeEventListener('click', pageTapOnce, true); 
+    };
     const pageTapOnce = (e)=>{
       if(ov.style.display !== 'none'){
         e.stopPropagation();
@@ -1241,9 +1292,9 @@
         alert('当前设置下该博物馆暂无适配路线，请重新选择');
       } else {
         setupWorkflowPicker(state.selectedMuseum);
+        applyWorkflowSettingForMuseum(state.selectedMuseum);
         // If on enroute/visit, ensure visibility respects new wf/task filters
-        renderWorkflowEnroute();
-        renderWorkflowVisit();
+        // Note: renderWorkflowEnroute and renderWorkflowVisit are already called in applyWorkflowSettingForMuseum
         updateInnerTaskVisibility();
       }
     }
