@@ -312,6 +312,18 @@ https://museumcheck.cn/
 
 访问 **[Wiki首页](wiki/Home.md)** 获取完整导航。
 
+### 📊 数据管理
+项目支持两种博物馆数据管理方式：
+
+- **集中管理模式** (推荐) - 所有博物馆数据（包括工作流）集中在单个文件中
+  - 示例：`museums/pinghu-museum.js`（平湖博物馆）
+  - 优势：易于维护，内容创作更高效
+  - 详见 **[CENTRALIZED_DATA_PATTERN.md](CENTRALIZED_DATA_PATTERN.md)** 完整说明
+
+- **分离管理模式** (兼容) - 工作流数据在 `workflows-data.js` 中统一管理
+  - 适用于已有的博物馆
+  - 系统自动兼容两种模式
+
 ### 版本管理
 该项目使用集中式版本管理系统：
 - 所有版本信息存储在 `script.js` 的 `RECENT_CHANGES` 对象中

@@ -364,7 +364,13 @@
   function getWorkflowsForMuseum(museum){
     try{
       const id = museum && museum.id;
-      const all = (window.WORKFLOWS && window.WORKFLOWS[id]) || [];
+      // Check for workflows in museum object first (centralized data), then fall back to global WORKFLOWS
+      let all = [];
+      if (museum && Array.isArray(museum.workflows)) {
+        all = museum.workflows;
+      } else if (window.WORKFLOWS && window.WORKFLOWS[id]) {
+        all = window.WORKFLOWS[id];
+      }
       const list = Array.isArray(all) ? all : [];
       const age = getAgeGroup();
       // filter by workflow ages if provided

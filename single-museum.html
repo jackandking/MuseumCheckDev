@@ -217,6 +217,25 @@
   </div>
 
   <script src="museums-data.js"></script>
+  <!-- Per-museum data files (override) -->
+  <script src="museums/pinghu-museum.js"></script>
+  <script>
+    // Merge per-museum overrides into MUSEUMS (priority to per-museum file)
+    (function(){
+      try{
+        if(Array.isArray(window.MUSEUMS)){
+          var overrides = [];
+          if(window.MUSEUM_PINGHU) overrides.push(window.MUSEUM_PINGHU);
+          overrides.forEach(function(m){
+            if(!m || !m.id) return;
+            var idx = window.MUSEUMS.findIndex(function(x){ return x && x.id===m.id; });
+            if(idx>=0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], m);
+            else window.MUSEUMS.push(m);
+          });
+        }
+      }catch(e){}
+    })();
+  </script>
   <script src="workflows-data.js"></script>
   <script src="single-museum.js"></script>
 

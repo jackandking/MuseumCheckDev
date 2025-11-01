@@ -9,6 +9,39 @@ window.MUSEUM_PINGHU = {
     { name: '新石器时代崧泽文化夹砂红陶鼎', url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/63305db12e457.jpg' },
     { name: '新石器时代良渚文化黑皮陶盉', url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633060a43fd82.jpg' }
   ],
+  workflows: [
+    {
+      id: 'treasure-discovery',
+      name: '镇馆之宝探索',
+      description: '围绕平湖博物馆三大镇馆之宝的亲子探索路线',
+      ages: ['3-6', '7-12'],
+      tasks: {
+        enroute: [],
+        visit: [
+          { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '博物馆门口合影', ages: ['3-6','7-12','13-18'] },
+          { id: 'find-buddha', role: 'child', type: 'photo', title: '镇馆之宝：佛头', subtitle: '找到「唐铸铁佛头」并合影', ages: ['3-6','7-12','13-18'] },
+          { id: 'find-ding', role: 'child', type: 'photo', title: '镇馆之宝：陶鼎', subtitle: '找到「新石器时代崧泽文化夹砂红陶鼎」并合影', ages: ['3-6','7-12','13-18'] },
+          { id: 'find-he', role: 'child', type: 'photo', title: '镇馆之宝：陶盉', subtitle: '找到「新石器时代良渚文化黑皮陶盉」并合影', ages: ['3-6','7-12','13-18'] },
+          { id: 'victory-photo', role: 'parent', type: 'photo', title: '亲子合影', subtitle: '和家长比心/拥抱/击掌等动作合影', ages: ['3-6','7-12','13-18'] }
+        ]
+      }
+    },
+    {
+      id: 'local-culture-exploration',
+      name: '平湖文化深度游',
+      description: '深入了解平湖历史、非遗与水系文化',
+      ages: ['7-12', '13-18'],
+      tasks: {
+        enroute: [],
+        visit: [
+          { id: 'history-timeline', role: 'parent', type: 'photo', title: '历史时间轴', subtitle: '在平湖历史时间轴前合影', ages: ['7-12','13-18'] },
+          { id: 'water-culture', role: 'child', type: 'confirm', title: '水系文化', subtitle: '找到展示平湖水网的地图或展品，说说水对平湖发展的影响', ages: ['7-12','13-18'] },
+          { id: 'heritage-craft', role: 'child', type: 'confirm', title: '非遗探索', subtitle: '在非遗区找到一项传统手工艺，记录它的名称和用途', ages: ['7-12','13-18'] },
+          { id: 'heritage-photo', role: 'parent', type: 'photo', title: '非遗合影', subtitle: '在非遗区和手工实物合影', ages: ['7-12','13-18'] }
+        ]
+      }
+    }
+  ],
   checklists: {
     parent: {
       '3-6': [
