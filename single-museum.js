@@ -172,15 +172,15 @@
       // Pinghu-specific: gate photo + all collection tasks + victory photo with pose suggestions
       if(museum && museum.id === 'pinghu-museum'){
         const colls = Array.isArray(museum.collections) ? museum.collections : [];
-        const start = { id: 'act:pinghu:gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '家长给孩子在博物馆门口拍一张照片' };
+        const start = { id: 'act:pinghu:gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口拍一张照片' };
         const mid = colls.map((c, i)=>({
           id: `coll:pinghu-museum:${i}`,
-          role: 'child', type: 'confirm',
-          title: normalizeTitle(c && c.name ? c.name : '镇馆之宝'),
-          subtitle: `镇馆之宝：找到「${(c && c.name) ? c.name : '镇馆之宝'}」并合影`,
+          role: 'child', type: 'photo',
+          title: `镇馆之宝 ${i+1}/3`,
+          subtitle: `找到「${(c && c.name) ? c.name : '镇馆之宝'}」并合影`,
           imageUrl: c && c.url ? c.url : ''
         }));
-        const end = { id: 'act:pinghu:victory-photo', role: 'parent', type: 'photo', title: '亲子合影', subtitle: '和家长比心/拥抱/击掌等动作合影' };
+        const end = { id: 'act:pinghu:victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！' };
         merged.tasks.visit = [start].concat(mid, [end]);
       }
       return merged;
@@ -582,41 +582,89 @@
       const section = document.createElement('div');
       section.className = 'sg-section sg-task-card';
       section.id = `wtask-${idx}`;
-      const ttl = document.createElement('div');
-      ttl.className = 'sg-title';
+      section.style.padding = '24px';
+      
+      // Task number indicator
+      const stepNum = document.createElement('div');
+      stepNum.style.fontSize = '14px';
+      stepNum.style.color = '#6b7280';
+      stepNum.style.marginBottom = '8px';
+      stepNum.style.fontWeight = '600';
+      stepNum.textContent = `第 ${idx+1}/${tasks.length} 步`;
+      section.appendChild(stepNum);
+      
       // role badge
       const badge = document.createElement('span');
       badge.className = 'sg-role-badge' + (t.role === 'child' ? ' child' : '');
-      badge.textContent = (t.role === 'parent') ? '家长' : (t.role === 'child' ? '孩子' : '');
-      ttl.textContent = `步骤${idx+1}：${t.title || '任务'}`;
+      badge.textContent = (t.role === 'parent') ? '👨‍👩‍👧 家长' : (t.role === 'child' ? '🧒 孩子' : '');
+      section.appendChild(badge);
+      
+      const ttl = document.createElement('div');
+      ttl.className = 'sg-title';
+      ttl.style.fontSize = '26px';
+      ttl.style.fontWeight = '800';
+      ttl.style.marginTop = '12px';
+      ttl.style.marginBottom = '12px';
+      ttl.textContent = t.title || '任务';
+      section.appendChild(ttl);
+      
       const sub = document.createElement('div');
       sub.className = 'sg-subtitle';
+      sub.style.fontSize = '18px';
+      sub.style.lineHeight = '1.6';
+      sub.style.marginBottom = '16px';
       sub.textContent = t.subtitle || '';
-      section.appendChild(ttl);
-      if(badge.textContent) section.appendChild(badge);
       section.appendChild(sub);
+      
       // Optional image preview for collection tasks
       try{
         if(t.imageUrl){
+          const imgLabel = document.createElement('div');
+          imgLabel.style.fontSize = '14px';
+          imgLabel.style.color = '#6b7280';
+          imgLabel.style.marginBottom = '8px';
+          imgLabel.style.fontWeight = '600';
+          imgLabel.textContent = '📸 参考图片：';
+          section.appendChild(imgLabel);
+          
           const img = document.createElement('img');
           img.src = t.imageUrl;
           img.alt = '镇馆之宝图片';
           img.style.width = '100%';
-          img.style.maxHeight = '220px';
-          img.style.objectFit = 'cover';
-          img.style.borderRadius = '8px';
-          img.style.border = '1px solid #e9ecef';
-          img.style.marginTop = '8px';
+          img.style.maxHeight = '280px';
+          img.style.objectFit = 'contain';
+          img.style.borderRadius = '12px';
+          img.style.border = '2px solid #e9ecef';
+          img.style.marginBottom = '20px';
+          img.style.backgroundColor = '#f8f9fa';
           section.appendChild(img);
         }
       }catch(e){}
 
       if(t.type === 'photo'){
+        const cameraHint = document.createElement('div');
+        cameraHint.style.fontSize = '16px';
+        cameraHint.style.color = '#2e7cf6';
+        cameraHint.style.marginBottom = '12px';
+        cameraHint.style.fontWeight = '600';
+        cameraHint.textContent = '📷 请拍照完成任务';
+        section.appendChild(cameraHint);
+        
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
         input.setAttribute('capture','environment');
         input.setAttribute('aria-label','打开相机');
+        input.style.display = 'block';
+        input.style.width = '100%';
+        input.style.padding = '16px';
+        input.style.fontSize = '18px';
+        input.style.fontWeight = '700';
+        input.style.border = '3px dashed #2e7cf6';
+        input.style.borderRadius = '12px';
+        input.style.backgroundColor = '#f0f7ff';
+        input.style.cursor = 'pointer';
+        input.style.marginBottom = '12px';
         input.addEventListener('change', (e)=> {
           handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
           state.completedVisit[idx] = true;
@@ -653,6 +701,43 @@
         section.appendChild(actions);
       }
       box.appendChild(section);
+      
+      // Add preview of next task (grayed out)
+      if(idx < tasks.length - 1){
+        const nextTask = tasks[idx + 1];
+        const preview = document.createElement('div');
+        preview.className = 'sg-section';
+        preview.id = `wpreview-next-${idx}`;
+        preview.style.opacity = '0.4';
+        preview.style.pointerEvents = 'none';
+        preview.style.padding = '16px';
+        preview.style.marginTop = '16px';
+        preview.style.backgroundColor = '#f8f9fa';
+        preview.style.border = '2px dashed #dee2e6';
+        
+        const previewLabel = document.createElement('div');
+        previewLabel.style.fontSize = '14px';
+        previewLabel.style.color = '#6b7280';
+        previewLabel.style.marginBottom = '8px';
+        previewLabel.style.fontWeight = '700';
+        previewLabel.textContent = `🔒 下一步：第 ${idx+2}/${tasks.length} 步`;
+        preview.appendChild(previewLabel);
+        
+        const previewTitle = document.createElement('div');
+        previewTitle.style.fontSize = '18px';
+        previewTitle.style.fontWeight = '700';
+        previewTitle.style.marginBottom = '6px';
+        previewTitle.textContent = nextTask.title || '任务';
+        preview.appendChild(previewTitle);
+        
+        const previewSub = document.createElement('div');
+        previewSub.style.fontSize = '14px';
+        previewSub.style.color = '#6b7280';
+        previewSub.textContent = nextTask.subtitle || '';
+        preview.appendChild(previewSub);
+        
+        box.appendChild(preview);
+      }
     });
     staticBox.style.display = 'none';
     box.style.display = '';
@@ -707,6 +792,13 @@
       wsections.forEach((el, idx)=>{
         el.style.display = (idx === state.innerTaskIndex ? 'block' : 'none');
       });
+      
+      // toggle preview sections
+      const previews = Array.from(document.querySelectorAll('[id^="wpreview-next-"]'));
+      previews.forEach((el, idx)=>{
+        el.style.display = (idx === state.innerTaskIndex ? 'block' : 'none');
+      });
+      
       // ensure visibility containers state
       const box = $('#sgWorkflowVisit');
       const staticBox = $('#sgVisitTasks');
