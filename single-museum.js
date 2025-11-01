@@ -654,7 +654,8 @@
         cameraHint.style.color = '#2e7cf6';
         cameraHint.style.marginBottom = '12px';
         cameraHint.style.fontWeight = '600';
-        cameraHint.textContent = '📷 请拍照完成任务';
+        // Use subtitle text if available to provide specific guidance
+        cameraHint.textContent = t.subtitle ? `📷 ${t.subtitle}` : '📷 请拍照完成任务';
         section.appendChild(cameraHint);
         
         const input = document.createElement('input');
@@ -672,8 +673,8 @@
         input.style.backgroundColor = '#f0f7ff';
         input.style.cursor = 'pointer';
         input.style.marginBottom = '12px';
-        input.addEventListener('change', (e)=> {
-          const success = handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
+        input.addEventListener('change', async (e)=> {
+          const success = await handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
           if(!success) return;
           
           // Show immediate feedback for treasure photos
@@ -795,15 +796,15 @@
     // Camera inputs
     const camEntrance = $('#camEntrance');
     const camVictory = $('#camVictory');
-    if(camEntrance) camEntrance.addEventListener('change', (e)=> { 
-      const success = handlePhotoInput(e, 'entrance', '#photoEntrance'); 
+    if(camEntrance) camEntrance.addEventListener('change', async (e)=> { 
+      const success = await handlePhotoInput(e, 'entrance', '#photoEntrance'); 
       if(success) showToast('📸 门口打卡成功！');
       state.completedVisit[0]=true; 
       if(state.innerTaskIndex===0){ state.prevInnerTaskIndex=0; state.innerTaskIndex=1; } 
       updateInnerTaskVisibility(); 
     });
-    if(camVictory) camVictory.addEventListener('change', (e)=> { 
-      const success = handlePhotoInput(e, 'victory', '#photoVictory'); 
+    if(camVictory) camVictory.addEventListener('change', async (e)=> { 
+      const success = await handlePhotoInput(e, 'victory', '#photoVictory'); 
       if(success) showToast('📸 胜利合影完成！');
       state.completedVisit[2]=true; 
       setStep('share'); 
@@ -930,23 +931,101 @@
     setTimeout(()=>{ el.remove(); }, 650);
   }
 
-  function handlePhotoInput(evt, key, previewSel){
+  // Compress photo to reduce memory usage
+  async function compressPhoto(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              // Calculate new dimensions
+              let width = img.width;
+              let height = img.height;
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+              }
+              
+              // Create canvas and compress
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              // Convert to blob
+              canvas.toBlob(
+                (blob) => {
+                  if (blob) {
+                    // Create a new File object from blob
+                    const compressedFile = new File([blob], file.name, {
+                      type: 'image/jpeg',
+                      lastModified: Date.now()
+                    });
+                    resolve(compressedFile);
+                  } else {
+                    reject(new Error('Compression failed'));
+                  }
+                },
+                'image/jpeg',
+                quality
+              );
+            } catch(err) {
+              reject(err);
+            }
+          };
+          img.onerror = () => reject(new Error('Image load failed'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      } catch(err) {
+        reject(err);
+      }
+    });
+  }
+
+  async function handlePhotoInput(evt, key, previewSel){
     try {
       const files = Array.from(evt.target.files || []);
       if(!files.length) return false;
       const preview = document.querySelector(previewSel);
       if(!preview) return false;
       preview.innerHTML = '';
+      
+      // Compress photos to reduce memory usage
+      const compressedFiles = [];
       const limit = Math.min(files.length, 3);
       for(let i=0;i<limit;i++){
         const f = files[i];
-        const url = URL.createObjectURL(f);
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = 'photo';
-        preview.appendChild(img);
+        try {
+          // Try to compress, fallback to original if compression fails
+          const compressed = await compressPhoto(f);
+          compressedFiles.push(compressed);
+          
+          // Show preview
+          const url = URL.createObjectURL(compressed);
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'photo';
+          preview.appendChild(img);
+        } catch(compressErr) {
+          const fileSizeKB = (f.size / 1024).toFixed(2);
+          console.warn(`Photo compression failed for ${f.name} (${fileSizeKB}KB), using original:`, compressErr.message || compressErr);
+          compressedFiles.push(f);
+          
+          // Show preview with original
+          const url = URL.createObjectURL(f);
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'photo';
+          preview.appendChild(img);
+        }
       }
-      state.photos[key] = files;
+      
+      state.photos[key] = compressedFiles;
       return true;
     } catch(e) {
       console.error('Photo handling error:', e);
