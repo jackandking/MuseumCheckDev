@@ -17202,3 +17202,8 @@ const MUSEUMS = [
         }
     }
 ];
+
+// Export to global scope for browser usage
+if (typeof window !== 'undefined') {
+  window.MUSEUMS = MUSEUMS;
+}

@@ -11,7 +11,7 @@
   }
 
   // v3 supported museums (导览模式可用清单)
-  const V3_SUPPORTED = ['forbidden-city'];
+  const V3_SUPPORTED = ['forbidden-city', 'pinghu-museum'];
 
   function getUrlParams(){
     try{
