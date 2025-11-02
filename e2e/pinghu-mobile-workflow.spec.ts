@@ -289,6 +289,91 @@ test.describe('Pinghu Museum Mobile Workflow', () => {
     
     console.log('✅ Accessibility checks passed!');
   });
+  
+  test('verify poster generation with workflow photos', async ({ page }) => {
+    // Configure for mobile
+    await page.setViewportSize(devices['iPhone 12'].viewport);
+    
+    await page.goto(`${BASE_URL}/single-museum.html?museum=${MUSEUM_ID}`);
+    
+    // Skip settings and intro
+    const settingsModal = page.locator('#sgSettingsModal');
+    if (await settingsModal.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.locator('#sgSettingsSave').click();
+      await expect(settingsModal).toBeHidden({ timeout: 5000 });
+    }
+    
+    const intro = page.locator('#sgFullscreenIntro');
+    await intro.click();
+    await expect(intro).toBeHidden({ timeout: 5000 });
+    
+    // Wait for visit step
+    await expect(page.locator('#step-visit')).toBeVisible({ timeout: 10000 });
+    
+    console.log('Completing all workflow tasks to generate poster...');
+    
+    // Complete all 5 tasks
+    for (let i = 0; i < 5; i++) {
+      const workflowVisit = page.locator('#sgWorkflowVisit');
+      const fileInput = workflowVisit.locator('input[type="file"]').first();
+      
+      if (await fileInput.count() > 0) {
+        await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+        console.log(`  ✓ Task ${i + 1}/5 completed`);
+      }
+      
+      await page.waitForTimeout(500);
+    }
+    
+    // Wait for share step to appear
+    console.log('Waiting for share step with poster...');
+    const shareStep = page.locator('#step-share');
+    await expect(shareStep).toBeVisible({ timeout: 10000 });
+    
+    // Verify poster canvas exists
+    const posterCanvas = page.locator('#posterCanvas');
+    await expect(posterCanvas).toBeAttached();
+    console.log('  ✓ Poster canvas created');
+    
+    // Verify poster preview is rendered
+    const posterPreview = page.locator('#posterPreview');
+    await expect(posterPreview).toBeVisible();
+    
+    // Wait for poster to be generated (give it time to load images)
+    await page.waitForTimeout(2000);
+    
+    // Verify poster preview contains an image
+    const posterImage = posterPreview.locator('img');
+    await expect(posterImage).toBeVisible();
+    console.log('  ✓ Poster preview image rendered');
+    
+    // Verify poster image has content (src attribute)
+    const posterSrc = await posterImage.getAttribute('src');
+    expect(posterSrc).toBeTruthy();
+    expect(posterSrc).toContain('data:image/png');
+    console.log('  ✓ Poster image has valid data URL');
+    
+    // Verify save and share buttons are present
+    const saveButton = page.locator('#savePoster');
+    await expect(saveButton).toBeVisible();
+    await expect(saveButton).toContainText('保存');
+    console.log('  ✓ Save poster button present');
+    
+    const shareButton = page.locator('#sharePoster');
+    await expect(shareButton).toBeVisible();
+    await expect(shareButton).toContainText('分享');
+    console.log('  ✓ Share poster button present');
+    
+    // Verify poster dimensions are reasonable for mobile
+    const imgBox = await posterImage.boundingBox();
+    if (imgBox) {
+      const viewport = page.viewportSize();
+      expect(imgBox.width).toBeLessThanOrEqual(viewport?.width || 500);
+      console.log(`  ✓ Poster width fits mobile viewport: ${imgBox.width}px`);
+    }
+    
+    console.log('✅ Poster generation with workflow photos verified successfully!');
+  });
 });
 
 /**

@@ -1339,37 +1339,111 @@
     ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
     ctx.fillText(`${getChildNickname()} 今天完成了所有挑战！`, 40, 210);
 
-    // photo slots
-    const drawImages = [];
+    // photo slots - collect workflow photos if available
     const readAsImage = (file) => new Promise(resolve=>{
       const img = new Image();
       img.onload = ()=> resolve(img);
+      img.onerror = ()=> resolve(null);
       img.src = URL.createObjectURL(file);
     });
     const picks = [];
-    if(state.photos.entrance[0]) picks.push(state.photos.entrance[0]);
-    if(state.photos.victory[0]) picks.push(state.photos.victory[0]);
+    
+    // Collect all workflow photos in order (wf-0, wf-1, wf-2, etc.)
+    if(state.wfMode && state.wfVisitCount > 0){
+      for(let i = 0; i < state.wfVisitCount; i++){
+        const key = `wf-${i}`;
+        if(state.photos[key] && state.photos[key][0]){
+          picks.push(state.photos[key][0]);
+        }
+      }
+    } else {
+      // Fallback to old entrance/victory format for non-workflow mode
+      if(state.photos.entrance && state.photos.entrance[0]) picks.push(state.photos.entrance[0]);
+      if(state.photos.victory && state.photos.victory[0]) picks.push(state.photos.victory[0]);
+    }
 
-    const work = picks.slice(0,2).map(f=> readAsImage(f));
+    if(picks.length === 0){
+      // No photos available - show message
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+      ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
+      
+      // preview
+      preview.innerHTML = '';
+      const out = new Image();
+      out.src = canvas.toDataURL('image/png');
+      out.style.maxWidth = '100%';
+      out.style.borderRadius = '12px';
+      preview.appendChild(out);
+      canvas.style.display = 'none';
+      return;
+    }
+
+    const work = picks.map(f=> readAsImage(f));
     Promise.all(work).then(images => {
-      images.forEach((img, idx)=>{
-        const w = 280, h = 280;
-        const x = 40 + idx*(w+20);
-        const y = 260;
+      // Filter out null images (failed to load)
+      const validImages = images.filter(img => img !== null);
+      
+      if(validImages.length === 0) return;
+
+      // Dynamic layout based on photo count
+      const photoCount = validImages.length;
+      let startY = 260;
+      let photoSize = 280;
+      let cols = 2;
+      let padding = 20;
+      
+      // Adjust layout for different photo counts
+      if(photoCount <= 2){
+        // 2 photos: side by side
+        cols = 2;
+        photoSize = 280;
+      } else if(photoCount <= 4){
+        // 3-4 photos: 2x2 grid
+        cols = 2;
+        photoSize = 200;
+        padding = 15;
+      } else {
+        // 5+ photos: 3 columns or 2x3 grid
+        cols = 3;
+        photoSize = 180;
+        padding = 12;
+      }
+      
+      validImages.forEach((img, idx)=>{
+        const row = Math.floor(idx / cols);
+        const col = idx % cols;
+        const x = 40 + col * (photoSize + padding);
+        const y = startY + row * (photoSize + padding);
+        
+        // White border around photo
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillRect(x-6,y-6,w+12,h+12);
-        // cover fit
-        const ratio = Math.min(img.width/w, img.height/h);
-        const dw = w; const dh = h;
-        // simple draw to fit
-        ctx.drawImage(img, x, y, dw, dh);
+        ctx.fillRect(x-6, y-6, photoSize+12, photoSize+12);
+        
+        // Draw photo with aspect ratio fit
+        const scale = Math.min(photoSize / img.width, photoSize / img.height);
+        const scaledW = img.width * scale;
+        const scaledH = img.height * scale;
+        const offsetX = (photoSize - scaledW) / 2;
+        const offsetY = (photoSize - scaledH) / 2;
+        
+        ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
       });
 
-      // footer
+      // footer - adjust position based on number of photos
+      const rows = Math.ceil(validImages.length / cols);
+      const contentEndY = startY + rows * (photoSize + padding) + 40;
+      const footerY = Math.max(contentEndY, H - 60);
+      
       ctx.fillStyle = '#ffffff';
       ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
       const date = new Date().toLocaleDateString('zh-CN');
-      ctx.fillText(`MuseumCheck · ${date}`, 40, H-60);
+      ctx.fillText(`MuseumCheck · ${date}`, 40, footerY);
+
+      // Adjust canvas height if needed
+      if(contentEndY + 40 > H){
+        canvas.height = contentEndY + 80;
+      }
 
       // preview
       preview.innerHTML = '';
