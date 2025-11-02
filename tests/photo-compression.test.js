@@ -68,22 +68,22 @@ describe('Photo Compression', () => {
     const singleMuseumPath = path.join(__dirname, '..', 'single-museum.js');
     const content = fs.readFileSync(singleMuseumPath, 'utf8');
     
-    // Check that compressPhoto function exists
+    // Check that compressPhoto function exists with updated parameters
     expect(content).toContain('async function compressPhoto');
-    expect(content).toContain('maxWidth = 1200');
-    expect(content).toContain('quality = 0.8');
+    expect(content).toContain('maxWidth = 800');
+    expect(content).toContain('quality = 0.65');
   });
   
-  test('compression should reduce dimensions when image exceeds maxWidth', () => {
+  test('compression should reduce dimensions when image exceeds targetWidth', () => {
     const fs = require('fs');
     const path = require('path');
     const singleMuseumPath = path.join(__dirname, '..', 'single-museum.js');
     const content = fs.readFileSync(singleMuseumPath, 'utf8');
     
     // Verify compression logic exists
-    expect(content).toContain('if (width > maxWidth)');
-    expect(content).toContain('height = (height * maxWidth) / width');
-    expect(content).toContain('width = maxWidth');
+    expect(content).toContain('if (width > targetWidth)');
+    expect(content).toContain('height = (height * targetWidth) / width');
+    expect(content).toContain('width = targetWidth');
   });
   
   test('handlePhotoInput should be async to support compression', () => {
@@ -107,6 +107,38 @@ describe('Photo Compression', () => {
     expect(content).toContain('try {');
     expect(content).toContain('} catch(compressErr)');
     expect(content).toContain('using original');
+  });
+  
+  test('compression should use tiered approach for different file sizes', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const singleMuseumPath = path.join(__dirname, '..', 'single-museum.js');
+    const content = fs.readFileSync(singleMuseumPath, 'utf8');
+    
+    // Verify tiered compression logic for very large files (>5MB)
+    expect(content).toContain('if (fileSizeMB > 5)');
+    expect(content).toContain('targetWidth = Math.min(maxWidth, 600)');
+    expect(content).toContain('targetQuality = Math.min(quality, 0.55)');
+    
+    // Verify tiered compression logic for large files (2-5MB)
+    expect(content).toContain('else if (fileSizeMB > 2)');
+    expect(content).toContain('targetWidth = Math.min(maxWidth, 700)');
+    expect(content).toContain('targetQuality = Math.min(quality, 0.6)');
+    
+    // Verify small file handling
+    expect(content).toContain('else if (fileSizeMB < 0.5)');
+  });
+  
+  test('compression should cap canvas size to prevent memory issues', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const singleMuseumPath = path.join(__dirname, '..', 'single-museum.js');
+    const content = fs.readFileSync(singleMuseumPath, 'utf8');
+    
+    // Verify canvas size capping exists
+    expect(content).toContain('const maxPixels = 1000000');
+    expect(content).toContain('if (width * height > maxPixels)');
+    expect(content).toContain('const scale = Math.sqrt(maxPixels / (width * height))');
   });
   
   test('event handlers should await async photo processing', () => {

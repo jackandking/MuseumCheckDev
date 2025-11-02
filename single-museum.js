@@ -1073,8 +1073,13 @@
         let targetWidth = maxWidth;
         let targetQuality = quality;
         
-        if (fileSizeMB > 3) {
-          // Very large files: use more aggressive compression
+        // More aggressive compression for larger files to prevent memory issues on mobile devices
+        if (fileSizeMB > 5) {
+          // Extremely large files (>5MB): maximum compression to prevent memory errors
+          targetWidth = Math.min(maxWidth, 600);
+          targetQuality = Math.min(quality, 0.55);
+        } else if (fileSizeMB > 2) {
+          // Large files (2-5MB): aggressive compression
           targetWidth = Math.min(maxWidth, 700);
           targetQuality = Math.min(quality, 0.6);
         } else if (fileSizeMB < 0.5) {
@@ -1096,11 +1101,26 @@
                 width = targetWidth;
               }
               
+              // Additional safety: cap maximum pixels to prevent memory issues
+              const maxPixels = 1000000; // 1 megapixel max for canvas
+              if (width * height > maxPixels) {
+                const scale = Math.sqrt(maxPixels / (width * height));
+                width = Math.floor(width * scale);
+                height = Math.floor(height * scale);
+              }
+              
               // Create canvas and compress
               const canvas = document.createElement('canvas');
               canvas.width = width;
               canvas.height = height;
               const ctx = canvas.getContext('2d');
+              
+              // Check if context was created successfully
+              if (!ctx) {
+                reject(new Error('Failed to get canvas context'));
+                return;
+              }
+              
               ctx.drawImage(img, 0, 0, width, height);
               
               // Convert to blob with tiered quality
