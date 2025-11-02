@@ -384,6 +384,150 @@
             }
         }
 
+        /* Photo capture styles */
+        .photo-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .photo-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .photo-input-wrapper {
+            position: relative;
+        }
+
+        .photo-input {
+            display: none;
+        }
+
+        .photo-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .photo-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .photo-preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .retake-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Completion celebration styles */
+        .completion-celebration {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a8d8ea 0%, #7fc8dc 50%, #5ab4d1 100%);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .completion-celebration.show {
+            display: flex;
+        }
+
+        .completion-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .poster-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .poster-preview {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .poster-canvas {
+            display: none;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .share-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .share-button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .share-button-secondary {
+            background: white;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+
         /* Edit mode styles */
         .edit-mode-indicator {
             position: fixed;
@@ -514,6 +658,18 @@
             <img id="modalImage" class="task-image" style="display: none;" />
             <h3 class="task-detail-title" id="modalTaskTitle"></h3>
             <div class="task-detail-description" id="modalDescription"></div>
+            
+            <!-- Photo capture section -->
+            <div class="photo-section" id="photoSection">
+                <label class="photo-label">📸 拍照留念（可选）</label>
+                <div class="photo-input-wrapper">
+                    <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" capture="environment">
+                    <button class="photo-button" id="takePhotoButton">拍照 📷</button>
+                </div>
+                <div class="photo-preview" id="photoPreview"></div>
+                <button class="retake-button" id="retakeButton" style="display: none;">重新拍照</button>
+            </div>
+            
             <div class="action-buttons">
                 <button class="button button-secondary" id="cancelButton">取消</button>
                 <button class="button button-primary" id="completeButton">完成任务 🎉</button>
@@ -594,6 +750,19 @@
 
     <canvas class="fireworks-overlay" id="fireworksCanvas"></canvas>
 
+    <!-- Completion Celebration -->
+    <div class="completion-celebration" id="completionCelebration">
+        <h1 class="completion-title">🎉 恭喜完成所有任务！</h1>
+        <div class="poster-container">
+            <canvas id="posterCanvas" class="poster-canvas" width="720" height="1280"></canvas>
+            <div id="posterPreview" class="poster-preview"></div>
+        </div>
+        <div class="share-buttons">
+            <button class="share-button share-button-primary" id="savePosterButton">保存到相册 💾</button>
+            <button class="share-button share-button-secondary" id="sharePosterButton">分享给家人 📤</button>
+        </div>
+    </div>
+
     <!-- Load dependencies -->
     <script src="museums-data.js"></script>
     <!-- Per-museum data file(s) override -->
@@ -648,9 +817,11 @@
             loadMuseumData();
             setupEventListeners();
             loadCompletedTasks();
+            loadPhotos(); // Load saved photos
             // Re-render after loading persisted completion state so counts and badges reflect correctly
             renderTasks();
             updateProgress();
+            checkCompletion(); // Check if all tasks complete
         }
 
         // Load museum data
@@ -804,6 +975,7 @@
             document.getElementById('modalIcon').textContent = icon;
             document.getElementById('modalTaskTitle').textContent = title;
             document.getElementById('modalDescription').textContent = subtitle || '完成这个有趣的任务吧！';
+            
             // Try show collection image
             try {
                 const imgEl = document.getElementById('modalImage');
@@ -820,6 +992,23 @@
                     else { imgEl.removeAttribute('src'); imgEl.style.display = 'none'; }
                 }
             } catch(e) {}
+
+            // Initialize photo preview for this task
+            const photoPreview = document.getElementById('photoPreview');
+            const retakeBtn = document.getElementById('retakeButton');
+            const takePhotoBtn = document.getElementById('takePhotoButton');
+            const photoInput = document.getElementById('taskPhotoInput');
+            
+            if (taskPhotos[index]) {
+                // Show existing photo
+                displayPhotoPreview(taskPhotos[index]);
+            } else {
+                // Clear preview
+                photoPreview.innerHTML = '';
+                retakeBtn.style.display = 'none';
+                takePhotoBtn.style.display = 'block';
+                photoInput.value = '';
+            }
 
             // Show/hide complete button based on completion status
             const completeButton = document.getElementById('completeButton');
@@ -862,6 +1051,9 @@
 
             // Upload firework to remote
             uploadFireworkEvent(currentTaskIndex);
+            
+            // Check if all tasks complete
+            checkCompletion();
         }
 
         // Celebrate with fireworks animation
@@ -1043,6 +1235,295 @@
             localStorage.setItem(legacyKey, JSON.stringify([...completedTasks]));
         }
 
+        // Photo storage
+        let taskPhotos = {}; // Store photos by task index
+        
+        /**
+         * Photo compression configuration
+         * @property {number} MAX_WIDTH - Maximum photo width in pixels (800px reduces ~2MB photos to ~100-200KB)
+         * @property {number} QUALITY - JPEG compression quality (0.0-1.0, where 1.0 is highest quality)
+         */
+        const PHOTO_CONFIG = {
+            MAX_WIDTH: 800,    // Maximum width in pixels for compressed photos
+            QUALITY: 0.65      // JPEG quality (0.65 provides good balance of quality vs size)
+        };
+
+        // Load photos from localStorage
+        function loadPhotos() {
+            try {
+                const photosKey = `museumPhotos_${museumId}_${ageGroup}`;
+                const saved = localStorage.getItem(photosKey);
+                if (saved) {
+                    taskPhotos = JSON.parse(saved);
+                }
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                taskPhotos = {};
+            }
+        }
+
+        // Save photos to localStorage
+        function savePhotos() {
+            try {
+                const photosKey = `museumPhotos_${museumId}_${ageGroup}`;
+                localStorage.setItem(photosKey, JSON.stringify(taskPhotos));
+            } catch (error) {
+                console.error('Error saving photos:', error);
+            }
+        }
+
+        // Compress photo to reduce size (reuse logic from single-museum.js)
+        async function compressPhoto(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxWidth = PHOTO_CONFIG.MAX_WIDTH;
+                        const scale = Math.min(1, maxWidth / img.width);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                        }, 'image/jpeg', PHOTO_CONFIG.QUALITY);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle photo capture
+        async function handlePhotoCapture() {
+            const input = document.getElementById('taskPhotoInput');
+            const file = input.files[0];
+            
+            if (!file) return;
+            
+            try {
+                // Compress photo
+                const compressedFile = await compressPhoto(file);
+                
+                // Convert to data URL for storage
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Store photo for current task
+                    taskPhotos[currentTaskIndex] = e.target.result;
+                    savePhotos();
+                    
+                    // Display preview
+                    displayPhotoPreview(e.target.result);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Error processing photo:', error);
+                alert('照片处理失败，请重试');
+            }
+        }
+
+        // Display photo preview
+        function displayPhotoPreview(dataUrl) {
+            const preview = document.getElementById('photoPreview');
+            const retakeBtn = document.getElementById('retakeButton');
+            const takePhotoBtn = document.getElementById('takePhotoButton');
+            
+            preview.innerHTML = `<img src="${dataUrl}" alt="Task photo">`;
+            retakeBtn.style.display = 'block';
+            takePhotoBtn.style.display = 'none';
+        }
+
+        // Clear photo preview
+        function clearPhotoPreview() {
+            const preview = document.getElementById('photoPreview');
+            const retakeBtn = document.getElementById('retakeButton');
+            const takePhotoBtn = document.getElementById('takePhotoButton');
+            const input = document.getElementById('taskPhotoInput');
+            
+            preview.innerHTML = '';
+            retakeBtn.style.display = 'none';
+            takePhotoBtn.style.display = 'block';
+            input.value = '';
+            
+            // Remove photo from storage
+            if (currentTaskIndex !== null && taskPhotos[currentTaskIndex]) {
+                delete taskPhotos[currentTaskIndex];
+                savePhotos();
+            }
+        }
+
+        // Generate poster with all photos
+        function generatePoster() {
+            const canvas = document.getElementById('posterCanvas');
+            const preview = document.getElementById('posterPreview');
+            if (!canvas || !preview) return;
+            
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width, H = canvas.height;
+            
+            // Background gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#a8d8ea');
+            grad.addColorStop(1, '#5ab4d1');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+            
+            // Title
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+            ctx.fillText('今天的博物馆小探险', 40, 100);
+            
+            // Museum name
+            ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+            ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
+            
+            // Nickname
+            const nickname = getChildNickname();
+            ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+            ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+            
+            // Collect all photos
+            const photos = Object.keys(taskPhotos).sort().map(key => taskPhotos[key]);
+            
+            if (photos.length === 0) {
+                ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
+                preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                return;
+            }
+            
+            // Load all photos as images
+            const loadImage = (dataUrl) => new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = dataUrl;
+            });
+            
+            Promise.all(photos.map(loadImage)).then(images => {
+                const validImages = images.filter(img => img !== null);
+                if (validImages.length === 0) return;
+                
+                // Dynamic layout based on photo count
+                const photoCount = validImages.length;
+                let startY = 260;
+                let photoSize = 280;
+                let cols = 2;
+                let padding = 20;
+                
+                if (photoCount <= 2) {
+                    cols = 2;
+                    photoSize = 280;
+                } else if (photoCount <= 4) {
+                    cols = 2;
+                    photoSize = 200;
+                    padding = 15;
+                } else {
+                    cols = 3;
+                    photoSize = 180;
+                    padding = 12;
+                }
+                
+                // Draw photos in grid
+                validImages.forEach((img, idx) => {
+                    const row = Math.floor(idx / cols);
+                    const col = idx % cols;
+                    const x = 40 + col * (photoSize + padding);
+                    const y = startY + row * (photoSize + padding);
+                    
+                    // White border
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                    ctx.fillRect(x - 6, y - 6, photoSize + 12, photoSize + 12);
+                    
+                    // Draw photo with aspect ratio
+                    const scale = Math.min(photoSize / img.width, photoSize / img.height);
+                    const scaledW = img.width * scale;
+                    const scaledH = img.height * scale;
+                    const offsetX = (photoSize - scaledW) / 2;
+                    const offsetY = (photoSize - scaledH) / 2;
+                    
+                    ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
+                });
+                
+                // Footer
+                const rows = Math.ceil(validImages.length / cols);
+                const contentEndY = startY + rows * (photoSize + padding) + 40;
+                const footerY = Math.max(contentEndY, H - 60);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                const date = new Date().toLocaleDateString('zh-CN');
+                ctx.fillText(`MuseumCheck · ${date}`, 40, footerY);
+                
+                // Adjust canvas height if needed
+                if (contentEndY + 40 > H) {
+                    canvas.height = contentEndY + 80;
+                }
+                
+                // Display preview
+                preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+            });
+        }
+
+        // Get child nickname
+        function getChildNickname() {
+            try {
+                const v = localStorage.getItem('childNickname');
+                if (v && v.trim()) return v.trim();
+            } catch (e) {}
+            return '小小探险家';
+        }
+
+        // Save poster to device
+        function savePoster() {
+            const canvas = document.getElementById('posterCanvas');
+            if (!canvas) return;
+            
+            const link = document.createElement('a');
+            link.download = `museum-poster-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Share poster
+        async function sharePoster() {
+            try {
+                const canvas = document.getElementById('posterCanvas');
+                if (!canvas) return;
+                
+                const blob = await (await fetch(canvas.toDataURL('image/png'))).blob();
+                const files = [new File([blob], 'museum-poster.png', { type: 'image/png' })];
+                
+                if (navigator.canShare && navigator.canShare({ files })) {
+                    await navigator.share({
+                        files,
+                        title: '今天的博物馆小探险',
+                        text: '和家人分享我们的参观成果'
+                    });
+                } else {
+                    savePoster();
+                }
+            } catch (error) {
+                console.error('Share error:', error);
+                savePoster();
+            }
+        }
+
+        // Check if all tasks are complete and show poster
+        function checkCompletion() {
+            if (childTasks && childTasks.length > 0 && completedTasks && completedTasks.size === childTasks.length) {
+                // Generate and show poster
+                setTimeout(() => {
+                    generatePoster();
+                    document.getElementById('completionCelebration').classList.add('show');
+                }, 500);
+            }
+        }
+
         // Load completed tasks from local storage
         function loadCompletedTasks() {
             // First try to load from main app's structure
@@ -1076,6 +1557,19 @@
             };
 
             document.getElementById('completeButton').onclick = completeTask;
+
+            // Photo capture buttons
+            document.getElementById('takePhotoButton').onclick = () => {
+                document.getElementById('taskPhotoInput').click();
+            };
+
+            document.getElementById('taskPhotoInput').onchange = handlePhotoCapture;
+
+            document.getElementById('retakeButton').onclick = clearPhotoPreview;
+
+            // Poster buttons
+            document.getElementById('savePosterButton').onclick = savePoster;
+            document.getElementById('sharePosterButton').onclick = sharePoster;
 
             // Menu button
             document.getElementById('menuButton').onclick = () => {
