@@ -658,11 +658,16 @@
         cameraHint.textContent = t.subtitle ? `📷 ${t.subtitle}` : '📷 请拍照完成任务';
         section.appendChild(cameraHint);
         
+        // Create wrapper for input and preview
+        const photoWrapper = document.createElement('div');
+        photoWrapper.id = `photo-wrapper-${idx}`;
+        
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
         input.setAttribute('capture','environment');
         input.setAttribute('aria-label','打开相机');
+        input.id = `photo-input-${idx}`;
         input.style.display = 'block';
         input.style.width = '100%';
         input.style.padding = '16px';
@@ -673,9 +678,43 @@
         input.style.backgroundColor = '#f0f7ff';
         input.style.cursor = 'pointer';
         input.style.marginBottom = '12px';
+        
+        const preview = document.createElement('div');
+        preview.className = 'sg-photo';
+        preview.id = `wpreview-${idx}`;
+        preview.style.position = 'relative';
+        preview.style.marginBottom = '12px';
+        
+        // Create retake button (initially hidden)
+        const retakeBtn = document.createElement('button');
+        retakeBtn.className = 'sg-btn sg-btn-secondary';
+        retakeBtn.textContent = '🔄 重新拍照';
+        retakeBtn.style.display = 'none';
+        retakeBtn.style.width = '100%';
+        retakeBtn.style.marginTop = '12px';
+        retakeBtn.style.fontSize = '16px';
+        retakeBtn.style.fontWeight = '700';
+        retakeBtn.style.padding = '14px';
+        retakeBtn.onclick = () => {
+          // Clear preview and show input again
+          preview.innerHTML = '';
+          input.value = '';
+          input.style.display = 'block';
+          retakeBtn.style.display = 'none';
+          state.completedVisit[idx] = false;
+          // Clear stored photos for this task
+          delete state.photos[`wf-${idx}`];
+          // Update UI to reflect state changes
+          updateInnerTaskVisibility();
+        };
+        
         input.addEventListener('change', async (e)=> {
           const success = await handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
           if(!success) return;
+          
+          // Hide input and show retake button after successful photo
+          input.style.display = 'none';
+          retakeBtn.style.display = 'block';
           
           // Show immediate feedback for treasure photos
           if(t.role === 'child' && t.type === 'photo'){
@@ -693,11 +732,11 @@
           }
           updateInnerTaskVisibility();
         });
-        const preview = document.createElement('div');
-        preview.className = 'sg-photo';
-        preview.id = `wpreview-${idx}`;
-        section.appendChild(input);
-        section.appendChild(preview);
+        
+        photoWrapper.appendChild(input);
+        photoWrapper.appendChild(preview);
+        photoWrapper.appendChild(retakeBtn);
+        section.appendChild(photoWrapper);
       } else {
         const actions = document.createElement('div');
         actions.className = 'sg-actions';
@@ -816,10 +855,24 @@
 
   function updateInnerTaskVisibility(){
     if(state.wfMode && state.wfVisitCount > 0){
-      // toggle workflow visit sections
+      // toggle workflow visit sections - show current and completed tasks
       const wsections = Array.from(document.querySelectorAll('[id^="wtask-"]'));
       wsections.forEach((el, idx)=>{
-        el.style.display = (idx === state.innerTaskIndex ? 'block' : 'none');
+        // Show current task and all previously completed tasks
+        if(idx <= state.innerTaskIndex){
+          el.style.display = 'block';
+          // Use CSS classes for completed vs current tasks
+          if(idx < state.innerTaskIndex){
+            el.classList.add('sg-task-completed');
+            el.classList.remove('sg-task-current');
+          } else {
+            el.classList.add('sg-task-current');
+            el.classList.remove('sg-task-completed');
+          }
+        } else {
+          el.style.display = 'none';
+          el.classList.remove('sg-task-completed', 'sg-task-current');
+        }
       });
       
       // toggle preview sections
@@ -843,6 +896,16 @@
           showToast('你观察得真细！✅');
         }
         playMicroCelebrate();
+        // Auto-scroll to current task after a short delay
+        setTimeout(()=>{
+          // Bounds check to ensure valid task index
+          if(state.innerTaskIndex >= 0 && state.innerTaskIndex < state.wfVisitCount){
+            const currentTask = document.querySelector(`#wtask-${state.innerTaskIndex}`);
+            if(currentTask){
+              currentTask.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        }, 300);
       }
       state.prevInnerTaskIndex = state.innerTaskIndex;
       return;
@@ -987,6 +1050,41 @@
     });
   }
 
+  // Helper function to create photo preview element
+  function createPhotoPreview(url) {
+    const imgContainer = document.createElement('div');
+    imgContainer.style.position = 'relative';
+    imgContainer.style.marginBottom = '12px';
+    
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'photo';
+    img.style.width = '100%';
+    img.style.maxWidth = '400px';
+    img.style.height = 'auto';
+    img.style.borderRadius = '12px';
+    img.style.border = '3px solid #22c55e';
+    img.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.2)';
+    
+    // Add success badge
+    const badge = document.createElement('div');
+    badge.textContent = '✅ 拍照成功';
+    badge.style.position = 'absolute';
+    badge.style.top = '10px';
+    badge.style.right = '10px';
+    badge.style.background = '#22c55e';
+    badge.style.color = 'white';
+    badge.style.padding = '6px 12px';
+    badge.style.borderRadius = '20px';
+    badge.style.fontSize = '14px';
+    badge.style.fontWeight = '700';
+    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+    
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(badge);
+    return imgContainer;
+  }
+
   async function handlePhotoInput(evt, key, previewSel){
     try {
       const files = Array.from(evt.target.files || []);
@@ -1005,12 +1103,9 @@
           const compressed = await compressPhoto(f);
           compressedFiles.push(compressed);
           
-          // Show preview
+          // Show prominent preview with success indicator
           const url = URL.createObjectURL(compressed);
-          const img = document.createElement('img');
-          img.src = url;
-          img.alt = 'photo';
-          preview.appendChild(img);
+          preview.appendChild(createPhotoPreview(url));
         } catch(compressErr) {
           const fileSizeKB = (f.size / 1024).toFixed(2);
           console.warn(`Photo compression failed for ${f.name} (${fileSizeKB}KB), using original:`, compressErr.message || compressErr);
@@ -1018,10 +1113,7 @@
           
           // Show preview with original
           const url = URL.createObjectURL(f);
-          const img = document.createElement('img');
-          img.src = url;
-          img.alt = 'photo';
-          preview.appendChild(img);
+          preview.appendChild(createPhotoPreview(url));
         }
       }
       
