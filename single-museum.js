@@ -604,8 +604,11 @@
     if(state.innerTaskIndex < last){
       state.prevInnerTaskIndex = state.innerTaskIndex;
       state.innerTaskIndex++;
+      updateInnerTaskVisibility();
+    } else if(idx === last) {
+      // All workflow tasks completed, advance to share step
+      setStep('share');
     }
-    updateInnerTaskVisibility();
   }
 
   function renderWorkflowVisit(){
@@ -1595,8 +1598,10 @@
     const modal = $('#sgSettingsModal');
     if(modal) modal.style.display = 'none';
     try{
-      if(state.startAfterSettings && state.selectedMuseum){
+      // Only show intro overlay if we haven't started the journey yet (still on select step)
+      if(state.startAfterSettings && state.selectedMuseum && state.step === 'select'){
         showIntroOverlay();
+        state.startAfterSettings = false; // Clear flag after showing intro
       }
     }catch(e){}
   }
@@ -1728,9 +1733,11 @@
   function initSettingsUI(){
     const btn = $('#sgSettingsBtn');
     const closeBtn = $('#sgSettingsClose');
+    const closeXBtn = $('#sgSettingsCloseX');
     const saveBtn = $('#sgSettingsSave');
     if(btn) btn.addEventListener('click', showSettings);
     if(closeBtn) closeBtn.addEventListener('click', hideSettings);
+    if(closeXBtn) closeXBtn.addEventListener('click', hideSettings);
     if(saveBtn) saveBtn.addEventListener('click', saveSettings);
     // click backdrop to close
     const modal = $('#sgSettingsModal');

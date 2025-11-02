@@ -121,9 +121,12 @@
     .sg-immersive #sgVisitNext { display: none; }
     /* Modal */
     .sg-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
-    .sg-modal { background:#fff; width:100%; max-width:500px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+    .sg-modal { background:#fff; width:100%; max-width:500px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.2); position: relative; }
     .sg-modal header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #eef2f6; }
     .sg-modal h2 { font-size:18px; margin:0; }
+    .sg-modal-close-x { background: transparent; border: none; font-size: 32px; color: #666; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; line-height: 1; transition: color 0.2s ease; }
+    .sg-modal-close-x:hover { color: #333; }
+    .sg-modal-close-x:active { transform: scale(0.95); }
     .sg-modal .body { padding: 12px 16px; }
     .sg-form-row { margin:12px 0; }
     .sg-form-row label { display:block; font-size:14px; margin-bottom:6px; color:#445; }
@@ -318,7 +321,7 @@
     <div class="sg-modal">
       <header>
         <h2 id="sgSettingsTitle">偏好设置</h2>
-        <button id="sgSettingsClose" class="sg-btn sg-btn-secondary" type="button">关闭</button>
+        <button id="sgSettingsCloseX" class="sg-modal-close-x" type="button" aria-label="关闭">&times;</button>
       </header>
       <div class="body">
         <div class="sg-form-row">

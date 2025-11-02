@@ -485,6 +485,35 @@
             display: flex;
         }
 
+        .celebration-close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 32px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 2001;
+        }
+
+        .celebration-close-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .celebration-close-button:active {
+            transform: scale(0.95);
+        }
+
         .completion-title {
             font-size: 32px;
             font-weight: bold;
@@ -765,6 +794,7 @@
 
     <!-- Completion Celebration -->
     <div class="completion-celebration" id="completionCelebration">
+        <button class="close-button celebration-close-button" id="closeCelebration">&times;</button>
         <h1 class="completion-title">🎉 恭喜完成所有任务！</h1>
         <div class="poster-container">
             <canvas id="posterCanvas" class="poster-canvas" width="720" height="1280"></canvas>
@@ -1625,6 +1655,9 @@
             // Poster buttons
             document.getElementById('savePosterButton').onclick = savePoster;
             document.getElementById('sharePosterButton').onclick = sharePoster;
+            document.getElementById('closeCelebration').onclick = () => {
+                document.getElementById('completionCelebration').classList.remove('show');
+            };
 
             // Menu button
             document.getElementById('menuButton').onclick = () => {
