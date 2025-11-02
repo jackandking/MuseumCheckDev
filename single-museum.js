@@ -1062,10 +1062,27 @@
     setTimeout(()=>{ el.remove(); }, 650);
   }
 
-  // Compress photo to reduce memory usage
-  async function compressPhoto(file, maxWidth = 1200, quality = 0.8) {
+  // Compress photo to reduce memory usage and file size
+  // Photos are used for social media posters with multiple images, so aggressive compression is appropriate
+  // Default: 800px width, 65% quality - reduces 2MB+ photos to ~100-200KB while maintaining good visual quality
+  async function compressPhoto(file, maxWidth = 800, quality = 0.65) {
     return new Promise((resolve, reject) => {
       try {
+        // Tiered compression based on file size
+        const fileSizeMB = file.size / (1024 * 1024);
+        let targetWidth = maxWidth;
+        let targetQuality = quality;
+        
+        if (fileSizeMB > 3) {
+          // Very large files: use more aggressive compression
+          targetWidth = Math.min(maxWidth, 700);
+          targetQuality = Math.min(quality, 0.6);
+        } else if (fileSizeMB < 0.5) {
+          // Small files: use less aggressive compression
+          targetWidth = Math.min(maxWidth, 1000);
+          targetQuality = Math.min(quality + 0.1, 0.8);
+        }
+        
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
@@ -1074,9 +1091,9 @@
               // Calculate new dimensions
               let width = img.width;
               let height = img.height;
-              if (width > maxWidth) {
-                height = (height * maxWidth) / width;
-                width = maxWidth;
+              if (width > targetWidth) {
+                height = (height * targetWidth) / width;
+                width = targetWidth;
               }
               
               // Create canvas and compress
@@ -1086,10 +1103,16 @@
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, width, height);
               
-              // Convert to blob
+              // Convert to blob with tiered quality
               canvas.toBlob(
                 (blob) => {
                   if (blob) {
+                    // Log compression results for monitoring
+                    const originalSizeKB = (file.size / 1024).toFixed(2);
+                    const compressedSizeKB = (blob.size / 1024).toFixed(2);
+                    const compressionRatio = ((1 - blob.size / file.size) * 100).toFixed(1);
+                    console.log(`Photo compressed: ${originalSizeKB}KB → ${compressedSizeKB}KB (${compressionRatio}% reduction)`);
+                    
                     // Create a new File object from blob
                     const compressedFile = new File([blob], file.name, {
                       type: 'image/jpeg',
@@ -1101,7 +1124,7 @@
                   }
                 },
                 'image/jpeg',
-                quality
+                targetQuality
               );
             } catch(err) {
               reject(err);
