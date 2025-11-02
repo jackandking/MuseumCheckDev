@@ -15,16 +15,14 @@ window.MUSEUM_PINGHU = {
       name: '镇馆之宝探索',
       description: '围绕平湖博物馆三大镇馆之宝的亲子探索路线',
       ages: ['3-6', '7-12'],
-      tasks: {
-        enroute: [],
-        visit: [
-          { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口拍一张照片', ages: ['3-6','7-12','13-18'] },
-          { id: 'find-buddha', role: 'child', type: 'photo', title: '镇馆之宝 1/3', subtitle: '找到「唐铸铁佛头」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg', ages: ['3-6','7-12','13-18'] },
-          { id: 'find-ding', role: 'child', type: 'photo', title: '镇馆之宝 2/3', subtitle: '找到「新石器时代崧泽文化夹砂红陶鼎」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/63305db12e457.jpg', ages: ['3-6','7-12','13-18'] },
-          { id: 'find-he', role: 'child', type: 'photo', title: '镇馆之宝 3/3', subtitle: '找到「新石器时代良渚文化黑皮陶盉」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633060a43fd82.jpg', ages: ['3-6','7-12','13-18'] },
-          { id: 'victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！', ages: ['3-6','7-12','13-18'] }
-        ]
-      }
+      tasks: [
+        { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口拍一张照片', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-buddha', role: 'child', type: 'photo', title: '镇馆之宝 1/3', subtitle: '找到「唐铸铁佛头」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-ding', role: 'child', type: 'photo', title: '镇馆之宝 2/3', subtitle: '找到「新石器时代崧泽文化夹砂红陶鼎」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/63305db12e457.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-he', role: 'child', type: 'photo', title: '镇馆之宝 3/3', subtitle: '找到「新石器时代良渚文化黑皮陶盉」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633060a43fd82.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！', ages: ['3-6','7-12','13-18'] },
+        { id: 'poster', role: 'parent', type: 'poster', title: '成就海报', subtitle: '生成专属成就海报', ages: ['3-6','7-12','13-18'] }
+      ]
     }
   ],
   checklists: {

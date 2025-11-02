@@ -109,9 +109,7 @@
     .sg-immersive .sg-settings-btn { display: none; }
     .sg-immersive #step-select { display: none !important; }
     .sg-immersive #step-share { padding-top: 24px; }
-    .sg-immersive #step-prep .sg-title { display: block; }
-    .sg-immersive #step-enroute .sg-title { display: block; }
-    .sg-immersive #sgWorkflowVisit .sg-title { display: block; }
+    .sg-immersive #step-visit .sg-title { display: block; }
     .sg-immersive #step-visit .sg-section { border: 0; border-radius: 0; box-shadow: none; }
     .sg-immersive #sgVisitHint { display: none; }
     .sg-immersive #sgVisitProgress { display:none; }
@@ -147,10 +145,8 @@
     <!-- 步骤条 -->
     <div id="sgStepper" class="sg-stepper" aria-label="流程步骤">
       <div class="sg-step" data-step="select">选择博物馆</div>
-      <div class="sg-step" data-step="prep">行前准备</div>
-      <div class="sg-step" data-step="enroute">路上引导</div>
-      <div class="sg-step" data-step="visit">参观任务</div>
-      <div class="sg-step" data-step="share">分享纪念</div>
+      <div class="sg-step" data-step="visit">完成任务</div>
+      <div class="sg-step" data-step="share">成就海报</div>
     </div>
 
     <!-- 选择博物馆 -->
@@ -161,14 +157,10 @@
         <button id="sgClear">清空</button>
       </div>
       <div id="sgGrid" class="sg-grid" role="list" aria-label="博物馆列表"></div>
-    </section>
-
-    <!-- 行前准备 -->
-    <section id="step-prep" class="sg-section" role="region" aria-labelledby="prep-title" hidden>
-      <div class="sg-title" id="prep-title">出发前，我们先准备好</div>
-      <!-- Workflow Display (visible when workflows exist for the selected museum) -->
-      <div id="sgWorkflowDisplayWrap" class="sg-section" style="display:none; margin-bottom:12px;">
-        <div class="sg-title" style="font-size:18px;">📍 参观路线</div>
+      
+      <!-- Workflow selection moved to select step -->
+      <div id="sgWorkflowDisplayWrap" class="sg-section" style="display:none; margin:16px 0;">
+        <div class="sg-title" style="font-size:18px;">📍 选择参观路线</div>
         
         <!-- Single workflow display (card) -->
         <div id="sgWorkflowCard" style="display:none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; border-radius: 12px; margin-bottom: 12px;">
@@ -189,38 +181,10 @@
           <div id="sgWorkflowPickerDesc" style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #495057; display: none;">
           </div>
         </div>
-      </div>
-      <ul class="sg-list" id="sgPrepList">
-        <li>
-          <label>预约门票 · 帮我们预约好门票了吗？</label>
-          <div class="sg-actions">
-            <button class="sg-btn sg-btn-secondary" id="sgGoReserve" aria-label="去预约">去预约</button>
-          </div>
-        </li>
-        <li>
-          <label>物品准备 · 宝贝的水壶和小零食</label>
-          <input type="checkbox" id="sgItemPack" aria-label="已准备水壶和零食">
-        </li>
-        <li>
-          <label>穿着建议 · 穿舒服的鞋子，今天要走很多路</label>
-          <input type="checkbox" id="sgItemWear" aria-label="已穿舒适的鞋子">
-        </li>
-      </ul>
-      <div class="sg-actions">
-        <button class="sg-btn sg-btn-primary" id="sgPrepDone" disabled>准备好了，出发！</button>
-      </div>
-    </section>
-
-    <!-- 路上引导 -->
-    <section id="step-enroute" class="sg-section" role="region" aria-labelledby="enroute-title" hidden>
-      <div class="sg-title" id="enroute-title">路上可以玩个小游戏</div>
-      <div>
-        <div id="sgParentTips" style="margin:10px 0; font-size:15px; line-height:1.6;"></div>
-        <!-- Workflow Enroute tasks rendered here (if any) -->
-        <div id="sgWorkflowEnroute" style="margin-top:8px; display:none;"></div>
-      </div>
-      <div class="sg-actions">
-        <button class="sg-btn sg-btn-primary" id="sgArrived">到达博物馆</button>
+        
+        <div class="sg-actions" style="margin-top: 16px;">
+          <button class="sg-btn sg-btn-primary" id="sgStartWorkflow">开始探险</button>
+        </div>
       </div>
     </section>
 

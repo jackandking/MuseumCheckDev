@@ -189,23 +189,26 @@
         : [];
       const base = wf || buildDefaultWorkflow(museum);
       const merged = JSON.parse(JSON.stringify(base||{}));
-      if(!merged.tasks) merged.tasks = { enroute: [], visit: [] };
-      merged.tasks.enroute = dedupeTasks([].concat(merged.tasks.enroute||[], enrouteAdds));
-      merged.tasks.visit = dedupeTasks([].concat(merged.tasks.visit||{}, visitAdds, collAdds));
-      // Pinghu-specific: gate photo + all collection tasks + victory photo with pose suggestions
-      if(museum && museum.id === 'pinghu-museum'){
-        const colls = Array.isArray(museum.collections) ? museum.collections : [];
-        const start = { id: 'act:pinghu:gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口拍一张照片' };
-        const mid = colls.map((c, i)=>({
-          id: `coll:pinghu-museum:${i}`,
-          role: 'child', type: 'photo',
-          title: `镇馆之宝 ${i+1}/3`,
-          subtitle: `找到「${(c && c.name) ? c.name : '镇馆之宝'}」并合影`,
-          imageUrl: c && c.url ? c.url : ''
-        }));
-        const end = { id: 'act:pinghu:victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！' };
-        merged.tasks.visit = [start].concat(mid, [end]);
+      // New flat task structure - tasks is now just an array
+      if(!merged.tasks) merged.tasks = [];
+      if(!Array.isArray(merged.tasks)) merged.tasks = [];
+      
+      // Add any additional tasks if needed
+      merged.tasks = dedupeTasks([].concat(merged.tasks, visitAdds, collAdds));
+      
+      // Ensure poster task is at the end if not already present
+      const hasPoster = merged.tasks.some(t => t.type === 'poster');
+      if(!hasPoster){
+        merged.tasks.push({ 
+          id: 'poster', 
+          role: 'parent', 
+          type: 'poster', 
+          title: '成就海报', 
+          subtitle: '生成专属成就海报', 
+          ages: ['3-6','7-12','13-18'] 
+        });
       }
+      
       return merged;
     }catch(e){ return wf; }
   }
@@ -274,43 +277,9 @@
     // Apply default/explicit workflow selection without showing picker
     applyWorkflowSettingForMuseum(m);
     // Skip prep/enroute steps for Pinghu Museum (simplified workflow)
-    if(m && m.id === 'pinghu-museum'){
-      state.innerTaskIndex = 0;
-      setStep('visit');
-      updateInnerTaskVisibility();
-      return;
-    }
-    // Only show prep if reservation is required; otherwise jump to enroute
-    if(hasReservation(m)){
-      preparePrepUIForReservation(m);
-      setStep('prep');
-    } else {
-      setStep('enroute');
-    }
-    // Reservation link: open a search query for now
-    const reserveBtn = $('#sgGoReserve');
-    if(reserveBtn){
-      reserveBtn.onclick = ()=>{
-        const url = (m && m.reservationUrl) ? m.reservationUrl : '';
-        if(url){ window.open(url,'_blank'); }
-        else {
-          const q = encodeURIComponent(`${m.name} 预约 门票`);
-          window.open(`https://www.baidu.com/s?wd=${q}`,'_blank');
-        }
-      };
-    }
-    // reset prep inputs
-    const pack = $('#sgItemPack');
-    const wear = $('#sgItemWear');
-    if(pack) pack.checked = false;
-    if(wear) wear.checked = false;
-    updatePrepCTA();
-  }
-
-  function updatePrepCTA(){
-    // Prep is only for reservation; non-mandatory items removed
-    const btn = $('#sgPrepDone');
-    if(btn) btn.disabled = false;
+    // Simplified flow: after museum selection, show workflow picker in select step
+    // User clicks "开始探险" button to start visit step
+    renderWorkflowDisplay();
   }
 
   // Web Speech API TTS
@@ -414,9 +383,9 @@
     const role = getCaregiverRole();
     const score = (wf)=>{
       try{
-        const visit = (wf.tasks && Array.isArray(wf.tasks.visit)) ? wf.tasks.visit : [];
-        const p = visit.filter(t=>t.role==='parent').length;
-        const c = visit.filter(t=>t.role==='child').length;
+        const tasks = (wf.tasks && Array.isArray(wf.tasks)) ? wf.tasks : [];
+        const p = tasks.filter(t=>t.role==='parent').length;
+        const c = tasks.filter(t=>t.role==='child').length;
         const total = Math.max(1, p + c);
         if(role === 'grandparent') return (p/total)*2 + (1 - Math.abs(p - c)/total); // 更偏家长且均衡加分
         if(role === 'parent') return (p/total) + (1 - Math.abs(p - c)/total); // 适度偏家长
@@ -558,37 +527,8 @@
     const box = $('#sgWorkflowEnroute');
     if(!box) return;
     box.innerHTML = '';
-    const wf = state.selectedWorkflow;
-    const age = getAgeGroup();
-    let tasks = (wf && wf.tasks && Array.isArray(wf.tasks.enroute)) ? wf.tasks.enroute : [];
-    // filter by task ages if provided
-    tasks = tasks.filter(t => !t.ages || t.ages.includes(age));
-    if(!tasks.length){
-      box.style.display = 'none';
-      return;
-    }
-    tasks.forEach(t => {
-      if(t.type === 'tts' && t.tts){
-        const wrap = document.createElement('div');
-        wrap.className = 'sg-tts';
-        const btn = document.createElement('button');
-        btn.className = 'sg-btn sg-btn-secondary';
-        btn.textContent = `▶ ${t.title}`;
-        btn.onclick = () => speak(t.tts);
-        wrap.appendChild(btn);
-        box.appendChild(wrap);
-      } else if(t.type === 'link' && t.url){
-        const wrap = document.createElement('div');
-        wrap.className = 'sg-tts';
-        const btn = document.createElement('button');
-        btn.className = 'sg-btn sg-btn-secondary';
-        btn.textContent = t.title || '打开链接';
-        btn.onclick = () => window.open(t.url, '_blank');
-        wrap.appendChild(btn);
-        box.appendChild(wrap);
-      }
-    });
-    box.style.display = '';
+    // No more enroute stage in simplified workflow
+    box.style.display = 'none';
   }
 
   // Helper function to complete a workflow visit task
@@ -618,7 +558,8 @@
     box.innerHTML = '';
     const wf = state.selectedWorkflow;
     const age = getAgeGroup();
-    let tasks = (wf && wf.tasks && Array.isArray(wf.tasks.visit)) ? wf.tasks.visit : [];
+    // Use flat tasks array, filter out poster tasks for now (they're handled separately in share step)
+    let tasks = (wf && wf.tasks && Array.isArray(wf.tasks)) ? wf.tasks.filter(t => t.type !== 'poster') : [];
     tasks = tasks.filter(t => !t.ages || t.ages.includes(age));
     state.wfVisitCount = tasks.length;
     if(!tasks.length){
@@ -998,7 +939,7 @@
   function getCurrentVisitTasks(){
     const wf = state.selectedWorkflow;
     const age = getAgeGroup();
-    let tasks = (wf && wf.tasks && Array.isArray(wf.tasks.visit)) ? wf.tasks.visit : [];
+    let tasks = (wf && wf.tasks && Array.isArray(wf.tasks)) ? wf.tasks.filter(t => t.type !== 'poster') : [];
     return tasks.filter(t => !t.ages || t.ages.includes(age));
   }
 
@@ -1510,6 +1451,18 @@
     if(clear){
       clear.onclick = ()=>{ input.value = ''; const base2 = MUSEUMS.filter(hasAvailableWorkflow); renderMuseums(base2.slice(0, 50)); input.focus(); };
     }
+    // Bind "开始探险" button
+    const startBtn = $('#sgStartWorkflow');
+    if(startBtn){
+      startBtn.onclick = ()=>{
+        if(state.selectedWorkflow && state.selectedMuseum){
+          state.innerTaskIndex = 0;
+          renderWorkflowVisit();
+          setStep('visit');
+          updateInnerTaskVisibility();
+        }
+      };
+    }
   }
 
   function initPrep(){
@@ -1622,14 +1575,14 @@
       try{ document.documentElement.classList.add('sg-immersive'); }catch(e){} 
       tryRequestWakeLock(); 
       // Skip prep/enroute for Pinghu Museum (simplified workflow)
-      if(state.selectedMuseum && state.selectedMuseum.id === 'pinghu-museum'){
+      if(state.selectedMuseum){
         state.innerTaskIndex = 0;
         // Ensure workflow is rendered before setting step
         renderWorkflowVisit();
         setStep('visit');
         updateInnerTaskVisibility();
       } else {
-        setStep('prep');
+        setStep('select');
       }
       document.removeEventListener('click', pageTapOnce, true); 
     };
@@ -1850,8 +1803,6 @@
       el.addEventListener('click', ()=>{
         const step = el.dataset.step;
         if(step === 'select') setStep('select');
-        else if(step === 'prep' && state.selectedMuseum) setStep('prep');
-        else if(step === 'enroute' && state.selectedMuseum) setStep('enroute');
         else if(step === 'visit' && state.selectedMuseum) setStep('visit');
         else if(step === 'share' && state.selectedMuseum) setStep('share');
       });
