@@ -53,6 +53,16 @@
     try { return localStorage.getItem('caregiverRole') || 'parent'; } catch(e){ return 'parent'; }
   }
 
+  // Photo required setting helper (default optional - photos not required)
+  function isPhotoRequired(){
+    try { 
+      const setting = localStorage.getItem('photoRequired');
+      return setting === 'required';
+    } catch(e){ 
+      return false; // Default: photos are optional
+    }
+  }
+
   // Check if all required settings are configured
   function hasRequiredSettings(){
     try {
@@ -581,6 +591,23 @@
     box.style.display = '';
   }
 
+  // Helper function to complete a workflow visit task
+  function completeWorkflowTask(idx, taskId) {
+    state.completedVisit[idx] = true;
+    try{ 
+      if(state.selectedMuseum && taskId){ 
+        __markDone(state.selectedMuseum.id, taskId, true); 
+      } 
+    }catch(err){}
+    
+    const last = Math.max(0, state.wfVisitCount - 1);
+    if(state.innerTaskIndex < last){
+      state.prevInnerTaskIndex = state.innerTaskIndex;
+      state.innerTaskIndex++;
+    }
+    updateInnerTaskVisibility();
+  }
+
   function renderWorkflowVisit(){
     const box = $('#sgWorkflowVisit');
     const staticBox = $('#sgVisitTasks');
@@ -747,20 +774,34 @@
             showToast('📸 照片已保存！');
           }
           
-          state.completedVisit[idx] = true;
-          try{ if(state.selectedMuseum && t && t.id){ __markDone(state.selectedMuseum.id, t.id, true); } }catch(err){}
-          const last = Math.max(0, state.wfVisitCount - 1);
-          if(state.innerTaskIndex < last){
-            state.prevInnerTaskIndex = state.innerTaskIndex;
-            state.innerTaskIndex++;
-          }
-          updateInnerTaskVisibility();
+          completeWorkflowTask(idx, t.id);
         });
         
         photoWrapper.appendChild(input);
         photoWrapper.appendChild(preview);
         photoWrapper.appendChild(retakeBtn);
         section.appendChild(photoWrapper);
+        
+        // Add "Complete" button when photos are optional
+        if(!isPhotoRequired()){
+          const skipActions = document.createElement('div');
+          skipActions.className = 'sg-actions';
+          skipActions.style.marginTop = '12px';
+          
+          const skipBtn = document.createElement('button');
+          skipBtn.className = 'sg-btn sg-btn-secondary';
+          skipBtn.textContent = '完成（跳过拍照）';
+          skipBtn.style.fontSize = '16px';
+          skipBtn.style.fontWeight = '700';
+          skipBtn.style.padding = '14px';
+          skipBtn.onclick = () => {
+            showToast('✅ 已完成，进入下一步！');
+            completeWorkflowTask(idx, t.id);
+          };
+          
+          skipActions.appendChild(skipBtn);
+          section.appendChild(skipActions);
+        }
       } else {
         const actions = document.createElement('div');
         actions.className = 'sg-actions';
@@ -768,14 +809,7 @@
         done.className = 'sg-btn sg-btn-primary';
         done.textContent = '我完成了';
         done.onclick = () => {
-          state.completedVisit[idx] = true;
-          try{ if(state.selectedMuseum && t && t.id){ __markDone(state.selectedMuseum.id, t.id, true); } }catch(err){}
-          const last = Math.max(0, state.wfVisitCount - 1);
-          if(state.innerTaskIndex < last){
-            state.prevInnerTaskIndex = state.innerTaskIndex;
-            state.innerTaskIndex++;
-            updateInnerTaskVisibility();
-          }
+          completeWorkflowTask(idx, t.id);
         };
         actions.appendChild(done);
         section.appendChild(actions);
@@ -1520,10 +1554,12 @@
     const wfSel = $('#sgWorkflowSetting');
     const nickInp = $('#sgChildNickname');
     const musSel = $('#sgMuseumPicker');
+    const photoReqSel = $('#sgPhotoRequired');
     try{
       if(ageSel) localStorage.setItem('ageGroup', ageSel.value);
       if(roleSel) localStorage.setItem('caregiverRole', roleSel.value);
       if(nickInp) localStorage.setItem('childNickname', nickInp.value || '');
+      if(photoReqSel) localStorage.setItem('photoRequired', photoReqSel.value || 'optional');
       localStorage.setItem('settingsSeen', '1');
       // Persist workflow setting per museum
       const m = state.selectedMuseum;
@@ -1611,14 +1647,19 @@
     if(wfSel) wfSel.addEventListener('change', ()=> saveSettingsImmediate(false));
     if(nickInp) nickInp.addEventListener('input', ()=> saveSettingsImmediate(false));
     if(musSel) musSel.addEventListener('change', ()=> { refreshWorkflowOptions(); saveSettingsImmediate(false); });
+    
+    const photoReqSel = $('#sgPhotoRequired');
+    if(photoReqSel) photoReqSel.addEventListener('change', ()=> saveSettingsImmediate(false));
 
     try{
       const ag = localStorage.getItem('ageGroup');
       const cr = localStorage.getItem('caregiverRole');
       const nn = localStorage.getItem('childNickname') || '';
+      const pr = localStorage.getItem('photoRequired') || 'optional';
       if(ageSel && ag) ageSel.value = ag;
       if(roleSel && cr) roleSel.value = cr;
       if(nickInp) nickInp.value = nn;
+      if(photoReqSel) photoReqSel.value = pr;
     }catch(e){}
 
     if(musSel){
