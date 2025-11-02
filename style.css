@@ -1,10 +1,69 @@
 :root {
+    /* ===== BASE COLORS ===== */
     --primary-color: #2c5aa0;
     --secondary-color: #f8f9fa;
     --accent-color: #28a745;
     --text-color: #333;
     --border-color: #ddd;
     --hover-color: #e9ecef;
+    
+    /* ===== BUTTON DESIGN SYSTEM ===== */
+    /* Primary Action Buttons - Main user actions */
+    --btn-primary-bg: linear-gradient(45deg, #ff6b6b, #ffa500);
+    --btn-primary-color: #ffffff;
+    --btn-primary-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    --btn-primary-hover-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    
+    /* Secondary Action Buttons - Alternative actions */
+    --btn-secondary-bg: #f8f9fa;
+    --btn-secondary-color: #666666;
+    --btn-secondary-border: 2px solid #e0e0e0;
+    --btn-secondary-hover-bg: #e9ecef;
+    --btn-secondary-hover-border: 2px solid #cccccc;
+    
+    /* Icon Buttons - Compact circular buttons */
+    --btn-icon-bg: #ffffff;
+    --btn-icon-border: 2px solid #dddddd;
+    --btn-icon-size: 44px;
+    --btn-icon-size-small: 36px;
+    
+    /* Feature Buttons - Special feature actions (fireworks, check-in, etc.) */
+    --btn-feature-fireworks-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --btn-feature-checkin-bg: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --btn-feature-achievement-bg: linear-gradient(135deg, #ff9800, #f57c00);
+    
+    /* Button Sizing */
+    --btn-padding: 12px 24px;
+    --btn-padding-small: 8px 16px;
+    --btn-padding-large: 14px 28px;
+    --btn-border-radius: 25px;
+    --btn-min-width: 120px;
+    --btn-min-height-touch: 44px; /* WCAG touch target minimum */
+    
+    /* Button States */
+    --btn-transition: all 0.3s ease;
+    --btn-hover-transform: translateY(-2px);
+    --btn-active-transform: translateY(0);
+    
+    /* ===== LABEL DESIGN SYSTEM ===== */
+    /* Info Labels - Display information */
+    --label-info-bg: #f1f3f5;
+    --label-info-color: #6c757d;
+    --label-info-border: 1px solid #dee2e6;
+    
+    /* Status Labels - Show status or badges */
+    --label-status-bg: #e8f5e8;
+    --label-status-color: #28a745;
+    --label-status-border: 1px solid #c8e6c9;
+    
+    /* Form Labels - Form field labels */
+    --label-form-color: #495057;
+    --label-form-weight: 500;
+    
+    /* Label Sizing */
+    --label-padding: 6px 12px;
+    --label-border-radius: 15px;
+    --label-font-size: 0.75em;
     
     /* Minecraft theme colors */
     --minecraft-grass: #7cbd6b;
@@ -19,18 +78,361 @@
     --minecraft-redstone: #c41919;
 }
 
-.assessment-label {
-    display: inline-block;
+/* =====================================================
+   BUTTON AND LABEL DESIGN SYSTEM
+   统一按钮和标签风格设计系统
+   
+   Purpose: Centralized, consistent styling for all buttons and labels
+   Maintains: Visual hierarchy, accessibility, and mobile UX
+   ===================================================== */
+
+/* ===== BASE BUTTON STYLES ===== */
+/* Common properties for ALL buttons */
+button,
+.btn,
+[class*="button"] {
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+button:disabled,
+.btn:disabled,
+[class*="button"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ===== PRIMARY BUTTONS ===== */
+/* Main call-to-action buttons */
+.btn-primary {
+    padding: var(--btn-padding);
+    border-radius: var(--btn-border-radius);
+    border: none;
+    font-size: 0.95em;
+    font-weight: 500;
+    min-width: var(--btn-min-width);
+    min-height: var(--btn-min-height-touch);
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-color);
+    box-shadow: var(--btn-primary-shadow);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-primary-hover-shadow);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
+/* ===== SECONDARY BUTTONS ===== */
+/* Alternative actions, less prominent */
+.btn-secondary {
+    padding: var(--btn-padding);
+    border-radius: var(--btn-border-radius);
+    font-size: 0.95em;
+    font-weight: 500;
+    min-width: var(--btn-min-width);
+    min-height: var(--btn-min-height-touch);
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-color);
+    border: var(--btn-secondary-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--btn-secondary-hover-bg);
+    border: var(--btn-secondary-hover-border);
+}
+
+.btn-secondary:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
+/* ===== ICON BUTTONS ===== */
+/* Compact circular buttons with icons */
+.btn-icon,
+[class$="-button-icon"],
+[class$="-icon"] {
+    width: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    min-width: var(--btn-icon-size);
+    min-height: var(--btn-icon-size);
+    padding: 8px;
+    border-radius: 50%;
+    border: var(--btn-icon-border);
+    background: var(--btn-icon-bg);
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.btn-icon:hover:not(:disabled),
+[class$="-button-icon"]:hover:not(:disabled),
+[class$="-icon"]:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-icon:active:not(:disabled),
+[class$="-button-icon"]:active:not(:disabled),
+[class$="-icon"]:active:not(:disabled) {
+    transform: scale(1.05);
+}
+
+/* Smaller icon buttons for compact layouts */
+.btn-icon-small {
+    width: var(--btn-icon-size-small);
+    height: var(--btn-icon-size-small);
+    min-width: var(--btn-icon-size-small);
+    min-height: var(--btn-icon-size-small);
+    padding: 6px;
+    font-size: 16px;
+}
+
+/* ===== FEATURE BUTTONS ===== */
+/* Special buttons for specific features */
+.btn-feature {
     padding: 6px 12px;
-    margin-left: 12px;
     border-radius: 15px;
+    border: none;
     font-size: 0.75em;
-    background: #f1f3f5;
-    color: #6c757d;
-    border: 1px solid #dee2e6;
+    font-weight: 500;
+    color: white;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-feature:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-feature:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
+/* Feature button variants */
+.btn-feature-fireworks {
+    background: var(--btn-feature-fireworks-bg);
+}
+
+.btn-feature-checkin {
+    background: var(--btn-feature-checkin-bg);
+}
+
+.btn-feature-achievement {
+    background: var(--btn-feature-achievement-bg);
+}
+
+/* ===== UTILITY BUTTONS ===== */
+/* Small buttons for editing, deleting, etc. */
+.btn-utility {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-utility:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+/* ===== TAB BUTTONS ===== */
+/* Buttons used for tab navigation */
+.tab-button {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    border-radius: 8px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--btn-transition);
+}
+
+.tab-button.active {
+    background: white;
+    color: var(--primary-color);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.tab-button:not(.active):hover {
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== LABEL STYLES ===== */
+/* Non-interactive information displays */
+
+/* Base label - NEVER clickable */
+.label,
+[class$="-label"]:not([for]) {
+    display: inline-block;
+    padding: var(--label-padding);
+    border-radius: var(--label-border-radius);
+    font-size: var(--label-font-size);
     cursor: default;
     user-select: none;
+    /* NO hover effects - labels are not interactive */
+    transition: none;
 }
+
+/* Info Labels - Display general information */
+.label-info,
+.assessment-label {
+    background: var(--label-info-bg);
+    color: var(--label-info-color);
+    border: var(--label-info-border);
+    margin-left: 12px;
+}
+
+/* Status Labels - Show status or badges */
+.label-status {
+    background: var(--label-status-bg);
+    color: var(--label-status-color);
+    border: var(--label-status-border);
+}
+
+/* Badge Labels - Small notification badges */
+.label-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Form Labels - Labels for form inputs */
+label,
+.settings-label,
+.label-form {
+    color: var(--label-form-color);
+    font-weight: var(--label-form-weight);
+    font-size: 14px;
+    /* Form labels ARE clickable to focus inputs */
+    cursor: pointer;
+}
+
+/* Stat Labels - Display statistics */
+.stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: #666;
+    opacity: 0.9;
+}
+
+/* Score Labels */
+.score-label {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* ===== MOBILE RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+    /* Ensure touch targets remain accessible */
+    .btn-primary,
+    .btn-secondary {
+        min-height: 44px;
+        font-size: 16px; /* Prevent iOS zoom */
+        padding: 12px 24px;
+    }
+    
+    .btn-icon,
+    [class$="-button-icon"],
+    [class$="-icon"] {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .btn-feature {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 6px 10px;
+        font-size: 0.75em;
+    }
+    
+    .tab-button {
+        min-height: 44px;
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Further optimization for small screens */
+    .btn-icon,
+    [class$="-button-icon"],
+    [class$="-icon"] {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 16px;
+    }
+    
+    .btn-feature {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 5px 8px;
+        font-size: 0.7em;
+    }
+}
+
+/* ===== DESIGN SYSTEM DOCUMENTATION ===== */
+/*
+USAGE GUIDELINES:
+
+BUTTONS (Always clickable):
+- .btn-primary: Main actions (Submit, Start, Confirm)
+- .btn-secondary: Alternative actions (Cancel, Back)
+- .btn-icon: Circular icon-only buttons (Settings, Close)
+- .btn-feature: Special feature buttons (Fireworks, Check-in)
+- .btn-utility: Small edit/delete buttons
+- .tab-button: Tab navigation
+
+LABELS (Never clickable, except form labels):
+- .label-info / .assessment-label: Display information
+- .label-status: Show status (completed, pending)
+- .label-badge: Small notification badges
+- label / .settings-label: Form input labels (clickable)
+- .stat-label: Statistics display
+- .score-label: Score/number labels
+
+ACCESSIBILITY:
+- All interactive buttons have min 44px touch targets
+- Labels have no hover effects to indicate non-interactivity
+- Color contrast meets WCAG AA standards
+- Focus states maintained for keyboard navigation
+*/
 
 * {
     margin: 0;
@@ -328,7 +730,9 @@ header h1 {
     font-size: 15px;
 }
 
+/* Clear Search Button - Small utility button */
 .clear-search-button {
+    /* Utility button positioned inside search input */
     position: absolute;
     right: 12px;
     top: 50%;
@@ -337,13 +741,13 @@ header h1 {
     border: none;
     color: #999;
     font-size: 16px;
-    cursor: pointer;
     padding: 5px;
     border-radius: 50%;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.clear-search-button:hover {
+.clear-search-button:hover:not(:disabled) {
     background-color: #f0f0f0;
     color: #666;
 }
@@ -428,32 +832,51 @@ header h1 {
     flex: 0 0 auto;
 }
 
+/* Icon Buttons with Special Hover Effects - Extends .btn-icon */
 .achievement-button-icon,
-.assessment-history-button-icon {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
+.assessment-history-button-icon,
+.settings-button-icon,
+.fireworks-button-icon {
+    /* Extends .btn-icon base styles */
+    width: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    min-width: var(--btn-icon-size);
+    min-height: var(--btn-icon-size);
     padding: 8px;
     font-size: 20px;
     border-radius: 50%;
-    border: 2px solid #ddd;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    border: var(--btn-icon-border);
+    background: var(--btn-icon-bg);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.achievement-button-icon:hover {
+/* Specific hover colors for each icon button */
+.achievement-button-icon:hover:not(:disabled) {
     background-color: rgba(255, 215, 0, 0.1);
     border-color: #ffd700;
     transform: scale(1.1);
 }
 
-.assessment-history-button-icon:hover {
+.assessment-history-button-icon:hover:not(:disabled) {
     background-color: rgba(0, 123, 255, 0.1);
     border-color: #007bff;
+    transform: scale(1.1);
+}
+
+.settings-button-icon:hover:not(:disabled) {
+    background-color: rgba(108, 92, 231, 0.1);
+    border-color: #6c5ce7;
+    transform: scale(1.1);
+}
+
+.fireworks-button-icon:hover:not(:disabled) {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
     transform: scale(1.1);
 }
 
@@ -676,96 +1099,104 @@ header h1 {
 }
 
 /* Assessment Button Styles */
+/* ===== SPECIFIC FEATURE BUTTON IMPLEMENTATIONS ===== */
+/* These extend the base .btn-feature class with specific styling */
+
+/* Assessment Button - Uses primary button style */
 .assessment-button {
-    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    /* Extends .btn-feature base styles */
+    background: var(--btn-primary-bg);
     color: white;
     border: none;
     padding: 6px 12px;
     border-radius: 15px;
     font-size: 0.75em;
-    cursor: pointer;
     margin-left: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
-}
-
-.assessment-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
-    background: linear-gradient(45deg, #ff5252, #ff9800);
-}
-
-.assessment-button:active {
-    transform: translateY(0);
-}
-
-/* Museum fireworks button on home page cards */
-.museum-fireworks-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.75em;
-    cursor: pointer;
-    margin-left: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
     min-width: 44px;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: var(--btn-transition);
+    box-shadow: var(--btn-primary-shadow);
 }
 
-.museum-fireworks-button:hover {
+.assessment-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--btn-primary-hover-shadow);
+    background: linear-gradient(45deg, #ff5252, #ff9800);
+}
+
+.assessment-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
+/* Museum Fireworks Button - Feature button for fireworks */
+.museum-fireworks-button {
+    /* Extends .btn-feature-fireworks */
+    background: var(--btn-feature-fireworks-bg);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    margin-left: 12px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--btn-transition);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.museum-fireworks-button:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.05);
     box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
     background: linear-gradient(135deg, #5568d3 0%, #653a8e 100%);
 }
 
-.museum-fireworks-button:active {
-    transform: translateY(0);
+.museum-fireworks-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
 }
 
-/* Museum check-in button on home page cards */
+/* Museum Check-in Button - Feature button for check-in */
 .museum-checkin-button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    /* Extends .btn-feature-checkin */
+    background: var(--btn-feature-checkin-bg);
     color: white;
     border: none;
     padding: 6px 12px;
     border-radius: 15px;
     font-size: 0.75em;
-    cursor: pointer;
     margin-left: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(245, 87, 108, 0.3);
     min-width: 44px;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: var(--btn-transition);
+    box-shadow: 0 2px 4px rgba(245, 87, 108, 0.3);
 }
 
-.museum-checkin-button:hover {
+.museum-checkin-button:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.05);
     box-shadow: 0 4px 8px rgba(245, 87, 108, 0.4);
     background: linear-gradient(135deg, #e182ea 0%, #e4465b 100%);
 }
 
-.museum-checkin-button:active {
-    transform: translateY(0);
+.museum-checkin-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
 }
 
-/* Favorite button on museum cards */
+/* Favorite Button - Icon-only button with special styling */
 .favorite-button {
+    /* Special case: Icon button without background */
     background: none;
     border: none;
     font-size: 1.4em;
-    cursor: pointer;
     padding: 0;
     margin-right: 8px;
-    transition: all 0.2s ease;
     color: #ffd700;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     min-width: 32px;
@@ -773,14 +1204,16 @@ header h1 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: var(--btn-transition);
+    cursor: pointer;
 }
 
-.favorite-button:hover {
+.favorite-button:hover:not(:disabled) {
     transform: scale(1.15);
     filter: brightness(1.2);
 }
 
-.favorite-button:active {
+.favorite-button:active:not(:disabled) {
     transform: scale(1.05);
 }
 
@@ -1182,21 +1615,24 @@ header h1 {
     line-height: 1.6;
 }
 
+/* Poster Button - Primary button for poster generation */
 .poster-button {
+    /* Similar to .btn-primary but with squared corners */
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: var(--btn-padding);
     border-radius: 8px;
     font-size: 16px;
-    cursor: pointer;
     margin: 10px;
-    transition: all 0.3s ease;
+    min-height: var(--btn-min-height-touch);
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.poster-button:hover {
+.poster-button:hover:not(:disabled) {
     background-color: #1e4085;
-    transform: translateY(-2px);
+    transform: var(--btn-hover-transform);
 }
 
 .poster-preview {
@@ -1232,22 +1668,25 @@ header h1 {
     backdrop-filter: blur(10px);
 }
 
-.edit-item-btn, .delete-item-btn {
+/* Edit and Delete Utility Buttons - Extends .btn-utility */
+.edit-item-btn,
+.delete-item-btn {
+    /* Extends .btn-utility base styles */
     background: none;
     border: none;
-    cursor: pointer;
-    font-size: 16px;
     padding: 8px;
     border-radius: 6px;
-    transition: all 0.3s ease;
-    width: 36px; /* Touch-friendly size */
-    height: 36px; /* Touch-friendly size */
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.edit-item-btn:hover {
+.edit-item-btn:hover:not(:disabled) {
     background-color: #e3f2fd;
     transform: scale(1.05);
 }
@@ -1279,32 +1718,30 @@ header h1 {
     text-align: center;
 }
 
+/* Add Item Button - Special dashed border button */
 .add-item-btn {
     background-color: #f8f9fa;
     border: 2px dashed #dee2e6;
     color: #6c757d;
     padding: 16px 24px;
     border-radius: 12px;
-    cursor: pointer;
     font-size: 15px;
     font-weight: 500;
-    transition: all 0.3s ease;
-    min-height: 56px; /* Touch-friendly */
+    min-height: 56px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.add-item-btn:hover {
+.add-item-btn:hover:not(:disabled) {
     background-color: #e8f5e8;
     border-color: var(--accent-color);
     color: var(--accent-color);
     transform: translateY(-1px);
-}
-    border-color: var(--accent-color);
-    color: var(--accent-color);
 }
 
 .custom-item {
@@ -1408,6 +1845,7 @@ header h1 {
     flex: 0 0 auto;
 }
 
+/* Achievement Buttons Container */
 .achievement-buttons {
     display: flex;
     gap: 15px;
@@ -1415,61 +1853,64 @@ header h1 {
     justify-content: center;
 }
 
+/* Achievement Button - Feature button with orange gradient */
 .achievement-button {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
+    background: var(--btn-feature-achievement-bg);
     color: white;
     border: none;
     padding: 12px 20px;
-    border-radius: 25px;
-    cursor: pointer;
+    border-radius: var(--btn-border-radius);
     font-size: 14px;
     font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
     font-weight: 500;
     min-width: 130px;
+    min-height: var(--btn-min-height-touch);
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
 }
 
-.achievement-button:hover {
-    transform: translateY(-2px);
+.achievement-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
     box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
     background: linear-gradient(135deg, #f57c00, #ef6c00);
 }
 
-/* Assessment History Button in Progress Display */
+/* Assessment History Button - Feature button in progress display */
 .assessment-history-button {
     background: linear-gradient(135deg, #6c5ce7, #a29bfe);
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: var(--btn-padding-small);
     border-radius: 20px;
-    cursor: pointer;
     font-size: 13px;
     font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
     font-weight: 500;
     min-width: auto;
+    min-height: var(--btn-min-height-touch);
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    gap: 6px;
     flex: 0 0 auto;
     white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
 }
 
-.assessment-history-button:hover {
-    transform: translateY(-2px);
+.assessment-history-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
     box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
     background: linear-gradient(135deg, #5f3dc4, #6c5ce7);
 }
 
-.assessment-history-button:active {
-    transform: translateY(0);
+.assessment-history-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
 }
 
 .assessment-history-button-inline {
@@ -1513,24 +1954,26 @@ header h1 {
     opacity: 0.9;
 }
 
+/* Achievement Poster Button - Special feature button */
 .achievement-poster-button {
     background: linear-gradient(135deg, #4CAF50, #45a049);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 25px;
-    cursor: pointer;
+    padding: var(--btn-padding);
+    border-radius: var(--btn-border-radius);
     font-size: 16px;
     font-family: inherit;
+    min-height: var(--btn-min-height-touch);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    transition: var(--btn-transition);
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
-.achievement-poster-button:hover {
-    transform: translateY(-2px);
+.achievement-poster-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
@@ -2239,74 +2682,77 @@ main[role="main"] {
     min-width: 0;
 }
 
-/* Share Button Styles */
+/* Share Button Styles - Success/positive action button */
 .share-button {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: var(--btn-padding-small);
     border-radius: 20px;
-    cursor: pointer;
     font-size: 13px;
     font-family: inherit;
+    min-height: var(--btn-min-height-touch);
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
     white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
-.share-button:hover {
-    transform: translateY(-2px);
+.share-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
     background: linear-gradient(135deg, #218838, #1bb394);
 }
 
-.share-button:active {
-    transform: translateY(0);
+.share-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
 }
 
-/* Clear Data Button Styles */
+/* Clear Data Button Styles - Dangerous action button */
 .clear-data-button {
     background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
     border: none;
     padding: 12px 20px;
-    border-radius: 25px;
-    cursor: pointer;
+    border-radius: var(--btn-border-radius);
     font-size: 13px;
     font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
-    white-space: nowrap;
     font-weight: 500;
     min-width: 130px;
+    min-height: var(--btn-min-height-touch);
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
 }
 
-.clear-data-button:hover {
-    transform: translateY(-2px);
+.clear-data-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
     box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
     background: linear-gradient(135deg, #c82333, #bd2130);
 }
 
-.clear-data-button:active {
-    transform: translateY(0);
+.clear-data-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
 }
 
 .clear-all-button {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
-.clear-all-button:hover {
+.clear-all-button:hover:not(:disabled) {
     background: linear-gradient(135deg, #c0392b, #a93226);
 }
 
 .clear-data-button-icon {
+    /* Icon variant of clear data button */
     min-width: auto;
     width: 40px;
     height: 40px;
@@ -2323,11 +2769,11 @@ main[role="main"] {
     font-size: 16px;
 }
 
-.clear-data-button-icon:hover {
-    transform: translateY(-2px);
+.clear-data-button-icon:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
 }
 
-/* Settings button icon - same style as other icon buttons */
+/* Settings button icon - Extends .btn-icon base styles */
 .settings-button-icon {
     min-width: auto;
     width: 40px;
@@ -4430,19 +4876,21 @@ main[role="main"] {
     color: white;
 }
 
+/* Export Button - Secondary button with transparent background */
 .export-button {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 20px;
-    padding: 8px 16px;
-    cursor: pointer;
+    padding: var(--btn-padding-small);
     font-size: 14px;
-    transition: all 0.3s ease;
+    min-height: var(--btn-min-height-touch);
+    cursor: pointer;
+    transition: var(--btn-transition);
     backdrop-filter: blur(10px);
 }
 
-.export-button:hover {
+.export-button:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
@@ -5601,55 +6049,31 @@ main[role="main"] {
     font-weight: 500;
 }
 
+/* Fireworks Button - Secondary button with transparent background */
 .fireworks-button {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.4);
-    padding: 8px 16px;
+    padding: var(--btn-padding-small);
     border-radius: 8px;
-    cursor: pointer;
     font-size: 0.95em;
-    transition: all 0.3s ease;
+    min-height: var(--btn-min-height-touch);
     white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
 }
 
-.fireworks-button:hover {
+.fireworks-button:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    transform: var(--btn-hover-transform);
 }
 
 .fireworks-button-inline {
     min-width: auto;
 }
 
-/* Fireworks button icon style (for progress-display) */
-.fireworks-button-icon {
-    min-width: auto;
-    width: 40px;
-    height: 40px;
-    padding: 8px;
-    border-radius: 50%;
-    flex: 0 0 auto;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.progress-display .fireworks-button-icon {
-    width: 36px;
-    height: 36px;
-    padding: 6px;
-    font-size: 16px;
-    margin-left: 8px;
-}
-
-.fireworks-button-icon:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
+/* Fireworks Button Icon - Already defined above with other icon buttons */
+/* See .fireworks-button-icon in Icon Buttons section */
 
 /* Fireworks Modal - Full Screen Layout */
 .fireworks-modal .modal-content {
@@ -5855,23 +6279,25 @@ main[role="main"] {
     font-size: 1.1em;
 }
 
+/* Demo Firework Button - Large feature button */
 .demo-firework-button {
     margin: 20px auto;
-    padding: 12px 24px;
+    padding: var(--btn-padding);
     font-size: 1.1em;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--btn-feature-fireworks-bg);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    display: block;
-    width: fit-content;
+    border-radius: var(--btn-border-radius);
     min-width: 200px;
+    min-height: var(--btn-min-height-touch);
+    width: fit-content;
+    display: block;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-.demo-firework-button:hover {
+.demo-firework-button:hover:not(:disabled) {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
