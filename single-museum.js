@@ -722,8 +722,19 @@
         };
         
         input.addEventListener('change', async (e)=> {
+          // Clear any previous error styling
+          input.style.border = '3px dashed #2e7cf6';
+          input.style.backgroundColor = '#f0f7ff';
+          
           const success = await handlePhotoInput(e, `wf-${idx}`, `#wpreview-${idx}`);
-          if(!success) return;
+          if(!success) {
+            // Highlight input field to encourage retry
+            input.style.border = '3px dashed #ef4444';
+            input.style.backgroundColor = '#fef2f2';
+            // Reset input value so user can select same file again if needed
+            input.value = '';
+            return;
+          }
           
           // Hide input and show retake button after successful photo
           input.style.display = 'none';
@@ -850,14 +861,24 @@
     const camVictory = $('#camVictory');
     if(camEntrance) camEntrance.addEventListener('change', async (e)=> { 
       const success = await handlePhotoInput(e, 'entrance', '#photoEntrance'); 
-      if(success) showToast('📸 门口打卡成功！');
+      if(!success) {
+        // Reset input for retry
+        camEntrance.value = '';
+        return;
+      }
+      showToast('📸 门口打卡成功！');
       state.completedVisit[0]=true; 
       if(state.innerTaskIndex===0){ state.prevInnerTaskIndex=0; state.innerTaskIndex=1; } 
       updateInnerTaskVisibility(); 
     });
     if(camVictory) camVictory.addEventListener('change', async (e)=> { 
       const success = await handlePhotoInput(e, 'victory', '#photoVictory'); 
-      if(success) showToast('📸 胜利合影完成！');
+      if(!success) {
+        // Reset input for retry
+        camVictory.value = '';
+        return;
+      }
+      showToast('📸 胜利合影完成！');
       state.completedVisit[2]=true; 
       setStep('share'); 
       updateInnerTaskVisibility(); 
@@ -1098,6 +1119,56 @@
     return imgContainer;
   }
 
+  // Helper function to check if an error is memory-related
+  function isMemoryRelatedError(error) {
+    if (!error) return false;
+    return (error.message && error.message.toLowerCase().includes('memory')) ||
+           error.name === 'QuotaExceededError' ||
+           error.name === 'NS_ERROR_OUT_OF_MEMORY';
+  }
+
+  // Helper function to show retryable error with clear guidance
+  function showRetryableError(previewEl, message) {
+    if (!previewEl) return;
+    
+    // Clear existing content to avoid accumulating error messages
+    previewEl.innerHTML = '';
+    
+    const errorBox = document.createElement('div');
+    errorBox.style.padding = '20px';
+    errorBox.style.borderRadius = '12px';
+    errorBox.style.border = '3px solid #ef4444';
+    errorBox.style.backgroundColor = '#fef2f2';
+    errorBox.style.marginBottom = '12px';
+    errorBox.style.textAlign = 'center';
+    
+    const errorIcon = document.createElement('div');
+    errorIcon.textContent = '⚠️';
+    errorIcon.style.fontSize = '36px';
+    errorIcon.style.marginBottom = '12px';
+    errorBox.appendChild(errorIcon);
+    
+    const errorMsg = document.createElement('div');
+    errorMsg.textContent = message;
+    errorMsg.style.fontSize = '16px';
+    errorMsg.style.fontWeight = '700';
+    errorMsg.style.color = '#dc2626';
+    errorMsg.style.marginBottom = '12px';
+    errorBox.appendChild(errorMsg);
+    
+    const retryHint = document.createElement('div');
+    retryHint.textContent = '💡 提示：点击上方拍照按钮重试';
+    retryHint.style.fontSize = '14px';
+    retryHint.style.color = '#6b7280';
+    retryHint.style.marginTop = '8px';
+    errorBox.appendChild(retryHint);
+    
+    previewEl.appendChild(errorBox);
+    
+    // Also show toast for immediate feedback
+    showToast(message);
+  }
+
   async function handlePhotoInput(evt, key, previewSel){
     try {
       const files = Array.from(evt.target.files || []);
@@ -1122,6 +1193,16 @@
         } catch(compressErr) {
           const fileSizeKB = (f.size / 1024).toFixed(2);
           console.warn(`Photo compression failed for ${f.name} (${fileSizeKB}KB), using original:`, compressErr.message || compressErr);
+          
+          // Check if it's a memory-related error
+          if (isMemoryRelatedError(compressErr)) {
+            // Memory error - don't try to use original file, show specific error
+            console.error('Memory error during photo processing:', compressErr);
+            showRetryableError(preview, '内存不足 😅 请重新拍照试试');
+            return false;
+          }
+          
+          // Other errors - try using original file
           compressedFiles.push(f);
           
           // Show preview with original
@@ -1134,7 +1215,14 @@
       return true;
     } catch(e) {
       console.error('Photo handling error:', e);
-      showToast('照片加载失败，请重试 ⚠️');
+      
+      // Check if it's a memory-related error
+      if (isMemoryRelatedError(e)) {
+        const preview = document.querySelector(previewSel);
+        showRetryableError(preview, '内存不足 😅 请重新拍照试试');
+      } else {
+        showToast('照片加载失败，请重试 ⚠️');
+      }
       return false;
     }
   }
