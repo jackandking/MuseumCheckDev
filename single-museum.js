@@ -1768,6 +1768,40 @@
     const photoReqSel = $('#sgPhotoRequired');
     if(photoReqSel) photoReqSel.addEventListener('change', ()=> saveSettingsImmediate(false));
 
+    // Menu button and modal
+    const menuBtn = $('#sgMenuBtn');
+    const menuModal = $('#sgMenuModal');
+    const menuCloseBtn = $('#sgMenuClose');
+    if(menuBtn) menuBtn.addEventListener('click', ()=> { if(menuModal) menuModal.style.display = 'flex'; });
+    if(menuCloseBtn) menuCloseBtn.addEventListener('click', ()=> { if(menuModal) menuModal.style.display = 'none'; });
+    if(menuModal) menuModal.addEventListener('click', (e)=>{ if(e.target === menuModal) menuModal.style.display = 'none'; });
+    
+    // Menu actions
+    const menuViewParent = $('#sgMenuViewParentTasks');
+    const menuViewAssess = $('#sgMenuViewAssessment');
+    const menuViewMusFw = $('#sgMenuViewMuseumFireworks');
+    const menuViewFw = $('#sgMenuViewFireworks');
+    const menuHome = $('#sgMenuBackToHome');
+    
+    if(menuViewParent) menuViewParent.addEventListener('click', ()=> {
+      const mid = state.selectedMuseum ? state.selectedMuseum.id : '';
+      const age = getAgeGroup();
+      window.location.href = `index.html?museum=${mid}&type=parent&age=${age}`;
+    });
+    if(menuViewAssess) menuViewAssess.addEventListener('click', ()=> {
+      window.location.href = 'index.html?assessment=true';
+    });
+    if(menuViewMusFw) menuViewMusFw.addEventListener('click', ()=> {
+      const mid = state.selectedMuseum ? state.selectedMuseum.id : '';
+      window.location.href = `fireworks-wall.html?museum=${mid}`;
+    });
+    if(menuViewFw) menuViewFw.addEventListener('click', ()=> {
+      window.location.href = 'fireworks-wall.html';
+    });
+    if(menuHome) menuHome.addEventListener('click', ()=> {
+      window.location.href = 'index.html';
+    });
+
     try{
       const ag = localStorage.getItem('ageGroup');
       const cr = localStorage.getItem('caregiverRole');
@@ -1845,7 +1879,26 @@
       
       state.startAfterSettings = true; // start tour after closing settings
       
-      // Decision logic:
+      // Special case: Pinghu Museum - skip settings if museum is pre-selected via URL
+      if(state.selectedMuseum && state.selectedMuseum.id === 'pinghu-museum' && hasMuseumParam){
+        // For Pinghu Museum with URL parameter, skip settings and go directly to visit
+        // Set default settings if not configured
+        if(!allSettingsConfigured){
+          if(!localStorage.getItem('childNickname')) localStorage.setItem('childNickname', '小淘气');
+          if(!localStorage.getItem('ageGroup')) localStorage.setItem('ageGroup', '7-12');
+          if(!localStorage.getItem('caregiverRole')) localStorage.setItem('caregiverRole', 'parent');
+        }
+        // Skip intro and go directly to visit
+        document.documentElement.classList.add('sg-immersive');
+        tryRequestWakeLock();
+        state.innerTaskIndex = 0;
+        renderWorkflowVisit();
+        setStep('visit');
+        updateInnerTaskVisibility();
+        return;
+      }
+      
+      // Decision logic for other museums:
       // 1. If all settings configured (nickname, age, role) AND museum selected -> skip settings, go to intro
       // 2. Otherwise -> show settings page
       if(hasSelection && allSettingsConfigured){
