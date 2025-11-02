@@ -53,6 +53,19 @@
     try { return localStorage.getItem('caregiverRole') || 'parent'; } catch(e){ return 'parent'; }
   }
 
+  // Check if all required settings are configured
+  function hasRequiredSettings(){
+    try {
+      const nickname = localStorage.getItem('childNickname');
+      const age = localStorage.getItem('ageGroup');
+      const role = localStorage.getItem('caregiverRole');
+      // All three should exist and have non-empty values after trimming
+      return !!(nickname && nickname.trim() && age && age.trim() && role && role.trim());
+    } catch(e) { 
+      return false; 
+    }
+  }
+
   const state = {
     step: 'select',
     selectedMuseum: null,
@@ -1581,17 +1594,20 @@
     try{
       const p = getUrlParams();
       const hasMuseumParam = !!(p.museum || p.museumId);
-      const seen = localStorage.getItem('settingsSeen') === '1';
-      state.startAfterSettings = true; // start tour after closing settings
+      const allSettingsConfigured = hasRequiredSettings();
       const hasSelection = !!state.selectedMuseum;
-      if(!hasSelection){
-        // No museum chosen yet: always go to settings first
-        showSettings();
-      } else if(hasMuseumParam || !seen){
-        showSettings();
-      } else {
-        // Already configured with a museum: show immersive intro
+      
+      state.startAfterSettings = true; // start tour after closing settings
+      
+      // Decision logic:
+      // 1. If all settings configured (nickname, age, role) AND museum selected -> skip settings, go to intro
+      // 2. Otherwise -> show settings page
+      if(hasSelection && allSettingsConfigured){
+        // All required settings exist and museum is selected: skip settings page
         showIntroOverlay();
+      } else {
+        // Settings incomplete or no museum selected: show settings
+        showSettings();
       }
     }catch(e){ showSettings(); }
 
