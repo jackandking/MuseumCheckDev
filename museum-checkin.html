@@ -1447,28 +1447,7 @@
             if (!canvas || !preview) return;
             
             const ctx = canvas.getContext('2d');
-            const W = canvas.width, H = canvas.height;
-            
-            // Background gradient
-            const grad = ctx.createLinearGradient(0, 0, 0, H);
-            grad.addColorStop(0, '#a8d8ea');
-            grad.addColorStop(1, '#5ab4d1');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, W, H);
-            
-            // Title
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-            ctx.fillText('今天的博物馆小探险', 40, 100);
-            
-            // Museum name
-            ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-            ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
-            
-            // Nickname
-            const nickname = getChildNickname();
-            ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-            ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+            const W = canvas.width;
             
             // Get completed tasks text
             const completedTasksList = Array.from(completedTasks)
@@ -1508,36 +1487,6 @@
                 qrImg.src = museumQRFile;
             });
             
-            if (photos.length === 0) {
-                ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
-                
-                // Load and draw QR code even without photos
-                loadQRCode().then(qrImage => {
-                    if (qrImage) {
-                        const qrSize = 120;
-                        const qrX = W - qrSize - 40;
-                        const qrY = 300;
-                        
-                        // Draw white background for QR code
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 50);
-                        
-                        // Draw QR code
-                        ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
-                        
-                        // Add text below QR code
-                        ctx.fillStyle = '#2c5aa0';
-                        ctx.font = '18px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('扫码体验更多', qrX + qrSize / 2, qrY + qrSize + 25);
-                    }
-                    
-                    preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
-                });
-                return;
-            }
-            
             // Load all photos as images
             const loadImage = (dataUrl) => new Promise((resolve) => {
                 const img = new Image();
@@ -1546,13 +1495,81 @@
                 img.src = dataUrl;
             });
             
+            // Load photos and QR code in parallel
             Promise.all([...photos.map(loadImage), loadQRCode()]).then(results => {
                 const qrImage = results.pop(); // Last item is QR code
                 const validImages = results.filter(img => img !== null);
-                if (validImages.length === 0) return;
                 
-                // Add completed tasks section before photos
+                // Pre-calculate required canvas height to avoid canvas clearing
                 let currentY = 260;
+                
+                // Height for completed tasks section
+                if (completedTasksList.length > 0) {
+                    currentY += 35; // Section title
+                    currentY += completedTasksList.length * 28; // Task list
+                    currentY += 20; // Space after tasks
+                }
+                
+                // Height for photos section
+                let photoSectionHeight = 0;
+                if (validImages.length > 0) {
+                    let photoSize = 280;
+                    let cols = 2;
+                    let padding = 20;
+                    
+                    if (validImages.length <= 2) {
+                        cols = 2;
+                        photoSize = 280;
+                    } else if (validImages.length <= 4) {
+                        cols = 2;
+                        photoSize = 200;
+                        padding = 15;
+                    } else {
+                        cols = 3;
+                        photoSize = 180;
+                        padding = 12;
+                    }
+                    
+                    const rows = Math.ceil(validImages.length / cols);
+                    photoSectionHeight = 40 + rows * (photoSize + padding); // Header + grid
+                }
+                
+                // Calculate total required height
+                const contentEndY = currentY + photoSectionHeight + 40;
+                const qrHeight = qrImage ? 180 : 0;
+                const requiredHeight = Math.max(contentEndY + 100, Math.max(contentEndY, canvas.height - 180) + qrHeight);
+                
+                // Set canvas height BEFORE drawing to avoid clearing
+                if (requiredHeight > canvas.height) {
+                    canvas.height = requiredHeight;
+                }
+                
+                const H = canvas.height;
+                
+                // Now draw everything on the correctly-sized canvas
+                // Background gradient
+                const grad = ctx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0, '#a8d8ea');
+                grad.addColorStop(1, '#5ab4d1');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, W, H);
+                
+                // Title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText('今天的博物馆小探险', 40, 100);
+                
+                // Museum name
+                ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
+                
+                // Nickname
+                const nickname = getChildNickname();
+                ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+                
+                // Reset currentY for actual drawing
+                currentY = 260;
                 
                 // Section title for completed tasks
                 if (completedTasksList.length > 0) {
@@ -1578,62 +1595,69 @@
                     currentY += 20; // Space before photos
                 }
                 
-                // Dynamic layout based on photo count
-                const photoCount = validImages.length;
-                let startY = currentY;
-                let photoSize = 280;
-                let cols = 2;
-                let padding = 20;
-                
-                if (photoCount <= 2) {
-                    cols = 2;
-                    photoSize = 280;
-                } else if (photoCount <= 4) {
-                    cols = 2;
-                    photoSize = 200;
-                    padding = 15;
-                } else {
-                    cols = 3;
-                    photoSize = 180;
-                    padding = 12;
-                }
-                
-                // Add photos section header if there are photos
+                // Draw photos if available
                 if (validImages.length > 0) {
+                    let photoSize = 280;
+                    let cols = 2;
+                    let padding = 20;
+                    
+                    if (validImages.length <= 2) {
+                        cols = 2;
+                        photoSize = 280;
+                    } else if (validImages.length <= 4) {
+                        cols = 2;
+                        photoSize = 200;
+                        padding = 15;
+                    } else {
+                        cols = 3;
+                        photoSize = 180;
+                        padding = 12;
+                    }
+                    
+                    // Photos section header
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                     ctx.textAlign = 'left';
-                    ctx.fillText('📸 精彩瞬间：', 40, startY);
-                    startY += 40;
+                    ctx.fillText('📸 精彩瞬间：', 40, currentY);
+                    currentY += 40;
+                    
+                    const startY = currentY;
+                    
+                    // Draw photos in grid
+                    validImages.forEach((img, idx) => {
+                        const row = Math.floor(idx / cols);
+                        const col = idx % cols;
+                        const x = 40 + col * (photoSize + padding);
+                        const y = startY + row * (photoSize + padding);
+                        
+                        // White border
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        ctx.fillRect(x - 6, y - 6, photoSize + 12, photoSize + 12);
+                        
+                        // Draw photo with aspect ratio
+                        const scale = Math.min(photoSize / img.width, photoSize / img.height);
+                        const scaledW = img.width * scale;
+                        const scaledH = img.height * scale;
+                        const offsetX = (photoSize - scaledW) / 2;
+                        const offsetY = (photoSize - scaledH) / 2;
+                        
+                        ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
+                    });
+                    
+                    const rows = Math.ceil(validImages.length / cols);
+                    currentY = startY + rows * (photoSize + padding) + 40;
+                } else if (photos.length > 0) {
+                    // Photos exist but failed to load - show message
+                    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                    ctx.font = '20px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('📸 照片加载中...', 40, currentY);
+                    currentY += 40;
                 }
                 
-                // Draw photos in grid
-                validImages.forEach((img, idx) => {
-                    const row = Math.floor(idx / cols);
-                    const col = idx % cols;
-                    const x = 40 + col * (photoSize + padding);
-                    const y = startY + row * (photoSize + padding);
-                    
-                    // White border
-                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                    ctx.fillRect(x - 6, y - 6, photoSize + 12, photoSize + 12);
-                    
-                    // Draw photo with aspect ratio
-                    const scale = Math.min(photoSize / img.width, photoSize / img.height);
-                    const scaledW = img.width * scale;
-                    const scaledH = img.height * scale;
-                    const offsetX = (photoSize - scaledW) / 2;
-                    const offsetY = (photoSize - scaledH) / 2;
-                    
-                    ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
-                });
+                // Footer area - QR code
+                const footerY = Math.max(currentY, H - 180);
                 
-                // Footer area
-                const rows = Math.ceil(validImages.length / cols);
-                const contentEndY = startY + rows * (photoSize + padding) + 40;
-                let footerY = Math.max(contentEndY, H - 180); // Reserve more space for QR code
-                
-                // Draw QR code in footer if available
                 if (qrImage) {
                     const qrSize = 120;
                     const qrX = W - qrSize - 40;
@@ -1651,8 +1675,6 @@
                     ctx.font = '18px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                     ctx.textAlign = 'center';
                     ctx.fillText('扫码体验更多', qrX + qrSize / 2, qrY + qrSize + 25);
-                    
-                    footerY = qrY + qrSize + 50;
                 }
                 
                 // Draw date and branding on the left side
@@ -1660,15 +1682,41 @@
                 ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                 ctx.textAlign = 'left';
                 const date = new Date().toLocaleDateString('zh-CN');
-                ctx.fillText(`MuseumCheck · ${date}`, 40, contentEndY + 50);
+                ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
                 
-                // Adjust canvas height if needed
-                const requiredHeight = Math.max(footerY + 40, contentEndY + 100);
-                if (requiredHeight > H) {
-                    canvas.height = requiredHeight;
-                }
+                // Display preview - always update, even if no photos
+                preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+            }).catch(error => {
+                // Fallback: even if everything fails, show a basic poster
+                console.error('Error generating poster:', error);
+                const H = canvas.height;
                 
-                // Display preview
+                // Background gradient
+                const grad = ctx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0, '#a8d8ea');
+                grad.addColorStop(1, '#5ab4d1');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, W, H);
+                
+                // Title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText('今天的博物馆小探险', 40, 100);
+                
+                // Museum name
+                ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
+                
+                // Nickname
+                const nickname = getChildNickname();
+                ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+                
+                // Completion message
+                ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                ctx.fillText('🎉 恭喜完成所有任务！', 40, 300);
+                
+                // Display basic poster
                 preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
             });
         }
