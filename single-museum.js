@@ -272,6 +272,11 @@
 
   function onSelectMuseum(m){
     state.selectedMuseum = m;
+    // Update header museum name
+    const headerName = document.getElementById('headerMuseumName');
+    if(headerName && m){
+      headerName.textContent = m.name || '';
+    }
     // Optional: load workflows for this museum
     setupWorkflowPicker(m);
     // Apply default/explicit workflow selection without showing picker
@@ -867,30 +872,31 @@
 
   function updateInnerTaskVisibility(){
     if(state.wfMode && state.wfVisitCount > 0){
-      // toggle workflow visit sections - show current and completed tasks
+      // Show all workflow tasks for smooth one-page scrolling experience
       const wsections = Array.from(document.querySelectorAll('[id^="wtask-"]'));
       wsections.forEach((el, idx)=>{
-        // Show current task and all previously completed tasks
-        if(idx <= state.innerTaskIndex){
-          el.style.display = 'block';
-          // Use CSS classes for completed vs current tasks
-          if(idx < state.innerTaskIndex){
-            el.classList.add('sg-task-completed');
-            el.classList.remove('sg-task-current');
-          } else {
-            el.classList.add('sg-task-current');
-            el.classList.remove('sg-task-completed');
-          }
+        // Always show all tasks (not just current + completed)
+        el.style.display = 'block';
+        
+        // Apply visual state classes
+        el.classList.remove('sg-task-completed', 'sg-task-current', 'sg-task-upcoming');
+        
+        if(idx < state.innerTaskIndex){
+          // Completed tasks: dimmed with checkmark
+          el.classList.add('sg-task-completed');
+        } else if(idx === state.innerTaskIndex){
+          // Current task: highlighted
+          el.classList.add('sg-task-current');
         } else {
-          el.style.display = 'none';
-          el.classList.remove('sg-task-completed', 'sg-task-current');
+          // Upcoming tasks: dimmed and disabled
+          el.classList.add('sg-task-upcoming');
         }
       });
       
-      // toggle preview sections
+      // Hide preview sections (not needed since all tasks are visible)
       const previews = Array.from(document.querySelectorAll('[id^="wpreview-next-"]'));
-      previews.forEach((el, idx)=>{
-        el.style.display = (idx === state.innerTaskIndex ? 'block' : 'none');
+      previews.forEach((el)=>{
+        el.style.display = 'none';
       });
       
       // ensure visibility containers state

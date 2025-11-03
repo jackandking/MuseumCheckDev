@@ -63,6 +63,23 @@
       font-size: 24px;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+    .header-museum-name {
+      flex: 1;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      padding: 0 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .header-museum-name {
+        font-size: 16px;
+      }
     }
     .settings-button {
       width: 44px;
@@ -76,6 +93,7 @@
       font-size: 20px;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
     }
     /* Legacy settings button (kept for backwards compatibility) */
     .sg-settings-btn { position:absolute; top:8px; right:8px; background:#fff; color:#2c3e50; border:1px solid #e9ecef; border-radius:10px; padding:8px 10px; font-size:14px; font-weight:700; text-decoration:none; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; }
@@ -84,8 +102,10 @@
     .sg-task-card { position: relative; overflow: hidden; border: 2px solid #e9ecef; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; scroll-margin-top: 20px; }
     .sg-task-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,0.08); border-color:#d7dee6; }
     /* Task card states */
-    .sg-task-completed { opacity: 0.7; pointer-events: none; margin-bottom: 12px; }
-    .sg-task-current { opacity: 1; pointer-events: auto; margin-bottom: 24px; }
+    .sg-task-completed { opacity: 0.6; border-color: #d1d5db; margin-bottom: 12px; }
+    .sg-task-completed::after { content: '✓ 已完成'; position: absolute; top: 10px; left: 10px; background: #22c55e; color: white; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .sg-task-current { opacity: 1; pointer-events: auto; margin-bottom: 24px; border-color: #2e7cf6; box-shadow: 0 4px 16px rgba(46, 124, 246, 0.15); }
+    .sg-task-upcoming { opacity: 0.5; pointer-events: none; margin-bottom: 12px; border-color: #e5e7eb; }
     .sg-role-badge { position:absolute; top:10px; right:10px; font-size:12px; padding:6px 10px; border-radius:999px; background:#eef2ff; color:#1d4ed8; font-weight:800; border:1px solid #dbe6ff; }
     .sg-role-badge.child { background:#fff7ed; color:#c2410c; border-color:#ffe4d0; }
     .sg-next-hint { font-size:14px; color:#6b7280; margin-left:8px; }
@@ -137,6 +157,7 @@
     <!-- Header buttons matching v2 style -->
     <div class="header">
       <button id="sgMenuBtn" class="menu-button" type="button" title="菜单">☰</button>
+      <div id="headerMuseumName" class="header-museum-name"></div>
       <button id="sgSettingsBtn" class="settings-button" type="button" title="设置">⚙️</button>
     </div>
     <h1 class="sg-title">导览模式 · 省心逛馆</h1>
