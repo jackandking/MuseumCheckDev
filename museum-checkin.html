@@ -1501,7 +1501,8 @@
                 const validImages = results.filter(img => img !== null);
                 
                 // Pre-calculate required canvas height to avoid canvas clearing
-                let currentY = 260;
+                // Updated: Changed from 260 to 210 after removing duplicate museum name line
+                let currentY = 210;
                 
                 // Height for completed tasks section
                 if (completedTasksList.length > 0) {
@@ -1554,22 +1555,19 @@
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, W, H);
                 
-                // Title
+                // Title - v2 format: Museum Name + 探索
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText('今天的博物馆小探险', 40, 100);
+                const museumTitle = currentMuseum ? `${currentMuseum.name}探索` : '博物馆探索';
+                ctx.fillText(museumTitle, 40, 100);
                 
-                // Museum name
-                ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
-                
-                // Nickname
+                // Nickname - moved up to remove duplicate museum name line
                 const nickname = getChildNickname();
                 ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 160);
                 
-                // Reset currentY for actual drawing
-                currentY = 260;
+                // Reset currentY for actual drawing - adjusted for removed line
+                currentY = 210;
                 
                 // Section title for completed tasks
                 if (completedTasksList.length > 0) {
@@ -1698,23 +1696,20 @@
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, W, H);
                 
-                // Title
+                // Title - v2 format: Museum Name + 探索
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText('今天的博物馆小探险', 40, 100);
+                const museumTitle = currentMuseum ? `${currentMuseum.name}探索` : '博物馆探索';
+                ctx.fillText(museumTitle, 40, 100);
                 
-                // Museum name
-                ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(currentMuseum ? currentMuseum.name : '—', 40, 160);
-                
-                // Nickname
+                // Nickname - moved up to remove duplicate museum name line
                 const nickname = getChildNickname();
                 ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 210);
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 160);
                 
                 // Completion message
                 ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText('🎉 恭喜完成所有任务！', 40, 300);
+                ctx.fillText('🎉 恭喜完成所有任务！', 40, 250);
                 
                 // Display basic poster
                 preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
