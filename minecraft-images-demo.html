@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 图片资源展示 - MuseumCheck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .category-content {
+            display: none;
+        }
+        
+        .category-content.active {
+            display: block;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .item-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .item-image {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 10px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .item-name-en {
+            color: #999;
+            font-size: 0.75em;
+        }
+        
+        .item-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        
+        .tag {
+            background: #e0e7ff;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Minecraft 图片资源库</h1>
+        <p class="subtitle">我的世界图片素材展示 - MuseumCheck 项目资源</p>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number">--</div>
+                <div class="stat-label">总资源数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">--</div>
+                <div class="stat-label">分类数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">--</div>
+                <div class="stat-label">有效URL</div>
+            </div>
+        </div>
+        
+        <div class="tabs" id="tabs"></div>
+        <div id="content"></div>
+        
+        <div class="footer">
+            <p>
+                数据来源: <a href="https://minecraft.wiki" target="_blank">Minecraft Wiki</a><br>
+                Minecraft © Mojang Studios | 资源仅供学习和参考使用<br>
+                <a href="MINECRAFT_IMAGES_README.md" target="_blank">查看完整文档</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        let minecraftData = null;
+        
+        // 加载JSON数据
+        async function loadData() {
+            try {
+                const response = await fetch('minecraft-images.json');
+                if (!response.ok) throw new Error('无法加载数据');
+                minecraftData = await response.json();
+                renderStats();
+                renderTabs();
+                renderFirstCategory();
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>加载失败:</strong> ${error.message}<br>
+                        请确保 minecraft-images.json 文件在同一目录下。
+                    </div>
+                `;
+            }
+        }
+        
+        // 渲染统计信息
+        function renderStats() {
+            const categories = Object.keys(minecraftData.categories);
+            let totalItems = 0;
+            let totalUrls = 0;
+            
+            categories.forEach(cat => {
+                const images = minecraftData.categories[cat].images || [];
+                totalItems += images.length;
+                totalUrls += images.filter(img => img.url).length;
+            });
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${totalItems}</div>
+                    <div class="stat-label">总资源数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${categories.length}</div>
+                    <div class="stat-label">分类数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${totalUrls}</div>
+                    <div class="stat-label">有效URL</div>
+                </div>
+            `;
+        }
+        
+        // 渲染标签页
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            const categoryNames = {
+                blocks: '方块',
+                items: '物品',
+                mobs: '生物',
+                biomes: '生物群系',
+                characters: '角色',
+                icons: '图标'
+            };
+            
+            let tabsHtml = '';
+            Object.keys(minecraftData.categories).forEach((catKey, index) => {
+                const catName = categoryNames[catKey] || catKey;
+                const count = minecraftData.categories[catKey].images.length;
+                tabsHtml += `
+                    <button class="tab ${index === 0 ? 'active' : ''}" 
+                            onclick="switchTab('${catKey}', this)">
+                        ${catName} (${count})
+                    </button>
+                `;
+            });
+            
+            tabsContainer.innerHTML = tabsHtml;
+        }
+        
+        // 渲染第一个分类
+        function renderFirstCategory() {
+            const firstCat = Object.keys(minecraftData.categories)[0];
+            renderCategory(firstCat);
+        }
+        
+        // 切换标签页
+        function switchTab(categoryKey, tabElement) {
+            // 更新标签样式
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            tabElement.classList.add('active');
+            
+            // 渲染内容
+            renderCategory(categoryKey);
+        }
+        
+        // 渲染分类内容
+        function renderCategory(categoryKey) {
+            const category = minecraftData.categories[categoryKey];
+            const contentContainer = document.getElementById('content');
+            
+            let html = `<div class="category-content active">`;
+            
+            if (category.images && category.images.length > 0) {
+                html += '<div class="items-grid">';
+                category.images.forEach(item => {
+                    html += `
+                        <div class="item-card" title="${item.description || ''}">
+                            ${item.url ? `
+                                <div class="item-image">
+                                    <img src="${item.url}" 
+                                         alt="${item.name}"
+                                         onerror="this.parentElement.innerHTML='<div style=\\'color:#999\\'>图片加载失败</div>'" />
+                                </div>
+                            ` : `
+                                <div class="item-image" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;font-size:0.8em;">
+                                    无预览
+                                </div>
+                            `}
+                            <div class="item-name">${item.chineseName}</div>
+                            <div class="item-name-en">${item.name}</div>
+                            ${item.tags ? `
+                                <div class="item-tags">
+                                    ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p style="text-align:center;color:#999;padding:50px;">暂无数据</p>';
+            }
+            
+            html += '</div>';
+            contentContainer.innerHTML = html;
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('content').innerHTML = '<div class="loading">⏳ 加载中...</div>';
+            loadData();
+        });
+    </script>
+</body>
+</html>
