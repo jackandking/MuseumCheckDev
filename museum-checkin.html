@@ -1440,6 +1440,29 @@
             }
         }
 
+        // Helper function: Draw Minecraft-style corner decorations
+        function drawMinecraftCorners(ctx, width, height) {
+            const blockSize = 16;
+            const cornerColors = ['#4a7c2f', '#8b4513', '#7c4a2f'];
+            
+            // Draw pixelated corner blocks (3x3 blocks)
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const color = cornerColors[Math.floor(Math.random() * cornerColors.length)];
+                    ctx.fillStyle = color;
+                    
+                    // Top-left corner
+                    ctx.fillRect(20 + i * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                    // Top-right corner
+                    ctx.fillRect(width - 20 - (i + 1) * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                    // Bottom-left corner
+                    ctx.fillRect(20 + i * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+                    // Bottom-right corner
+                    ctx.fillRect(width - 20 - (i + 1) * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+                }
+            }
+        }
+
         // Generate poster with all photos
         function generatePoster() {
             const canvas = document.getElementById('posterCanvas');
@@ -1554,6 +1577,9 @@
                 grad.addColorStop(1, '#5ab4d1');
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, W, H);
+                
+                // Minecraft corner decorations
+                drawMinecraftCorners(ctx, W, H);
                 
                 // Title - v2 format: Museum Name + 探索
                 ctx.fillStyle = '#ffffff';

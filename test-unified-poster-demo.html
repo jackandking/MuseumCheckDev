@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统一海报设计演示 - Unified Poster Design Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #2c5aa0;
+        }
+        .demo-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .poster-preview {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            max-width: 100%;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:before {
+            content: "✅ ";
+            color: #28a745;
+        }
+        .minecraft-demo {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .color-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 统一海报设计演示 + 我的世界元素</h1>
+    <h2 style="text-align: center; color: #666;">Unified Poster Design with Minecraft Elements</h2>
+
+    <div class="demo-section">
+        <h3>📋 设计规范 (Design Specifications)</h3>
+        <ul class="feature-list">
+            <li>统一背景：蓝色渐变 (#a8d8ea → #5ab4d1)</li>
+            <li>统一标题格式："{博物馆名称}探索"（例如："平湖博物馆探索"）</li>
+            <li>我的世界装饰：像素化方块角落装饰</li>
+            <li>我的世界配色：绿色 #4a7c2f，棕色 #8b4513，褐色 #7c4a2f</li>
+            <li>白色文字：在渐变背景上保持清晰可读</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h3>🎨 我的世界配色方案 (Minecraft Color Scheme)</h3>
+        <div class="minecraft-demo">
+            <div class="color-box" style="background: #4a7c2f;">草方块<br>Green</div>
+            <div class="color-box" style="background: #8b4513;">土方块<br>Brown</div>
+            <div class="color-box" style="background: #7c4a2f;">橡木<br>Tan</div>
+            <div class="color-box" style="background: #5ab4d1;">水方块<br>Blue</div>
+            <div class="color-box" style="background: #a8d8ea;">冰方块<br>Light Blue</div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>📱 平湖博物馆海报示例 (Pinghu Museum Poster Example)</h3>
+        <div class="poster-preview">
+            <canvas id="demoCanvas" width="640" height="800"></canvas>
+        </div>
+        <p style="text-align: center; color: #666;">
+            此海报展示了统一设计：渐变背景 + 我的世界像素方块装饰 + 统一标题格式
+        </p>
+    </div>
+
+    <div class="demo-section">
+        <h3>✨ 三个版本已统一 (All Three Versions Unified)</h3>
+        <ul class="feature-list">
+            <li>V1 (index.html / script.js) - 主页博物馆海报</li>
+            <li>V2 (museum-checkin.html) - 打卡流程海报</li>
+            <li>V3 (single-museum.html / single-museum.js) - 单馆工作流海报</li>
+        </ul>
+        <p style="color: #666; margin-top: 10px;">
+            所有三个版本现在使用相同的设计语言和我的世界元素，为用户提供一致的视觉体验。
+        </p>
+    </div>
+
+    <script>
+        // Draw demo poster
+        const canvas = document.getElementById('demoCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+
+        // Helper function: Draw Minecraft-style corner decorations
+        function drawMinecraftCorners(ctx, width, height) {
+            const blockSize = 16;
+            const cornerColors = ['#4a7c2f', '#8b4513', '#7c4a2f'];
+            
+            // Draw pixelated corner blocks (3x3 blocks)
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const color = cornerColors[Math.floor(Math.random() * cornerColors.length)];
+                    ctx.fillStyle = color;
+                    
+                    // Top-left corner
+                    ctx.fillRect(20 + i * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                    // Top-right corner
+                    ctx.fillRect(width - 20 - (i + 1) * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                    // Bottom-left corner
+                    ctx.fillRect(20 + i * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+                    // Bottom-right corner
+                    ctx.fillRect(width - 20 - (i + 1) * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+                }
+            }
+        }
+
+        // Background gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#a8d8ea');
+        grad.addColorStop(1, '#5ab4d1');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Minecraft corner decorations
+        drawMinecraftCorners(ctx, W, H);
+
+        // Title - unified format
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.fillText('平湖博物馆探索', 40, 100);
+
+        // Nickname
+        ctx.font = '28px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.fillText('小探险家 今天完成了所有挑战！', 40, 160);
+
+        // Date and location
+        ctx.font = '24px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        const today = new Date().toLocaleDateString('zh-CN');
+        ctx.fillText(`📅 ${today}  📍 平湖`, 40, 200);
+
+        // Completed tasks section
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.fillText('✅ 完成的任务：', 40, 260);
+
+        // Sample tasks
+        ctx.font = '20px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        const tasks = [
+            '1. 在博物馆门口拍照打卡',
+            '2. 找到第一件镇馆之宝',
+            '3. 找到第二件镇馆之宝',
+            '4. 找到第三件镇馆之宝',
+            '5. 和家人拍一张胜利合影'
+        ];
+        let y = 295;
+        tasks.forEach(task => {
+            ctx.fillText(task, 50, y);
+            y += 30;
+        });
+
+        // Photo section placeholder
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(40, y + 20, W - 80, 150);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.textAlign = 'center';
+        ctx.fillText('📸 照片区域', W / 2, y + 100);
+        ctx.textAlign = 'left';
+
+        // Footer
+        ctx.font = '18px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC"';
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillText('扫码查看更多博物馆', 40, H - 40);
+    </script>
+</body>
+</html>

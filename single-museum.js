@@ -1257,6 +1257,29 @@
     return '小小探险家';
   }
 
+  // Helper function: Draw Minecraft-style corner decorations
+  function drawMinecraftCorners(ctx, width, height) {
+    const blockSize = 16;
+    const cornerColors = ['#4a7c2f', '#8b4513', '#7c4a2f'];
+    
+    // Draw pixelated corner blocks (3x3 blocks)
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const color = cornerColors[Math.floor(Math.random() * cornerColors.length)];
+        ctx.fillStyle = color;
+        
+        // Top-left corner
+        ctx.fillRect(20 + i * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+        // Top-right corner
+        ctx.fillRect(width - 20 - (i + 1) * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+        // Bottom-left corner
+        ctx.fillRect(20 + i * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+        // Bottom-right corner
+        ctx.fillRect(width - 20 - (i + 1) * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+      }
+    }
+  }
+
   function generatePoster(){
     const canvas = document.getElementById('posterCanvas');
     const preview = document.getElementById('posterPreview');
@@ -1270,18 +1293,18 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0,0,W,H);
 
-    // title
+    // Minecraft corner decorations
+    drawMinecraftCorners(ctx, W, H);
+
+    // title - unified format: {Museum}探索
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-    ctx.fillText('今天的博物馆小探险', 40, 100);
-
-    // museum name
-    ctx.font = 'bold 36px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-    ctx.fillText(state.selectedMuseum ? state.selectedMuseum.name : '—', 40, 160);
+    const museumTitle = state.selectedMuseum ? `${state.selectedMuseum.name}探索` : '博物馆探索';
+    ctx.fillText(museumTitle, 40, 100);
 
     // nickname
     ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-    ctx.fillText(`${getChildNickname()} 今天完成了所有挑战！`, 40, 210);
+    ctx.fillText(`${getChildNickname()} 今天完成了所有挑战！`, 40, 160);
 
     // photo slots - collect workflow photos if available
     const readAsImage = (file) => new Promise(resolve=>{

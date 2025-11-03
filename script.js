@@ -7692,6 +7692,62 @@ class MuseumCheckApp {
         }, 100);
     }
 
+    // Helper function: Draw Minecraft-style blocky border decoration
+    drawMinecraftBorder(ctx, width, height) {
+        const blockSize = 20;
+        const colors = ['#4a7c2f', '#8b4513', '#7c4a2f', '#5ab4d1', '#6b8e23'];
+        
+        // Draw pixelated blocks around the border
+        for (let x = 0; x < width; x += blockSize) {
+            // Top border
+            if (Math.random() > 0.7) {
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillRect(x, 0, blockSize, blockSize);
+            }
+            // Bottom border
+            if (Math.random() > 0.7) {
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillRect(x, height - blockSize, blockSize, blockSize);
+            }
+        }
+        
+        for (let y = blockSize; y < height - blockSize; y += blockSize) {
+            // Left border
+            if (Math.random() > 0.7) {
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillRect(0, y, blockSize, blockSize);
+            }
+            // Right border
+            if (Math.random() > 0.7) {
+                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillRect(width - blockSize, y, blockSize, blockSize);
+            }
+        }
+    }
+    
+    // Helper function: Draw Minecraft-style corner decorations
+    drawMinecraftCorners(ctx, width, height) {
+        const blockSize = 16;
+        const cornerColors = ['#4a7c2f', '#8b4513', '#7c4a2f'];
+        
+        // Draw pixelated corner blocks (3x3 blocks)
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const color = cornerColors[Math.floor(Math.random() * cornerColors.length)];
+                ctx.fillStyle = color;
+                
+                // Top-left corner
+                ctx.fillRect(20 + i * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                // Top-right corner
+                ctx.fillRect(width - 20 - (i + 1) * blockSize, 20 + j * blockSize, blockSize - 2, blockSize - 2);
+                // Bottom-left corner
+                ctx.fillRect(20 + i * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+                // Bottom-right corner
+                ctx.fillRect(width - 20 - (i + 1) * blockSize, height - 20 - (j + 1) * blockSize, blockSize - 2, blockSize - 2);
+            }
+        }
+    }
+
     generatePoster(museum) {
         const canvas = document.getElementById('posterCanvas');
         const ctx = canvas.getContext('2d');
@@ -7739,31 +7795,32 @@ class MuseumCheckApp {
         canvas.width = 1080;
         canvas.height = dynamicHeight;
         
-        // Background
-        ctx.fillStyle = '#f8f9fa';
+        // Background - Unified gradient design
+        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grad.addColorStop(0, '#a8d8ea');
+        grad.addColorStop(1, '#5ab4d1');
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // NOTE: Border will be drawn AFTER all content is finalized to ensure it encompasses everything
+        // Minecraft border decorations
+        this.drawMinecraftCorners(ctx, canvas.width, canvas.height);
         
-        // Title section
-        ctx.fillStyle = '#2c5aa0';
-        ctx.fillRect(40, 40, canvas.width - 80, 120);
-        
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 42px "PingFang SC", "Microsoft YaHei", sans-serif';
+        // Title - Unified format: {Museum}探索
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 44px "PingFang SC", "Microsoft YaHei", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🏛️ 博物馆打卡', canvas.width / 2, 110);
+        ctx.fillText(`${museum.name}探索`, canvas.width / 2, 100);
         
-        // Museum name
-        ctx.fillStyle = '#2c5aa0';
-        ctx.font = 'bold 36px "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.fillText(museum.name, canvas.width / 2, 200);
+        // Subtitle with nickname
+        const nickname = this.childNickname || '小朋友';
+        ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
+        ctx.fillText(`${nickname} 今天完成了所有挑战！`, canvas.width / 2, 150);
         
         // Date and location
         const visitDate = new Date().toLocaleDateString('zh-CN');
         ctx.font = '24px "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = '#666';
-        ctx.fillText(`📅 ${visitDate}  📍 ${museum.location}`, canvas.width / 2, 240);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`📅 ${visitDate}  📍 ${museum.location}`, canvas.width / 2, 190);
         
         // Completed tasks already calculated above for dynamic height
         
@@ -7781,11 +7838,11 @@ class MuseumCheckApp {
             }
         });
         
-        let yPosition = 280; // Reduced gap between header and content
+        let yPosition = 230; // Adjusted for new layout
         
         if (completedTasks.length > 0) {
             // Completed tasks header
-            ctx.fillStyle = '#28a745';
+            ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 32px "PingFang SC", "Microsoft YaHei", sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText('✅ 已完成的探索任务:', 80, yPosition);
@@ -7796,7 +7853,7 @@ class MuseumCheckApp {
             return; // Exit early, completion handled in drawTasksWithPhotos
         } else {
             // No completed tasks message
-            ctx.fillStyle = '#666';
+            ctx.fillStyle = '#ffffff';
             ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('还没有完成的任务，继续加油！', canvas.width / 2, yPosition);
@@ -7810,47 +7867,39 @@ class MuseumCheckApp {
             const newHeight = Math.max(finalY + borderMargin, 400);
             if (newHeight !== canvas.height) {
                 canvas.height = newHeight;
-                // Redraw everything on the resized canvas
-                ctx.fillStyle = '#f8f9fa';
+                // Redraw everything on the resized canvas with unified design
+                const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                grad.addColorStop(0, '#a8d8ea');
+                grad.addColorStop(1, '#5ab4d1');
+                ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Redraw border
-                ctx.strokeStyle = '#2c5aa0';
-                ctx.lineWidth = 8;
-                ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                // Redraw Minecraft corners
+                this.drawMinecraftCorners(ctx, canvas.width, canvas.height);
                 
-                // Redraw title section
-                ctx.fillStyle = '#2c5aa0';
-                ctx.fillRect(40, 40, canvas.width - 80, 120);
-                
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 42px "PingFang SC", "Microsoft YaHei", sans-serif';
+                // Redraw title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px "PingFang SC", "Microsoft YaHei", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('🏛️ 博物馆打卡', canvas.width / 2, 110);
+                ctx.fillText(`${museum.name}探索`, canvas.width / 2, 100);
                 
-                // Redraw museum name
-                ctx.fillStyle = '#2c5aa0';
-                ctx.font = 'bold 36px "PingFang SC", "Microsoft YaHei", sans-serif';
-                ctx.fillText(museum.name, canvas.width / 2, 200);
+                // Redraw subtitle
+                ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, canvas.width / 2, 150);
                 
                 // Redraw date and location
                 ctx.font = '24px "PingFang SC", "Microsoft YaHei", sans-serif';
-                ctx.fillStyle = '#666';
-                ctx.fillText(`📅 ${visitDate}  📍 ${museum.location}`, canvas.width / 2, 240);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(`📅 ${visitDate}  📍 ${museum.location}`, canvas.width / 2, 190);
                 
                 // Redraw no tasks message
-                ctx.fillStyle = '#666';
+                ctx.fillStyle = '#ffffff';
                 ctx.font = '28px "PingFang SC", "Microsoft YaHei", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('还没有完成的任务，继续加油！', canvas.width / 2, 280);
+                ctx.fillText('还没有完成的任务，继续加油！', canvas.width / 2, 230);
                 
                 // Redraw footer
-                this.drawPosterFooter(ctx, canvas, 330);
-            } else {
-                // If no resize needed, still need to draw the border to encompass footer
-                ctx.strokeStyle = '#2c5aa0';
-                ctx.lineWidth = 8;
-                ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                this.drawPosterFooter(ctx, canvas, 280);
             }
         }
         
