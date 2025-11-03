@@ -5273,7 +5273,7 @@ class MuseumCheckApp {
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
-                                ${V3_SUPPORTED.includes(museum.id) ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览模式</button>` : ''}
+                                ${V3_SUPPORTED.includes(museum.id) ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览</button>` : ''}
                                 ${isVisited && !this.assessmentHidden 
                                     ? (hasAssessment 
                                         ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'

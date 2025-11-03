@@ -239,6 +239,7 @@
         <div class="sg-actions">
           <button class="sg-btn sg-btn-primary" id="savePoster">保存到相册</button>
           <button class="sg-btn sg-btn-secondary" id="sharePoster">分享给家人</button>
+          <button class="sg-btn sg-btn-secondary" id="closePoster" title="返回上一步">✕ 关闭</button>
         </div>
       </div>
     </section>
@@ -328,10 +329,7 @@
             <option value="required">必须 - 需要拍照才能进入下一步</option>
           </select>
         </div>
-        <div class="sr-btn" aria-live="polite">保存后将按设置推荐更合适的路线</div>
-      </div>
-      <div class="actions">
-        <button id="sgSettingsSave" class="sg-btn sg-btn-primary" type="button">保存</button>
+        <div class="sr-btn" aria-live="polite">设置会自动保存并推荐更合适的路线</div>
       </div>
     </div>
   </div>
@@ -341,7 +339,7 @@
     <div class="sg-modal">
       <header>
         <h2 id="sgMenuTitle">菜单</h2>
-        <button id="sgMenuClose" class="sg-btn sg-btn-secondary" type="button">关闭</button>
+        <button id="sgMenuClose" class="sg-modal-close-x" type="button" aria-label="关闭">&times;</button>
       </header>
       <div class="body">
         <div style="display: flex; flex-direction: column; gap: 10px;">

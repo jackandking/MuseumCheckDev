@@ -1189,6 +1189,35 @@ header h1 {
     transform: var(--btn-active-transform);
 }
 
+/* Museum V3 Guide Mode Button - Styled consistently with checkin button */
+.museum-v3-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    margin-left: 12px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--btn-transition);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+}
+
+.museum-v3-button:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b42a0 100%);
+}
+
+.museum-v3-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
 /* Favorite Button - Icon-only button with special styling */
 .favorite-button {
     /* Special case: Icon button without background */
@@ -1241,6 +1270,14 @@ header h1 {
         min-height: 40px;
     }
     
+    .museum-v3-button {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        margin-left: 6px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
     .assessment-button {
         padding: 6px 10px;
         font-size: 0.75em;
@@ -1273,6 +1310,14 @@ header h1 {
     }
     
     .museum-checkin-button {
+        padding: 5px 8px;
+        font-size: 0.7em;
+        margin-left: 4px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .museum-v3-button {
         padding: 5px 8px;
         font-size: 0.7em;
         margin-left: 4px;

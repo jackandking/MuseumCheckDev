@@ -1307,20 +1307,98 @@
     }
 
     if(picks.length === 0){
-      // No photos available - show message
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-      ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
-      
-      // preview
-      preview.innerHTML = '';
-      const out = new Image();
-      out.src = canvas.toDataURL('image/png');
-      out.style.maxWidth = '100%';
-      out.style.borderRadius = '12px';
-      preview.appendChild(out);
-      canvas.style.display = 'none';
-      return;
+      // No user photos available - try to use museum image as fallback
+      const museum = state.selectedMuseum;
+      if(museum && museum.image){
+        // Load museum image as fallback
+        const museumImg = new Image();
+        // Only set crossOrigin for external domains (CDN images)
+        try {
+          const imgUrl = new URL(museum.image, window.location.origin);
+          if (imgUrl.origin !== window.location.origin) {
+            museumImg.crossOrigin = 'anonymous';
+          }
+        } catch(e) {
+          // Invalid URL, continue without crossOrigin
+        }
+        museumImg.onload = function(){
+          // Draw museum image
+          const imgWidth = 640;
+          const imgHeight = 360;
+          const imgX = (W - imgWidth) / 2;
+          const imgY = 260;
+          
+          ctx.save();
+          // Rounded corners - use compatible path approach
+          ctx.beginPath();
+          const radius = 12;
+          ctx.moveTo(imgX + radius, imgY);
+          ctx.lineTo(imgX + imgWidth - radius, imgY);
+          ctx.arcTo(imgX + imgWidth, imgY, imgX + imgWidth, imgY + radius, radius);
+          ctx.lineTo(imgX + imgWidth, imgY + imgHeight - radius);
+          ctx.arcTo(imgX + imgWidth, imgY + imgHeight, imgX + imgWidth - radius, imgY + imgHeight, radius);
+          ctx.lineTo(imgX + radius, imgY + imgHeight);
+          ctx.arcTo(imgX, imgY + imgHeight, imgX, imgY + imgHeight - radius, radius);
+          ctx.lineTo(imgX, imgY + radius);
+          ctx.arcTo(imgX, imgY, imgX + radius, imgY, radius);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(museumImg, imgX, imgY, imgWidth, imgHeight);
+          ctx.restore();
+          
+          // Add text overlay
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(imgX, imgY + imgHeight - 50, imgWidth, 50);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '20px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+          ctx.fillText('藏品照片 · 馆藏精选', imgX + 20, imgY + imgHeight - 20);
+          
+          // Add footer text
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '22px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+          ctx.fillText('期待您拍摄更多精彩瞬间！', 40, imgY + imgHeight + 80);
+          
+          // Display poster
+          preview.innerHTML = '';
+          const out = new Image();
+          out.src = canvas.toDataURL('image/png');
+          out.style.maxWidth = '100%';
+          out.style.borderRadius = '12px';
+          preview.appendChild(out);
+          canvas.style.display = 'none';
+        };
+        museumImg.onerror = function(){
+          // Fallback to text-only poster
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+          ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
+          
+          preview.innerHTML = '';
+          const out = new Image();
+          out.src = canvas.toDataURL('image/png');
+          out.style.maxWidth = '100%';
+          out.style.borderRadius = '12px';
+          preview.appendChild(out);
+          canvas.style.display = 'none';
+        };
+        museumImg.src = museum.image;
+        return;
+      } else {
+        // No museum image available - show message only
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+        ctx.fillText('暂无照片，完成任务后会自动生成海报', 40, 300);
+        
+        // preview
+        preview.innerHTML = '';
+        const out = new Image();
+        out.src = canvas.toDataURL('image/png');
+        out.style.maxWidth = '100%';
+        out.style.borderRadius = '12px';
+        preview.appendChild(out);
+        canvas.style.display = 'none';
+        return;
+      }
     }
 
     const work = picks.map(f=> readAsImage(f));
@@ -1509,8 +1587,15 @@
   function initShare(){
     const save = $('#savePoster');
     const share = $('#sharePoster');
+    const close = $('#closePoster');
     if(save) save.onclick = onSavePoster;
     if(share) share.onclick = onSharePoster;
+    if(close) close.onclick = onClosePoster;
+  }
+
+  function onClosePoster(){
+    // Go back to previous step (visit step)
+    showStep('visit');
   }
 
   // ---------- Inline Settings Modal ----------
@@ -1687,11 +1772,9 @@
     const btn = $('#sgSettingsBtn');
     const closeBtn = $('#sgSettingsClose');
     const closeXBtn = $('#sgSettingsCloseX');
-    const saveBtn = $('#sgSettingsSave');
     if(btn) btn.addEventListener('click', showSettings);
     if(closeBtn) closeBtn.addEventListener('click', hideSettings);
     if(closeXBtn) closeXBtn.addEventListener('click', hideSettings);
-    if(saveBtn) saveBtn.addEventListener('click', saveSettings);
     // click backdrop to close
     const modal = $('#sgSettingsModal');
     if(modal){
