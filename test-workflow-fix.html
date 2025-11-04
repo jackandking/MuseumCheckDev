@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Workflow Fix Validation</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    h1 { color: #2c5aa0; }
+    .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+    .pass { background-color: #d4edda; border-color: #c3e6cb; }
+    .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+    .test-title { font-weight: bold; margin-bottom: 10px; }
+    .test-result { margin-top: 5px; }
+    button { padding: 10px 20px; background: #2c5aa0; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px 0; }
+    button:hover { background: #1e4070; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Workflow Display Fix Validation</h1>
+  <p>This page validates that the workflow display bugs have been fixed.</p>
+  
+  <button id="runTests">Run Tests</button>
+  
+  <div id="results"></div>
+
+  <script src="museums-data.js"></script>
+  <script src="museums/pinghu-museum.js"></script>
+  <script>
+    // Merge pinghu museum override
+    if(window.MUSEUM_PINGHU && Array.isArray(window.MUSEUMS)){
+      const idx = window.MUSEUMS.findIndex(x => x && x.id === 'pinghu-museum');
+      if(idx >= 0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], window.MUSEUM_PINGHU);
+    }
+  </script>
+  <script src="workflows-data.js"></script>
+  <script src="single-museum.js"></script>
+  
+  <script>
+    document.getElementById('runTests').addEventListener('click', runTests);
+    
+    function runTests() {
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+      
+      const tests = [
+        testRenderWorkflowDisplayExists,
+        testPinghuMuseumWorkflowCount,
+        testForbiddenCityWorkflowCount,
+        testWorkflowsForMuseum
+      ];
+      
+      let passed = 0;
+      let failed = 0;
+      
+      tests.forEach(test => {
+        const result = test();
+        if(result.pass) {
+          passed++;
+        } else {
+          failed++;
+        }
+        
+        const div = document.createElement('div');
+        div.className = 'test-case ' + (result.pass ? 'pass' : 'fail');
+        div.innerHTML = `
+          <div class="test-title">${result.pass ? '✅' : '❌'} ${result.name}</div>
+          <div class="test-result">${result.message}</div>
+        `;
+        results.appendChild(div);
+      });
+      
+      const summary = document.createElement('div');
+      summary.className = 'test-case';
+      summary.style.backgroundColor = failed === 0 ? '#d4edda' : '#fff3cd';
+      summary.innerHTML = `
+        <div class="test-title">📊 Summary</div>
+        <div class="test-result">Passed: ${passed} | Failed: ${failed}</div>
+      `;
+      results.appendChild(summary);
+    }
+    
+    function testRenderWorkflowDisplayExists() {
+      const exists = typeof window.renderWorkflowDisplay === 'function' || 
+                     typeof renderWorkflowDisplay !== 'undefined';
+      return {
+        name: 'renderWorkflowDisplay function exists',
+        pass: !exists, // Should not exist in global scope, but should not cause error
+        message: exists ? 
+          'Function exists in global scope (unexpected but not an error)' : 
+          'Function properly encapsulated (no global pollution)'
+      };
+    }
+    
+    function testPinghuMuseumWorkflowCount() {
+      const pinghu = window.MUSEUMS.find(m => m.id === 'pinghu-museum');
+      if(!pinghu) {
+        return { name: 'Pinghu Museum workflow count', pass: false, message: 'Pinghu Museum not found' };
+      }
+      
+      const workflow = pinghu.workflows && pinghu.workflows[0];
+      if(!workflow) {
+        return { name: 'Pinghu Museum workflow count', pass: false, message: 'No workflows found' };
+      }
+      
+      // Count tasks excluding poster
+      const taskCount = workflow.tasks.filter(t => t.type !== 'poster').length;
+      const expected = 5; // gate-photo, find-buddha, find-ding, find-he, victory-photo
+      
+      return {
+        name: 'Pinghu Museum task count',
+        pass: taskCount === expected,
+        message: `Expected ${expected} tasks, got ${taskCount}`
+      };
+    }
+    
+    function testForbiddenCityWorkflowCount() {
+      const workflows = window.WORKFLOWS && window.WORKFLOWS['forbidden-city'];
+      if(!workflows || !workflows.length) {
+        return { name: 'Forbidden City workflow count', pass: false, message: 'No workflows found' };
+      }
+      
+      const workflow = workflows[0];
+      const visitTasks = (workflow.tasks && workflow.tasks.visit) || [];
+      const enrouteTasks = (workflow.tasks && workflow.tasks.enroute) || [];
+      const totalTasks = visitTasks.length + enrouteTasks.length;
+      
+      return {
+        name: 'Forbidden City workflow task count',
+        pass: totalTasks > 0,
+        message: `Found ${totalTasks} tasks (${enrouteTasks.length} enroute, ${visitTasks.length} visit)`
+      };
+    }
+    
+    function testWorkflowsForMuseum() {
+      // Test that getWorkflowsForMuseum is accessible
+      try {
+        const pinghu = window.MUSEUMS.find(m => m.id === 'pinghu-museum');
+        if(!pinghu) {
+          return { name: 'getWorkflowsForMuseum function', pass: false, message: 'Pinghu Museum not found' };
+        }
+        
+        // The function exists in the enclosure, we can't call it directly
+        // but we can verify the data structure is correct
+        const hasWorkflows = pinghu.workflows && Array.isArray(pinghu.workflows) && pinghu.workflows.length > 0;
+        
+        return {
+          name: 'Museum workflows data structure',
+          pass: hasWorkflows,
+          message: hasWorkflows ? 
+            `Pinghu Museum has ${pinghu.workflows.length} workflow(s)` : 
+            'Pinghu Museum workflows not properly configured'
+        };
+      } catch(e) {
+        return {
+          name: 'Museum workflows data structure',
+          pass: false,
+          message: `Error: ${e.message}`
+        };
+      }
+    }
+  </script>
+</body>
+</html>

@@ -420,7 +420,15 @@
       if(pickerSection) pickerSection.style.display = 'none';
       
       const wf = list[0];
-      const totalTasks = ((wf.tasks?.enroute || []).length + (wf.tasks?.visit || []).length);
+      // Support both flat tasks array and nested tasks.enroute/tasks.visit structure
+      let totalTasks = 0;
+      if(Array.isArray(wf.tasks)){
+        // Flat array (e.g., Pinghu Museum)
+        totalTasks = wf.tasks.filter(t => t.type !== 'poster').length;
+      } else if(wf.tasks && typeof wf.tasks === 'object'){
+        // Nested structure (e.g., Forbidden City)
+        totalTasks = ((wf.tasks.enroute || []).length + (wf.tasks.visit || []).length);
+      }
       const cardName = $('#sgWorkflowCardName');
       const cardDesc = $('#sgWorkflowCardDesc');
       const cardTasks = $('#sgWorkflowCardTasks');
@@ -451,7 +459,15 @@
           const descDiv = $('#sgWorkflowPickerDesc');
           
           if(wf && descDiv){
-            const totalTasks = ((wf.tasks?.enroute || []).length + (wf.tasks?.visit || []).length);
+            // Support both flat tasks array and nested tasks.enroute/tasks.visit structure
+            let totalTasks = 0;
+            if(Array.isArray(wf.tasks)){
+              // Flat array
+              totalTasks = wf.tasks.filter(t => t.type !== 'poster').length;
+            } else if(wf.tasks && typeof wf.tasks === 'object'){
+              // Nested structure
+              totalTasks = ((wf.tasks.enroute || []).length + (wf.tasks.visit || []).length);
+            }
             descDiv.innerHTML = `<strong>${wf.description}</strong><br><span style="font-size: 13px; color: #6c757d;">📋 包含 ${totalTasks} 个任务</span>`;
             descDiv.style.display = 'block';
             
@@ -463,6 +479,23 @@
           }
         };
       }
+    }
+  }
+
+  function renderWorkflowDisplay(){
+    // Final step to ensure workflow display is properly visible after setup
+    // Called after setupWorkflowPicker() to guarantee display state is correct
+    // This is a safety check in case setupWorkflowPicker() is skipped or incomplete
+    const displayWrap = $('#sgWorkflowDisplayWrap');
+    if(!displayWrap) return;
+    
+    const list = state.workflows || [];
+    if(list.length === 0){
+      // No workflows available, hide the display
+      displayWrap.style.display = 'none';
+    } else {
+      // Workflows available, ensure it's visible (setupWorkflowPicker already configured the content)
+      displayWrap.style.display = 'block';
     }
   }
 
@@ -1823,10 +1856,28 @@
       const stored = mid ? getWorkflowSetting(mid) : '';
       const opts = [];
       opts.push({ value: '', label: '自动推荐（按年龄与陪同者）' });
+      
+      // Add special MVP route for Forbidden City + age 3-6
       if(mid === 'forbidden-city' && ag === '3-6'){
         const reco = role === 'grandparent' ? '（推荐）' : '';
         opts.push({ value: 'route:forbidden-city:grandparent-3-6-mvp', label: `祖孙游方案${reco}` });
       }
+      
+      // Get available workflows for the selected museum and age
+      if(mid){
+        try{
+          const museum = (Array.isArray(MUSEUMS)?MUSEUMS:[]).find(x=> x && x.id===mid);
+          if(museum){
+            const workflows = getWorkflowsForMuseum(museum);
+            workflows.forEach(wf => {
+              opts.push({ value: wf.id, label: wf.name });
+            });
+          }
+        }catch(e){}
+      }
+      
+      // Update dropdown
+      wfSel.disabled = false;
       wfSel.innerHTML = opts.map(o=> `<option value="${o.value}">${o.label}</option>`).join('');
       // prefer stored if exists
       if(stored){ wfSel.value = stored; }
