@@ -233,6 +233,15 @@
     // lazy actions
     if(step === 'share') {
       generatePoster();
+      // Mark that user has seen the poster, so they can view it again from visit step
+      state.posterGenerated = true;
+    }
+    // Show/hide view poster button based on whether poster has been generated
+    if(step === 'visit' && state.posterGenerated){
+      const viewPosterBtn = $('#sgViewPoster');
+      if(viewPosterBtn){
+        viewPosterBtn.style.display = 'inline-block';
+      }
     }
   }
 
@@ -1345,6 +1354,17 @@
     ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
     ctx.fillText(`${getChildNickname()} 今天完成了所有挑战！`, 40, 160);
 
+    // Date and location - aligned with v2 poster format
+    const visitDate = new Date().toLocaleDateString('zh-CN');
+    const location = state.selectedMuseum ? state.selectedMuseum.location : '';
+    ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+    ctx.fillStyle = '#ffffff';
+    if(location){
+      ctx.fillText(`📅 ${visitDate}  📍 ${location}`, 40, 200);
+    } else {
+      ctx.fillText(`📅 ${visitDate}`, 40, 200);
+    }
+
     // photo slots - collect workflow photos if available
     const readAsImage = (file) => new Promise(resolve=>{
       const img = new Image();
@@ -1472,7 +1492,7 @@
 
       // Dynamic layout based on photo count
       const photoCount = validImages.length;
-      let startY = 260;
+      let startY = 280; // Increased from 260 to account for date/location line
       let photoSize = 280;
       let cols = 2;
       let padding = 20;
@@ -1650,14 +1670,26 @@
     const save = $('#savePoster');
     const share = $('#sharePoster');
     const close = $('#closePoster');
+    const viewPoster = $('#sgViewPoster');
     if(save) save.onclick = onSavePoster;
     if(share) share.onclick = onSharePoster;
     if(close) close.onclick = onClosePoster;
+    if(viewPoster) viewPoster.onclick = onViewPoster;
+  }
+
+  function onViewPoster(){
+    // Show the share step to view the poster again
+    setStep('share');
   }
 
   function onClosePoster(){
     // Go back to previous step (visit step)
-    showStep('visit');
+    setStep('visit');
+    // Show the view poster button after closing
+    const viewPosterBtn = $('#sgViewPoster');
+    if(viewPosterBtn){
+      viewPosterBtn.style.display = 'inline-block';
+    }
   }
 
   // ---------- Inline Settings Modal ----------
