@@ -147,6 +147,63 @@
     window.__progress = { __getProgress, __setProgress, __markDone, __isDone };
   }
 
+  // Workflow state persistence functions
+  function __saveWorkflowState(){
+    try{
+      // Only save if we have an active workflow session
+      if(!state.selectedMuseum || !state.selectedWorkflow || !state.wfMode) return;
+      
+      const workflowState = {
+        museumId: state.selectedMuseum.id,
+        workflowId: state.selectedWorkflow.id,
+        innerTaskIndex: state.innerTaskIndex,
+        timestamp: Date.now(),
+        // Don't store actual photo blobs, just track which tasks have photos
+        photoKeys: Object.keys(state.photos).filter(k => state.photos[k] && state.photos[k].length > 0)
+      };
+      
+      localStorage.setItem('workflow:session', JSON.stringify(workflowState));
+    }catch(e){
+      console.error('Failed to save workflow state:', e);
+    }
+  }
+
+  function __loadWorkflowState(){
+    try{
+      const stored = localStorage.getItem('workflow:session');
+      if(!stored) return null;
+      
+      const workflowState = JSON.parse(stored);
+      
+      // Check if state is recent (within last 24 hours)
+      const age = Date.now() - (workflowState.timestamp || 0);
+      const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+      
+      if(age > MAX_AGE){
+        // State is too old, clear it
+        localStorage.removeItem('workflow:session');
+        return null;
+      }
+      
+      return workflowState;
+    }catch(e){
+      console.error('Failed to load workflow state:', e);
+      return null;
+    }
+  }
+
+  function __clearWorkflowState(){
+    try{
+      localStorage.removeItem('workflow:session');
+    }catch(e){
+      console.error('Failed to clear workflow state:', e);
+    }
+  }
+
+  if(typeof window!=='undefined'){
+    window.__workflowState = { __saveWorkflowState, __loadWorkflowState, __clearWorkflowState };
+  }
+
   function normalizeTitle(text){
     try{
       const t = (text||'').replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/, '').trim();
@@ -235,6 +292,8 @@
       generatePoster();
       // Mark that user has seen the poster, so they can view it again from visit step
       state.posterGenerated = true;
+      // Clear workflow state when reaching share step - workflow is complete
+      __clearWorkflowState();
     }
     // Show/hide view poster button based on whether poster has been generated
     if(step === 'visit' && state.posterGenerated){
@@ -586,6 +645,9 @@
         __markDone(state.selectedMuseum.id, taskId, true); 
       } 
     }catch(err){}
+    
+    // Save workflow state after completing a task
+    __saveWorkflowState();
     
     const last = Math.max(0, state.wfVisitCount - 1);
     if(state.innerTaskIndex < last){
@@ -1281,6 +1343,10 @@
       }
       
       state.photos[key] = compressedFiles;
+      
+      // Save workflow state after capturing photos
+      __saveWorkflowState();
+      
       return true;
     } catch(e) {
       console.error('Photo handling error:', e);
@@ -2006,13 +2072,41 @@
 
   function init(){
     initSelect();
+    
+    // Try to restore workflow state if available
+    let restoredState = null;
+    try{
+      restoredState = __loadWorkflowState();
+      if(restoredState){
+        console.log('Restoring workflow state:', restoredState);
+      }
+    }catch(e){
+      console.error('Failed to restore workflow state:', e);
+    }
+    
     try{
       const p = getUrlParams();
       const mid = p.museum || p.museumId;
-      if(mid){
-        const m = (Array.isArray(MUSEUMS)?MUSEUMS:[]).find(x=> x && x.id===mid);
+      
+      // If we have restored state, use that museum ID
+      const museumId = restoredState ? restoredState.museumId : mid;
+      
+      if(museumId){
+        const m = (Array.isArray(MUSEUMS)?MUSEUMS:[]).find(x=> x && x.id===museumId);
         if(m){
           onSelectMuseum(m);
+          
+          // If we have restored state, find and select the workflow
+          if(restoredState && restoredState.workflowId){
+            const workflows = state.workflows || [];
+            const wf = workflows.find(w => w && w.id === restoredState.workflowId);
+            if(wf){
+              state.selectedWorkflow = wf;
+              state.innerTaskIndex = restoredState.innerTaskIndex || 0;
+              state.wfMode = true;
+              console.log('Restored workflow:', wf.name, 'at task index:', state.innerTaskIndex);
+            }
+          }
         }
       }
     }catch(e){}
@@ -2031,6 +2125,25 @@
       const hasSelection = !!state.selectedMuseum;
       
       state.startAfterSettings = true; // start tour after closing settings
+      
+      // If we have restored state, skip directly to visit step
+      if(restoredState && state.selectedMuseum && state.selectedWorkflow){
+        // Ensure settings are configured
+        if(!allSettingsConfigured){
+          if(!localStorage.getItem('childNickname')) localStorage.setItem('childNickname', '小淘气');
+          if(!localStorage.getItem('ageGroup')) localStorage.setItem('ageGroup', '7-12');
+          if(!localStorage.getItem('caregiverRole')) localStorage.setItem('caregiverRole', 'parent');
+        }
+        // Skip intro and go directly to visit with restored state
+        document.documentElement.classList.add('sg-immersive');
+        tryRequestWakeLock();
+        renderWorkflowVisit();
+        setStep('visit');
+        updateInnerTaskVisibility();
+        // Show toast to inform user
+        showToast('已恢复之前的进度 📸');
+        return;
+      }
       
       // Special case: Pinghu Museum - skip settings if museum is pre-selected via URL
       if(state.selectedMuseum && state.selectedMuseum.id === 'pinghu-museum' && hasMuseumParam){
