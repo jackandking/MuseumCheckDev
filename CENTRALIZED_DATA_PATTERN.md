@@ -69,6 +69,32 @@ window.MUSEUM_PINGHU = {
 };
 ```
 
+## 藏品结构说明 (Collections Structure)
+
+每个博物馆可以包含 `collections` 数组，展示镇馆之宝或重要藏品。
+
+### 必需字段 (Required Fields)
+- `name`: 藏品名称
+- `url`: **藏品照片的直接图片URL**（必须是图片文件，如 .jpg, .png）
+- `description`: 藏品描述（可选但建议提供）
+
+### URL 要求 (URL Requirements)
+⚠️ **重要**: `url` 字段必须填写藏品的实物照片URL，不能使用：
+- ❌ 博物馆首页URL (如 `https://museum.com/`)
+- ❌ 藏品介绍页面URL (如 `https://museum.com/collection/123.html`)
+- ✅ 直接图片URL (如 `https://museum.com/images/artifact.jpg`)
+
+### 示例 (Example)
+```javascript
+collections: [
+  { 
+    name: '唐铸铁佛头', 
+    url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg',
+    description: '唐代铸造的铁佛头像，工艺精湛'
+  }
+]
+```
+
 ## 工作流结构说明 (Workflow Structure)
 
 每个工作流包含以下字段：
