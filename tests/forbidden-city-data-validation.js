@@ -53,8 +53,8 @@ test('Has exactly 3 collections', window.MUSEUM_FORBIDDEN_CITY?.collections?.len
 if (window.MUSEUM_FORBIDDEN_CITY?.collections) {
   const treasureNames = window.MUSEUM_FORBIDDEN_CITY.collections.map(c => c.name);
   test('Has 清明上河图', treasureNames.includes('《清明上河图》'));
-  test('Has 太和殿金漆雕龙宝座', treasureNames.includes('太和殿金漆雕龙宝座'));
-  test('Has 翠玉白菜', treasureNames.includes('翠玉白菜'));
+  test('Has 金瓯永固杯', treasureNames.includes('金瓯永固杯'));
+  test('Has 酗亚方尊', treasureNames.includes('酗亚方尊'));
   
   test('All collections have name', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.name));
   test('All collections have URL', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.url));
