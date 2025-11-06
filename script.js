@@ -5232,7 +5232,7 @@ class MuseumCheckApp {
             const grid = document.getElementById('museumGrid');
             const loadingIndicator = document.getElementById('loadingIndicator');
             // v3 support whitelist (single-museum workflow)
-            const V3_SUPPORTED = ['forbidden-city', 'pinghu-museum'];
+            const V3_SUPPORTED = ['forbidden-city', 'pinghu-museum', 'beijing-capital-museum'];
             
             // Hide loading indicator
             if (loadingIndicator) {

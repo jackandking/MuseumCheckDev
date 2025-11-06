@@ -566,6 +566,7 @@
     </script>
     <!-- Per-museum data files (override) -->
     <script src="museums/pinghu-museum.js"></script>
+    <script src="museums/capital-museum.js"></script>
     <script>
       // Merge per-museum overrides into MUSEUMS (priority to per-museum file)
       (function(){
@@ -573,6 +574,7 @@
           if(Array.isArray(window.MUSEUMS)){
             var overrides = [];
             if(window.MUSEUM_PINGHU) overrides.push(window.MUSEUM_PINGHU);
+            if(window.MUSEUM_CAPITAL) overrides.push(window.MUSEUM_CAPITAL);
             overrides.forEach(function(m){
               if(!m || !m.id) return;
               var idx = window.MUSEUMS.findIndex(function(x){ return x && x.id===m.id; });
