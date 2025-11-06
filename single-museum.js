@@ -2145,16 +2145,15 @@
         return;
       }
       
-      // Special case: Pinghu Museum - skip settings if museum is pre-selected via URL
-      if(state.selectedMuseum && state.selectedMuseum.id === 'pinghu-museum' && hasMuseumParam){
-        // For Pinghu Museum with URL parameter, skip settings and go directly to visit
+      // When museum is pre-selected via URL (导览 button from homepage), skip intro overlay and go directly to visit
+      if(state.selectedMuseum && hasMuseumParam){
         // Set default settings if not configured
         if(!allSettingsConfigured){
           if(!localStorage.getItem('childNickname')) localStorage.setItem('childNickname', '小淘气');
           if(!localStorage.getItem('ageGroup')) localStorage.setItem('ageGroup', '7-12');
           if(!localStorage.getItem('caregiverRole')) localStorage.setItem('caregiverRole', 'parent');
         }
-        // Skip intro and go directly to visit
+        // Skip intro overlay and go directly to visit workflow
         document.documentElement.classList.add('sg-immersive');
         tryRequestWakeLock();
         state.innerTaskIndex = 0;
@@ -2164,8 +2163,8 @@
         return;
       }
       
-      // Decision logic for other museums:
-      // 1. If all settings configured (nickname, age, role) AND museum selected -> skip settings, go to intro
+      // Decision logic when accessing without URL parameter (entered via menu):
+      // 1. If all settings configured (nickname, age, role) AND museum selected -> skip settings, show intro
       // 2. Otherwise -> show settings page
       if(hasSelection && allSettingsConfigured){
         // All required settings exist and museum is selected: skip settings page
