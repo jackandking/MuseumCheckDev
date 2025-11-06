@@ -8,17 +8,17 @@ window.MUSEUM_FORBIDDEN_CITY = {
   collections: [
     { 
       name: '《清明上河图》', 
-      url: 'https://upload.wikimedia.org/wikipedia/commons/7/79/%E6%B8%85%E6%98%8E%E4%B8%8A%E6%B2%B3%E5%9B%BE.jpg',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/79/%E6%B8%85%E6%98%8E%E4%B8%8A%E6%B2%B3%E5%9B%BE.jpg',
       description: '北宋画家张择端作品，全长528厘米，画了814个人物，运用散点透视法，是中国绘画史上的里程碑，被誉为"中华第一神品"'
     },
     { 
       name: '金瓯永固杯', 
-      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/%E9%87%91%E7%93%AF%E6%B0%B8%E5%9B%BA%E6%9D%AF_%E6%95%85%E5%AE%AB%E7%8F%8D%E5%AE%9D%E9%A6%86.jpg/800px-%E9%87%91%E7%93%AF%E6%B0%B8%E5%9B%BA%E6%9D%AF_%E6%95%85%E5%AE%AB%E7%8F%8D%E5%AE%9D%E9%A6%86.jpg',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/%E9%87%91%E7%93%AF%E6%B0%B8%E5%9B%BA%E6%9D%AF_%E6%95%85%E5%AE%AB%E7%8F%8D%E5%AE%9D%E9%A6%86.jpg/800px-%E9%87%91%E7%93%AF%E6%B0%B8%E5%9B%BA%E6%9D%AF_%E6%95%85%E5%AE%AB%E7%8F%8D%E5%AE%9D%E9%A6%86.jpg',
       description: '清代乾隆皇帝专用的金质酒杯，每逢新年举行开笔仪式时使用，寓意国家江山永固。杯体以黄金、珍珠、宝石精雕细琢，代表清代皇家金器的顶级水准'
     },
     { 
       name: '酗亚方尊', 
-      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shang_dynasty_inscribed_Ya_Chou_square_zun.jpg/600px-Shang_dynasty_inscribed_Ya_Chou_square_zun.jpg',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shang_dynasty_inscribed_Ya_Chou_square_zun.jpg/600px-Shang_dynasty_inscribed_Ya_Chou_square_zun.jpg',
       description: '商代青铜器精品，盛酒器，外形方正、纹饰独特，铭文记载了商代祭祀制度，是中国青铜器中的国宝，被誉为"青铜之冠"'
     }
   ],

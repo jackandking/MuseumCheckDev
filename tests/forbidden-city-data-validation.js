@@ -57,7 +57,7 @@ if (window.MUSEUM_FORBIDDEN_CITY?.collections) {
   test('Has 酗亚方尊', treasureNames.includes('酗亚方尊'));
   
   test('All collections have name', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.name));
-  test('All collections have URL', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.url));
+  test('All collections have imageUrl', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.imageUrl));
   test('All collections have description', window.MUSEUM_FORBIDDEN_CITY.collections.every(c => !!c.description));
 }
 

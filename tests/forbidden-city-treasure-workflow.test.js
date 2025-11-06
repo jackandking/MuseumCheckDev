@@ -165,8 +165,8 @@ describe('Forbidden City treasure discovery workflow', () => {
     const collections = forbiddenCity.collections;
     
     // Check that task image URLs match collection URLs
-    expect(treasureWorkflow.tasks[1].imageUrl).toBe(collections[0].url);
-    expect(treasureWorkflow.tasks[2].imageUrl).toBe(collections[1].url);
-    expect(treasureWorkflow.tasks[3].imageUrl).toBe(collections[2].url);
+    expect(treasureWorkflow.tasks[1].imageUrl).toBe(collections[0].imageUrl);
+    expect(treasureWorkflow.tasks[2].imageUrl).toBe(collections[1].imageUrl);
+    expect(treasureWorkflow.tasks[3].imageUrl).toBe(collections[2].imageUrl);
   });
 });

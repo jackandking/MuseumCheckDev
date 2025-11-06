@@ -5,9 +5,9 @@ window.MUSEUM_PINGHU = {
   description: '展示平湖历史与地方文化的综合性博物馆',
   tags: ['历史', '地方', '文化'],
   collections: [
-    { name: '唐铸铁佛头', url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg' },
-    { name: '新石器时代崧泽文化夹砂红陶鼎', url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/63305db12e457.jpg' },
-    { name: '新石器时代良渚文化黑皮陶盉', url: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633060a43fd82.jpg' }
+    { name: '唐铸铁佛头', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg' },
+    { name: '新石器时代崧泽文化夹砂红陶鼎', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/63305db12e457.jpg' },
+    { name: '新石器时代良渚文化黑皮陶盉', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633060a43fd82.jpg' }
   ],
   workflows: [
     {

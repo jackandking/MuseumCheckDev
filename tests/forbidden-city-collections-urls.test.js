@@ -24,12 +24,12 @@ describe('Forbidden City Museum collections', () => {
 
     museum.collections.forEach((item) => {
       expect(item && typeof item.name === 'string' && item.name.trim().length > 0).toBe(true);
-      expect(item && typeof item.url === 'string' && item.url.trim().length > 0).toBe(true);
+      expect(item && typeof item.imageUrl === 'string' && item.imageUrl.trim().length > 0).toBe(true);
       expect(item && typeof item.description === 'string' && item.description.trim().length > 0).toBe(true);
       
       // Verify URL is a valid URL
       let u;
-      try { u = new URL(item.url); } catch { u = null; }
+      try { u = new URL(item.imageUrl); } catch { u = null; }
       expect(u).toBeTruthy();
       expect(u.protocol).toBe('https:');
     });
@@ -54,7 +54,7 @@ describe('Forbidden City Museum collections', () => {
 
   test('image URLs are from reliable public sources', () => {
     const museum = window && window.MUSEUM_FORBIDDEN_CITY;
-    const urls = (museum.collections || []).map(i => i.url);
+    const urls = (museum.collections || []).map(i => i.imageUrl);
     
     // All URLs should be from Wikimedia Commons (reliable public source)
     urls.forEach((url) => {

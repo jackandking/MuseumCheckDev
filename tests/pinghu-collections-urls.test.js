@@ -27,10 +27,10 @@ describe('Pinghu Museum collections URLs', () => {
 
     museum.collections.forEach((item) => {
       expect(item && typeof item.name === 'string' && item.name.trim().length > 0).toBe(true);
-      expect(item && typeof item.url === 'string' && item.url.trim().length > 0).toBe(true);
+      expect(item && typeof item.imageUrl === 'string' && item.imageUrl.trim().length > 0).toBe(true);
 
       let u;
-      try { u = new URL(item.url); } catch { u = null; }
+      try { u = new URL(item.imageUrl); } catch { u = null; }
       expect(u).toBeTruthy();
       expect(u.protocol).toBe('https:');
       expect(u.hostname).toBe('www.pinghumuseum.com');
@@ -42,7 +42,7 @@ describe('Pinghu Museum collections URLs', () => {
 
   test('collections image URLs respond with image content', async () => {
     const museum = window && window.MUSEUM_PINGHU;
-    const urls = (museum.collections || []).map(i => i.url).filter(Boolean);
+    const urls = (museum.collections || []).map(i => i.imageUrl).filter(Boolean);
 
     const headOrGet = (url) => new Promise((resolve) => {
       // Try HEAD first, fallback to GET
