@@ -1677,6 +1677,111 @@
                     ctx.textAlign = 'left';
                     ctx.fillText('📸 照片加载中...', 40, currentY);
                     currentY += 40;
+                } else if (currentMuseum && currentMuseum.image) {
+                    // No user photos - try to use museum artifact image as fallback
+                    const museumImg = new Image();
+                    try {
+                        const imgUrl = new URL(currentMuseum.image, window.location.origin);
+                        if (imgUrl.origin !== window.location.origin) {
+                            museumImg.crossOrigin = 'anonymous';
+                        }
+                    } catch(e) {
+                        // Invalid URL, continue without crossOrigin
+                    }
+                    
+                    museumImg.onload = function(){
+                        // Draw artifact section header
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('🏛️ 馆藏精选：', 40, currentY);
+                        currentY += 40;
+                        
+                        // Draw museum image
+                        const imgWidth = 640;
+                        const imgHeight = 360;
+                        const imgX = (W - imgWidth) / 2;
+                        const imgY = currentY;
+                        
+                        // White border around image
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        ctx.fillRect(imgX - 6, imgY - 6, imgWidth + 12, imgHeight + 12);
+                        
+                        // Draw image with rounded corners
+                        ctx.save();
+                        ctx.beginPath();
+                        const radius = 12;
+                        ctx.moveTo(imgX + radius, imgY);
+                        ctx.lineTo(imgX + imgWidth - radius, imgY);
+                        ctx.arcTo(imgX + imgWidth, imgY, imgX + imgWidth, imgY + radius, radius);
+                        ctx.lineTo(imgX + imgWidth, imgY + imgHeight - radius);
+                        ctx.arcTo(imgX + imgWidth, imgY + imgHeight, imgX + imgWidth - radius, imgY + imgHeight, radius);
+                        ctx.lineTo(imgX + radius, imgY + imgHeight);
+                        ctx.arcTo(imgX, imgY + imgHeight, imgX, imgY + imgHeight - radius, radius);
+                        ctx.lineTo(imgX, imgY + radius);
+                        ctx.arcTo(imgX, imgY, imgX + radius, imgY, radius);
+                        ctx.closePath();
+                        ctx.clip();
+                        ctx.drawImage(museumImg, imgX, imgY, imgWidth, imgHeight);
+                        ctx.restore();
+                        
+                        // Add text overlay
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                        ctx.fillRect(imgX, imgY + imgHeight - 50, imgWidth, 50);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '20px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                        ctx.fillText('藏品照片 · 馆藏精选', imgX + 20, imgY + imgHeight - 20);
+                        
+                        // Update currentY for footer positioning
+                        currentY = imgY + imgHeight + 40;
+                        
+                        // Re-draw footer at correct position
+                        const footerY = Math.max(currentY, H - 180);
+                        
+                        if (qrImage) {
+                            const qrSize = 120;
+                            const qrX = W - qrSize - 40;
+                            const qrY = footerY;
+                            
+                            // Draw white background for QR code
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 50);
+                            
+                            // Draw QR code
+                            ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+                            
+                            // Add text below QR code
+                            ctx.fillStyle = '#2c5aa0';
+                            ctx.font = '18px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('扫码体验更多', qrX + qrSize / 2, qrY + qrSize + 25);
+                        }
+                        
+                        // Draw date and branding
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                        ctx.textAlign = 'left';
+                        const date = new Date().toLocaleDateString('zh-CN');
+                        ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
+                        
+                        // Update preview
+                        preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                    };
+                    
+                    museumImg.onerror = function(){
+                        // Fallback to message if museum image fails to load
+                        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                        ctx.font = '20px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                        ctx.textAlign = 'left';
+                        ctx.fillText('期待您拍摄更多精彩瞬间！', 40, currentY);
+                        currentY += 40;
+                        
+                        // Update preview even if image fails
+                        preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                    };
+                    
+                    museumImg.src = currentMuseum.image;
+                    return; // Exit early as museum image loads asynchronously
                 }
                 
                 // Footer area - QR code

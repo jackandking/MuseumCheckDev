@@ -1431,6 +1431,45 @@
       ctx.fillText(`📅 ${visitDate}`, 40, 200);
     }
 
+    // Collect completed workflow tasks to display
+    let currentY = 240;
+    const completedTasksList = [];
+    if(state.selectedWorkflow && state.selectedWorkflow.tasks && Array.isArray(state.selectedWorkflow.tasks)){
+      // Get all non-poster tasks that were completed
+      const workflowTasks = state.selectedWorkflow.tasks.filter(t => t.type !== 'poster');
+      workflowTasks.forEach(task => {
+        // Use subtitle (more descriptive) or title as fallback
+        const taskText = task.subtitle || task.title;
+        if(taskText){
+          completedTasksList.push(taskText);
+        }
+      });
+    }
+
+    // Display completed tasks section (similar to v2 implementation)
+    if(completedTasksList.length > 0){
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+      ctx.textAlign = 'left';
+      ctx.fillText('✅ 完成的任务：', 40, currentY);
+      currentY += 35;
+      
+      // Draw completed tasks with compact layout
+      ctx.font = '20px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      
+      completedTasksList.forEach((taskTitle, idx) => {
+        // Remove emoji from task text for cleaner display (same as v2)
+        const taskText = taskTitle.replace(/^[\u{1F000}-\u{1F9FF}]\s*/u, '').replace(/^[📷📸🏛️🏺]\s*/g, '');
+        // Truncate long task titles for cleaner display
+        const displayText = taskText.length > 30 ? taskText.substring(0, 28) + '...' : taskText;
+        ctx.fillText(`${idx + 1}. ${displayText}`, 50, currentY);
+        currentY += 28;
+      });
+      
+      currentY += 20; // Space before photos
+    }
+
     // photo slots - collect workflow photos if available
     const readAsImage = (file) => new Promise(resolve=>{
       const img = new Image();
@@ -1474,7 +1513,7 @@
           const imgWidth = 640;
           const imgHeight = 360;
           const imgX = (W - imgWidth) / 2;
-          const imgY = 260;
+          const imgY = currentY;
           
           ctx.save();
           // Rounded corners - use compatible path approach
@@ -1558,7 +1597,7 @@
 
       // Dynamic layout based on photo count
       const photoCount = validImages.length;
-      let startY = 280; // Increased from 260 to account for date/location line
+      let startY = currentY; // Use dynamic Y position after completed tasks
       let photoSize = 280;
       let cols = 2;
       let padding = 20;
