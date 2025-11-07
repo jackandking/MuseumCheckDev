@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>镇馆之宝 - 中国博物馆珍藏文物 | MuseumCheck</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="探索中国各大博物馆的镇馆之宝，了解珍贵文物背后的历史故事和文化内涵。">
+    <meta name="keywords" content="博物馆,镇馆之宝,文物,中国历史,文化遗产">
+    <meta name="author" content="MuseumCheck">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Treasures Page Specific Styles */
+        .treasures-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: -20px -20px 30px -20px;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .treasures-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+        
+        .treasures-header p {
+            margin: 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: #764ba2;
+        }
+        
+        .search-filter-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .treasures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .treasure-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .treasure-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .treasure-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .treasure-card-content {
+            padding: 20px;
+        }
+        
+        .treasure-museum-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 8px 0;
+        }
+        
+        .treasure-location {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .treasure-items {
+            margin-top: 15px;
+        }
+        
+        .treasure-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .treasure-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .stats-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .modal-header h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.8em;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .modal-close {
+            color: white;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            opacity: 0.8;
+        }
+        
+        .treasure-detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .treasure-detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .treasure-detail-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .treasures-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .treasures-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .search-filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .treasures-header {
+                padding: 30px 15px;
+            }
+            
+            .treasures-header h1 {
+                font-size: 1.5em;
+            }
+            
+            .stat-number {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        
+        <div class="treasures-header">
+            <h1>🏺 镇馆之宝</h1>
+            <p>探索中国博物馆的珍贵文物与历史瑰宝</p>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number" id="totalMuseums">0</span>
+                <span class="stat-label">博物馆</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalTreasures">0</span>
+                <span class="stat-label">镇馆之宝</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="displayedCount">0</span>
+                <span class="stat-label">当前显示</span>
+            </div>
+        </div>
+        
+        <div class="search-filter-section">
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 搜索博物馆名称、城市或文物...">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-region="all">全部</button>
+                <button class="filter-btn" data-region="北京">北京</button>
+                <button class="filter-btn" data-region="上海">上海</button>
+                <button class="filter-btn" data-region="西安">西安</button>
+                <button class="filter-btn" data-region="南京">南京</button>
+                <button class="filter-btn" data-region="其他">其他地区</button>
+            </div>
+        </div>
+        
+        <div id="treasuresGrid" class="treasures-grid">
+            <!-- Treasure cards will be dynamically inserted here -->
+        </div>
+        
+        <div id="noResults" class="no-results" style="display: none;">
+            <p>😔 没有找到匹配的结果</p>
+            <p>请尝试其他搜索关键词或筛选条件</p>
+        </div>
+    </div>
+    
+    <!-- Treasure Detail Modal -->
+    <div id="treasureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-close">&times;</span>
+                <h2 id="modalMuseumName"></h2>
+                <p id="modalMuseumLocation"></p>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Detail content will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="museums-data.js"></script>
+    <script>
+        // Extract treasure information from MUSEUMS data
+        const treasuresData = [];
+        
+        MUSEUMS.forEach(museum => {
+            const treasureInfo = {
+                id: museum.id,
+                name: museum.name,
+                location: museum.location,
+                description: museum.description,
+                image: museum.image,
+                treasures: {
+                    simple: [],    // 3-6 age group
+                    detailed: [],  // 7-12 age group  
+                    academic: []   // 13-18 age group
+                }
+            };
+            
+            // Extract treasure mentions from checklists
+            let hasTreasures = false;
+            
+            if (museum.checklists && museum.checklists.parent) {
+                ['3-6', '7-12', '13-18'].forEach(ageGroup => {
+                    const items = museum.checklists.parent[ageGroup] || [];
+                    items.forEach(item => {
+                        if (item.includes('镇馆之宝')) {
+                            hasTreasures = true;
+                            if (ageGroup === '3-6') {
+                                treasureInfo.treasures.simple.push(item);
+                            } else if (ageGroup === '7-12') {
+                                treasureInfo.treasures.detailed.push(item);
+                            } else if (ageGroup === '13-18') {
+                                treasureInfo.treasures.academic.push(item);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            if (museum.checklists && museum.checklists.child) {
+                ['3-6', '7-12', '13-18'].forEach(ageGroup => {
+                    const items = museum.checklists.child[ageGroup] || [];
+                    items.forEach(item => {
+                        if (item.includes('镇馆之宝')) {
+                            hasTreasures = true;
+                            if (ageGroup === '3-6') {
+                                treasureInfo.treasures.simple.push(item);
+                            } else if (ageGroup === '7-12') {
+                                treasureInfo.treasures.detailed.push(item);
+                            } else if (ageGroup === '13-18') {
+                                treasureInfo.treasures.academic.push(item);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            if (hasTreasures) {
+                treasuresData.push(treasureInfo);
+            }
+        });
+        
+        console.log(`Loaded ${treasuresData.length} museums with treasure information`);
+        
+        // Update stats
+        document.getElementById('totalMuseums').textContent = treasuresData.length;
+        const totalTreasureCount = treasuresData.reduce((sum, museum) => {
+            return sum + museum.treasures.simple.length + 
+                   museum.treasures.detailed.length + 
+                   museum.treasures.academic.length;
+        }, 0);
+        document.getElementById('totalTreasures').textContent = totalTreasureCount;
+        
+        // Display functions
+        let currentFilter = 'all';
+        let currentSearch = '';
+        
+        function displayTreasures() {
+            const grid = document.getElementById('treasuresGrid');
+            const noResults = document.getElementById('noResults');
+            grid.innerHTML = '';
+            
+            const filtered = treasuresData.filter(museum => {
+                // Region filter
+                const majorCities = ['北京', '上海', '西安', '南京'];
+                const matchesRegion = currentFilter === 'all' || 
+                                     museum.location === currentFilter ||
+                                     (currentFilter === '其他' && !majorCities.includes(museum.location));
+                
+                // Search filter
+                const searchLower = currentSearch.toLowerCase();
+                const matchesSearch = currentSearch === '' ||
+                                     museum.name.toLowerCase().includes(searchLower) ||
+                                     museum.location.toLowerCase().includes(searchLower) ||
+                                     museum.description.toLowerCase().includes(searchLower) ||
+                                     JSON.stringify(museum.treasures).toLowerCase().includes(searchLower);
+                
+                return matchesRegion && matchesSearch;
+            });
+            
+            document.getElementById('displayedCount').textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            filtered.forEach(museum => {
+                const card = document.createElement('div');
+                card.className = 'treasure-card';
+                card.onclick = () => showTreasureDetail(museum);
+                
+                const treasureCount = museum.treasures.simple.length + 
+                                     museum.treasures.detailed.length + 
+                                     museum.treasures.academic.length;
+                
+                // Get a sample treasure item for preview
+                const sampleTreasure = museum.treasures.detailed[0] || 
+                                      museum.treasures.simple[0] || 
+                                      museum.treasures.academic[0] || '';
+                
+                card.innerHTML = `
+                    <img src="${museum.image || ''}" 
+                         alt="${museum.name}" 
+                         class="treasure-card-image"
+                         onerror="this.style.display='none'">
+                    <div class="treasure-card-content">
+                        <h3 class="treasure-museum-name">${museum.name}</h3>
+                        <div class="treasure-location">
+                            <span>📍</span>
+                            <span>${museum.location}</span>
+                        </div>
+                        <div>
+                            <span class="treasure-badge">${treasureCount} 件镇馆之宝</span>
+                        </div>
+                        <div class="treasure-items">
+                            ${sampleTreasure ? `
+                                <div class="treasure-item">
+                                    ${sampleTreasure.substring(0, 100)}${sampleTreasure.length > 100 ? '...' : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function showTreasureDetail(museum) {
+            const modal = document.getElementById('treasureModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            document.getElementById('modalMuseumName').textContent = museum.name;
+            document.getElementById('modalMuseumLocation').textContent = `📍 ${museum.location} | ${museum.description}`;
+            
+            let content = '';
+            
+            // Simple introduction (3-6 age group)
+            if (museum.treasures.simple.length > 0) {
+                content += `
+                    <div class="treasure-detail-section">
+                        <h3>🎈 儿童版介绍 (3-6岁)</h3>
+                        ${museum.treasures.simple.map(item => `
+                            <div class="treasure-detail-item">${item}</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // Detailed explanation (7-12 age group)
+            if (museum.treasures.detailed.length > 0) {
+                content += `
+                    <div class="treasure-detail-section">
+                        <h3>📚 详细介绍 (7-12岁)</h3>
+                        ${museum.treasures.detailed.map(item => `
+                            <div class="treasure-detail-item">${item}</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // Academic analysis (13-18 age group)
+            if (museum.treasures.academic.length > 0) {
+                content += `
+                    <div class="treasure-detail-section">
+                        <h3>🎓 学术解析 (13-18岁)</h3>
+                        ${museum.treasures.academic.map(item => `
+                            <div class="treasure-detail-item">${item}</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+        
+        // Event listeners
+        document.querySelector('.modal-close').onclick = function() {
+            document.getElementById('treasureModal').style.display = 'none';
+        };
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('treasureModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.region;
+                displayTreasures();
+            });
+        });
+        
+        // Search box
+        let searchTimeout;
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = e.target.value;
+                displayTreasures();
+            }, 300);
+        });
+        
+        // Initial display
+        displayTreasures();
+    </script>
+</body>
+</html>

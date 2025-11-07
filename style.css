@@ -836,7 +836,8 @@ header h1 {
 .achievement-button-icon,
 .assessment-history-button-icon,
 .settings-button-icon,
-.fireworks-button-icon {
+.fireworks-button-icon,
+.treasures-button-icon {
     /* Extends .btn-icon base styles */
     width: var(--btn-icon-size);
     height: var(--btn-icon-size);
@@ -877,6 +878,12 @@ header h1 {
 .fireworks-button-icon:hover:not(:disabled) {
     background-color: rgba(102, 126, 234, 0.1);
     border-color: #667eea;
+    transform: scale(1.1);
+}
+
+.treasures-button-icon:hover:not(:disabled) {
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: #b8860b;
     transform: scale(1.1);
 }
 
