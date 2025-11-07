@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Treasure Workflow Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .museum-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏺 Treasure Workflow Generator Test</h1>
+    <div id="results" class="results"></div>
+
+    <script src="museums-data.js"></script>
+    <script src="treasure-workflow-generator.js"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function log(message, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = message;
+            resultsDiv.appendChild(p);
+        }
+
+        function logJSON(data) {
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            resultsDiv.appendChild(pre);
+        }
+
+        // Wait for everything to load
+        setTimeout(() => {
+            log('=== Treasure Workflow Generator Test ===', 'info');
+            log('');
+
+            // Check if MUSEUMS loaded
+            if (!window.MUSEUMS || !Array.isArray(window.MUSEUMS)) {
+                log('❌ MUSEUMS not loaded!', 'error');
+                return;
+            }
+            log(`✅ MUSEUMS loaded: ${window.MUSEUMS.length} museums`, 'success');
+
+            // Check if generator loaded
+            if (!window.TreasureWorkflowGenerator) {
+                log('❌ TreasureWorkflowGenerator not loaded!', 'error');
+                return;
+            }
+            log('✅ TreasureWorkflowGenerator loaded', 'success');
+            log('');
+
+            // Count museums with workflows
+            let withWorkflows = 0;
+            let withTreasureWorkflow = 0;
+            let withCollections = 0;
+            let withImages = 0;
+
+            window.MUSEUMS.forEach(museum => {
+                if (museum.workflows && museum.workflows.length > 0) {
+                    withWorkflows++;
+                    const hasTreasure = museum.workflows.some(wf => wf.id === 'treasure-discovery');
+                    if (hasTreasure) {
+                        withTreasureWorkflow++;
+                    }
+                }
+                if (museum.collections && museum.collections.length > 0) {
+                    withCollections++;
+                    if (museum.collections.some(c => c.imageUrl)) {
+                        withImages++;
+                    }
+                }
+            });
+
+            log(`📊 Statistics:`, 'info');
+            log(`  • Museums with any workflows: ${withWorkflows}`, 'info');
+            log(`  • Museums with treasure hunt workflow: ${withTreasureWorkflow}`, 'success');
+            log(`  • Museums with collections data: ${withCollections}`, 'info');
+            log(`  • Museums with collection images: ${withImages}`, 'info');
+            log('');
+
+            // Show sample museums
+            log('=== Sample Museums ===', 'info');
+            
+            // Sample 1: Museum with collections and images
+            const withImageMuseum = window.MUSEUMS.find(m => 
+                m.collections && m.collections.length > 0 && m.collections[0].imageUrl
+            );
+            if (withImageMuseum) {
+                const div = document.createElement('div');
+                div.className = 'museum-section';
+                div.innerHTML = `<h3>✨ ${withImageMuseum.name} (有图片)</h3>`;
+                resultsDiv.appendChild(div);
+                
+                const workflow = withImageMuseum.workflows?.find(wf => wf.id === 'treasure-discovery');
+                if (workflow) {
+                    logJSON({
+                        museum: withImageMuseum.name,
+                        workflow: {
+                            name: workflow.name,
+                            description: workflow.description,
+                            taskCount: workflow.tasks.length,
+                            tasks: workflow.tasks.map(t => ({
+                                title: t.title,
+                                subtitle: t.subtitle,
+                                hasImage: !!t.imageUrl,
+                                hasHint: !!t.hint
+                            }))
+                        }
+                    });
+                } else {
+                    log('  ⚠️ No treasure workflow found!', 'error');
+                }
+            }
+
+            // Sample 2: Museum without collections (generated treasures)
+            const withoutCollectionsMuseum = window.MUSEUMS.find(m => 
+                !m.collections || m.collections.length === 0
+            );
+            if (withoutCollectionsMuseum) {
+                const div = document.createElement('div');
+                div.className = 'museum-section';
+                div.innerHTML = `<h3>📝 ${withoutCollectionsMuseum.name} (无图片，生成描述)</h3>`;
+                resultsDiv.appendChild(div);
+                
+                const workflow = withoutCollectionsMuseum.workflows?.find(wf => wf.id === 'treasure-discovery');
+                if (workflow) {
+                    logJSON({
+                        museum: withoutCollectionsMuseum.name,
+                        museumType: window.TreasureWorkflowGenerator.getMuseumType(withoutCollectionsMuseum),
+                        workflow: {
+                            name: workflow.name,
+                            description: workflow.description,
+                            taskCount: workflow.tasks.length,
+                            tasks: workflow.tasks.map(t => ({
+                                title: t.title,
+                                subtitle: t.subtitle,
+                                hasImage: !!t.imageUrl,
+                                hasHint: !!t.hint
+                            }))
+                        }
+                    });
+                } else {
+                    log('  ⚠️ No treasure workflow found!', 'error');
+                }
+            }
+
+            log('');
+            log('=== Test Complete ===', 'success');
+
+        }, 1000); // Wait 1 second for everything to load
+    </script>
+</body>
+</html>

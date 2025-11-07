@@ -602,7 +602,15 @@
           if(loaded||loading) return; loading=true;
           await new Promise((res,rej)=>{
             const s=document.createElement('script');
-            s.src='museums-data.js'; s.defer=true; s.onload=()=>{ loaded=true; res(); };
+            s.src='museums-data.js'; s.defer=true; s.onload=()=>{ 
+              // Load treasure workflow generator after museums-data.js
+              const gen=document.createElement('script');
+              gen.src='treasure-workflow-generator.js'; 
+              gen.defer=true;
+              gen.onload=()=>{ loaded=true; res(); };
+              gen.onerror=()=>{ loaded=true; res(); }; // Continue even if generator fails
+              document.head.appendChild(gen);
+            };
             s.onerror=()=>{ loading=false; rej(new Error('load museums-data.js failed')); };
             document.head.appendChild(s);
           }).catch(()=>{});
