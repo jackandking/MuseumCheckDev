@@ -188,6 +188,54 @@
             font-size: 3em;
         }
         
+        .image-load-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .image-load-notice.show {
+            display: block;
+        }
+        
+        .image-load-notice h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            font-size: 1.1em;
+        }
+        
+        .image-load-notice p {
+            margin: 5px 0;
+            color: #856404;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .image-load-notice ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #856404;
+        }
+        
+        .image-load-notice button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #ffc107;
+            border: none;
+            border-radius: 5px;
+            color: #856404;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .image-load-notice button:hover {
+            background: #ffca2c;
+        }
+        
         .treasure-card-content {
             padding: 20px;
         }
@@ -424,6 +472,28 @@
     <div class="container">
         <a href="index.html" class="back-link">← 返回首页</a>
         
+        <!-- Image Loading Notice -->
+        <div id="imageLoadNotice" class="image-load-notice">
+            <h4>📸 关于博物馆图片显示</h4>
+            <p><strong>如果您看到的是图片占位符(🏺)而不是实际图片，可能是以下原因：</strong></p>
+            <ul>
+                <li>浏览器广告拦截插件阻止了图片加载</li>
+                <li>网络连接问题导致图片加载失败</li>
+                <li>图片源服务器暂时不可用</li>
+            </ul>
+            <p><strong>解决方法：</strong></p>
+            <ul>
+                <li>尝试禁用广告拦截插件（如 AdBlock, uBlock Origin）</li>
+                <li>刷新页面重新加载图片</li>
+                <li>或点击下方按钮尝试重新加载图片</li>
+            </ul>
+            <button onclick="retryLoadImages()">🔄 重新加载图片</button>
+            <button onclick="enableProxyMode()" style="margin-left: 10px;">🌐 尝试代理模式加载</button>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #856404;">
+                <em>💡 提示: 代理模式会通过第三方图片服务加载图片,可能绕过某些访问限制</em>
+            </p>
+        </div>
+        
         <div class="treasures-header">
             <h1>🏺 镇馆之宝</h1>
             <p>探索中国博物馆的珍贵文物与历史瑰宝</p>
@@ -481,7 +551,104 @@
     </div>
     
     <script src="museums-data.js"></script>
+    <script src="image-proxy-helper.js"></script>
     <script>
+        // Image loading tracking
+        let imageLoadFailureCount = 0;
+        let totalImageAttempts = 0;
+        const failedImages = new Set();
+        let proxyModeEnabled = false;
+        
+        // Track image loading to detect widespread failures
+        function trackImageLoad(success, imageUrl) {
+            totalImageAttempts++;
+            if (!success) {
+                imageLoadFailureCount++;
+                failedImages.add(imageUrl);
+            }
+            
+            // If more than 50% of images fail to load, show the notice
+            if (totalImageAttempts >= 5 && imageLoadFailureCount / totalImageAttempts > 0.5) {
+                showImageLoadNotice();
+            }
+        }
+        
+        function showImageLoadNotice() {
+            const notice = document.getElementById('imageLoadNotice');
+            if (notice) {
+                notice.classList.add('show');
+            }
+        }
+        
+        function hideImageLoadNotice() {
+            const notice = document.getElementById('imageLoadNotice');
+            if (notice) {
+                notice.classList.remove('show');
+            }
+        }
+        
+        function retryLoadImages() {
+            // Reset tracking
+            imageLoadFailureCount = 0;
+            totalImageAttempts = 0;
+            failedImages.clear();
+            hideImageLoadNotice();
+            
+            // Force reload the page to retry all images
+            location.reload();
+        }
+        
+        function enableProxyMode() {
+            // Set proxy mode flag
+            proxyModeEnabled = true;
+            localStorage.setItem('museumcheck_proxy_mode', 'true');
+            
+            // Reload page to use proxied images
+            location.reload();
+        }
+        
+        function getImageUrl(url) {
+            // Check if proxy mode is enabled
+            if (proxyModeEnabled || localStorage.getItem('museumcheck_proxy_mode') === 'true') {
+                // Use weserv.nl proxy for images
+                if (url && !url.startsWith('data:') && !url.startsWith('/')) {
+                    return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=800&q=85`;
+                }
+            }
+            return url;
+        }
+        
+        // Check if proxy mode was enabled in previous session
+        if (localStorage.getItem('museumcheck_proxy_mode') === 'true') {
+            proxyModeEnabled = true;
+            console.log('📡 Proxy mode enabled - using image proxy service');
+        }
+        
+        // Helper function to create image with better error handling
+        function createImageWithFallback(imageUrl, alt, className, onClickHandler) {
+            const img = document.createElement('img');
+            img.src = getImageUrl(imageUrl);  // Use proxy if enabled
+            img.alt = alt;
+            img.className = className;
+            img.loading = 'lazy';  // Enable lazy loading
+            
+            if (onClickHandler) {
+                img.onclick = onClickHandler;
+            }
+            
+            img.onerror = function() {
+                trackImageLoad(false, imageUrl);
+                // Keep the existing onerror behavior
+                this.parentElement.innerHTML = '<div class="no-photo-placeholder">🏺</div>';
+            };
+            
+            img.onload = function() {
+                trackImageLoad(true, imageUrl);
+            };
+            
+            return img;
+        }
+        
         // Extract treasure information from MUSEUMS data
         const treasuresData = [];
         
@@ -610,11 +777,13 @@
                 if (museum.collections && museum.collections.length > 0) {
                     photoGalleryHTML = '<div class="treasure-photos-gallery">';
                     museum.collections.slice(0, 3).forEach(collection => {
+                        const imgUrl = getImageUrl(collection.imageUrl);
                         photoGalleryHTML += `
                             <div class="treasure-photo-item">
-                                <img src="${collection.imageUrl}" 
+                                <img src="${imgUrl}" 
                                      alt="${collection.name}"
-                                     onerror="this.parentElement.innerHTML='<div class=\\'no-photo-placeholder\\'>🏺</div>'">
+                                     onload="trackImageLoad(true, '${collection.imageUrl}')"
+                                     onerror="trackImageLoad(false, '${collection.imageUrl}'); this.parentElement.innerHTML='<div class=\\'no-photo-placeholder\\'>🏺</div>'">
                                 <div class="treasure-photo-label">${collection.name}</div>
                             </div>
                         `;
@@ -627,10 +796,11 @@
                 
                 card.innerHTML = `
                     ${museum.image ? `
-                        <img src="${museum.image}" 
+                        <img src="${getImageUrl(museum.image)}" 
                              alt="${museum.name}" 
                              class="treasure-card-image"
-                             onerror="this.style.display='none'">
+                             onload="trackImageLoad(true, '${museum.image}')"
+                             onerror="trackImageLoad(false, '${museum.image}'); this.style.display='none'">
                     ` : ''}
                     <div class="treasure-card-content">
                         <h3 class="treasure-museum-name">${museum.name}</h3>
@@ -675,13 +845,15 @@
                         <h3>📸 镇馆之宝珍品</h3>
                 `;
                 museum.collections.forEach(collection => {
+                    const imgUrl = getImageUrl(collection.imageUrl);
                     content += `
                         <div class="treasure-detail-item">
-                            <img src="${collection.imageUrl}" 
+                            <img src="${imgUrl}" 
                                  alt="${collection.name}"
                                  class="treasure-detail-photo"
-                                 onclick="window.open('${collection.imageUrl}', '_blank')"
-                                 onerror="this.style.display='none'">
+                                 onclick="window.open('${imgUrl}', '_blank')"
+                                 onload="trackImageLoad(true, '${collection.imageUrl}')"
+                                 onerror="trackImageLoad(false, '${collection.imageUrl}'); this.style.display='none'">
                             <h4 style="margin: 10px 0; color: #667eea;">${collection.name}</h4>
                             <p style="line-height: 1.7;">${collection.description}</p>
                         </div>
