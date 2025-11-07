@@ -1285,7 +1285,7 @@
                     key: key,
                     sortKey: fireworkData.id,
                     value: JSON.stringify(fireworkData),
-                    expireAt: fireworkData.timestamp + (ttlSeconds * 1000)  // Convert TTL to absolute expiration timestamp
+                    expireAt: Math.floor(fireworkData.timestamp / 1000) + ttlSeconds  // Convert to seconds: timestamp in ms / 1000 + TTL in seconds
                 })
             })
             .then(response => response.json())
