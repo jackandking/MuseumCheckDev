@@ -80,6 +80,23 @@ const MUSEUMS = [
         description: '综合性历史艺术博物馆，展示中华民族悠久文化历史',
         tags: ['历史', '文化', '艺术'],
         image: 'https://eb118-file.cdn.bcebos.com/upload/5b6fdbca17a04047b55adc6658a750bd_2211489532.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+        collections: [
+            {
+                name: '四羊方尊',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Simuwu_ding.jpg/600px-Simuwu_ding.jpg',
+                description: '商代晚期青铜礼器，高58.3厘米，重34.5公斤。器身四角各有一只卷角山羊，造型精美，是商朝青铜器铸造工艺的巅峰之作，体现了中国古代青铜文明的高度发达'
+            },
+            {
+                name: '后母戊鼎',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Houmuwu_Ding.jpg/600px-Houmuwu_Ding.jpg',
+                description: '商代后期青铜器，高133厘米，重832.84公斤，是世界上现存最大最重的青铜器。鼎内壁铸有"后母戊"三字，是商王为祭祀母亲而铸造，展现了商代高超的青铜铸造技术'
+            },
+            {
+                name: '人面鱼纹彩陶盆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Painted_pottery_basin_with_human_face_and_fish_design.jpg/600px-Painted_pottery_basin_with_human_face_and_fish_design.jpg',
+                description: '新石器时代仰韶文化彩陶，距今约6000年。盆内壁绘有人面和鱼纹图案，是原始艺术的代表作，体现了史前人类的审美观念和宗教信仰'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -163,7 +180,24 @@ const MUSEUMS = [
         location: '上海',
         description: '以古代艺术为主的综合性博物馆，被誉为"中华艺术宫"',
         tags: ['艺术', '文物', '收藏'],
-        image: 'https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&',  
+        image: 'https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&',
+        collections: [
+            {
+                name: '大克鼎',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Da_Ke_ding.jpg/600px-Da_Ke_ding.jpg',
+                description: '西周晚期青铜器，高93.1厘米，重201.5公斤。鼎内铸有铭文290字，记载了西周册命制度和土地交易，是研究西周政治制度的重要史料，代表了西周青铜器铸造的最高水平'
+            },
+            {
+                name: '商鞅方升',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Shang_Yang_Fang_Sheng.jpg/600px-Shang_Yang_Fang_Sheng.jpg',
+                description: '战国时期秦国的标准量器，长18.7厘米。器身刻有秦孝公时商鞅变法的诏书，是中国古代度量衡统一的重要见证，体现了秦国强大的国家治理能力'
+            },
+            {
+                name: '《淳化阁帖》',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Chunhua_Ge_Tie.jpg/600px-Chunhua_Ge_Tie.jpg',
+                description: '北宋淳化三年(992年)宋太宗命人编刻的法帖，收录历代名家书法墨迹。是中国最著名、影响最大的法帖，开创了刻帖传播书法艺术的先河'
+            }
+        ],  
         checklists: {
             parent: {
                 '3-6': [
@@ -247,6 +281,23 @@ const MUSEUMS = [
         location: '西安',
         description: '世界文化遗产，展示秦朝兵马俑的恢宏场面',
         tags: ['历史', '考古', '世界遗产'],
+        collections: [
+            {
+                name: '兵马俑一号坑',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Terracotta_Army_Pit_1.jpg/800px-Terracotta_Army_Pit_1.jpg',
+                description: '秦始皇陵最大的兵马俑坑，面积14260平方米，约有6000件陶俑陶马。呈东西向长方形排列，气势恢宏，展现了秦军主力军阵的壮观场面，是世界第八大奇迹的核心'
+            },
+            {
+                name: '铜车马',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Bronze_Chariot_Qin_Shihuang.jpg/800px-Bronze_Chariot_Qin_Shihuang.jpg',
+                description: '秦代青铜器的杰作，长2.28米，由3000多个零件组成。车马整体用青铜铸造，装饰有金银饰件，工艺精湛，是研究秦代车马制度和青铜工艺的珍贵实物'
+            },
+            {
+                name: '跪射俑',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Kneeling_Archer_Terracotta_Warrior.jpg/600px-Kneeling_Archer_Terracotta_Warrior.jpg',
+                description: '兵马俑中的精品，高128厘米。身穿战袍，右膝着地，左腿蹲曲，双手持弩姿势，神态专注。其独特造型体现了古代弩手的作战姿态和人体工程学智慧'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -332,6 +383,23 @@ const MUSEUMS = [
         location: '南京',
         description: '中国最早创建的博物馆，藏品丰富多样',
         tags: ['历史', '艺术', '民俗'],
+        collections: [
+            {
+                name: '金兽',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Golden_Beast_Nanjing_Museum.jpg/600px-Golden_Beast_Nanjing_Museum.jpg',
+                description: '东汉时期青铜镀金神兽，出土于江苏句容。造型威武雄壮，镀金工艺精湛，是汉代青铜艺术和神兽崇拜文化的代表作品'
+            },
+            {
+                name: '竹林七贤与荣启期砖画',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Seven_Sages_of_the_Bamboo_Grove_brick_relief.jpg/800px-Seven_Sages_of_the_Bamboo_Grove_brick_relief.jpg',
+                description: '南朝时期墓葬壁画砖，描绘竹林七贤和荣启期八位高士。是中国早期人物画的珍贵实物，表现了魏晋名士的风度和精神追求'
+            },
+            {
+                name: '大报恩寺琉璃塔拱门',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Porcelain_Tower_of_Nanjing.jpg/600px-Porcelain_Tower_of_Nanjing.jpg',
+                description: '明代永乐年间大报恩寺琉璃塔遗物。琉璃构件色彩斑斓，釉色鲜艳，工艺精湛，展现了明代琉璃烧制技术的最高水平，被誉为"中世纪七大奇迹"之一'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -417,6 +485,23 @@ const MUSEUMS = [
         location: '武汉',
         description: '以出土文物为主要特色，曾侯乙编钟闻名世界',
         tags: ['历史', '音乐', '青铜器'],
+        collections: [
+            {
+                name: '曾侯乙编钟',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Bianzhong.jpg/800px-Bianzhong.jpg',
+                description: '战国早期大型礼乐重器，共65件编钟，总重量2567公斤。距今2400多年仍能演奏乐曲，音域宽广，音色优美，是中国古代音乐成就的杰出代表，被誉为"世界音乐史上的奇迹"'
+            },
+            {
+                name: '越王勾践剑',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Sword_of_Goujian.jpg/600px-Sword_of_Goujian.jpg',
+                description: '春秋晚期越国青铜宝剑，长55.7厘米。出土时锋利如新，千年不锈，剑身刻有"越王勾践，自作用剑"八个鸟篆铭文。体现了中国古代高超的青铜冶炼和防锈技术'
+            },
+            {
+                name: '云梦睡虎地秦简',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Yunmeng_Qin_bamboo_slips.jpg/600px-Yunmeng_Qin_bamboo_slips.jpg',
+                description: '秦代法律文书和日书，共1155枚竹简。记录了秦代法律制度、行政文书和占卜内容，是研究秦代社会、法律、文化的第一手资料，填补了史书记载的空白'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -502,6 +587,23 @@ const MUSEUMS = [
         location: '西安',
         description: '中国第一座大型现代化国家级博物馆，被誉为"古都明珠，华夏宝库"',
         tags: ['历史', '文物', '古代文明'],
+        collections: [
+            {
+                name: '镶金兽首玛瑙杯',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Agate_Cup_with_Beast_Head.jpg/600px-Agate_Cup_with_Beast_Head.jpg',
+                description: '唐代酒器，长15.6厘米，用一整块红色玛瑙雕琢而成。杯体为兽角造型，兽首口部镶金，工艺极其精湛。是中外文化交流的见证，国宝级文物，禁止出境展览'
+            },
+            {
+                name: '皇后之玺',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Empress_Seal_Han_Dynasty.jpg/600px-Empress_Seal_Han_Dynasty.jpg',
+                description: '西汉时期皇后印玺，纯金制成，重33克。印面刻"皇后之玺"四字，是汉代皇后权力的象征。1968年陕西咸阳出土，是目前唯一的汉代皇后金玺实物'
+            },
+            {
+                name: '唐三彩载乐骆驼俑',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Tang_Sancai_Camel.jpg/600px-Tang_Sancai_Camel.jpg',
+                description: '唐代三彩陶俑，高58厘米。骆驼背上载有乐队，7个俑分别演奏不同乐器。釉色鲜艳，造型生动，反映了唐代丝绸之路的繁荣和胡汉文化交流'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -4484,6 +4586,23 @@ const MUSEUMS = [
         location: '兰州',
         description: '展示甘肃历史文化和丝路文明',
         tags: ['丝路文化', '马踏飞燕', '敦煌文化'],
+        collections: [
+            {
+                name: '马踏飞燕',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Flying_Horse_of_Gansu.jpg/600px-Flying_Horse_of_Gansu.jpg',
+                description: '东汉时期青铜器，高34.5厘米，长45厘米。奔马三足腾空，右后足踏在飞鸟背上，体现了力与美的完美结合。是中国旅游标志，代表了东汉青铜艺术的最高成就'
+            },
+            {
+                name: '驿使图画像砖',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Han_Postal_Relay_Brick.jpg/600px-Han_Postal_Relay_Brick.jpg',
+                description: '魏晋时期画像砖，描绘了驿使骑马传递文书的场景。反映了古代丝绸之路上的邮驿制度，是研究汉代交通和通信制度的珍贵实物资料'
+            },
+            {
+                name: '人头形器口彩陶瓶',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Neolithic_painted_pottery.jpg/600px-Neolithic_painted_pottery.jpg',
+                description: '新石器时代马家窑文化彩陶，距今约5000年。器口塑成人头形状，瓶身绘有精美彩绘图案，是甘肃彩陶文化的代表作品，展现了史前艺术的独特魅力'
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
