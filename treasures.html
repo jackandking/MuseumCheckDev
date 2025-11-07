@@ -124,6 +124,70 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         
+        .treasure-photos-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .treasure-photo-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .treasure-photo-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .treasure-photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .treasure-photo-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            font-size: 0.8em;
+            text-align: center;
+        }
+        
+        .treasure-detail-photo {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .treasure-detail-photo:hover {
+            opacity: 0.9;
+        }
+        
+        .no-photo-placeholder {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #999;
+            font-size: 3em;
+        }
+        
         .treasure-card-content {
             padding: 20px;
         }
@@ -327,6 +391,14 @@
             .modal-body {
                 padding: 20px;
             }
+            
+            .treasure-photos-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .treasure-detail-photo {
+                max-height: 250px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -340,6 +412,10 @@
             
             .stat-number {
                 font-size: 1.5em;
+            }
+            
+            .treasure-photos-gallery {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -416,6 +492,7 @@
                 location: museum.location,
                 description: museum.description,
                 image: museum.image,
+                collections: museum.collections || [],  // Photos and detailed info
                 treasures: {
                     simple: [],    // 3-6 age group
                     detailed: [],  // 7-12 age group  
@@ -462,7 +539,7 @@
                 });
             }
             
-            if (hasTreasures) {
+            if (hasTreasures || treasureInfo.collections.length > 0) {
                 treasuresData.push(treasureInfo);
             }
         });
@@ -528,11 +605,33 @@
                                       museum.treasures.simple[0] || 
                                       museum.treasures.academic[0] || '';
                 
+                // Build photo gallery HTML
+                let photoGalleryHTML = '';
+                if (museum.collections && museum.collections.length > 0) {
+                    photoGalleryHTML = '<div class="treasure-photos-gallery">';
+                    museum.collections.slice(0, 3).forEach(collection => {
+                        photoGalleryHTML += `
+                            <div class="treasure-photo-item">
+                                <img src="${collection.imageUrl}" 
+                                     alt="${collection.name}"
+                                     onerror="this.parentElement.innerHTML='<div class=\\'no-photo-placeholder\\'>🏺</div>'">
+                                <div class="treasure-photo-label">${collection.name}</div>
+                            </div>
+                        `;
+                    });
+                    photoGalleryHTML += '</div>';
+                }
+                
+                // Total items including both text descriptions and collections
+                const totalItems = treasureCount + (museum.collections ? museum.collections.length : 0);
+                
                 card.innerHTML = `
-                    <img src="${museum.image || ''}" 
-                         alt="${museum.name}" 
-                         class="treasure-card-image"
-                         onerror="this.style.display='none'">
+                    ${museum.image ? `
+                        <img src="${museum.image}" 
+                             alt="${museum.name}" 
+                             class="treasure-card-image"
+                             onerror="this.style.display='none'">
+                    ` : ''}
                     <div class="treasure-card-content">
                         <h3 class="treasure-museum-name">${museum.name}</h3>
                         <div class="treasure-location">
@@ -540,15 +639,19 @@
                             <span>${museum.location}</span>
                         </div>
                         <div>
-                            <span class="treasure-badge">${treasureCount} 件镇馆之宝</span>
+                            ${museum.collections && museum.collections.length > 0 ? 
+                                `<span class="treasure-badge">📸 ${museum.collections.length} 件珍品照片</span>` : ''}
+                            ${treasureCount > 0 ? 
+                                `<span class="treasure-badge">${treasureCount} 件镇馆之宝</span>` : ''}
                         </div>
-                        <div class="treasure-items">
-                            ${sampleTreasure ? `
+                        ${photoGalleryHTML}
+                        ${!photoGalleryHTML && sampleTreasure ? `
+                            <div class="treasure-items">
                                 <div class="treasure-item">
                                     ${sampleTreasure.substring(0, 100)}${sampleTreasure.length > 100 ? '...' : ''}
                                 </div>
-                            ` : ''}
-                        </div>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -564,6 +667,28 @@
             document.getElementById('modalMuseumLocation').textContent = `📍 ${museum.location} | ${museum.description}`;
             
             let content = '';
+            
+            // Display treasure collections with photos first
+            if (museum.collections && museum.collections.length > 0) {
+                content += `
+                    <div class="treasure-detail-section">
+                        <h3>📸 镇馆之宝珍品</h3>
+                `;
+                museum.collections.forEach(collection => {
+                    content += `
+                        <div class="treasure-detail-item">
+                            <img src="${collection.imageUrl}" 
+                                 alt="${collection.name}"
+                                 class="treasure-detail-photo"
+                                 onclick="window.open('${collection.imageUrl}', '_blank')"
+                                 onerror="this.style.display='none'">
+                            <h4 style="margin: 10px 0; color: #667eea;">${collection.name}</h4>
+                            <p style="line-height: 1.7;">${collection.description}</p>
+                        </div>
+                    `;
+                });
+                content += `</div>`;
+            }
             
             // Simple introduction (3-6 age group)
             if (museum.treasures.simple.length > 0) {
