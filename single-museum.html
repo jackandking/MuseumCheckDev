@@ -268,6 +268,8 @@
   </div>
 
   <script src="museums-data.js"></script>
+  <!-- Firework animation system -->
+  <script src="firework.js"></script>
   <!-- Auto-generate treasure hunt workflows for all museums -->
   <script src="treasure-workflow-generator.js"></script>
   <!-- Per-museum data files (override) -->
@@ -382,6 +384,9 @@
   </div>
 
   <div id="sgToast" role="status" aria-live="polite"></div>
+
+  <!-- Fireworks canvas container for celebration animations -->
+  <div class="fireworks-canvas" id="fireworksCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
 
   <!-- Footer with ICP Registration Information -->
   <footer class="site-footer">

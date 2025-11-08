@@ -204,6 +204,73 @@
     window.__workflowState = { __saveWorkflowState, __loadWorkflowState, __clearWorkflowState };
   }
 
+  // Firework System - for celebrating task completion
+  let fireworksSystem = null;
+
+  function initFireworksSystem(){
+    if(fireworksSystem) return; // Already initialized
+    const container = $('#fireworksCanvas');
+    if(!container) return;
+    if(typeof createFireworksSystem === 'function'){
+      try{
+        fireworksSystem = createFireworksSystem(container);
+        fireworksSystem.start();
+      }catch(e){
+        console.error('Failed to initialize fireworks system:', e);
+      }
+    }
+  }
+
+  function launchFirework(museumId, museumName, taskTitle, ageGroup){
+    // Initialize fireworks system on first use
+    if(!fireworksSystem){
+      initFireworksSystem();
+    }
+    
+    if(!fireworksSystem || !fireworksSystem.launchFirework){
+      console.warn('Fireworks system not available');
+      return;
+    }
+    
+    // Launch visual firework
+    const childNickname = getChildNickname();
+    fireworksSystem.launchFirework(ageGroup, childNickname);
+    
+    // Save firework record to localStorage
+    saveFireworkRecord(museumId, museumName, taskTitle, ageGroup, childNickname);
+  }
+
+  function saveFireworkRecord(museumId, museumName, taskTitle, ageGroup, childNickname){
+    try{
+      const fireworks = JSON.parse(localStorage.getItem('fireworks') || '[]');
+      
+      // Get firework type from settings
+      let fireworkType = 'heart';
+      try{
+        const saved = localStorage.getItem('fireworkType');
+        if(saved) fireworkType = saved;
+      }catch(e){}
+      
+      const firework = {
+        id: 'fw-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+        museumId: museumId,
+        museumName: museumName,
+        museumCity: '', // Can be enhanced later if needed
+        taskContent: taskTitle,
+        ageGroup: ageGroup,
+        childNickname: childNickname,
+        fireworkType: fireworkType,
+        timestamp: Date.now(),
+        date: new Date().toISOString()
+      };
+      
+      fireworks.push(firework);
+      localStorage.setItem('fireworks', JSON.stringify(fireworks));
+    }catch(e){
+      console.error('Failed to save firework record:', e);
+    }
+  }
+
   function normalizeTitle(text){
     try{
       const t = (text||'').replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/, '').trim();
@@ -645,6 +712,24 @@
         __markDone(state.selectedMuseum.id, taskId, true); 
       } 
     }catch(err){}
+    
+    // Trigger firework for completed child tasks
+    try{
+      const wf = state.selectedWorkflow;
+      const age = getAgeGroup();
+      if(wf && wf.tasks && Array.isArray(wf.tasks)){
+        let tasks = wf.tasks.filter(t => t.type !== 'poster');
+        tasks = tasks.filter(t => !t.ages || t.ages.includes(age));
+        const task = tasks[idx];
+        if(task && task.role === 'child' && state.selectedMuseum){
+          // Launch firework for child task completion
+          const taskTitle = task.title || task.subtitle || '完成任务';
+          launchFirework(state.selectedMuseum.id, state.selectedMuseum.name, taskTitle, age);
+        }
+      }
+    }catch(err){
+      console.error('Failed to launch firework:', err);
+    }
     
     // Save workflow state after completing a task
     __saveWorkflowState();
