@@ -7012,4 +7012,69 @@ main[role="main"] {
         font-size: 12px;
     }
 }
+
+/* =====================================================
+   SITE FOOTER WITH ICP REGISTRATION
+   网站底部备案信息
+   ===================================================== */
+
+.site-footer {
+    width: 100%;
+    margin-top: 60px;
+    padding: 30px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-text {
+    margin: 8px 0;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.footer-link {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.footer-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.footer-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+/* Mobile optimization for footer */
+@media (max-width: 768px) {
+    .site-footer {
+        margin-top: 40px;
+        padding: 20px 15px;
+    }
+    
+    .footer-text {
+        font-size: 12px;
+        margin: 6px 0;
+    }
+    
+    .footer-icon {
+        width: 12px;
+        height: 12px;
+    }
+}
 }
