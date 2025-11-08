@@ -14,7 +14,7 @@ window.MUSEUM_PINGHU = {
       id: 'treasure-discovery',
       name: '镇馆之宝探索',
       description: '围绕平湖博物馆三大镇馆之宝的亲子探索路线',
-      ages: ['3-6', '7-12'],
+      ages: ['3-6', '7-12', '13-18'],
       tasks: [
         { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口拍一张照片', ages: ['3-6','7-12','13-18'] },
         { id: 'find-buddha', role: 'child', type: 'photo', title: '镇馆之宝 1/3', subtitle: '找到「唐铸铁佛头」并合影', imageUrl: 'https://www.pinghumuseum.com:9001/kindeditorupload/image/2022-09-25/633065c3bddd3.jpg', ages: ['3-6','7-12','13-18'] },
