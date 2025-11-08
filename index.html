@@ -208,6 +208,7 @@
                         <div class="icon-buttons-row">
                             <button id="achievementButton" class="achievement-button-icon" title="我的成就">🏆</button>
                             <button id="assessmentHistoryButton" class="assessment-history-button assessment-history-button-icon" title="测评历史">📊</button>
+                            <button id="leaderboardButton" class="leaderboard-button-icon" title="排行榜">🏅</button>
                             <button id="treasuresButton" class="treasures-button-icon" title="镇馆之宝" onclick="window.location.href='treasures.html'">🏺</button>
                             <button id="fireworksButton" class="fireworks-button fireworks-button-icon" title="查看烟花记录" style="display: none;">🎆</button>
                             <button id="settingsButton" class="settings-button-icon" title="设置">⚙️</button>
@@ -539,6 +540,41 @@
                         </div>
                         <button id="demoFireworkButton" class="demo-firework-button" style="display: none;">🎇 手动放烟花</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal leaderboard-modal hidden">
+        <div class="modal-content leaderboard-content">
+            <span class="close">&times;</span>
+            <h2>🏅 全网排行榜</h2>
+            <div class="leaderboard-intro">
+                <p>看看谁的博物馆之旅最精彩！参观越多，排名越高！</p>
+            </div>
+            <div class="leaderboard-my-rank" id="leaderboardMyRank">
+                <div class="my-rank-card">
+                    <div class="rank-badge">我的排名</div>
+                    <div class="rank-info">
+                        <div class="rank-position" id="myRankPosition">-</div>
+                        <div class="rank-details">
+                            <div class="rank-nickname" id="myRankNickname">-</div>
+                            <div class="rank-count" id="myRankCount">0个博物馆</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard-list" id="leaderboardList">
+                <div class="leaderboard-loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载排行榜...</p>
+                </div>
+            </div>
+            <div class="leaderboard-footer">
+                <button id="refreshLeaderboard" class="btn-secondary">🔄 刷新排行榜</button>
+                <div class="leaderboard-update-time">
+                    更新时间: <span id="leaderboardUpdateTime">-</span>
                 </div>
             </div>
         </div>

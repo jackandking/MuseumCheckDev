@@ -3350,6 +3350,209 @@ class GlobalParticle {
     }
 }
 
+// ===== Leaderboard Manager =====
+class LeaderboardManager {
+    constructor(app) {
+        this.app = app;
+        this.cacheKey = 'leaderboardCache';
+        this.cacheExpiryKey = 'leaderboardCacheExpiry';
+        this.cacheDuration = 10 * 60 * 1000; // 10 minutes in milliseconds
+        this.apiEndpoint = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
+        this.leaderboardKey = 'museumcheck-leaderboard';
+    }
+
+    /**
+     * Get user's unique ID (create if not exists)
+     */
+    getUserId() {
+        let userId = localStorage.getItem('user_id');
+        if (!userId) {
+            userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('user_id', userId);
+        }
+        return userId;
+    }
+
+    /**
+     * Get cached leaderboard data if not expired
+     */
+    getCachedLeaderboard() {
+        try {
+            const cached = localStorage.getItem(this.cacheKey);
+            const expiry = localStorage.getItem(this.cacheExpiryKey);
+            
+            if (cached && expiry) {
+                const expiryTime = parseInt(expiry, 10);
+                if (Date.now() < expiryTime) {
+                    return JSON.parse(cached);
+                }
+            }
+        } catch (error) {
+            console.error('Error reading cached leaderboard:', error);
+        }
+        return null;
+    }
+
+    /**
+     * Cache leaderboard data
+     */
+    cacheLeaderboard(data) {
+        try {
+            const expiry = Date.now() + this.cacheDuration;
+            localStorage.setItem(this.cacheKey, JSON.stringify(data));
+            localStorage.setItem(this.cacheExpiryKey, expiry.toString());
+        } catch (error) {
+            console.error('Error caching leaderboard:', error);
+        }
+    }
+
+    /**
+     * Clear leaderboard cache
+     */
+    clearCache() {
+        try {
+            localStorage.removeItem(this.cacheKey);
+            localStorage.removeItem(this.cacheExpiryKey);
+        } catch (error) {
+            console.error('Error clearing leaderboard cache:', error);
+        }
+    }
+
+    /**
+     * Submit user's score to leaderboard
+     */
+    async submitScore(nickname, visitedCount) {
+        try {
+            const userId = this.getUserId();
+            const sortKey = `user-${userId}`;
+            
+            const payload = {
+                nickname: nickname || '小朋友',
+                visitedCount: visitedCount,
+                userId: userId,
+                lastUpdate: Date.now()
+            };
+
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    key: this.leaderboardKey,
+                    sortKey: sortKey,
+                    value: JSON.stringify(payload),
+                    ttl: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124 // Far future expiration
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to submit score: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Score submitted successfully:', result);
+            
+            // Clear cache to force refresh on next view
+            this.clearCache();
+            
+            return { success: true };
+        } catch (error) {
+            console.error('Error submitting score:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Fetch leaderboard data from server
+     */
+    async fetchLeaderboard(forceRefresh = false) {
+        try {
+            // Check cache first unless force refresh
+            if (!forceRefresh) {
+                const cached = this.getCachedLeaderboard();
+                if (cached) {
+                    return { success: true, data: cached, fromCache: true };
+                }
+            }
+
+            // Fetch from server
+            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}`;
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Parse and sort the leaderboard entries
+            const entries = [];
+            if (result.items && Array.isArray(result.items)) {
+                for (const item of result.items) {
+                    try {
+                        const data = JSON.parse(item.value);
+                        entries.push(data);
+                    } catch (e) {
+                        console.warn('Failed to parse leaderboard entry:', e);
+                    }
+                }
+            }
+
+            // Sort by visitedCount descending
+            entries.sort((a, b) => b.visitedCount - a.visitedCount);
+
+            // Cache the result
+            this.cacheLeaderboard(entries);
+
+            return { success: true, data: entries, fromCache: false };
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+            
+            // Try to return cached data as fallback
+            const cached = this.getCachedLeaderboard();
+            if (cached) {
+                return { success: true, data: cached, fromCache: true, error: error.message };
+            }
+            
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Get user's rank in the leaderboard
+     */
+    getUserRank(entries, userId) {
+        const userEntry = entries.findIndex(entry => entry.userId === userId);
+        return userEntry >= 0 ? userEntry + 1 : null;
+    }
+
+    /**
+     * Check if user should be prompted to update their score
+     */
+    shouldSubmitScore() {
+        const lastSubmittedCount = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
+        const currentCount = this.app.visitedMuseums.length;
+        return currentCount !== lastSubmittedCount;
+    }
+
+    /**
+     * Auto-submit score if count changed
+     */
+    async autoSubmitScore() {
+        if (this.shouldSubmitScore()) {
+            const nickname = this.app.childNickname || '小朋友';
+            const visitedCount = this.app.visitedMuseums.length;
+            
+            const result = await this.submitScore(nickname, visitedCount);
+            if (result.success) {
+                localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
+                console.log('Auto-submitted score to leaderboard');
+            }
+        }
+    }
+}
+
 class MuseumCheckApp {
     constructor() {
         this.currentAge = this.loadAgeGroup();
@@ -3381,6 +3584,9 @@ class MuseumCheckApp {
         this.museumManager = new MuseumManager(this, this.analyticsManager);
         this.checklistManager = new ChecklistManager(this, this.analyticsManager);
         this.assessmentManager = new AssessmentManager(this, this.analyticsManager);
+        
+        // Initialize leaderboard manager
+        this.leaderboardManager = new LeaderboardManager(this);
         
         this.init();
     }
@@ -3463,6 +3669,8 @@ class MuseumCheckApp {
         this.setupAgeSelectorAutoHide();
         // Show settings hint for new users
         this.setupSettingsHint();
+        // Setup new user onboarding for leaderboard
+        this.setupLeaderboardOnboarding();
     }
     
     /**
@@ -3630,6 +3838,154 @@ class MuseumCheckApp {
                 settingsHint.classList.remove('show');
             }, 8000);
         }, 2000);
+    }
+    
+    /**
+     * Setup new user onboarding for leaderboard feature
+     * Guide new users to: 1) set nickname, 2) check-in museums, 3) view leaderboard
+     */
+    setupLeaderboardOnboarding() {
+        try {
+            // Check if onboarding already completed
+            const onboardingCompleted = localStorage.getItem('leaderboardOnboardingCompleted') === 'true';
+            if (onboardingCompleted) {
+                return;
+            }
+
+            // Check if user is truly new (no visited museums and default nickname)
+            const hasVisitedMuseums = this.visitedMuseums.length > 0;
+            const hasCustomNickname = this.childNickname !== '小淘气';
+
+            // If user already has some progress, mark onboarding as completed
+            if (hasVisitedMuseums || hasCustomNickname) {
+                localStorage.setItem('leaderboardOnboardingCompleted', 'true');
+                return;
+            }
+
+            // Show gentle hint about leaderboard after 5 seconds
+            setTimeout(() => {
+                this.showLeaderboardIntroHint();
+            }, 5000);
+
+        } catch (error) {
+            console.error('Failed to setup leaderboard onboarding:', error);
+        }
+    }
+
+    /**
+     * Show intro hint about leaderboard to new users
+     */
+    showLeaderboardIntroHint() {
+        // Create a notification element
+        const notification = document.createElement('div');
+        notification.className = 'leaderboard-intro-hint';
+        notification.innerHTML = `
+            <div class="hint-content">
+                <div class="hint-icon">🏅</div>
+                <div class="hint-text">
+                    <strong>欢迎来到博物馆打卡！</strong><br>
+                    设置孩子昵称，打卡参观过的博物馆，就能在全网排行榜上看到自己的排名啦！
+                </div>
+                <button class="hint-close-btn">知道了</button>
+            </div>
+        `;
+
+        // Add styles inline for the hint
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 1001;
+            max-width: 90%;
+            width: 400px;
+            animation: slideUp 0.3s ease-out;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Close button handler
+        const closeBtn = notification.querySelector('.hint-close-btn');
+        closeBtn.addEventListener('click', () => {
+            notification.style.animation = 'slideDown 0.3s ease-out';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+            
+            // Mark intro as seen
+            localStorage.setItem('leaderboardIntroSeen', 'true');
+        });
+
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideDown 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }, 10000);
+
+        // Add CSS animations if not already present
+        if (!document.getElementById('leaderboard-hint-styles')) {
+            const style = document.createElement('style');
+            style.id = 'leaderboard-hint-styles';
+            style.textContent = `
+                @keyframes slideUp {
+                    from {
+                        transform: translateX(-50%) translateY(100px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(-50%) translateY(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideDown {
+                    from {
+                        transform: translateX(-50%) translateY(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(-50%) translateY(100px);
+                        opacity: 0;
+                    }
+                }
+                .leaderboard-intro-hint .hint-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+                .leaderboard-intro-hint .hint-icon {
+                    font-size: 32px;
+                    flex-shrink: 0;
+                }
+                .leaderboard-intro-hint .hint-text {
+                    flex: 1;
+                    line-height: 1.5;
+                }
+                .leaderboard-intro-hint .hint-close-btn {
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    white-space: nowrap;
+                    transition: all 0.2s ease;
+                }
+                .leaderboard-intro-hint .hint-close-btn:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
     
     /**
@@ -4162,6 +4518,11 @@ class MuseumCheckApp {
             this.showAssessmentHistoryModal();
         });
 
+        // Leaderboard button
+        document.getElementById('leaderboardButton').addEventListener('click', () => {
+            this.showLeaderboardModal();
+        });
+
         // Settings button
         document.getElementById('settingsButton').addEventListener('click', () => {
             this.showSettingsModal();
@@ -4177,6 +4538,11 @@ class MuseumCheckApp {
             this.closeAssessmentHistoryModal();
         });
 
+        // Leaderboard modal close
+        document.querySelector('#leaderboardModal .close').addEventListener('click', () => {
+            this.closeLeaderboardModal();
+        });
+
         // Click outside achievement modal to close
         document.getElementById('achievementModal').addEventListener('click', (e) => {
             if (e.target.id === 'achievementModal') {
@@ -4188,6 +4554,13 @@ class MuseumCheckApp {
         document.getElementById('assessmentHistoryModal').addEventListener('click', (e) => {
             if (e.target.id === 'assessmentHistoryModal') {
                 this.closeAssessmentHistoryModal();
+            }
+        });
+
+        // Click outside leaderboard modal to close
+        document.getElementById('leaderboardModal').addEventListener('click', (e) => {
+            if (e.target.id === 'leaderboardModal') {
+                this.closeLeaderboardModal();
             }
         });
 
@@ -4406,6 +4779,22 @@ class MuseumCheckApp {
         
         // Scroll event listener - toggle compact mode for stats section
         this.setupScrollCompactMode();
+        
+        // Leaderboard refresh button
+        const refreshLeaderboardBtn = document.getElementById('refreshLeaderboard');
+        if (refreshLeaderboardBtn) {
+            refreshLeaderboardBtn.addEventListener('click', async () => {
+                refreshLeaderboardBtn.disabled = true;
+                refreshLeaderboardBtn.textContent = '刷新中...';
+                
+                await this.renderLeaderboard(true); // Force refresh
+                
+                refreshLeaderboardBtn.disabled = false;
+                refreshLeaderboardBtn.textContent = '🔄 刷新排行榜';
+                
+                this.trackEvent('leaderboard_refreshed');
+            });
+        }
     }
     
     /**
@@ -4935,10 +5324,204 @@ class MuseumCheckApp {
             // Update header title
             this.updateHeaderTitle();
             
+            // Check if this completes first onboarding step
+            const hasVisitedMuseums = this.visitedMuseums.length > 0;
+            if (!hasVisitedMuseums && nickname !== '小淘气') {
+                // User just set a custom nickname, show next hint
+                setTimeout(() => {
+                    this.showCheckInHint();
+                }, 1000);
+            }
+            
             return { isValid: true, message: '昵称保存成功！' };
         } catch (error) {
             console.error('Failed to save child nickname:', error);
             return { isValid: false, message: '保存失败，请重试' };
+        }
+    }
+
+    /**
+     * Show hint to check-in museums after setting nickname
+     */
+    showCheckInHint() {
+        try {
+            const hintShown = localStorage.getItem('checkInHintShown') === 'true';
+            if (hintShown) return;
+
+            const notification = document.createElement('div');
+            notification.className = 'checkin-hint';
+            notification.innerHTML = `
+                <div class="hint-content">
+                    <div class="hint-icon">✅</div>
+                    <div class="hint-text">
+                        <strong>太好了！</strong><br>
+                        现在点击博物馆卡片，标记你已经参观过的博物馆吧！
+                    </div>
+                    <button class="hint-close-btn">好的</button>
+                </div>
+            `;
+
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(245, 87, 108, 0.4);
+                z-index: 1001;
+                max-width: 90%;
+                width: 400px;
+                animation: slideUp 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            const closeBtn = notification.querySelector('.hint-close-btn');
+            closeBtn.addEventListener('click', () => {
+                notification.style.animation = 'slideDown 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+                localStorage.setItem('checkInHintShown', 'true');
+            });
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideDown 0.3s ease-out';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }
+            }, 8000);
+        } catch (error) {
+            console.error('Failed to show check-in hint:', error);
+        }
+    }
+
+    /**
+     * Show hint to view leaderboard after first museum visit
+     */
+    showLeaderboardHint() {
+        try {
+            const hintShown = localStorage.getItem('leaderboardHintShown') === 'true';
+            if (hintShown) return;
+
+            const notification = document.createElement('div');
+            notification.className = 'leaderboard-hint';
+            notification.innerHTML = `
+                <div class="hint-content">
+                    <div class="hint-icon">🎉</div>
+                    <div class="hint-text">
+                        <strong>恭喜打卡第一个博物馆！</strong><br>
+                        点击顶部的 🏅 按钮，查看你在全网排行榜的位置吧！
+                    </div>
+                    <button class="hint-action-btn" id="viewLeaderboardFromHint">查看排行榜</button>
+                    <button class="hint-close-btn">稍后再看</button>
+                </div>
+            `;
+
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
+                z-index: 1001;
+                max-width: 90%;
+                width: 400px;
+                animation: slideUp 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            // Action button - view leaderboard
+            const actionBtn = notification.querySelector('#viewLeaderboardFromHint');
+            actionBtn.addEventListener('click', () => {
+                notification.remove();
+                this.showLeaderboardModal();
+                localStorage.setItem('leaderboardHintShown', 'true');
+                localStorage.setItem('leaderboardOnboardingCompleted', 'true');
+            });
+
+            // Close button
+            const closeBtn = notification.querySelector('.hint-close-btn');
+            closeBtn.addEventListener('click', () => {
+                notification.style.animation = 'slideDown 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+                localStorage.setItem('leaderboardHintShown', 'true');
+            });
+
+            // Auto-remove after 12 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideDown 0.3s ease-out';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                    localStorage.setItem('leaderboardHintShown', 'true');
+                }
+            }, 12000);
+
+            // Add styles for action button
+            if (!document.getElementById('leaderboard-action-btn-styles')) {
+                const style = document.createElement('style');
+                style.id = 'leaderboard-action-btn-styles';
+                style.textContent = `
+                    .leaderboard-hint .hint-content {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                    }
+                    .leaderboard-hint .hint-icon {
+                        font-size: 32px;
+                        text-align: center;
+                    }
+                    .leaderboard-hint .hint-text {
+                        line-height: 1.5;
+                        text-align: center;
+                    }
+                    .leaderboard-hint .hint-action-btn {
+                        background: white;
+                        color: #4facfe;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: all 0.2s ease;
+                    }
+                    .leaderboard-hint .hint-action-btn:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                    }
+                    .leaderboard-hint .hint-close-btn {
+                        background: rgba(255, 255, 255, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 13px;
+                        transition: all 0.2s ease;
+                    }
+                    .leaderboard-hint .hint-close-btn:hover {
+                        background: rgba(255, 255, 255, 0.3);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        } catch (error) {
+            console.error('Failed to show leaderboard hint:', error);
         }
     }
 
@@ -5461,6 +6044,20 @@ class MuseumCheckApp {
             this.triggerLargeRocket();
             this.saveVisitedMuseums();
             this.renderMuseums();
+            
+            // Auto-submit score to leaderboard
+            if (this.leaderboardManager) {
+                this.leaderboardManager.autoSubmitScore().catch(err => {
+                    console.warn('Failed to auto-submit leaderboard score:', err);
+                });
+            }
+            
+            // Show leaderboard hint for first museum visit
+            if (this.visitedMuseums.length === 1) {
+                setTimeout(() => {
+                    this.showLeaderboardHint();
+                }, 2000);
+            }
             
             // Track museum visit toggle
             this.trackEvent('museum_visit_toggled', {
@@ -6640,6 +7237,142 @@ class MuseumCheckApp {
 
     closeSettingsModal() {
         document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    async showLeaderboardModal() {
+        this.modalManager.showModal('leaderboardModal');
+        await this.renderLeaderboard();
+        
+        // Track leaderboard view
+        this.trackEvent('leaderboard_viewed', {
+            'visited_count': this.visitedMuseums.length
+        });
+    }
+
+    closeLeaderboardModal() {
+        this.modalManager.closeModal('leaderboardModal');
+    }
+
+    async renderLeaderboard(forceRefresh = false) {
+        const listContainer = document.getElementById('leaderboardList');
+        
+        // Show loading state
+        listContainer.innerHTML = `
+            <div class="leaderboard-loading">
+                <div class="loading-spinner"></div>
+                <p>正在加载排行榜...</p>
+            </div>
+        `;
+
+        try {
+            // Fetch leaderboard data
+            const result = await this.leaderboardManager.fetchLeaderboard(forceRefresh);
+            
+            if (!result.success || !result.data || result.data.length === 0) {
+                // Show empty state
+                listContainer.innerHTML = `
+                    <div class="leaderboard-empty">
+                        <div class="empty-icon">🏅</div>
+                        <p>排行榜暂无数据</p>
+                        <p>快去参观博物馆，成为第一名吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const entries = result.data;
+            const userId = this.leaderboardManager.getUserId();
+            const myRank = this.leaderboardManager.getUserRank(entries, userId);
+
+            // Update my rank display
+            this.renderMyRank(myRank, entries, userId);
+
+            // Render leaderboard entries
+            let html = '<div class="leaderboard-entries">';
+            
+            entries.forEach((entry, index) => {
+                const rank = index + 1;
+                const isMyEntry = entry.userId === userId;
+                const isTop3 = rank <= 3;
+                
+                let medalHtml = '';
+                if (rank === 1) medalHtml = '<span class="entry-medal">🥇</span>';
+                else if (rank === 2) medalHtml = '<span class="entry-medal">🥈</span>';
+                else if (rank === 3) medalHtml = '<span class="entry-medal">🥉</span>';
+                
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                
+                html += `
+                    <div class="leaderboard-entry ${isTop3 ? 'top-3' : ''} ${isMyEntry ? 'my-entry' : ''}">
+                        ${medalHtml}
+                        <div class="entry-rank ${rankClass}">${rank}</div>
+                        <div class="entry-info">
+                            <div class="entry-nickname">${this.escapeHtml(entry.nickname)}${isMyEntry ? ' (我)' : ''}</div>
+                            <div class="entry-count">参观了 ${entry.visitedCount} 个博物馆</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            listContainer.innerHTML = html;
+
+            // Update last update time
+            const updateTimeElem = document.getElementById('leaderboardUpdateTime');
+            if (updateTimeElem) {
+                const now = new Date();
+                updateTimeElem.textContent = now.toLocaleString('zh-CN', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                if (result.fromCache) {
+                    updateTimeElem.textContent += ' (缓存)';
+                }
+            }
+
+        } catch (error) {
+            console.error('Error rendering leaderboard:', error);
+            listContainer.innerHTML = `
+                <div class="leaderboard-empty">
+                    <div class="empty-icon">⚠️</div>
+                    <p>加载失败</p>
+                    <p>请稍后重试</p>
+                </div>
+            `;
+        }
+    }
+
+    renderMyRank(rank, entries, userId) {
+        const myRankContainer = document.getElementById('leaderboardMyRank');
+        const positionElem = document.getElementById('myRankPosition');
+        const nicknameElem = document.getElementById('myRankNickname');
+        const countElem = document.getElementById('myRankCount');
+
+        if (!rank || !entries || entries.length === 0) {
+            // Not ranked yet
+            if (positionElem) positionElem.textContent = '-';
+            if (nicknameElem) nicknameElem.textContent = this.childNickname || '小朋友';
+            if (countElem) countElem.textContent = `${this.visitedMuseums.length}个博物馆`;
+            return;
+        }
+
+        const myEntry = entries.find(e => e.userId === userId);
+        
+        if (positionElem) {
+            positionElem.textContent = `#${rank}`;
+        }
+        
+        if (nicknameElem) {
+            nicknameElem.textContent = myEntry ? myEntry.nickname : (this.childNickname || '小朋友');
+        }
+        
+        if (countElem) {
+            const count = myEntry ? myEntry.visitedCount : this.visitedMuseums.length;
+            countElem.textContent = `${count}个博物馆`;
+        }
     }
 
     renderSettingsInfo() {
