@@ -29,7 +29,7 @@ describe('Photo Skip Setting', () => {
     });
 
     test('photoRequired dropdown has optional and required options', () => {
-      expect(htmlContent).toContain('可选（默认）- 可点击"完成"跳过拍照');
+      expect(htmlContent).toContain('可选（默认）- 可点击"完成"跳过上传');
       expect(htmlContent).toContain('必须 - 需要拍照才能进入下一步');
     });
 
@@ -82,22 +82,22 @@ describe('Photo Skip Setting', () => {
   describe('Skip Button Rendering', () => {
     test('skip button is added for photo tasks when photoRequired is false', () => {
       // Check for skip button creation
-      expect(scriptContent).toContain('完成（跳过拍照）');
+      expect(scriptContent).toContain('完成（跳过上传）');
     });
 
     test('skip button is conditionally rendered based on isPhotoRequired', () => {
       // Check that skip button is only added when !isPhotoRequired()
-      expect(scriptContent).toMatch(/if\s*\(\s*!isPhotoRequired\(\s*\)\s*\)\s*\{[\s\S]*?完成（跳过拍照）/);
+      expect(scriptContent).toMatch(/if\s*\(\s*!isPhotoRequired\(\s*\)\s*\)\s*\{[\s\S]*?完成（跳过上传）/);
     });
 
     test('skip button has onclick handler to complete task without photo', () => {
-      const skipButtonMatch = scriptContent.match(/完成（跳过拍照）[\s\S]{0,500}onclick/);
+      const skipButtonMatch = scriptContent.match(/完成（跳过上传）[\s\S]{0,500}onclick/);
       expect(skipButtonMatch).toBeTruthy();
     });
 
     test('skip button advances to next task', () => {
       // The skip button now calls completeWorkflowTask which handles advancing
-      const skipSectionMatch = scriptContent.match(/完成（跳过拍照）[\s\S]{0,800}completeWorkflowTask/);
+      const skipSectionMatch = scriptContent.match(/完成（跳过上传）[\s\S]{0,800}completeWorkflowTask/);
       expect(skipSectionMatch).toBeTruthy();
     });
 
@@ -110,7 +110,7 @@ describe('Photo Skip Setting', () => {
 
     test('skip button shows success toast', () => {
       // Find the skip button section and verify it shows toast
-      const skipSectionMatch = scriptContent.match(/完成（跳过拍照）[\s\S]{0,800}showToast\(/);
+      const skipSectionMatch = scriptContent.match(/完成（跳过上传）[\s\S]{0,800}showToast\(/);
       expect(skipSectionMatch).toBeTruthy();
     });
   });
@@ -130,7 +130,7 @@ describe('Photo Skip Setting', () => {
 
     test('retake button still exists for photo tasks', () => {
       // Verify retake functionality is preserved
-      expect(scriptContent).toContain('🔄 重新拍照');
+      expect(scriptContent).toContain('🔄 重新选择');
     });
   });
 

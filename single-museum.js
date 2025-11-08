@@ -758,8 +758,7 @@
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.setAttribute('capture','environment');
-        input.setAttribute('aria-label','打开相机');
+        input.setAttribute('aria-label','选择照片');
         input.id = `photo-input-${idx}`;
         input.style.display = 'block';
         input.style.width = '100%';
@@ -781,7 +780,7 @@
         // Create retake button (initially hidden)
         const retakeBtn = document.createElement('button');
         retakeBtn.className = 'sg-btn sg-btn-secondary';
-        retakeBtn.textContent = '🔄 重新拍照';
+        retakeBtn.textContent = '🔄 重新选择';
         retakeBtn.style.display = 'none';
         retakeBtn.style.width = '100%';
         retakeBtn.style.marginTop = '12px';
@@ -843,7 +842,7 @@
           
           const skipBtn = document.createElement('button');
           skipBtn.className = 'sg-btn sg-btn-secondary';
-          skipBtn.textContent = '完成（跳过拍照）';
+          skipBtn.textContent = '完成（跳过上传）';
           skipBtn.style.fontSize = '16px';
           skipBtn.style.fontWeight = '700';
           skipBtn.style.padding = '14px';
