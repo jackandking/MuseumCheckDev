@@ -2298,7 +2298,7 @@ header h1 {
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
     }
     
     .progress-text {
