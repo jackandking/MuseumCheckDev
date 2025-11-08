@@ -31,3 +31,4 @@ pids
 *.pid
 *.seed
 *.pid.locktest-poster-v2-*.html
+generate-v3-qr-codes.js
