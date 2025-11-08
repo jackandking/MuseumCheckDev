@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>排行榜管理后台</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif; margin: 16px; color: #111; background: #f9fafb; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .unauthorized { padding: 24px; background: #fff5f5; border: 1px solid #fecaca; color: #991b1b; border-radius: 8px; }
+    .panel { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 16px; background: #fff; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .row > * { margin: 4px 0; }
+    button { padding: 8px 12px; border: 1px solid #d1d5db; background: #f9fafb; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    button.primary { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    button.danger { background: #dc2626; color: #fff; border-color: #b91c1c; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+    th { background: #f9fafb; position: sticky; top: 0; z-index: 1; font-weight: 600; }
+    .tag { display: inline-block; font-size: 12px; padding: 2px 6px; border-radius: 999px; background: #f3f4f6; border: 1px solid #e5e7eb; margin-right: 6px; }
+    .tag.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .tag.ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .tag.warning { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 13px; }
+    .flex { display: flex; gap: 8px; align-items: center; }
+    .counts { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .count { padding: 8px 12px; border-radius: 8px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .count-number { font-size: 18px; font-weight: 600; color: #111; }
+    .count-label { font-size: 12px; color: #6b7280; margin-left: 4px; }
+    .sticky-actions { position: sticky; top: 8px; z-index: 5; background: #f9fafb; padding-bottom: 8px; }
+    .rank-badge { 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      width: 28px; 
+      height: 28px; 
+      border-radius: 50%; 
+      font-weight: 600; 
+      font-size: 12px; 
+      margin-right: 8px;
+    }
+    .rank-1 { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+    .rank-2 { background: #e5e7eb; color: #374151; border: 2px solid #d1d5db; }
+    .rank-3 { background: #fed7aa; color: #9a3412; border: 2px solid #fdba74; }
+    .rank-other { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+    input[type="text"], input[type="number"] {
+      padding: 6px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 200px;
+    }
+    .edit-mode { background: #fffbeb; }
+  </style>
+</head>
+<body>
+  <h1>🏅 排行榜管理后台</h1>
+  <div style="margin-bottom: 12px; font-size: 13px; color: #6b7280;">
+    其他管理页面: <a href="admin-fireworks.html?admin=1" style="color: #2563eb; text-decoration: none;">🎆 烟花管理</a>
+  </div>
+  <div id="unauthorized" class="unauthorized" style="display:none">
+    <div style="font-weight:600; margin-bottom: 6px;">未授权访问</div>
+    <div class="muted">请使用 URL 携带参数 <span class="mono">?admin=1</span> 访问此页面。例如：<span class="mono">/admin-leaderboard.html?admin=1</span></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="panel sticky-actions">
+      <div class="row">
+        <button id="reload" class="primary">🔄 重新加载数据</button>
+        <button id="deleteInvalid" class="danger">🗑️ 批量删除不合法</button>
+        <button id="exportData">📤 导出数据</button>
+        <span id="status" class="muted"></span>
+      </div>
+      <div class="counts" id="counts"></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <div style="font-weight:600">排行榜数据</div>
+        <div class="muted">存储键：<span class="mono">museumcheck-leaderboard</span></div>
+      </div>
+      <div style="overflow:auto; max-height: 70vh; border:1px solid #eee; border-radius:8px;">
+        <table id="leaderboardTable">
+          <thead>
+            <tr>
+              <th style="width: 60px;">排名</th>
+              <th style="width: 150px;">用户ID</th>
+              <th style="width: 120px;">昵称</th>
+              <th style="width: 100px;">参观数</th>
+              <th style="width: 180px;">最后更新</th>
+              <th style="width: 120px;">数据状态</th>
+              <th style="width: 200px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px;">
+                <div class="muted">加载中...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="./admin-leaderboard.js"></script>
+</body>
+</html>
