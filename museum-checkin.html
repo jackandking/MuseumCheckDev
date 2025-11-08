@@ -702,12 +702,12 @@
             
             <!-- Photo capture section -->
             <div class="photo-section" id="photoSection">
-                <label class="photo-label">📸 拍照留念（可选）</label>
+                <label class="photo-label">📸 上传照片（可选）</label>
                 <div class="photo-input-wrapper">
-                    <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" capture="environment" aria-label="打开相机拍照">
+                    <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" aria-label="选择照片">
                 </div>
                 <div class="photo-preview" id="photoPreview"></div>
-                <button class="retake-button" id="retakeButton" style="display: none;">重新拍照</button>
+                <button class="retake-button" id="retakeButton" style="display: none;">重新上传</button>
             </div>
             
             <div class="action-buttons">
@@ -885,8 +885,14 @@
             if (currentMuseum.checklists && currentMuseum.checklists.child) {
                 childTasks = currentMuseum.checklists.child[ageGroup] || [];
             }
-            // Append collection-derived tasks (top 3)
-            if (Array.isArray(currentMuseum.collections) && currentMuseum.collections.length) {
+            // Append collection-derived tasks (top 3) ONLY if no custom checklist exists
+            // Museums with custom checklists (like capital-museum.js, pinghu-museum.js) already include treasure tasks
+            const hasCustomChecklist = currentMuseum.checklists && 
+                                      currentMuseum.checklists.child && 
+                                      currentMuseum.checklists.child[ageGroup] && 
+                                      currentMuseum.checklists.child[ageGroup].length > 0;
+            
+            if (!hasCustomChecklist && Array.isArray(currentMuseum.collections) && currentMuseum.collections.length) {
                 const extras = currentMuseum.collections.slice(0, 3).map(c => `🏺 镇馆之宝：找到「${c.name}」并合影`);
                 childTasks = childTasks.concat(extras);
             }
@@ -955,7 +961,7 @@
                     const collName = nameMatch && nameMatch[1];
                     if (collName) {
                         const found = currentMuseum.collections.find(c => c && c.name === collName);
-                        imageUrl = found && found.url || '';
+                        imageUrl = found && (found.imageUrl || found.url) || '';
                     }
                 }
             } catch(e) {}
@@ -1071,7 +1077,7 @@
                     const nameMatch = subtitle && subtitle.match(/「([^」]+)」/);
                     const collName = nameMatch && nameMatch[1];
                     const found = m.collections.find(c => c && c.name === collName);
-                    matchedUrl = found && found.url || '';
+                    matchedUrl = found && (found.imageUrl || found.url) || '';
                 }
                 if (imgEl) {
                     if (matchedUrl) { imgEl.src = matchedUrl; imgEl.style.display = 'block'; }
