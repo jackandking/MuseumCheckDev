@@ -6,6 +6,23 @@ const MUSEUMS = [
         description: '世界上现存规模最大、保存最为完整的木质结构古建筑群',
         tags: ['历史', '建筑', '文物'],
         image: 'http://eb118-file.cdn.bcebos.com/upload/c67a7249b6884703bfc8faceb3a8ad9d_2209653549.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+        collections: [
+            {
+                "name": "《清明上河图》",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alongtheriver_QingMing.jpg/600px-Alongtheriver_QingMing.jpg",
+                "description": "北宋画家张择端作品，全长528厘米，画了814个人物。运用散点透视法，是中国绘画史上的里程碑，反映北宋社会百态，是中国十大传世名画之一"
+            },
+            {
+                "name": "太和殿金漆雕龙宝座",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Imperial_Throne_in_Hall_of_Supreme_Harmony.jpg/600px-Imperial_Throne_in_Hall_of_Supreme_Harmony.jpg",
+                "description": "九龙环绕象征九五之尊，采用失蜡法铸造，体现古代青铜工艺巅峰。宝座位于太和殿正中，是皇帝登基和举行大典的地方，象征皇权至高无上"
+            },
+            {
+                "name": "翠玉白菜",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Jadeite_Cabbage_-_Qing_dynasty.jpg/400px-Jadeite_Cabbage_-_Qing_dynasty.jpg",
+                "description": "光绪皇帝瑾妃的嫁妆，白菜寓意清白，螽斯寓意多子。运用巧雕技法，将玉石天然纹理完美利用，白绿相间，形态逼真，是清代玉雕的代表作"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -1369,6 +1386,23 @@ const MUSEUMS = [
         location: '北京',
         description: '国家造型艺术博物馆，收藏展示中国现当代美术作品',
         tags: ['美术', '艺术', '绘画'],
+        collections: [
+            {
+                "name": "徐悲鸿《奔马图》",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Xu_Beihong_horse.jpg/500px-Xu_Beihong_horse.jpg",
+                "description": "徐悲鸿最具代表性的作品，以中国传统水墨技法描绘奔腾的骏马，笔墨酣畅，富有动感，展现了中国现代美术的创新精神"
+            },
+            {
+                "name": "齐白石《虾》系列",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Qi_Baishi_Shrimps.jpg/400px-Qi_Baishi_Shrimps.jpg",
+                "description": "齐白石晚年巅峰之作，以极简的笔墨表现虾的形态和质感，寥寥数笔，栩栩如生，是中国写意画的经典代表"
+            },
+            {
+                "name": "吴冠中《长江万里图》",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Wu_Guanzhong_Yangzi_River.jpg/600px-Wu_Guanzhong_Yangzi_River.jpg",
+                "description": "吴冠中1973年创作的油画长卷，全长503厘米，描绘了长江从青藏高原到入海口的壮丽景色，融合中西绘画技法，气势磅礴"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -2216,6 +2250,23 @@ const MUSEUMS = [
         description: '展示北京历史文化的市属综合性博物馆',
         tags: ['北京历史', '古都文化', '民俗'],
         image: 'https://eb118-file.cdn.bcebos.com/upload/8e5e95e9a5b8432caa39da051544fcaa_1262462398.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+        collections: [
+            {
+                "name": "元代景德镇窑青花凤首扁壶",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Yuan_Dynasty_Blue_and_White_Flask.jpg/400px-Yuan_Dynasty_Blue_and_White_Flask.jpg",
+                "description": "元代青花瓷代表作，壶身绘凤凰纹饰，造型优美，釉色纯正，是元代景德镇窑的精品，体现了元代制瓷工艺的高超水平"
+            },
+            {
+                "name": "乾隆款金嵌珍珠天球仪",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Qianlong_Celestial_Globe.jpg/400px-Qianlong_Celestial_Globe.jpg",
+                "description": "清乾隆时期制作的天文仪器，镶嵌珍珠标注星座位置，工艺精湛，既是科学仪器，又是艺术珍品，反映了清代天文学与工艺美术的结合"
+            },
+            {
+                "name": "明代金丝翼善冠",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ming_Dynasty_Crown.jpg/400px-Ming_Dynasty_Crown.jpg",
+                "description": "明代皇帝冠冕，用金丝编织而成，上嵌珠宝，制作精美，是明代皇家礼制文化的重要实物，展现了明代金属工艺的高超技艺"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -2297,6 +2348,23 @@ const MUSEUMS = [
         location: '北京',
         description: '展示中国军事历史和人民军队发展历程的专业博物馆',
         tags: ['军事历史', '革命历史', '国防教育'],
+        collections: [
+            {
+                "name": "开国大典使用的礼炮",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Chinese_Artillery.jpg/600px-Chinese_Artillery.jpg",
+                "description": "1949年10月1日开国大典上鸣放的54门礼炮之一，见证了新中国的诞生，具有重要的历史意义和纪念价值"
+            },
+            {
+                "name": "红军长征时期使用的电台",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Vintage_Radio_Equipment.jpg/400px-Vintage_Radio_Equipment.jpg",
+                "description": "红军长征期间使用的通信设备，在极其艰苦的条件下保持了党中央与各部队的联系，是中国革命史的重要见证"
+            },
+            {
+                "name": "抗美援朝战争志愿军战旗",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Chinese_Military_Flag.jpg/600px-Chinese_Military_Flag.jpg",
+                "description": "中国人民志愿军在抗美援朝战争中使用的军旗，记录了志愿军英勇作战的光荣历史，是爱国主义教育的重要教材"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -2378,6 +2446,23 @@ const MUSEUMS = [
         location: '北京',
         description: '中国第一个自然科学博物馆，展示地球生物演化历程',
         tags: ['自然科学', '生物进化', '古生物'],
+        collections: [
+            {
+                "name": "马门溪龙化石",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Mamenchisaurus_skeleton.jpg/600px-Mamenchisaurus_skeleton.jpg",
+                "description": "侏罗纪时期的巨型恐龙化石，身长约22米，颈部长达11米，是目前已知颈部最长的恐龙之一，对研究恐龙演化具有重要意义"
+            },
+            {
+                "name": "黄河象化石骨架",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Mammoth_Skeleton.jpg/600px-Mammoth_Skeleton.jpg",
+                "description": "更新世时期的古象化石，保存完整，是研究古生物演化和古环境变迁的珍贵标本，展现了黄河流域的古生态环境"
+            },
+            {
+                "name": "北京人头盖骨复制品",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Peking_Man_Skull.jpg/400px-Peking_Man_Skull.jpg",
+                "description": "距今约70万年的北京猿人头盖骨复制品，原件发现于周口店，是人类演化研究的重要证据，对研究人类起源具有重要价值"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -2459,6 +2544,23 @@ const MUSEUMS = [
         location: '北京',
         description: '展示中国铁路发展历史和技术成就的专业博物馆',
         tags: ['铁路历史', '交通运输', '工业发展'],
+        collections: [
+            {
+                "name": "中国第一台蒸汽机车\"龙号\"",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Chinese_Steam_Locomotive.jpg/600px-Chinese_Steam_Locomotive.jpg",
+                "description": "1881年中国自行设计制造的第一台蒸汽机车，标志着中国铁路工业的起步，具有重要的历史意义"
+            },
+            {
+                "name": "毛泽东专列车厢",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vintage_Train_Carriage.jpg/600px-Vintage_Train_Carriage.jpg",
+                "description": "毛泽东同志生前乘坐的专列车厢，内部陈设保持原貌，见证了新中国领导人的工作生活，是革命历史的重要实物"
+            },
+            {
+                "name": "詹天佑设计的京张铁路沙盘",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Railway_Model.jpg/600px-Railway_Model.jpg",
+                "description": "展示中国第一条自主设计建设的铁路——京张铁路的沙盘模型，体现了詹天佑的工程智慧和\"人字形\"铁路的创新设计"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -2539,6 +2641,23 @@ const MUSEUMS = [
         location: '北京',
         description: '中国第一座天文馆，展示天文科学知识和宇宙奥秘',
         tags: ['天文科学', '宇宙探索', '科普教育'],
+        collections: [
+            {
+                "name": "世界最大的古代天文仪器——明代简仪",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Ancient_Chinese_Astronomical_Instrument.jpg/400px-Ancient_Chinese_Astronomical_Instrument.jpg",
+                "description": "明代制作的大型天文观测仪器，是中国古代天文学成就的杰出代表，精度高、结构巧妙，领先同时期欧洲天文仪器"
+            },
+            {
+                "name": "阿波罗登月带回的月岩样本",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Moon_Rock_Sample.jpg/400px-Moon_Rock_Sample.jpg",
+                "description": "美国赠送给中国的月球岩石样本，来自阿波罗17号任务，是人类探索太空的重要成果，对研究月球起源和演化具有重要价值"
+            },
+            {
+                "name": "中国古代星图拓片",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Ancient_Chinese_Star_Chart.jpg/600px-Ancient_Chinese_Star_Chart.jpg",
+                "description": "中国古代绘制的星空图，标注了数千颗星星的位置，展现了中国古代天文学的高度发达，是世界天文学史的珍贵文献"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -8605,6 +8724,23 @@ const MUSEUMS = [
         location: '北京',
         description: '展示中国古代艺术珍品的综合性博物馆',
         tags: ['艺术', '绘画', '雕塑'],
+        collections: [
+            {
+                "name": "明代永乐铜铸佛像",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Ming_Dynasty_Bronze_Buddha.jpg/400px-Ming_Dynasty_Bronze_Buddha.jpg",
+                "description": "明永乐年间铸造的鎏金铜佛像，造型端庄，工艺精湛，是明代宫廷造像的代表作，体现了明代佛教艺术的高峰"
+            },
+            {
+                "name": "清代郎世宁《百骏图》",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Castiglione_Hundred_Horses.jpg/600px-Castiglione_Hundred_Horses.jpg",
+                "description": "意大利传教士画家郎世宁创作的中西合璧画作，描绘了一百匹姿态各异的骏马，融合了欧洲绘画技法和中国传统审美"
+            },
+            {
+                "name": "元代青花釉里红瓷罐",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Yuan_Dynasty_Porcelain_Jar.jpg/400px-Yuan_Dynasty_Porcelain_Jar.jpg",
+                "description": "元代景德镇窑烧制的青花釉里红瓷器，工艺复杂，存世稀少，是元代制瓷工艺的巅峰之作，具有极高的艺术价值和收藏价值"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [
@@ -15290,6 +15426,23 @@ const MUSEUMS = [
         description: '国家级综合性科技博物馆',
         tags: ['科学技术', '科普教育', '创新发展'],
         image: 'http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+        collections: [
+            {
+                "name": "中国第一颗人造卫星\"东方红一号\"模型",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Dong_Fang_Hong_1_Satellite.jpg/400px-Dong_Fang_Hong_1_Satellite.jpg",
+                "description": "1970年4月24日发射升空的中国第一颗人造卫星的实物模型，标志着中国进入太空时代，是中国航天事业的重要里程碑"
+            },
+            {
+                "name": "神舟飞船返回舱实物",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Shenzhou_Return_Capsule.jpg/600px-Shenzhou_Return_Capsule.jpg",
+                "description": "神舟飞船完成太空任务后返回地球的返回舱，经受了太空环境和返回大气层的考验，见证了中国载人航天的辉煌成就"
+            },
+            {
+                "name": "中国古代四大发明——造纸术演示装置",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Ancient_Chinese_Papermaking.jpg/600px-Ancient_Chinese_Papermaking.jpg",
+                "description": "展示中国古代造纸术的互动装置，观众可以亲手体验从植物纤维到纸张的制作过程，了解这项改变世界的中国发明"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [

@@ -5814,8 +5814,20 @@ class MuseumCheckApp {
         try {
             const grid = document.getElementById('museumGrid');
             const loadingIndicator = document.getElementById('loadingIndicator');
-            // v3 support whitelist (single-museum workflow)
-            const V3_SUPPORTED = ['forbidden-city', 'pinghu-museum', 'beijing-capital-museum'];
+            // v3 support whitelist (single-museum workflow) - All Beijing museums with treasure workflows
+            const V3_SUPPORTED = [
+                'forbidden-city',
+                'national-museum',
+                'pinghu-museum', 
+                'beijing-capital-museum',
+                'china-art-museum',
+                'china-military-museum',
+                'beijing-natural-history-museum',
+                'china-railway-museum',
+                'beijing-planetarium',
+                'beijing-art-museum',
+                'china-science-technology-museum'
+            ];
             
             // Hide loading indicator
             if (loadingIndicator) {
