@@ -3359,6 +3359,8 @@ class LeaderboardManager {
         this.cacheDuration = 10 * 60 * 1000; // 10 minutes in milliseconds
         this.apiEndpoint = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
         this.leaderboardKey = 'museumcheck-leaderboard';
+        this.lastScoreSubmitTime = 0; // Track last score submission time
+        this.scoreSubmitGracePeriod = 3000; // 3 seconds grace period for auto-refresh
     }
 
     /**
@@ -3456,6 +3458,9 @@ class LeaderboardManager {
             // Clear cache to force refresh on next view
             this.clearCache();
             
+            // Set timestamp for recent score submission
+            this.lastScoreSubmitTime = Date.now();
+            
             return { success: true };
         } catch (error) {
             console.error('Error submitting score:', error);
@@ -3534,6 +3539,17 @@ class LeaderboardManager {
         const lastSubmittedCount = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
         const currentCount = this.app.visitedMuseums.length;
         return currentCount !== lastSubmittedCount;
+    }
+
+    /**
+     * Check if leaderboard should be force refreshed due to recent score submission
+     */
+    shouldForceRefresh() {
+        if (this.lastScoreSubmitTime === 0) {
+            return false;
+        }
+        const timeSinceSubmit = Date.now() - this.lastScoreSubmitTime;
+        return timeSinceSubmit < this.scoreSubmitGracePeriod;
     }
 
     /**
@@ -7253,7 +7269,10 @@ class MuseumCheckApp {
 
     async showLeaderboardModal() {
         this.modalManager.showModal('leaderboardModal');
-        await this.renderLeaderboard();
+        
+        // Force refresh if score was recently submitted
+        const shouldForceRefresh = this.leaderboardManager.shouldForceRefresh();
+        await this.renderLeaderboard(shouldForceRefresh);
         
         // Track leaderboard view
         this.trackEvent('leaderboard_viewed', {
