@@ -7308,6 +7308,10 @@ class MuseumCheckApp {
                         <p>快去参观博物馆，成为第一名吧！</p>
                     </div>
                 `;
+                
+                // Still render user's local stats even when leaderboard is empty
+                const userId = this.leaderboardManager.getUserId();
+                this.renderMyRank(null, [], userId);
                 return;
             }
 
@@ -7373,6 +7377,10 @@ class MuseumCheckApp {
                     <p>请稍后重试</p>
                 </div>
             `;
+            
+            // Still render user's local stats even on error
+            const userId = this.leaderboardManager.getUserId();
+            this.renderMyRank(null, [], userId);
         }
     }
 
