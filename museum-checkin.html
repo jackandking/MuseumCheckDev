@@ -418,25 +418,24 @@
         }
 
         .photo-input {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            background-color: #f0f0ff;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .photo-input::-webkit-file-upload-button {
             display: none;
         }
 
-        .photo-button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .photo-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        .photo-input::file-selector-button {
+            display: none;
         }
 
         .photo-preview {
@@ -705,8 +704,7 @@
             <div class="photo-section" id="photoSection">
                 <label class="photo-label">📸 拍照留念（可选）</label>
                 <div class="photo-input-wrapper">
-                    <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" capture="environment">
-                    <button class="photo-button" id="takePhotoButton">拍照 📷</button>
+                    <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" capture="environment" aria-label="打开相机拍照">
                 </div>
                 <div class="photo-preview" id="photoPreview"></div>
                 <button class="retake-button" id="retakeButton" style="display: none;">重新拍照</button>
@@ -1084,7 +1082,6 @@
             // Initialize photo preview for this task
             const photoPreview = document.getElementById('photoPreview');
             const retakeBtn = document.getElementById('retakeButton');
-            const takePhotoBtn = document.getElementById('takePhotoButton');
             const photoInput = document.getElementById('taskPhotoInput');
             
             if (taskPhotos[index]) {
@@ -1094,7 +1091,7 @@
                 // Clear preview
                 photoPreview.innerHTML = '';
                 retakeBtn.style.display = 'none';
-                takePhotoBtn.style.display = 'block';
+                photoInput.style.display = 'block';
                 photoInput.value = '';
             }
 
@@ -1418,23 +1415,22 @@
         function displayPhotoPreview(dataUrl) {
             const preview = document.getElementById('photoPreview');
             const retakeBtn = document.getElementById('retakeButton');
-            const takePhotoBtn = document.getElementById('takePhotoButton');
+            const photoInput = document.getElementById('taskPhotoInput');
             
             preview.innerHTML = `<img src="${dataUrl}" alt="Task photo">`;
             retakeBtn.style.display = 'block';
-            takePhotoBtn.style.display = 'none';
+            photoInput.style.display = 'none';
         }
 
         // Clear photo preview
         function clearPhotoPreview() {
             const preview = document.getElementById('photoPreview');
             const retakeBtn = document.getElementById('retakeButton');
-            const takePhotoBtn = document.getElementById('takePhotoButton');
             const input = document.getElementById('taskPhotoInput');
             
             preview.innerHTML = '';
             retakeBtn.style.display = 'none';
-            takePhotoBtn.style.display = 'block';
+            input.style.display = 'block';
             input.value = '';
             
             // Remove photo from storage
@@ -1941,11 +1937,7 @@
 
             document.getElementById('completeButton').onclick = completeTask;
 
-            // Photo capture buttons
-            document.getElementById('takePhotoButton').onclick = () => {
-                document.getElementById('taskPhotoInput').click();
-            };
-
+            // Photo capture
             document.getElementById('taskPhotoInput').onchange = handlePhotoCapture;
 
             document.getElementById('retakeButton').onclick = clearPhotoPreview;
