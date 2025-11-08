@@ -2122,9 +2122,14 @@
       console.error('Failed to restore workflow state:', e);
     }
     
+    // Parse URL parameters early to determine initial step
+    let shouldSkipToVisit = false;
+    let hasMuseumParam = false;
+    
     try{
       const p = getUrlParams();
       const mid = p.museum || p.museumId;
+      hasMuseumParam = !!(mid);
       
       // If we have restored state, use that museum ID
       const museumId = restoredState ? restoredState.museumId : mid;
@@ -2145,6 +2150,11 @@
               console.log('Restored workflow:', wf.name, 'at task index:', state.innerTaskIndex);
             }
           }
+          
+          // Determine if we should skip directly to visit (for direct links from homepage)
+          if(hasMuseumParam){
+            shouldSkipToVisit = true;
+          }
         }
       }
     }catch(e){}
@@ -2154,11 +2164,16 @@
     initShare();
     initSettingsUI();
     bindStepperClick();
-    setStep('select');
-    // Auto-open settings for confirmation when entering v3.
+    
+    // Set initial step based on whether museum was pre-selected
+    if(shouldSkipToVisit){
+      // Don't call setStep('select') - we'll go directly to visit below
+    } else {
+      setStep('select');
+    }
+    
+    // Handle initial view based on context
     try{
-      const p = getUrlParams();
-      const hasMuseumParam = !!(p.museum || p.museumId);
       const allSettingsConfigured = hasRequiredSettings();
       const hasSelection = !!state.selectedMuseum;
       
@@ -2183,15 +2198,15 @@
         return;
       }
       
-      // When museum is pre-selected via URL (导览 button from homepage), skip intro overlay and go directly to visit
-      if(state.selectedMuseum && hasMuseumParam){
+      // When museum is pre-selected via URL (导览 button from homepage), skip everything and go directly to immersive visit
+      if(shouldSkipToVisit && state.selectedMuseum){
         // Set default settings if not configured
         if(!allSettingsConfigured){
           if(!localStorage.getItem('childNickname')) localStorage.setItem('childNickname', '小淘气');
           if(!localStorage.getItem('ageGroup')) localStorage.setItem('ageGroup', '7-12');
           if(!localStorage.getItem('caregiverRole')) localStorage.setItem('caregiverRole', 'parent');
         }
-        // Skip intro overlay and go directly to visit workflow
+        // Skip intro overlay and go directly to immersive visit workflow (one-page treasure hunt style)
         document.documentElement.classList.add('sg-immersive');
         tryRequestWakeLock();
         state.innerTaskIndex = 0;
