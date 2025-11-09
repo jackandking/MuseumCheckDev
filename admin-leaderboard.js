@@ -4,7 +4,7 @@
   const CONFIG = {
     API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
     LEADERBOARD_KEY: 'museumcheck-leaderboard',
-    TIMESTAMP_2124: 4866674732  // Far future timestamp for leaderboard entries
+    TIMESTAMP_2124: 4866674732  // Far future timestamp in SECONDS (Unix timestamp - year 2124)
   };
 
   const qs = new URLSearchParams(location.search);
@@ -66,7 +66,7 @@
           key: CONFIG.LEADERBOARD_KEY,
           sortKey: sortKey,
           value: JSON.stringify(data),
-          ttl: CONFIG.TIMESTAMP_2124
+          expireAt: CONFIG.TIMESTAMP_2124  // IMPORTANT: API requires 'expireAt' in seconds (not 'ttl')
         })
       });
       if (!res.ok) throw new Error('Failed to update entry: ' + res.status);

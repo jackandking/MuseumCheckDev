@@ -101,9 +101,13 @@ MuseumCheck 提供了两个管理后台页面，用于管理应用的远程数�
      "key": "museumcheck-leaderboard",
      "sortKey": "user-xxx",
      "value": "{...}",
-     "ttl": 4866674732
+     "expireAt": 4866674732
    }
    ```
+   
+   **注意**: 
+   - 参数名必须是 `expireAt` (不是 `ttl`)
+   - `expireAt` 的单位是**秒**（Unix timestamp in seconds），不是毫秒
 
 3. **DELETE** - 通过设置过期时间删除
    ```json

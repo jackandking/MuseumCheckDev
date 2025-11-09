@@ -22,7 +22,7 @@ const REMOTE_STORAGE_CONFIG = {
     FIREWORK_KEY: 'museumcheck-firework',
     DOWNLOAD_INTERVAL: 10000,  // 10 seconds
     DEFAULT_FIREWORK_EXPIRATION: 60, // Default: 1 minute in seconds (used if user setting not found)
-    TIMESTAMP_2124: 4866674732  // Default expiration timestamp
+    TIMESTAMP_2124: 4866674732  // Default expiration timestamp (Unix timestamp in SECONDS - year 2124)
 };
 
 // DOM Selector Constants for better maintainability
@@ -181,7 +181,7 @@ const RemoteStorage = {
      * @param {string} key - The storage key
      * @param {any} value - The value to store
      * @param {string} sortKey - Sort key for organization
-     * @param {number} expireAt - Expiration timestamp
+     * @param {number} expireAt - Expiration timestamp in SECONDS (Unix timestamp). Note: Must be in seconds, not milliseconds!
      * @returns {Promise<Object>} Promise that resolves with the response data
      */
     async updateKeyValueStore(key, value, sortKey = 'None', expireAt = REMOTE_STORAGE_CONFIG.TIMESTAMP_2124) {
@@ -201,7 +201,7 @@ const RemoteStorage = {
                     key,
                     sortKey,
                     value,
-                    expireAt
+                    expireAt  // IMPORTANT: API expects 'expireAt' (not 'ttl') in seconds
                 })
             });
 
@@ -3444,7 +3444,7 @@ class LeaderboardManager {
                     key: this.leaderboardKey,
                     sortKey: sortKey,
                     value: JSON.stringify(payload),
-                    ttl: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124 // Far future expiration
+                    expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124 // IMPORTANT: API requires 'expireAt' in seconds (not 'ttl')
                 })
             });
 
