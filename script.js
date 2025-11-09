@@ -3493,8 +3493,10 @@ class LeaderboardManager {
             
             // Parse and sort the leaderboard entries
             const entries = [];
-            if (result.items && Array.isArray(result.items)) {
-                for (const item of result.items) {
+            // Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility
+            const itemsArray = result.items || result.Items;
+            if (itemsArray && Array.isArray(itemsArray)) {
+                for (const item of itemsArray) {
                     try {
                         const data = JSON.parse(item.value);
                         entries.push(data);

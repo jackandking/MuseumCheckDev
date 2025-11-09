@@ -37,8 +37,10 @@
       
       // Parse entries
       const entries = [];
-      if (data.items && Array.isArray(data.items)) {
-        for (const item of data.items) {
+      // Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility
+      const itemsArray = data.items || data.Items;
+      if (itemsArray && Array.isArray(itemsArray)) {
+        for (const item of itemsArray) {
           try {
             const parsed = JSON.parse(item.value);
             // Add metadata
