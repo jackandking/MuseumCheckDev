@@ -31,14 +31,22 @@
   const RemoteStorage = {
     async fetchLeaderboard() {
       const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}`;
+      console.log('[Admin] Fetching leaderboard from:', url);
+      
       const res = await fetch(url);
+      console.log('[Admin] Fetch response status:', res.status, res.statusText);
+      
       if (!res.ok) throw new Error('Failed to fetch leaderboard: ' + res.status);
       const data = await res.json();
+      console.log('[Admin] Raw API response:', data);
       
       // Parse entries
       const entries = [];
       // Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility
       const itemsArray = data.items || data.Items;
+      console.log('[Admin] Items array:', itemsArray ? `Found (${itemsArray.length} items)` : 'Not found');
+      console.log('[Admin] Response keys:', Object.keys(data));
+      
       if (itemsArray && Array.isArray(itemsArray)) {
         for (const item of itemsArray) {
           try {
@@ -52,6 +60,8 @@
           }
         }
       }
+      
+      console.log('[Admin] Parsed entries:', entries.length);
       
       // Sort by visitedCount descending
       entries.sort((a, b) => (b.visitedCount || 0) - (a.visitedCount || 0));
@@ -224,7 +234,17 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td colspan="7" style="text-align: center; padding: 40px;">
-          <div class="muted">暂无排行榜数据</div>
+          <div style="font-weight: 600; margin-bottom: 12px;">暂无排行榜数据</div>
+          <div class="muted" style="margin-bottom: 8px;">可能的原因：</div>
+          <div class="muted" style="font-size: 13px; text-align: left; max-width: 500px; margin: 0 auto;">
+            1. 还没有用户打卡博物馆<br>
+            2. 数据提交失败（请检查网络连接）<br>
+            3. 浏览器缓存了旧版本代码（请按 Ctrl+Shift+R 强制刷新）<br>
+            4. API 响应格式不符合预期（请查看浏览器控制台日志）
+          </div>
+          <div class="muted" style="margin-top: 12px; font-size: 12px;">
+            查看浏览器控制台（F12）可以看到详细的调试信息
+          </div>
         </td>
       `;
       el.tableBody.appendChild(tr);
@@ -423,12 +443,25 @@
     setStatus('加载中...');
     try {
       const entries = await RemoteStorage.fetchLeaderboard();
+      console.log(`[Admin] Loaded ${entries.length} leaderboard entries`);
       renderStats(entries);
       renderTable(entries);
       setStatus('');
     } catch (e) {
       setStatus('加载失败: ' + e.message);
       console.error('Load error:', e);
+      // Show detailed error in UI for debugging
+      if (el.tableBody) {
+        el.tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+              <div style="color: #dc2626; font-weight: 600; margin-bottom: 8px;">加载失败</div>
+              <div class="muted">${e.message}</div>
+              <div class="muted" style="margin-top: 8px; font-size: 12px;">请检查网络连接和浏览器控制台</div>
+            </td>
+          </tr>
+        `;
+      }
     }
   }
 
