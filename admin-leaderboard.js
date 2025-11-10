@@ -1,3 +1,13 @@
+/**
+ * Admin Leaderboard Management Page - JavaScript
+ * Version: 2.1.4
+ * Last Updated: 2025-11-10
+ * 
+ * Fixes applied:
+ * - Support both 'items' and 'Items' response formats (AWS DynamoDB compatibility)
+ * - Use 'expireAt' parameter instead of 'ttl' in API requests
+ * - Version bump to force browser cache invalidation
+ */
 (function(){
   'use strict';
 
