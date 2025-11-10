@@ -3482,7 +3482,7 @@ class LeaderboardManager {
             }
 
             // Fetch from server
-            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}`;
+            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=*`;
             const response = await fetch(url);
 
             if (!response.ok) {

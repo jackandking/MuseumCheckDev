@@ -30,7 +30,7 @@
   // Remote Storage API client
   const RemoteStorage = {
     async fetchLeaderboard() {
-      const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}`;
+      const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}&sortKey=*`;
       console.log('[Admin] Fetching leaderboard from:', url);
       
       const res = await fetch(url);
