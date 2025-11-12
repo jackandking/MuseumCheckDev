@@ -3482,7 +3482,8 @@ class LeaderboardManager {
             }
 
             // Fetch from server
-            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=*`;
+            // Use sortKey=user-* to match all user records (user-{userId} pattern)
+            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=user-*`;
             const response = await fetch(url);
 
             if (!response.ok) {

@@ -1,94 +1,139 @@
 /**
- * Verification script for leaderboard sortKey parameter fix
+ * Verification script for leaderboard sortKey pattern fix
  * 
- * This script verifies that:
- * 1. admin-leaderboard.js fetchLeaderboard includes sortKey=*
- * 2. script.js fetchLeaderboard includes sortKey=*
- * 3. Both use the wildcard pattern to fetch all leaderboard entries
+ * This script verifies that the fix for the leaderboard API query is correctly implemented.
+ * 
+ * Issue: Homepage leaderboard only shows one local record, missing network data from other users
+ * Fix: Changed sortKey from '*' to 'user-*' to match all user records
  */
 
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔍 Verifying Leaderboard sortKey Parameter Fix...\n');
+console.log('🔍 Verifying Leaderboard SortKey Pattern Fix\n');
 
-// Read script.js
-const scriptPath = path.join(__dirname, 'script.js');
-const scriptContent = fs.readFileSync(scriptPath, 'utf8');
+let allChecksPassed = true;
 
-// Read admin-leaderboard.js
-const adminPath = path.join(__dirname, 'admin-leaderboard.js');
-const adminContent = fs.readFileSync(adminPath, 'utf8');
+// Check 1: Verify script.js uses user-* pattern
+console.log('Check 1: Verifying script.js uses sortKey=user-* pattern...');
+const scriptJsPath = path.join(__dirname, 'script.js');
+const scriptContent = fs.readFileSync(scriptJsPath, 'utf8');
 
-// Check 1: Verify admin-leaderboard.js includes sortKey=* in fetchLeaderboard
-const adminHasSortKey = adminContent.includes('sortKey=*') || adminContent.includes('sortKey=\\*');
-const adminFetchMatch = adminContent.match(/fetchLeaderboard[\s\S]*?const url = [`']([^`']+)[`']/);
+// Look for the fetchLeaderboard function
+const fetchLeaderboardMatch = scriptContent.match(/async fetchLeaderboard\(forceRefresh = false\)[^}]+\{[\s\S]+?return \{[^}]+\};\s+\}/);
+if (fetchLeaderboardMatch) {
+    const fetchLeaderboardCode = fetchLeaderboardMatch[0];
+    
+    // Check if it uses user-* pattern
+    if (fetchLeaderboardCode.includes('sortKey=user-*')) {
+        console.log('✅ PASS: script.js uses sortKey=user-* pattern');
+    } else if (fetchLeaderboardCode.includes('sortKey=*') && !fetchLeaderboardCode.includes('sortKey=user-*')) {
+        console.log('❌ FAIL: script.js still uses sortKey=* instead of sortKey=user-*');
+        allChecksPassed = false;
+    } else {
+        console.log('⚠️  WARNING: Cannot determine sortKey pattern in script.js');
+    }
+} else {
+    console.log('⚠️  WARNING: Cannot find fetchLeaderboard function in script.js');
+}
 
-console.log(`✓ Check 1: admin-leaderboard.js fetchLeaderboard()`);
-console.log(`   Includes sortKey=*: ${adminHasSortKey ? '✅ YES' : '❌ NO'}`);
+// Check 2: Verify admin-leaderboard.js uses user-* pattern
+console.log('\nCheck 2: Verifying admin-leaderboard.js uses sortKey=user-* pattern...');
+const adminLeaderboardPath = path.join(__dirname, 'admin-leaderboard.js');
+const adminContent = fs.readFileSync(adminLeaderboardPath, 'utf8');
+
+// Look for the fetchLeaderboard function
+const adminFetchMatch = adminContent.match(/async fetchLeaderboard\(\)[^}]+\{[\s\S]+?return entries;\s+\}/);
 if (adminFetchMatch) {
-  console.log(`   URL pattern: ${adminFetchMatch[1]}`);
+    const adminFetchCode = adminFetchMatch[0];
+    
+    // Check if it uses user-* pattern
+    if (adminFetchCode.includes('sortKey=user-*')) {
+        console.log('✅ PASS: admin-leaderboard.js uses sortKey=user-* pattern');
+    } else if (adminFetchCode.includes('sortKey=*') && !adminFetchCode.includes('sortKey=user-*')) {
+        console.log('❌ FAIL: admin-leaderboard.js still uses sortKey=* instead of sortKey=user-*');
+        allChecksPassed = false;
+    } else {
+        console.log('⚠️  WARNING: Cannot determine sortKey pattern in admin-leaderboard.js');
+    }
+} else {
+    console.log('⚠️  WARNING: Cannot find fetchLeaderboard function in admin-leaderboard.js');
 }
 
-// Check 2: Verify script.js includes sortKey=* in fetchLeaderboard
-const scriptHasSortKey = scriptContent.includes('sortKey=*') || scriptContent.includes('sortKey=\\*');
-const scriptFetchMatch = scriptContent.match(/fetchLeaderboard[\s\S]{0,500}const url = [`']\$\{[^}]+\}\?key=\$\{[^}]+\}([^`']*)[`']/);
-
-console.log(`\n✓ Check 2: script.js fetchLeaderboard()`);
-console.log(`   Includes sortKey=*: ${scriptHasSortKey ? '✅ YES' : '❌ NO'}`);
-if (scriptFetchMatch) {
-  console.log(`   Query params: ${scriptFetchMatch[1]}`);
+// Check 3: Verify regression test exists
+console.log('\nCheck 3: Verifying regression test file exists...');
+const testFilePath = path.join(__dirname, 'tests', 'leaderboard-sortkey-pattern.test.js');
+if (fs.existsSync(testFilePath)) {
+    console.log('✅ PASS: Regression test file exists at tests/leaderboard-sortkey-pattern.test.js');
+    
+    // Verify test content
+    const testContent = fs.readFileSync(testFilePath, 'utf8');
+    if (testContent.includes('sortKey=user-*') && testContent.includes('should use sortKey=user-* to match all user records')) {
+        console.log('✅ PASS: Test file contains correct test cases');
+    } else {
+        console.log('⚠️  WARNING: Test file may be missing expected test cases');
+    }
+} else {
+    console.log('❌ FAIL: Regression test file not found');
+    allChecksPassed = false;
 }
 
-// Check 3: Verify proper URL encoding (sortKey should be in URL, not encoded as %2A)
-const adminUrlCorrect = adminContent.includes('&sortKey=*') || adminContent.includes('&sortKey=\\*');
-const scriptUrlCorrect = scriptContent.includes('&sortKey=*') || scriptContent.includes('&sortKey=\\*');
+// Check 4: Verify no usage of plain sortKey=* without user- prefix
+console.log('\nCheck 4: Checking for any remaining sortKey=* patterns (should only have user-*)...');
+const sortKeyStarRegex = /sortKey=\*/g;
+const userStarRegex = /sortKey=user-\*/g;
 
-console.log(`\n✓ Check 3: Proper URL format with sortKey parameter`);
-console.log(`   admin-leaderboard.js has &sortKey=*: ${adminUrlCorrect ? '✅ YES' : '❌ NO'}`);
-console.log(`   script.js has &sortKey=*: ${scriptUrlCorrect ? '✅ YES' : '❌ NO'}`);
+const scriptMatches = scriptContent.match(sortKeyStarRegex);
+const scriptUserMatches = scriptContent.match(userStarRegex);
 
-// Check 4: Ensure the pattern matches the working firework example
-console.log(`\n✓ Check 4: Consistency with working firework pattern`);
-const fireworkPath = path.join(__dirname, 'admin-fireworks.js');
-if (fs.existsSync(fireworkPath)) {
-  const fireworkContent = fs.readFileSync(fireworkPath, 'utf8');
-  const fireworkHasSortKey = fireworkContent.includes('sortKey=*') || fireworkContent.includes('sortKey=\\*');
-  console.log(`   admin-fireworks.js uses sortKey=*: ${fireworkHasSortKey ? '✅ YES (reference pattern)' : '❌ NO'}`);
-  console.log(`   Pattern matches: ${(adminHasSortKey && scriptHasSortKey && fireworkHasSortKey) ? '✅ YES' : '❌ NO'}`);
+const adminMatches = adminContent.match(sortKeyStarRegex);
+const adminUserMatches = adminContent.match(userStarRegex);
+
+// Count occurrences (user-* should be subset of *)
+const scriptPlainStars = scriptMatches ? scriptMatches.length - (scriptUserMatches ? scriptUserMatches.length : 0) : 0;
+const adminPlainStars = adminMatches ? adminMatches.length - (adminUserMatches ? adminUserMatches.length : 0) : 0;
+
+if (scriptPlainStars === 0 && adminPlainStars === 0) {
+    console.log('✅ PASS: No plain sortKey=* patterns found (all use user-* prefix)');
+} else {
+    console.log(`⚠️  WARNING: Found ${scriptPlainStars} plain sortKey=* in script.js, ${adminPlainStars} in admin-leaderboard.js`);
+    console.log('   These may be in comments or other contexts. Manual review recommended.');
+}
+
+// Check 5: Verify comments explain the change
+console.log('\nCheck 5: Verifying code comments explain the pattern...');
+const scriptCommentMatch = scriptContent.match(/\/\/.*user-\*/i);
+const adminCommentMatch = adminContent.match(/\/\/.*user-\*/i);
+
+if (scriptCommentMatch && adminCommentMatch) {
+    console.log('✅ PASS: Both files have comments explaining the user-* pattern');
+} else if (scriptCommentMatch || adminCommentMatch) {
+    console.log('⚠️  WARNING: Only one file has explanatory comments');
+} else {
+    console.log('⚠️  WARNING: No explanatory comments found for the pattern change');
 }
 
 // Summary
-console.log('\n📊 Verification Summary:');
-const allChecks = [
-  adminHasSortKey,
-  scriptHasSortKey,
-  adminUrlCorrect,
-  scriptUrlCorrect
-];
-
-const passedChecks = allChecks.filter(c => c).length;
-const totalChecks = allChecks.length;
-
-console.log(`   ${passedChecks}/${totalChecks} checks passed`);
-
-if (passedChecks === totalChecks) {
-  console.log('\n✅ All verification checks passed! The sortKey fix is properly implemented.');
-  console.log('\nWhat was fixed:');
-  console.log('  • admin-leaderboard.js line 33: Added &sortKey=* to fetch all leaderboard entries');
-  console.log('  • script.js line 3485: Added &sortKey=* to fetch all leaderboard entries');
-  console.log('\nThis ensures the API returns all leaderboard data instead of "Item not found".');
-  console.log('\nPrevious URL:  ?key=museumcheck-leaderboard');
-  console.log('Fixed URL:     ?key=museumcheck-leaderboard&sortKey=*');
-  console.log('\nReference:     https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore?key=museumcheck-firework&sortKey=*');
-  process.exit(0);
+console.log('\n' + '='.repeat(60));
+if (allChecksPassed) {
+    console.log('✅ All critical checks passed!');
+    console.log('\nThe fix has been correctly implemented:');
+    console.log('- script.js uses sortKey=user-* pattern');
+    console.log('- admin-leaderboard.js uses sortKey=user-* pattern');
+    console.log('- Regression test suite created');
+    console.log('\nThis should resolve the issue where the leaderboard only showed');
+    console.log('one local record instead of all users\' network data.');
 } else {
-  console.log('\n❌ Some checks failed. Please review the implementation.');
-  
-  if (!adminHasSortKey) console.log('  • FIX: admin-leaderboard.js fetchLeaderboard() should include sortKey=*');
-  if (!scriptHasSortKey) console.log('  • FIX: script.js fetchLeaderboard() should include sortKey=*');
-  if (!adminUrlCorrect) console.log('  • FIX: admin-leaderboard.js URL should have &sortKey=* parameter');
-  if (!scriptUrlCorrect) console.log('  • FIX: script.js URL should have &sortKey=* parameter');
-  
-  process.exit(1);
+    console.log('❌ Some checks failed!');
+    console.log('\nPlease review the failed checks above and ensure:');
+    console.log('1. Both script.js and admin-leaderboard.js use sortKey=user-*');
+    console.log('2. Regression tests are in place');
+    process.exit(1);
 }
+
+console.log('\n' + '='.repeat(60));
+console.log('\n📝 Next Steps:');
+console.log('1. Run unit tests: npm test -- tests/leaderboard-sortkey-pattern.test.js');
+console.log('2. Test manually with live API to verify multiple users appear');
+console.log('3. Check browser console for correct API URL being called');
+console.log('4. Verify admin leaderboard page also shows all users');
