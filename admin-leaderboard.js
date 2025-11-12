@@ -1,10 +1,11 @@
 /**
  * Admin Leaderboard Management Page - JavaScript
- * Version: 2.1.4
- * Last Updated: 2025-11-10
+ * Version: 2.1.5
+ * Last Updated: 2025-11-12
  * 
  * Fixes applied:
  * - Support both 'items' and 'Items' response formats (AWS DynamoDB compatibility)
+ * - Support 'value' field containing JSON string array (new API format)
  * - Use 'expireAt' parameter instead of 'ttl' in API requests
  * - Version bump to force browser cache invalidation
  */
@@ -52,9 +53,23 @@
       
       // Parse entries
       const entries = [];
-      // Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility
-      const itemsArray = data.items || data.Items;
-      console.log('[Admin] Items array:', itemsArray ? `Found (${itemsArray.length} items)` : 'Not found');
+      let itemsArray = null;
+      
+      // Support multiple response formats:
+      // 1. { items: [...] } or { Items: [...] } - DynamoDB direct format
+      // 2. { value: '[{...}]' } - JSON string in value field
+      if (data.items || data.Items) {
+        itemsArray = data.items || data.Items;
+        console.log('[Admin] Items array found (direct format):', `${itemsArray.length} items`);
+      } else if (data.value && typeof data.value === 'string') {
+        try {
+          itemsArray = JSON.parse(data.value);
+          console.log('[Admin] Items array parsed from value field:', `${itemsArray.length} items`);
+        } catch (e) {
+          console.error('[Admin] Failed to parse value field:', e);
+        }
+      }
+      
       console.log('[Admin] Response keys:', Object.keys(data));
       
       if (itemsArray && Array.isArray(itemsArray)) {
@@ -69,6 +84,8 @@
             console.warn('Failed to parse entry:', e, item);
           }
         }
+      } else {
+        console.log('[Admin] Items array: Not found or not an array');
       }
       
       console.log('[Admin] Parsed entries:', entries.length);

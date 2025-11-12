@@ -3,7 +3,7 @@
  * 
  * Issue: User reported empty data in admin page even after checking in museums
  * Root cause: Browser cache serving old admin-leaderboard.js file
- * Solution: Version bump from 2.1.3 to 2.1.4 in HTML script tag
+ * Solution: Version bump from 2.1.3 to 2.1.4, then 2.1.5 in HTML script tag
  */
 
 const fs = require('fs');
@@ -22,7 +22,7 @@ describe('Leaderboard Admin Page Cache Busting', () => {
     
     const version = scriptTagMatch[1];
     
-    // Version should be 2.1.4 or higher
+    // Version should be 2.1.4 or higher (currently 2.1.5+)
     const versionParts = version.split('.').map(Number);
     expect(versionParts[0]).toBeGreaterThanOrEqual(2);
     expect(versionParts[1]).toBeGreaterThanOrEqual(1);
@@ -33,8 +33,8 @@ describe('Leaderboard Admin Page Cache Busting', () => {
     const jsPath = path.join(__dirname, '..', 'admin-leaderboard.js');
     const jsContent = fs.readFileSync(jsPath, 'utf8');
     
-    // Check for version header
-    expect(jsContent).toContain('* Version: 2.1.4');
+    // Check for version header - should be 2.1.5 or higher now
+    expect(jsContent).toMatch(/\* Version: 2\.1\.[5-9]|2\.[2-9]\.\d+|[3-9]\.\d+\.\d+/);
     expect(jsContent).toContain('* Last Updated:');
   });
   
@@ -54,9 +54,13 @@ describe('Leaderboard Admin Page Cache Busting', () => {
     const jsPath = path.join(__dirname, '..', 'admin-leaderboard.js');
     const jsContent = fs.readFileSync(jsPath, 'utf8');
     
-    // Check for items/Items compatibility fix
+    // Check for items/Items compatibility fix (updated in 2.1.5)
     expect(jsContent).toContain('data.items || data.Items');
-    expect(jsContent).toContain("Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility");
+    expect(jsContent).toContain("Support both 'items' and 'Items' response formats (AWS DynamoDB compatibility)");
+    
+    // Check for new value field support (added in 2.1.5)
+    expect(jsContent).toContain("Support 'value' field containing JSON string array");
+    expect(jsContent).toContain('data.value && typeof data.value');
     
     // Check for expireAt fix
     expect(jsContent).toContain('expireAt: CONFIG.TIMESTAMP_2124');
