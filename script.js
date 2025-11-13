@@ -7432,6 +7432,7 @@ class MuseumCheckApp {
         if (!rank || !entries || entries.length === 0) {
             // Not ranked yet
             if (positionElem) positionElem.textContent = '-';
+            if (nicknameElem) positionElem.textContent = '-';
             if (nicknameElem) nicknameElem.textContent = this.childNickname || '小朋友';
             if (countElem) countElem.textContent = `${this.visitedMuseums.length}个博物馆`;
             return;
@@ -7451,6 +7452,17 @@ class MuseumCheckApp {
             const count = myEntry ? myEntry.visitedCount : this.visitedMuseums.length;
             countElem.textContent = `${count}个博物馆`;
         }
+    }
+
+    escapeHtml(str) {
+        if (str == null) return '';
+        return String(str).replace(/[&<>"']/g, s => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[s]);
     }
 
     renderSettingsInfo() {
