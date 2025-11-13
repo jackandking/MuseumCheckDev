@@ -7321,7 +7321,24 @@ class MuseumCheckApp {
             // Fetch leaderboard data
             const result = await this.leaderboardManager.fetchLeaderboard(forceRefresh);
             
-            if (!result.success || !result.data || result.data.length === 0) {
+            // Handle fetch failure (network error, etc.)
+            if (!result.success) {
+                listContainer.innerHTML = `
+                    <div class="leaderboard-empty">
+                        <div class="empty-icon">⚠️</div>
+                        <p>加载失败</p>
+                        <p>请稍后重试</p>
+                    </div>
+                `;
+                
+                // Still render user's local stats even on error
+                const userId = this.leaderboardManager.getUserId();
+                this.renderMyRank(null, [], userId);
+                return;
+            }
+            
+            // Handle empty leaderboard (no users have submitted scores yet)
+            if (!result.data || result.data.length === 0) {
                 // Show empty state
                 listContainer.innerHTML = `
                     <div class="leaderboard-empty">
