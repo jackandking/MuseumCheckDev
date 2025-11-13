@@ -41,8 +41,9 @@
   // Remote Storage API client
   const RemoteStorage = {
     async fetchLeaderboard() {
-      // Use sortKey=user-* to match all user records (user-{userId} pattern)
-      const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}&sortKey=user-*`;
+      // Use sortKey=* to fetch all items, following the pattern from admin-fireworks.js
+      // Then filter for user records client-side
+      const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}&sortKey=*`;
       console.log('[Admin] Fetching leaderboard from:', url);
       
       const res = await fetch(url);
@@ -75,6 +76,13 @@
       
       if (itemsArray && Array.isArray(itemsArray)) {
         for (const item of itemsArray) {
+          // Only include user records (sortKey starts with 'user-')
+          const sortKey = item.sortKey || item.sk || '';
+          if (!sortKey.startsWith('user-')) {
+            console.log('[Admin] Skipping non-user record with sortKey:', sortKey);
+            continue; // Skip non-user records
+          }
+          
           try {
             const parsed = JSON.parse(item.value);
             // Add metadata

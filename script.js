@@ -3482,8 +3482,9 @@ class LeaderboardManager {
             }
 
             // Fetch from server
-            // Use sortKey=user-* to match all user records (user-{userId} pattern)
-            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=user-*`;
+            // Use sortKey=* to fetch all items, following the pattern from admin-fireworks.js
+            // Then filter for user records client-side
+            const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=*`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -3498,6 +3499,12 @@ class LeaderboardManager {
             const itemsArray = result.items || result.Items;
             if (itemsArray && Array.isArray(itemsArray)) {
                 for (const item of itemsArray) {
+                    // Only include user records (sortKey starts with 'user-')
+                    const sortKey = item.sortKey || item.sk || '';
+                    if (!sortKey.startsWith('user-')) {
+                        continue; // Skip non-user records
+                    }
+                    
                     try {
                         const data = JSON.parse(item.value);
                         entries.push(data);

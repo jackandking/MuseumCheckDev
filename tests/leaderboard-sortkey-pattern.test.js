@@ -4,14 +4,15 @@
  * Issue: Homepage leaderboard only shows one local record, missing network data from other users
  * (主页点击排行榜只显示本地一条记录，没有网络其他人数据)
  * 
- * Root cause: The fetchLeaderboard() function was using sortKey=* instead of sortKey=user-*
- * to query the API. Since all user records are stored with sortKey pattern "user-{userId}",
- * the wildcard pattern needs to include the "user-" prefix to match all user records.
+ * Root cause: The fetchLeaderboard() function was using sortKey=user-* which may not be supported
+ * by the API's wildcard pattern matching. The fix uses sortKey=* (like the working fireworks pattern)
+ * to fetch all records, then filters client-side for user records (sortKey starts with "user-").
  * 
  * This test verifies that:
- * 1. fetchLeaderboard uses the correct sortKey pattern "user-*"
- * 2. Multiple user records are returned (not just one local record)
- * 3. The admin leaderboard also uses the correct pattern
+ * 1. fetchLeaderboard uses sortKey=* to query all records
+ * 2. Client-side filtering only includes records with sortKey starting with "user-"
+ * 3. Multiple user records are returned (not just one local record)
+ * 4. The admin leaderboard also uses the same pattern
  */
 
 describe('Leaderboard sortKey pattern regression test', () => {
@@ -30,8 +31,8 @@ describe('Leaderboard sortKey pattern regression test', () => {
         jest.restoreAllMocks();
     });
     
-    test('fetchLeaderboard should use sortKey=user-* to match all user records', async () => {
-        // Mock API response with multiple users
+    test('fetchLeaderboard should use sortKey=* and filter for user records client-side', async () => {
+        // Mock API response with multiple records including non-user records
         const mockApiResponse = {
             items: [
                 {
@@ -50,6 +51,12 @@ describe('Leaderboard sortKey pattern regression test', () => {
                         nickname: '小红',
                         visitedCount: 3,
                         lastUpdate: Date.now()
+                    })
+                },
+                {
+                    sortKey: 'admin-config',  // Non-user record - should be filtered out
+                    value: JSON.stringify({
+                        config: 'test'
                     })
                 },
                 {
@@ -95,9 +102,9 @@ describe('Leaderboard sortKey pattern regression test', () => {
                         }
                     }
 
-                    // CRITICAL: Use sortKey=user-* to match all user records
-                    // Changed from sortKey=* which was causing the bug
-                    const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=user-*`;
+                    // Use sortKey=* to fetch all items, following the pattern from admin-fireworks.js
+                    // Then filter for user records client-side
+                    const url = `${this.apiEndpoint}?key=${encodeURIComponent(this.leaderboardKey)}&sortKey=*`;
                     const response = await fetch(url);
 
                     if (!response.ok) {
@@ -111,6 +118,12 @@ describe('Leaderboard sortKey pattern regression test', () => {
                     const itemsArray = result.items || result.Items;
                     if (itemsArray && Array.isArray(itemsArray)) {
                         for (const item of itemsArray) {
+                            // Only include user records (sortKey starts with 'user-')
+                            const sortKey = item.sortKey || item.sk || '';
+                            if (!sortKey.startsWith('user-')) {
+                                continue; // Skip non-user records
+                            }
+                            
                             try {
                                 const data = JSON.parse(item.value);
                                 entries.push(data);
@@ -154,18 +167,17 @@ describe('Leaderboard sortKey pattern regression test', () => {
         // Get the call arguments
         const [url] = mockFetch.mock.calls[0];
         
-        // CRITICAL: Verify that sortKey=user-* is used instead of sortKey=*
-        expect(url).toContain('sortKey=user-*');
-        expect(url).not.toContain('sortKey=*');
-        expect(url).not.toContain('sortKey=%2A'); // Encoded *
+        // CRITICAL: Verify that sortKey=* is used (not sortKey=user-*)
+        expect(url).toContain('sortKey=*');
+        expect(url).not.toContain('sortKey=user-*');
         
         // Verify URL contains the correct parameters
         expect(url).toContain('key=museumcheck-leaderboard');
         
-        // Verify multiple entries are returned (not just one local record)
+        // Verify multiple user entries are returned (admin-config record should be filtered out)
         expect(result.data).toBeDefined();
         expect(Array.isArray(result.data)).toBe(true);
-        expect(result.data.length).toBe(3); // Should return all 3 user records
+        expect(result.data.length).toBe(3); // Should return 3 user records (admin-config filtered out)
         
         // Verify entries are sorted by visitedCount descending
         expect(result.data[0].nickname).toBe('小刚'); // 8 museums
@@ -176,8 +188,8 @@ describe('Leaderboard sortKey pattern regression test', () => {
         expect(result.data[2].visitedCount).toBe(3);
     });
     
-    test('admin leaderboard should also use sortKey=user-* pattern', async () => {
-        // Mock API response with multiple users
+    test('admin leaderboard should also use sortKey=* pattern with client-side filtering', async () => {
+        // Mock API response with multiple records including non-user records
         const mockApiResponse = {
             items: [
                 {
@@ -187,6 +199,12 @@ describe('Leaderboard sortKey pattern regression test', () => {
                         nickname: '测试用户1',
                         visitedCount: 10,
                         lastUpdate: Date.now()
+                    })
+                },
+                {
+                    sortKey: 'config-setting',  // Non-user record - should be filtered out
+                    value: JSON.stringify({
+                        setting: 'test'
                     })
                 },
                 {
@@ -213,8 +231,8 @@ describe('Leaderboard sortKey pattern regression test', () => {
         };
         
         const fetchLeaderboard = async () => {
-            // CRITICAL: Use sortKey=user-* to match all user records
-            const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}&sortKey=user-*`;
+            // Use sortKey=* to fetch all items, then filter for user records client-side
+            const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.LEADERBOARD_KEY)}&sortKey=*`;
             
             const res = await fetch(url);
             if (!res.ok) throw new Error('Failed to fetch leaderboard: ' + res.status);
@@ -226,6 +244,12 @@ describe('Leaderboard sortKey pattern regression test', () => {
             
             if (itemsArray && Array.isArray(itemsArray)) {
                 for (const item of itemsArray) {
+                    // Only include user records (sortKey starts with 'user-')
+                    const sortKey = item.sortKey || item.sk || '';
+                    if (!sortKey.startsWith('user-')) {
+                        continue; // Skip non-user records
+                    }
+                    
                     try {
                         const parsed = JSON.parse(item.value);
                         parsed._sortKey = item.sortKey || item.sk;
@@ -251,11 +275,11 @@ describe('Leaderboard sortKey pattern regression test', () => {
         // Get the call arguments
         const [url] = mockFetch.mock.calls[0];
         
-        // CRITICAL: Verify that sortKey=user-* is used
-        expect(url).toContain('sortKey=user-*');
-        expect(url).not.toContain('sortKey=*');
+        // CRITICAL: Verify that sortKey=* is used (not sortKey=user-*)
+        expect(url).toContain('sortKey=*');
+        expect(url).not.toContain('sortKey=user-*');
         
-        // Verify multiple entries are returned
+        // Verify multiple user entries are returned (config-setting should be filtered out)
         expect(entries).toBeDefined();
         expect(Array.isArray(entries)).toBe(true);
         expect(entries.length).toBe(2);
@@ -267,19 +291,39 @@ describe('Leaderboard sortKey pattern regression test', () => {
         expect(entries[1].visitedCount).toBe(7);
     });
     
-    test('verifies the bug scenario: sortKey=* returns only one record', async () => {
-        // This test simulates the bug behavior to demonstrate the problem
-        // When using sortKey=*, the API might return only one record or no records
+    test('verifies client-side filtering works correctly', async () => {
+        // This test verifies that client-side filtering correctly excludes non-user records
         
-        // Mock API response with only one record (simulating the bug)
-        const mockBuggyResponse = {
+        // Mock API response with mixed record types
+        const mockMixedResponse = {
             items: [
                 {
-                    sortKey: 'user-current-user',
+                    sortKey: 'user-123',
                     value: JSON.stringify({
-                        userId: 'user-current-user',
-                        nickname: '当前用户',
-                        visitedCount: 2,
+                        userId: 'user-123',
+                        nickname: '用户A',
+                        visitedCount: 5,
+                        lastUpdate: Date.now()
+                    })
+                },
+                {
+                    sortKey: 'admin-settings',
+                    value: JSON.stringify({
+                        setting: 'admin'
+                    })
+                },
+                {
+                    sortKey: 'config-data',
+                    value: JSON.stringify({
+                        config: 'test'
+                    })
+                },
+                {
+                    sortKey: 'user-456',
+                    value: JSON.stringify({
+                        userId: 'user-456',
+                        nickname: '用户B',
+                        visitedCount: 3,
                         lastUpdate: Date.now()
                     })
                 }
@@ -288,15 +332,14 @@ describe('Leaderboard sortKey pattern regression test', () => {
         
         mockFetch.mockResolvedValue({
             ok: true,
-            json: async () => mockBuggyResponse
+            json: async () => mockMixedResponse
         });
         
-        // Simulate the buggy code with sortKey=*
-        const buggyFetch = async () => {
+        // Use the same filtering logic as the main app
+        const fetchWithFilter = async () => {
             const apiEndpoint = 'https://test-api.example.com/api';
             const leaderboardKey = 'museumcheck-leaderboard';
             
-            // BUG: Using sortKey=* instead of sortKey=user-*
             const url = `${apiEndpoint}?key=${encodeURIComponent(leaderboardKey)}&sortKey=*`;
             const response = await fetch(url);
             
@@ -310,6 +353,12 @@ describe('Leaderboard sortKey pattern regression test', () => {
             
             if (itemsArray && Array.isArray(itemsArray)) {
                 for (const item of itemsArray) {
+                    // Only include user records (sortKey starts with 'user-')
+                    const sortKey = item.sortKey || item.sk || '';
+                    if (!sortKey.startsWith('user-')) {
+                        continue; // Skip non-user records
+                    }
+                    
                     try {
                         const data = JSON.parse(item.value);
                         entries.push(data);
@@ -322,14 +371,17 @@ describe('Leaderboard sortKey pattern regression test', () => {
             return { success: true, data: entries };
         };
         
-        const result = await buggyFetch();
+        const result = await fetchWithFilter();
         
-        // Verify the buggy behavior: only one record returned
-        expect(result.data.length).toBe(1);
-        expect(result.data[0].nickname).toBe('当前用户');
+        // Verify that only user records are included (2 out of 4 total records)
+        expect(result.data.length).toBe(2);
+        expect(result.data[0].nickname).toBeDefined();
+        expect(result.data[1].nickname).toBeDefined();
         
-        // This demonstrates the issue: user expected to see all users' data,
-        // but only sees their own local record
-        expect(result.data.length).toBeLessThan(3); // Expected more records
+        // Verify non-user records were filtered out
+        const hasAdminSettings = result.data.some(entry => entry.setting === 'admin');
+        const hasConfigData = result.data.some(entry => entry.config === 'test');
+        expect(hasAdminSettings).toBe(false);
+        expect(hasConfigData).toBe(false);
     });
 });

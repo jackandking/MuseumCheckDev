@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard SortKey Fix Verification (v2)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #2c3e50; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button.success { background: #27ae60; }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .entry {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏅 Leaderboard SortKey Fix Verification (v2)</h1>
+    
+    <div class="status info">
+        <strong>Issue:</strong> 主页点击排行榜只显示本地一条记录，没有网络其他人数据<br>
+        <strong>Previous Fix (broken):</strong> Used sortKey=user-* which broke admin page<br>
+        <strong>New Fix (v2):</strong> Use sortKey=* with client-side filtering for 'user-' prefix
+    </div>
+
+    <div class="test-section">
+        <h2>Test: Fetch with sortKey=* and client-side filtering ✅</h2>
+        <button class="success" onclick="testNewPattern()">Test New Pattern (sortKey=* + filter)</button>
+        <div id="newResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Information</h2>
+        <button onclick="showDebugInfo()">Show Debug Info</button>
+        <div id="debugInfo"></div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+        const LEADERBOARD_KEY = 'museumcheck-leaderboard';
+
+        async function testNewPattern() {
+            const resultDiv = document.getElementById('newResult');
+            resultDiv.innerHTML = '<p>Fetching with sortKey=* and filtering for user records...</p>';
+            
+            try {
+                // Use wildcard to fetch all records
+                const url = `${API_ENDPOINT}?key=${encodeURIComponent(LEADERBOARD_KEY)}&sortKey=*`;
+                console.log('URL:', url);
+                
+                const startTime = performance.now();
+                const response = await fetch(url);
+                const fetchTime = performance.now() - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Raw API response:', result);
+                
+                // Parse entries with client-side filtering
+                const allEntries = [];
+                const userEntries = [];
+                const nonUserEntries = [];
+                
+                const itemsArray = result.items || result.Items;
+                
+                if (itemsArray && Array.isArray(itemsArray)) {
+                    for (const item of itemsArray) {
+                        const sortKey = item.sortKey || item.sk || '';
+                        const entry = {
+                            sortKey: sortKey,
+                            raw: item
+                        };
+                        
+                        try {
+                            entry.data = JSON.parse(item.value);
+                        } catch (e) {
+                            entry.parseError = e.message;
+                        }
+                        
+                        allEntries.push(entry);
+                        
+                        // Filter for user records
+                        if (sortKey.startsWith('user-')) {
+                            userEntries.push(entry);
+                        } else {
+                            nonUserEntries.push(entry);
+                        }
+                    }
+                }
+                
+                // Sort user entries by visitedCount
+                userEntries.sort((a, b) => {
+                    const aCount = a.data?.visitedCount || 0;
+                    const bCount = b.data?.visitedCount || 0;
+                    return bCount - aCount;
+                });
+                
+                resultDiv.innerHTML = `
+                    <div class="status ${userEntries.length > 0 ? 'success' : 'error'}">
+                        <strong>✅ Fetch successful!</strong> (${fetchTime.toFixed(0)}ms)
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Records</div>
+                            <div class="stat-value">${allEntries.length}</div>
+                        </div>
+                        <div class="stat-box" style="background: #d4edda;">
+                            <div class="stat-label">User Records</div>
+                            <div class="stat-value" style="color: #155724;">${userEntries.length}</div>
+                        </div>
+                        <div class="stat-box" style="background: #fff3cd;">
+                            <div class="stat-label">Filtered Out</div>
+                            <div class="stat-value" style="color: #856404;">${nonUserEntries.length}</div>
+                        </div>
+                    </div>
+                    
+                    <h3>User Leaderboard (${userEntries.length} entries):</h3>
+                    ${renderEntries(userEntries)}
+                    
+                    ${nonUserEntries.length > 0 ? `
+                        <h3>Non-User Records (filtered out - ${nonUserEntries.length} entries):</h3>
+                        ${renderNonUserEntries(nonUserEntries)}
+                    ` : ''}
+                    
+                    <details style="margin-top: 20px;">
+                        <summary style="cursor: pointer; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+                            <strong>Raw API Response</strong>
+                        </summary>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>Error:</strong> ${error.message}<br>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        function renderEntries(entries) {
+            if (entries.length === 0) {
+                return '<p>No user entries found</p>';
+            }
+            
+            return entries.map((entry, index) => {
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                const data = entry.data;
+                
+                if (!data) {
+                    return `<div class="entry" style="background: #fee;">
+                        <span>Parse error: ${entry.parseError}</span>
+                    </div>`;
+                }
+                
+                return `
+                    <div class="entry">
+                        <div>
+                            <strong>${medal} #${rank} ${data.nickname || 'Unknown'}</strong><br>
+                            <small style="color: #666;">${entry.sortKey}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>${data.visitedCount || 0} 个博物馆</strong><br>
+                            <small style="color: #666;">userId: ${data.userId || 'N/A'}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderNonUserEntries(entries) {
+            return entries.map(entry => {
+                return `
+                    <div class="entry" style="background: #fff3cd;">
+                        <div>
+                            <strong>sortKey: ${entry.sortKey}</strong><br>
+                            <small style="color: #666;">Type: ${entry.sortKey.split('-')[0]}</small>
+                        </div>
+                        <div style="text-align: right; font-size: 12px;">
+                            <em>Filtered out (not a user record)</em>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.innerHTML = `
+                <div class="status info">
+                    <h3>Fix Details:</h3>
+                    <ul>
+                        <li><strong>Query Pattern:</strong> sortKey=* (fetch ALL records)</li>
+                        <li><strong>Client-Side Filter:</strong> Only include records where sortKey.startsWith('user-')</li>
+                        <li><strong>Files Modified:</strong>
+                            <ul>
+                                <li>script.js - line ~3486</li>
+                                <li>admin-leaderboard.js - line ~44</li>
+                                <li>tests/leaderboard-sortkey-pattern.test.js</li>
+                            </ul>
+                        </li>
+                        <li><strong>Pattern Source:</strong> Based on working admin-fireworks.js implementation</li>
+                    </ul>
+                    
+                    <h3>Expected Behavior:</h3>
+                    <ul>
+                        <li>✅ API returns ALL records (user and non-user)</li>
+                        <li>✅ Client filters for only user-* records</li>
+                        <li>✅ Main app leaderboard shows all users</li>
+                        <li>✅ Admin page shows all users</li>
+                        <li>✅ Non-user records (config, admin, etc.) are excluded</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
