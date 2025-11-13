@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard Value Field Fix Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3498db;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-card {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏅 Leaderboard Value Field Fix Test</h1>
+    
+    <div class="section">
+        <h2>Issue Description</h2>
+        <p><strong>中文：</strong>主页点击排行榜只显示本地一条记录，没有网络其他人数据（提示：排行榜暂无数据）</p>
+        <p><strong>English:</strong> Homepage leaderboard only shows one local record, missing network data from other users</p>
+        <p><strong>Root Cause:</strong> API returns <code>{ value: "[{...}]" }</code> but code only checks for <code>items</code>/<code>Items</code></p>
+    </div>
+
+    <div class="section">
+        <h2>Test Scenario</h2>
+        <p>This page tests the fix by simulating the exact API response format from the issue.</p>
+        <button onclick="testValueFieldParsing()">🧪 Test Value Field Parsing (Issue Format)</button>
+        <button onclick="testLegacyFormat()">📋 Test Legacy Items Format</button>
+        <button onclick="testCapitalItemsFormat()">📊 Test Capital Items Format</button>
+        <button onclick="testMixedRecords()">🔍 Test Filtering Non-User Records</button>
+        <div id="testResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Test Data & Statistics</h2>
+        <div id="stats" class="stats"></div>
+        <div id="dataDisplay"></div>
+    </div>
+
+    <script>
+        // Mock LeaderboardManager implementation with the fix
+        class LeaderboardManager {
+            constructor() {
+                this.apiEndpoint = 'https://test-api.example.com/api';
+                this.leaderboardKey = 'museumcheck-leaderboard';
+            }
+
+            async fetchLeaderboard(mockResponse) {
+                try {
+                    const result = mockResponse;
+                    
+                    // Parse and sort the leaderboard entries
+                    const entries = [];
+                    
+                    // Support multiple response formats for AWS DynamoDB compatibility:
+                    // 1. { items: [...] } or { Items: [...] } - DynamoDB direct format
+                    // 2. { value: '[{...}]' } - JSON string in value field
+                    let itemsArray = result.items || result.Items;
+                    
+                    if (!itemsArray && result.value && typeof result.value === 'string') {
+                        try {
+                            itemsArray = JSON.parse(result.value);
+                            console.log('✅ Successfully parsed value field');
+                        } catch (e) {
+                            console.error('Failed to parse value field:', e);
+                        }
+                    }
+                    
+                    if (itemsArray && Array.isArray(itemsArray)) {
+                        for (const item of itemsArray) {
+                            // Only include user records (sortKey starts with 'user-')
+                            const sortKey = item.sortKey || item.sk || '';
+                            if (!sortKey.startsWith('user-')) {
+                                console.log('Skipping non-user record:', sortKey);
+                                continue; // Skip non-user records
+                            }
+                            
+                            try {
+                                const data = JSON.parse(item.value);
+                                entries.push(data);
+                            } catch (e) {
+                                console.warn('Failed to parse leaderboard entry:', e);
+                            }
+                        }
+                    }
+
+                    // Sort by visitedCount descending
+                    entries.sort((a, b) => b.visitedCount - a.visitedCount);
+
+                    return { success: true, data: entries, fromCache: false };
+                } catch (error) {
+                    console.error('Error fetching leaderboard:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        const manager = new LeaderboardManager();
+
+        async function testValueFieldParsing() {
+            // This is the exact format from the issue report
+            const mockApiResponse = {
+                value: '[{"expireAt": "4866674732", "value": "{\\"nickname\\":\\"咚咚咚\\",\\"visitedCount\\":2,\\"userId\\":\\"user_mfm1pllapx23v2mu6qd\\",\\"lastUpdate\\":1762823777771}", "key": "museumcheck-leaderboard", "sortKey": "user-user_mfm1pllapx23v2mu6qd"}, {"expireAt": "4866674732", "value": "{\\"nickname\\":\\"小淘气\\",\\"visitedCount\\":3,\\"userId\\":\\"user_mfs4dh1n95441taucth\\",\\"lastUpdate\\":1762993092291}", "key": "museumcheck-leaderboard", "sortKey": "user-user_mfs4dh1n95441taucth"}, {"expireAt": "4866674732", "value": "{\\"nickname\\":\\"咚咚咚\\",\\"visitedCount\\":7,\\"userId\\":\\"user_mga0ys6gruxcsfkbl3\\",\\"lastUpdate\\":1762785068359}", "key": "museumcheck-leaderboard", "sortKey": "user-user_mga0ys6gruxcsfkbl3"}, {"expireAt": "4866674732", "value": "{\\"nickname\\":\\"小淘气\\",\\"visitedCount\\":1,\\"userId\\":\\"user_mhrugas327xjsur3p3a\\",\\"lastUpdate\\":1762700654867}", "key": "museumcheck-leaderboard", "sortKey": "user-user_mhrugas327xjsur3p3a"}]'
+            };
+
+            const result = await manager.fetchLeaderboard(mockApiResponse);
+            displayResult(result, 'Value Field Format (Issue Scenario)', mockApiResponse);
+        }
+
+        async function testLegacyFormat() {
+            const mockApiResponse = {
+                items: [
+                    {
+                        value: '{"nickname":"测试用户1","visitedCount":5,"userId":"user_test1","lastUpdate":1234567890}',
+                        sortKey: 'user-user_test1'
+                    },
+                    {
+                        value: '{"nickname":"测试用户2","visitedCount":3,"userId":"user_test2","lastUpdate":1234567890}',
+                        sortKey: 'user-user_test2'
+                    }
+                ]
+            };
+
+            const result = await manager.fetchLeaderboard(mockApiResponse);
+            displayResult(result, 'Legacy Items Format', mockApiResponse);
+        }
+
+        async function testCapitalItemsFormat() {
+            const mockApiResponse = {
+                Items: [
+                    {
+                        value: '{"nickname":"DynamoDB用户","visitedCount":8,"userId":"user_dynamodb","lastUpdate":1234567890}',
+                        sortKey: 'user-user_dynamodb'
+                    }
+                ]
+            };
+
+            const result = await manager.fetchLeaderboard(mockApiResponse);
+            displayResult(result, 'Capital Items Format (DynamoDB)', mockApiResponse);
+        }
+
+        async function testMixedRecords() {
+            const mockApiResponse = {
+                value: '[{"expireAt": "4866674732", "value": "{\\"nickname\\":\\"用户1\\",\\"visitedCount\\":5,\\"userId\\":\\"user_1\\",\\"lastUpdate\\":1234567890}", "key": "museumcheck-leaderboard", "sortKey": "user-user_1"}, {"expireAt": "4866674732", "value": "{\\"config\\":\\"something\\"}", "key": "museumcheck-leaderboard", "sortKey": "config-settings"}, {"expireAt": "4866674732", "value": "{\\"nickname\\":\\"用户2\\",\\"visitedCount\\":3,\\"userId\\":\\"user_2\\",\\"lastUpdate\\":1234567890}", "key": "museumcheck-leaderboard", "sortKey": "user-user_2"}]'
+            };
+
+            const result = await manager.fetchLeaderboard(mockApiResponse);
+            displayResult(result, 'Mixed Records (User + Non-User)', mockApiResponse);
+        }
+
+        function displayResult(result, testName, rawResponse) {
+            const resultDiv = document.getElementById('testResult');
+            const statsDiv = document.getElementById('stats');
+            const dataDiv = document.getElementById('dataDisplay');
+
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ ${testName} - SUCCESS</div>
+                    <p>Parsed ${result.data.length} user entries</p>
+                `;
+
+                // Display statistics
+                const totalEntries = result.data.length;
+                const maxVisits = totalEntries > 0 ? Math.max(...result.data.map(e => e.visitedCount)) : 0;
+                const totalVisits = result.data.reduce((sum, e) => sum + e.visitedCount, 0);
+
+                statsDiv.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${totalEntries}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${maxVisits}</div>
+                        <div class="stat-label">Max Visits</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${totalVisits}</div>
+                        <div class="stat-label">Total Visits</div>
+                    </div>
+                `;
+
+                // Display parsed data
+                let dataHtml = '<h3>Parsed Leaderboard Data (Sorted by Visits):</h3><pre>';
+                result.data.forEach((entry, idx) => {
+                    dataHtml += `${idx + 1}. ${entry.nickname} - ${entry.visitedCount} museums (${entry.userId})\n`;
+                });
+                dataHtml += '</pre>';
+
+                dataHtml += '<h3>Raw API Response:</h3><pre>' + JSON.stringify(rawResponse, null, 2) + '</pre>';
+                dataDiv.innerHTML = dataHtml;
+
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ ${testName} - FAILED</div>
+                    <p>Error: ${result.error}</p>
+                `;
+                statsDiv.innerHTML = '';
+                dataDiv.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>

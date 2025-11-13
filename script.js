@@ -3495,8 +3495,20 @@ class LeaderboardManager {
             
             // Parse and sort the leaderboard entries
             const entries = [];
-            // Support both 'items' (lowercase) and 'Items' (capital I) for AWS DynamoDB compatibility
-            const itemsArray = result.items || result.Items;
+            
+            // Support multiple response formats for AWS DynamoDB compatibility:
+            // 1. { items: [...] } or { Items: [...] } - DynamoDB direct format
+            // 2. { value: '[{...}]' } - JSON string in value field
+            let itemsArray = result.items || result.Items;
+            
+            if (!itemsArray && result.value && typeof result.value === 'string') {
+                try {
+                    itemsArray = JSON.parse(result.value);
+                } catch (e) {
+                    console.error('Failed to parse value field:', e);
+                }
+            }
+            
             if (itemsArray && Array.isArray(itemsArray)) {
                 for (const item of itemsArray) {
                     // Only include user records (sortKey starts with 'user-')
