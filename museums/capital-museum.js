@@ -4,22 +4,22 @@ window.MUSEUM_CAPITAL = {
   location: '北京',
   description: '展示北京历史文化的市属综合性博物馆',
   tags: ['北京历史', '古都文化', '民俗'],
-  image: 'https://eb118-file.cdn.bcebos.com/upload/8e5e95e9a5b8432caa39da051544fcaa_1262462398.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+  image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Capital_Museum_in_Beijing.jpg/800px-Capital_Museum_in_Beijing.jpg',
   collections: [
     { 
-      name: '北京孔庙大成殿牌匾', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%E5%8C%97%E4%BA%AC%E5%AD%94%E5%BA%99_%E5%A4%A7%E6%88%90%E6%AE%BF.JPG/800px-%E5%8C%97%E4%BA%AC%E5%AD%94%E5%BA%99_%E5%A4%A7%E6%88%90%E6%AE%BF.JPG',
-      description: '北京孔庙的重要文物，见证了古代北京的文教历史。牌匾工艺精美，书法遒劲有力，体现了古代皇家对孔子的尊崇和对教育的重视'
+      name: '神兽玉佩', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG/800px-%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG',
+      description: '首都博物馆珍贵的玉器藏品，以青玉为材，雕刻神话祥瑞动物形象。玉佩造型生动，工艺精湛，融入浮雕、阴刻等技法，寓意吉祥如意、辟邪纳福，体现了古代玉器艺术的高超水平和礼制文化'
     },
     { 
-      name: '元大都城墙遗址', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Yuan_Dynasty_Wall_Relic.jpg/800px-Yuan_Dynasty_Wall_Relic.jpg',
-      description: '元朝时期建造的都城城墙遗迹，是北京城市历史的重要见证。通过城墙遗址可以了解元大都的城市规划和建筑技术，感受古代都城的宏伟气势'
+      name: '董鼎', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg/800px-%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg',
+      description: '西周时期重要的青铜礼器，用于宗庙祭祀和象征权力地位。董鼎造型端庄，器型为传统的三足两耳样式，纹饰以夔龙、云雷等为主，厚重庄严，是研究西周历史、制度和青铜铸造工艺的重要实物资料'
     },
     { 
-      name: '景德镇窑青花凤首扁壶', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Blue_and_white_porcelain_vase.jpg/600px-Blue_and_white_porcelain_vase.jpg',
-      description: '明代景德镇窑烧制的精美瓷器，是中国陶瓷艺术的代表作。扁壶造型独特，凤首设计精美，青花纹饰清雅，体现了明代瓷器制作的高超工艺'
+      name: '象首绂簠', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Fu_in_Capital_Museum_China.jpg/800px-Fu_in_Capital_Museum_China.jpg',
+      description: '春秋时期精美的青铜礼器，为盛放食物的"簠"类器物。最大特色是装饰有象首造型，象征祥瑞、力量和高贵。采用复杂的分段模铸造工艺，结合写实与装饰性，展现古代冶铸技术的高超水平和独特的美学价值'
     }
   ],
   workflows: [
@@ -30,9 +30,9 @@ window.MUSEUM_CAPITAL = {
       ages: ['3-6', '7-12', '13-18'],
       tasks: [
         { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在首都博物馆门口拍一张照片', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-confucius', role: 'child', type: 'photo', title: '文化瑰宝 1/3', subtitle: '找到「北京孔庙大成殿牌匾」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/%E5%8C%97%E4%BA%AC%E5%AD%94%E5%BA%99_%E5%A4%A7%E6%88%90%E6%AE%BF.JPG/800px-%E5%8C%97%E4%BA%AC%E5%AD%94%E5%BA%99_%E5%A4%A7%E6%88%90%E6%AE%BF.JPG', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-wall', role: 'child', type: 'photo', title: '文化瑰宝 2/3', subtitle: '找到「元大都城墙遗址」展示并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Yuan_Dynasty_Wall_Relic.jpg/800px-Yuan_Dynasty_Wall_Relic.jpg', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-porcelain', role: 'child', type: 'photo', title: '文化瑰宝 3/3', subtitle: '找到「景德镇窑青花凤首扁壶」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Blue_and_white_porcelain_vase.jpg/600px-Blue_and_white_porcelain_vase.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-jade', role: 'child', type: 'photo', title: '文化瑰宝 1/3', subtitle: '找到「神兽玉佩」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG/800px-%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-ding', role: 'child', type: 'photo', title: '文化瑰宝 2/3', subtitle: '找到「董鼎」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg/800px-%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-fu', role: 'child', type: 'photo', title: '文化瑰宝 3/3', subtitle: '找到「象首绂簠」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Fu_in_Capital_Museum_China.jpg/800px-Fu_in_Capital_Museum_China.jpg', ages: ['3-6','7-12','13-18'] },
         { id: 'victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！', ages: ['3-6','7-12','13-18'] },
         { id: 'poster', role: 'parent', type: 'poster', title: '成就海报', subtitle: '生成专属成就海报', ages: ['3-6','7-12','13-18'] }
       ]
@@ -104,23 +104,23 @@ window.MUSEUM_CAPITAL = {
     child: {
       '3-6': [
         '📸 门口打卡：家长给孩子在首都博物馆门口拍一张照片',
-        '🏛️ 文化瑰宝：找到「北京孔庙大成殿牌匾」并合影',
-        '🏰 文化瑰宝：找到「元大都城墙遗址」展示并合影',
-        '🏺 文化瑰宝：找到「景德镇窑青花凤首扁壶」并合影',
+        '💎 文化瑰宝：找到「神兽玉佩」并合影',
+        '🏺 文化瑰宝：找到「董鼎」并合影',
+        '🐘 文化瑰宝：找到「象首绂簠」并合影',
         '📸 亲子合影：和家长比心/拥抱/击掌等动作合影'
       ],
       '7-12': [
         '📸 门口打卡：家长给孩子在首都博物馆门口拍一张照片',
-        '🏛️ 文化瑰宝：找到「北京孔庙大成殿牌匾」并合影',
-        '🏰 文化瑰宝：找到「元大都城墙遗址」展示并合影',
-        '🏺 文化瑰宝：找到「景德镇窑青花凤首扁壶」并合影',
+        '💎 文化瑰宝：找到「神兽玉佩」并合影',
+        '🏺 文化瑰宝：找到「董鼎」并合影',
+        '🐘 文化瑰宝：找到「象首绂簠」并合影',
         '📸 亲子合影：和家长比心/拥抱/击掌等动作合影'
       ],
       '13-18': [
         '📸 门口打卡：家长给孩子在首都博物馆门口拍一张照片',
-        '🏛️ 文化瑰宝：找到「北京孔庙大成殿牌匾」并合影',
-        '🏰 文化瑰宝：找到「元大都城墙遗址」展示并合影',
-        '🏺 文化瑰宝：找到「景德镇窑青花凤首扁壶」并合影',
+        '💎 文化瑰宝：找到「神兽玉佩」并合影',
+        '🏺 文化瑰宝：找到「董鼎」并合影',
+        '🐘 文化瑰宝：找到「象首绂簠」并合影',
         '📸 亲子合影：和家长比心/拥抱/击掌等动作合影'
       ]
     }
