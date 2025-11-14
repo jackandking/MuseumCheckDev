@@ -5246,6 +5246,14 @@ main[role="main"] {
     font-style: italic;
 }
 
+/* Settings Checkbox */
+.settings-checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
 /* Settings Slider */
 .settings-slider {
     flex: 1;
@@ -7076,5 +7084,10 @@ main[role="main"] {
         width: 12px;
         height: 12px;
     }
+}
+
+/* Hide assessment-related elements when assessments are disabled */
+body.hide-assessments .museum-checkin-button {
+    display: none !important;
 }
 }

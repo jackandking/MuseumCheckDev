@@ -3608,7 +3608,7 @@ class MuseumCheckApp {
         this.filteredMuseums = MUSEUMS;
         this.sortBy = this.loadSortPreference(); // Load sorting preference
         this.userLocation = null; // Will be set if user grants location permission
-        this.assessmentHidden = false; // Default to showing assessments
+        this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
@@ -3671,6 +3671,9 @@ class MuseumCheckApp {
         
         // Update dynamic museum count displays
         this.updateDynamicMuseumCounts();
+        
+        // Apply assessment visibility setting
+        this.applyAssessmentVisibility();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -4778,6 +4781,23 @@ class MuseumCheckApp {
             });
         }
 
+        // Assessment visibility toggle
+        const showAssessmentToggle = document.getElementById('showAssessmentToggle');
+        if (showAssessmentToggle) {
+            showAssessmentToggle.addEventListener('change', (e) => {
+                const showAssessment = e.target.checked;
+                const result = this.saveAssessmentVisibility(showAssessment);
+                
+                if (result.success) {
+                    // Track assessment visibility change
+                    this.trackEvent('assessment_visibility_changed', {
+                        'show_assessment': showAssessment,
+                        'auto_saved': true
+                    });
+                }
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -5345,6 +5365,38 @@ class MuseumCheckApp {
         } catch (error) {
             console.error('Failed to save firework launch interval:', error);
             return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    loadAssessmentVisibility() {
+        try {
+            const saved = localStorage.getItem('showAssessment');
+            // Default to false (hidden) if not saved
+            return saved === 'true';
+        } catch (error) {
+            console.error('Failed to load assessment visibility:', error);
+            return false; // Default to hidden
+        }
+    }
+
+    saveAssessmentVisibility(showAssessment) {
+        try {
+            localStorage.setItem('showAssessment', showAssessment ? 'true' : 'false');
+            this.assessmentHidden = !showAssessment;
+            this.applyAssessmentVisibility();
+            return { success: true, message: '显示设置已保存' };
+        } catch (error) {
+            console.error('Failed to save assessment visibility:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    applyAssessmentVisibility() {
+        const body = document.body;
+        if (this.assessmentHidden) {
+            body.classList.add('hide-assessments');
+        } else {
+            body.classList.remove('hide-assessments');
         }
     }
 
@@ -7522,6 +7574,12 @@ class MuseumCheckApp {
         const sortBySelector = document.getElementById('sortBySelector');
         if (sortBySelector) {
             sortBySelector.value = this.sortBy;
+        }
+        
+        // Update assessment visibility toggle
+        const showAssessmentToggle = document.getElementById('showAssessmentToggle');
+        if (showAssessmentToggle) {
+            showAssessmentToggle.checked = !this.assessmentHidden;
         }
     }
 
