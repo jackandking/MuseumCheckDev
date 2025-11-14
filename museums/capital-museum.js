@@ -4,21 +4,21 @@ window.MUSEUM_CAPITAL = {
   location: '北京',
   description: '展示北京历史文化的市属综合性博物馆',
   tags: ['北京历史', '古都文化', '民俗'],
-  image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Capital_Museum_in_Beijing.jpg/800px-Capital_Museum_in_Beijing.jpg',
+  image: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3ACapital_Museum_in_Beijing.jpg',
   collections: [
     { 
       name: '神兽玉佩', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG/800px-%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG',
+      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3A%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG',
       description: '首都博物馆珍贵的玉器藏品，以青玉为材，雕刻神话祥瑞动物形象。玉佩造型生动，工艺精湛，融入浮雕、阴刻等技法，寓意吉祥如意、辟邪纳福，体现了古代玉器艺术的高超水平和礼制文化'
     },
     { 
       name: '董鼎', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg/800px-%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg',
+      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3A%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg',
       description: '西周时期重要的青铜礼器，用于宗庙祭祀和象征权力地位。董鼎造型端庄，器型为传统的三足两耳样式，纹饰以夔龙、云雷等为主，厚重庄严，是研究西周历史、制度和青铜铸造工艺的重要实物资料'
     },
     { 
       name: '象首绂簠', 
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Fu_in_Capital_Museum_China.jpg/800px-Fu_in_Capital_Museum_China.jpg',
+      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3AFu_in_Capital_Museum_China.jpg',
       description: '春秋时期精美的青铜礼器，为盛放食物的"簠"类器物。最大特色是装饰有象首造型，象征祥瑞、力量和高贵。采用复杂的分段模铸造工艺，结合写实与装饰性，展现古代冶铸技术的高超水平和独特的美学价值'
     }
   ],
