@@ -867,23 +867,6 @@ header h1 {
     color: white;
 }
 
-.guide-timer {
-    text-align: center;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-#timerText {
-    font-size: 13px;
-    opacity: 0.8;
-}
-
-#timerCount {
-    font-weight: 600;
-    color: #ffd700;
-}
-
 /* Mobile responsive styles for guide */
 @media (max-width: 768px) {
     .how-to-play-guide {

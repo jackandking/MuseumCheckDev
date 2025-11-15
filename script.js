@@ -11910,10 +11910,10 @@ class MuseumCheckApp {
 })();
 
 // ===== HOW TO PLAY GUIDE MODULE =====
-// Introductory guide for new users that auto-closes after 10 seconds
+// Introductory guide for new users - now stays visible until manually closed
 const HowToPlayGuide = {
     STORAGE_KEY: 'howToPlayGuideShown',
-    AUTO_CLOSE_SECONDS: 10,
+    closeButtonAttached: false,
     
     init() {
         // Check if guide has been shown before
@@ -11923,11 +11923,13 @@ const HowToPlayGuide = {
         if (!hasBeenShown) {
             this.showGuide();
         }
+        
+        // Set up the "Show Guide" button in settings
+        this.setupSettingsButton();
     },
     
     showGuide() {
         const guideElement = document.getElementById('howToPlayGuide');
-        const timerElement = document.getElementById('timerCount');
         const closeButton = document.getElementById('closeGuideButton');
         
         if (!guideElement) return;
@@ -11935,40 +11937,22 @@ const HowToPlayGuide = {
         // Display the guide
         guideElement.style.display = 'block';
         
-        // Set up manual close button
-        if (closeButton) {
+        // Set up manual close button (only attach once)
+        if (closeButton && !this.closeButtonAttached) {
             closeButton.addEventListener('click', () => this.closeGuide());
+            this.closeButtonAttached = true;
         }
         
-        // Set up auto-close timer
-        let secondsLeft = this.AUTO_CLOSE_SECONDS;
-        
-        const countdown = setInterval(() => {
-            secondsLeft--;
-            if (timerElement) {
-                timerElement.textContent = secondsLeft;
-            }
-            
-            if (secondsLeft <= 0) {
-                clearInterval(countdown);
-                this.closeGuide();
-            }
-        }, 1000);
-        
-        // Store timer interval ID so we can clear it on manual close
-        guideElement.dataset.timerId = countdown;
+        // Scroll guide into view smoothly
+        setTimeout(() => {
+            guideElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
     },
     
     closeGuide() {
         const guideElement = document.getElementById('howToPlayGuide');
         
         if (!guideElement) return;
-        
-        // Clear the countdown timer if it exists
-        const timerId = guideElement.dataset.timerId;
-        if (timerId) {
-            clearInterval(parseInt(timerId));
-        }
         
         // Add fade-out animation
         guideElement.style.animation = 'guideFadeOut 0.3s ease-out';
@@ -11978,8 +11962,34 @@ const HowToPlayGuide = {
             guideElement.style.animation = '';
         }, 300);
         
-        // Mark guide as shown so it won't appear again
+        // Mark guide as shown so it won't appear automatically again
         localStorage.setItem(this.STORAGE_KEY, 'true');
+    },
+    
+    setupSettingsButton() {
+        // Wait for DOM to be ready, then attach the button handler
+        const attachButton = () => {
+            const showGuideButton = document.getElementById('showGuideButton');
+            if (showGuideButton) {
+                showGuideButton.addEventListener('click', () => {
+                    // Show the guide
+                    this.showGuide();
+                    
+                    // Close the settings modal to see the guide
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal) {
+                        settingsModal.classList.add('hidden');
+                    }
+                });
+            }
+        };
+        
+        // Try to attach immediately if DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', attachButton);
+        } else {
+            attachButton();
+        }
     }
 };
 
