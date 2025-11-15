@@ -8,9 +8,11 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:data-quality": "jest tests/data-quality.test.js",
+    "test:image-search": "node tools/test-image-search.js",
     "validate-data": "node tools/validate-museum-data.js",
     "serve": "python3 -m http.server 8000",
     "build:meta": "node tools/generate-museums-meta.js",
+    "search:demo": "node tools/search-museum-images-demo.js",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui"
   },

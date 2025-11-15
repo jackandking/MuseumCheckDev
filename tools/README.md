@@ -4,6 +4,48 @@ This directory contains tools to ensure systematic data quality in the MuseumChe
 
 ## Tools Overview
 
+### search-museum-images.js
+
+**Bing Image Search tool for finding museum and treasure photos.**
+
+This tool uses the Bing Image Search API to find high-quality photos of museums and their treasures (镇馆之宝), returning image URLs that can be added to the museum data.
+
+**Prerequisites:**
+- Bing Search API key from Azure Cognitive Services
+- Set environment variable: `BING_SEARCH_API_KEY=your_api_key`
+
+**Usage:**
+```bash
+# Search for museum building photos
+node tools/search-museum-images.js "故宫博物院"
+
+# Search for both museum and treasure photos
+node tools/search-museum-images.js "故宫博物院" "清明上河图"
+
+# More examples
+node tools/search-museum-images.js "中国国家博物馆" "后母戊鼎"
+node tools/search-museum-images.js "上海博物馆" "大克鼎"
+```
+
+**Output:**
+Returns a formatted list of image URLs with metadata:
+- Full image URL (for `image` and `imageUrl` fields)
+- Thumbnail URL
+- Image dimensions and file size
+- Source page URL
+
+**Demo Version:**
+For testing without an API key, use the demo version:
+```bash
+node tools/search-museum-images-demo.js "故宫博物院" "清明上河图"
+```
+
+**Workflow:**
+1. Run the search tool to find image URLs
+2. Review results and select appropriate images
+3. Copy URLs to museum data structure
+4. Use `verify-treasure-images.js` to validate URLs are accessible
+
 ### validate-museum-data.js
 
 Comprehensive museum data validation tool that checks for:
@@ -24,6 +66,15 @@ npm run validate-data
 **Output:**
 - ✅ Success: Exits with code 0 if data is valid
 - ❌ Issues: Exits with code 1 and detailed error report if problems found
+
+### verify-treasure-images.js
+
+Verifies that image URLs in museum data are accessible and valid.
+
+**Usage:**
+```bash
+node tools/verify-treasure-images.js <image-url>
+```
 
 ## Integration with Development Workflow
 
