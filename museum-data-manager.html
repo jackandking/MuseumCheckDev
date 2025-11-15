@@ -123,16 +123,11 @@
             <select id="quickLoadMuseumId">
               <option value="">-- 选择要加载的博物馆 --</option>
             </select>
-            <div class="hint">从列表选择博物馆可快速加载，无需扫描所有博物馆</div>
+            <div class="hint">从列表选择博物馆可快速加载</div>
           </div>
           <button id="quickLoadBtn" class="btn btn-primary" style="margin-top: 0;">🔍 加载</button>
         </div>
       </div>
-      <div style="text-align: center; margin: 20px 0; color: #999; font-size: 14px;">或</div>
-      <div class="actions">
-        <button id="refreshBtn" class="btn btn-secondary">🔄 扫描所有博物馆（慢）</button>
-      </div>
-      <div class="hint" style="text-align: center; color: #dc3545;">⚠️ 扫描所有博物馆需要检查 200+ 个博物馆，可能需要较长时间</div>
     </div>
 
     <div class="card">
@@ -141,7 +136,6 @@
         <div class="empty-state">
           <div class="empty-state-icon">🔍</div>
           <div>使用上方的快速加载输入框指定博物馆 ID</div>
-          <div class="hint">或点击"扫描所有博物馆"按钮查看所有远程数据</div>
         </div>
       </div>
     </div>
@@ -634,7 +628,11 @@
             if (success) {
               showStatus('上传成功 ✓', 'success');
               document.getElementById('uploadCard').style.display = 'none';
-              loadKVStoreMuseums();
+              // After successful upload, reload the current museum if one was being edited
+              const museumId = data.id;
+              if (museumId) {
+                quickLoadMuseum();
+              }
             } else {
               showStatus('上传失败', 'error');
             }
@@ -651,44 +649,6 @@
         setTimeout(() => {
           statusDiv.innerHTML = '';
         }, 5000);
-      }
-
-      // Load and display museums in KV store
-      async function loadKVStoreMuseums() {
-        const listDiv = document.getElementById('museumList');
-        listDiv.innerHTML = '<div class="loading">正在加载远程数据...</div>';
-
-        try {
-          // Get list of museums from Tier 3 to check
-          const allMuseums = await loader.loadAllMuseums();
-          currentMuseums = [];
-
-          // Check which museums exist in KV store (Tier 2)
-          // Check all museums to ensure none are missed
-          for (let i = 0; i < allMuseums.length; i++) {
-            const museum = allMuseums[i];
-            
-            // Update progress indicator
-            if (i % 20 === 0) {
-              listDiv.innerHTML = `<div class="loading">正在检查远程数据... (${i}/${allMuseums.length})</div>`;
-            }
-            
-            const data = await loader.loadFromTier2(museum.id);
-            if (data) {
-              currentMuseums.push({
-                id: museum.id,
-                name: data.name || museum.name,
-                location: data.location || museum.location,
-                hasData: true
-              });
-            }
-          }
-
-          renderMuseumList();
-        } catch (error) {
-          console.error('Error loading KV store museums:', error);
-          listDiv.innerHTML = `<div class="status status-error">加载失败: ${error.message}</div>`;
-        }
       }
 
       // Render museum list
@@ -837,14 +797,6 @@
         }
       });
 
-      // Refresh button (scan all museums)
-      document.getElementById('refreshBtn').onclick = function() {
-        if (!confirm('扫描所有博物馆需要检查 200+ 个博物馆，可能需要较长时间。\n\n建议使用"快速加载"功能指定博物馆 ID。\n\n确定要继续扫描所有博物馆吗？')) {
-          return;
-        }
-        loadKVStoreMuseums();
-      };
-
       // Back button
       document.getElementById('backBtn').onclick = function() {
         location.href = 'settings.html';
@@ -852,7 +804,6 @@
 
       // Initial load
       initMuseumSelector();
-      // Don't auto-load all museums - let user choose to quick load or scan all
     })();
 
     // Image Search Functions (Global scope for onclick handlers)
