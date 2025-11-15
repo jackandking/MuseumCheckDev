@@ -66,6 +66,32 @@
     .array-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
     .remove-btn{padding:4px 8px;font-size:12px;background:#dc3545;color:#fff;border:none;border-radius:4px;cursor:pointer}
     .add-btn{padding:8px 16px;font-size:13px;background:#28a745;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:8px}
+    .input-with-search{display:flex;gap:8px;align-items:center}
+    .input-with-search input{flex:1}
+    .search-image-btn{padding:8px 12px;background:#5b8bd9;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap}
+    .search-image-btn:hover{background:#4a7bc8}
+    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.6);overflow:auto}
+    .modal.active{display:block}
+    .modal-content{background:#fff;margin:40px auto;padding:0;border-radius:14px;max-width:900px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+    .modal-header{padding:20px;border-bottom:2px solid #eef2f6;display:flex;justify-content:space-between;align-items:center}
+    .modal-title{font-size:20px;font-weight:700;margin:0}
+    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:#667;padding:0;width:32px;height:32px;line-height:1}
+    .modal-close:hover{color:#2c3e50}
+    .modal-body{padding:20px;overflow-y:auto;flex:1}
+    .search-form{margin-bottom:20px}
+    .search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+    .result-item{border:2px solid #dee2e6;border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.2s}
+    .result-item:hover{border-color:#2c5aa0;transform:translateY(-2px);box-shadow:0 4px 12px rgba(44,90,160,0.2)}
+    .result-item.selected{border-color:#28a745;background:#f0f8f5}
+    .result-image{width:100%;height:180px;object-fit:cover;background:#f8f9fa}
+    .result-info{padding:12px}
+    .result-name{font-size:13px;font-weight:600;margin:0 0 8px;color:#2c3e50;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .result-meta{font-size:12px;color:#667}
+    .loading-spinner{text-align:center;padding:40px;color:#667}
+    .loading-spinner::after{content:"🔄";font-size:48px;display:block;animation:spin 1s linear infinite}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .no-results{text-align:center;padding:60px 20px;color:#667}
+    .no-results-icon{font-size:48px;margin-bottom:16px}
     @media (max-width: 1200px) {
       .editor-layout{grid-template-columns:1fr}
     }
@@ -161,7 +187,10 @@
           </div>
           <div class="field-row">
             <div class="field-label">主图URL:</div>
-            <input type="text" id="edit-image" placeholder="图片URL" />
+            <div class="input-with-search">
+              <input type="text" id="edit-image" placeholder="图片URL" />
+              <button type="button" class="search-image-btn" onclick="openImageSearch('museum')">🔍 搜索图片</button>
+            </div>
           </div>
           <div class="field-row">
             <div class="field-label">标签:</div>
@@ -214,6 +243,28 @@
     </div>
   </div>
 
+  <!-- Image Search Modal -->
+  <div id="imageSearchModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">搜索图片</h2>
+        <button class="modal-close" onclick="closeImageSearch()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="search-form">
+          <div class="form-group">
+            <label id="searchLabel">搜索关键词</label>
+            <input type="text" id="searchQuery" placeholder="输入搜索关键词" />
+            <div class="hint" id="searchHint">将在 Wikimedia Commons 中搜索免费授权的图片</div>
+          </div>
+          <button class="btn btn-primary" onclick="performImageSearch()">🔍 开始搜索</button>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="wikimedia-image-search.js"></script>
   <script src="museums-meta.js"></script>
   <script src="museums-data.js"></script>
   <script src="museum-data-loader.js"></script>
@@ -349,7 +400,10 @@
             </div>
             <div class="field-row">
               <div class="field-label">图片URL:</div>
-              <input type="text" class="col-image" value="${col.imageUrl || ''}" placeholder="图片URL" />
+              <div class="input-with-search">
+                <input type="text" class="col-image" value="${col.imageUrl || ''}" placeholder="图片URL" />
+                <button type="button" class="search-image-btn" onclick="openImageSearch('treasure', ${index})">🔍 搜索图片</button>
+              </div>
             </div>
             <div class="field-row">
               <div class="field-label">描述:</div>
@@ -800,6 +854,162 @@
       initMuseumSelector();
       // Don't auto-load all museums - let user choose to quick load or scan all
     })();
+
+    // Image Search Functions (Global scope for onclick handlers)
+    let imageSearchContext = { type: null, collectionIndex: null };
+    const wikimediaSearch = new WikimediaImageSearch();
+
+    function openImageSearch(type, collectionIndex = null) {
+      imageSearchContext = { type, collectionIndex };
+      const modal = document.getElementById('imageSearchModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const searchLabel = document.getElementById('searchLabel');
+      const searchHint = document.getElementById('searchHint');
+      const searchQuery = document.getElementById('searchQuery');
+      const searchResults = document.getElementById('searchResults');
+
+      // Configure modal based on search type
+      if (type === 'museum') {
+        modalTitle.textContent = '搜索博物馆建筑照片';
+        searchLabel.textContent = '博物馆名称';
+        const museumName = document.getElementById('edit-name').value;
+        searchQuery.value = museumName || '';
+        searchQuery.placeholder = '例如: 故宫博物院';
+        searchHint.textContent = '将搜索博物馆建筑外观照片，所有图片来自 Wikimedia Commons (免费授权)';
+      } else if (type === 'treasure') {
+        modalTitle.textContent = '搜索文物藏品照片';
+        searchLabel.textContent = '文物名称';
+        const collectionItems = document.querySelectorAll('.array-item[data-index]');
+        const collectionItem = collectionItems[collectionIndex];
+        const treasureName = collectionItem ? collectionItem.querySelector('.col-name').value : '';
+        searchQuery.value = treasureName || '';
+        searchQuery.placeholder = '例如: 清明上河图';
+        searchHint.textContent = '将搜索文物藏品照片，所有图片来自 Wikimedia Commons (免费授权)';
+      }
+
+      // Clear previous results
+      searchResults.innerHTML = '';
+
+      // Show modal
+      modal.classList.add('active');
+
+      // Focus on search input
+      setTimeout(() => searchQuery.focus(), 100);
+    }
+
+    function closeImageSearch() {
+      const modal = document.getElementById('imageSearchModal');
+      modal.classList.remove('active');
+      imageSearchContext = { type: null, collectionIndex: null };
+    }
+
+    async function performImageSearch() {
+      const searchQuery = document.getElementById('searchQuery').value.trim();
+      const searchResults = document.getElementById('searchResults');
+
+      if (!searchQuery) {
+        alert('请输入搜索关键词');
+        return;
+      }
+
+      // Show loading
+      searchResults.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        let results = [];
+        const museumName = document.getElementById('edit-name').value;
+
+        if (imageSearchContext.type === 'museum') {
+          results = await wikimediaSearch.searchMuseumPhotos(searchQuery);
+        } else if (imageSearchContext.type === 'treasure') {
+          results = await wikimediaSearch.searchTreasurePhotos(museumName, searchQuery);
+        }
+
+        if (results.length === 0) {
+          searchResults.innerHTML = `
+            <div class="no-results">
+              <div class="no-results-icon">🔍</div>
+              <div>未找到相关图片</div>
+              <div class="hint">尝试使用不同的关键词或英文名称</div>
+            </div>
+          `;
+          return;
+        }
+
+        // Display results
+        searchResults.innerHTML = results.map((img, idx) => `
+          <div class="result-item" onclick="selectImage('${escapeHtml(img.url)}', ${idx})">
+            <img src="${escapeHtml(img.thumbnailUrl)}" alt="${escapeHtml(img.name)}" class="result-image" 
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'%3E%3Crect fill=\\'%23f0f0f0\\' width=\\'100\\' height=\\'100\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'%23999\\'%3E图片加载失败%3C/text%3E%3C/svg%3E'" />
+            <div class="result-info">
+              <div class="result-name">${escapeHtml(img.name)}</div>
+              <div class="result-meta">${img.width} × ${img.height}</div>
+            </div>
+          </div>
+        `).join('');
+
+        console.log(`✅ 显示 ${results.length} 个搜索结果`);
+      } catch (error) {
+        console.error('搜索失败:', error);
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">❌</div>
+            <div>搜索失败</div>
+            <div class="hint">${escapeHtml(error.message)}</div>
+          </div>
+        `;
+      }
+    }
+
+    function selectImage(url, index) {
+      // Highlight selected item
+      document.querySelectorAll('.result-item').forEach((item, idx) => {
+        if (idx === index) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+
+      // Populate the appropriate field
+      if (imageSearchContext.type === 'museum') {
+        document.getElementById('edit-image').value = url;
+        console.log('✅ 已选择博物馆图片:', url);
+      } else if (imageSearchContext.type === 'treasure' && imageSearchContext.collectionIndex !== null) {
+        const collectionItems = document.querySelectorAll('.array-item[data-index]');
+        const collectionItem = collectionItems[imageSearchContext.collectionIndex];
+        if (collectionItem) {
+          const imageInput = collectionItem.querySelector('.col-image');
+          if (imageInput) {
+            imageInput.value = url;
+            console.log('✅ 已选择文物图片:', url);
+          }
+        }
+      }
+
+      // Close modal after selection
+      setTimeout(() => closeImageSearch(), 300);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('imageSearchModal').onclick = function(event) {
+      if (event.target === this) {
+        closeImageSearch();
+      }
+    };
+
+    // Allow Enter key to trigger search
+    document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performImageSearch();
+      }
+    });
   </script>
 </body>
 </html>
