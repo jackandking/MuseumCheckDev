@@ -30,5 +30,9 @@ npm-debug.log*
 pids
 *.pid
 *.seed
-*.pid.locktest-poster-v2-*.html
+*.pid.lock
+
+# Test files
+test-poster-v2-*.html
+test-sortkey-fix-verification.html
 generate-v3-qr-codes.js

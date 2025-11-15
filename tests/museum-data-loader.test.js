@@ -142,6 +142,30 @@ describe('MuseumDataLoader', () => {
             expect(result).toEqual(mockData);
         });
 
+        test('should include sortKey parameter in KV store query', async () => {
+            const mockData = {
+                id: 'forbidden-city',
+                name: '故宫博物院',
+                location: '北京'
+            };
+
+            global.fetch.mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    value: JSON.stringify(mockData)
+                })
+            });
+
+            await loader.loadFromTier2('forbidden-city');
+            
+            // Verify the fetch was called with the correct URL including sortKey
+            const fetchCall = fetch.mock.calls[0];
+            const url = fetchCall[0];
+            
+            expect(url).toContain('key=museum-data-forbidden-city');
+            expect(url).toContain('sortKey=museum');
+        });
+
         test('should return null if not in KV store', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: false,

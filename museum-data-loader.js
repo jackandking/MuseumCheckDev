@@ -87,7 +87,8 @@ class MuseumDataLoader {
     async loadFromTier2(museumId) {
         try {
             const key = `${this.kvStoreKeyPrefix}${museumId}`;
-            const url = `${this.kvStoreEndpoint}?key=${encodeURIComponent(key)}`;
+            const sortKey = 'museum';
+            const url = `${this.kvStoreEndpoint}?key=${encodeURIComponent(key)}&sortKey=${encodeURIComponent(sortKey)}`;
             
             const response = await fetch(url, { method: 'GET' });
             if (!response.ok) {
