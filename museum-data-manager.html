@@ -81,7 +81,6 @@
     <div class="card">
       <div class="section-title">快速操作</div>
       <div class="actions">
-        <button id="refreshBtn" class="btn btn-primary">🔄 刷新列表</button>
         <button id="uploadBtn" class="btn btn-success">📤 上传新数据</button>
         <button id="backBtn" class="btn btn-secondary">← 返回设置</button>
       </div>
@@ -90,9 +89,32 @@
     <div id="statusMsg"></div>
 
     <div class="card">
+      <div class="section-title">加载博物馆数据</div>
+      <div class="form-group">
+        <label for="quickLoadMuseumId">快速加载（指定博物馆 ID）</label>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <div style="flex: 1;">
+            <input type="text" id="quickLoadMuseumId" placeholder="输入博物馆 ID，例如: forbidden-city" />
+            <div class="hint">输入单个博物馆 ID 可快速加载，无需扫描所有博物馆</div>
+          </div>
+          <button id="quickLoadBtn" class="btn btn-primary" style="margin-top: 0;">🔍 加载</button>
+        </div>
+      </div>
+      <div style="text-align: center; margin: 20px 0; color: #999; font-size: 14px;">或</div>
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-secondary">🔄 扫描所有博物馆（慢）</button>
+      </div>
+      <div class="hint" style="text-align: center; color: #dc3545;">⚠️ 扫描所有博物馆需要检查 200+ 个博物馆，可能需要较长时间</div>
+    </div>
+
+    <div class="card">
       <div class="section-title">远程存储（Tier 2）中的博物馆</div>
       <div id="museumList" class="museum-list">
-        <div class="loading">正在加载...</div>
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div>使用上方的快速加载输入框指定博物馆 ID</div>
+          <div class="hint">或点击"扫描所有博物馆"按钮查看所有远程数据</div>
+        </div>
       </div>
     </div>
 
@@ -671,7 +693,9 @@
           const success = await loader.deleteFromKVStore(museumId);
           if (success) {
             showStatus('删除成功', 'success');
-            await loadKVStoreMuseums();
+            // Remove from current list
+            currentMuseums = currentMuseums.filter(m => m.id !== museumId);
+            renderMuseumList();
           } else {
             showStatus('删除失败', 'error');
           }
@@ -694,8 +718,67 @@
         document.getElementById('uploadCard').style.display = 'none';
       };
 
-      // Refresh button
-      document.getElementById('refreshBtn').onclick = loadKVStoreMuseums;
+      // Quick load function - load specific museum by ID
+      async function quickLoadMuseum() {
+        const museumId = document.getElementById('quickLoadMuseumId').value.trim();
+        
+        if (!museumId) {
+          showStatus('请输入博物馆 ID', 'error');
+          return;
+        }
+
+        const listDiv = document.getElementById('museumList');
+        listDiv.innerHTML = '<div class="loading">正在加载博物馆数据...</div>';
+
+        try {
+          // Try to load from Tier 2 (KV store)
+          const data = await loader.loadFromTier2(museumId);
+          
+          if (data) {
+            // Found in KV store
+            currentMuseums = [{
+              id: museumId,
+              name: data.name || museumId,
+              location: data.location || '未知位置',
+              hasData: true
+            }];
+            renderMuseumList();
+            showStatus(`成功加载博物馆: ${data.name || museumId}`, 'success');
+          } else {
+            // Not found in KV store
+            listDiv.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <div>博物馆 "${museumId}" 在远程存储中未找到</div>
+                <div class="hint">可以点击"上传新数据"按钮添加此博物馆</div>
+              </div>
+            `;
+            showStatus(`博物馆 "${museumId}" 在远程存储（Tier 2）中未找到`, 'info');
+          }
+        } catch (error) {
+          console.error('Error loading museum:', error);
+          listDiv.innerHTML = `<div class="status status-error">加载失败: ${error.message}</div>`;
+          showStatus('加载失败: ' + error.message, 'error');
+        }
+      }
+
+      // Quick load button
+      document.getElementById('quickLoadBtn').onclick = quickLoadMuseum;
+      
+      // Allow Enter key to trigger quick load
+      document.getElementById('quickLoadMuseumId').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          quickLoadMuseum();
+        }
+      });
+
+      // Refresh button (scan all museums)
+      document.getElementById('refreshBtn').onclick = function() {
+        if (!confirm('扫描所有博物馆需要检查 200+ 个博物馆，可能需要较长时间。\n\n建议使用"快速加载"功能指定博物馆 ID。\n\n确定要继续扫描所有博物馆吗？')) {
+          return;
+        }
+        loadKVStoreMuseums();
+      };
 
       // Back button
       document.getElementById('backBtn').onclick = function() {
@@ -704,7 +787,7 @@
 
       // Initial load
       initMuseumSelector();
-      loadKVStoreMuseums();
+      // Don't auto-load all museums - let user choose to quick load or scan all
     })();
   </script>
 </body>
