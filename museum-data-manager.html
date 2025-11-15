@@ -577,7 +577,15 @@
           currentMuseums = [];
 
           // Check which museums exist in KV store (Tier 2)
-          for (const museum of allMuseums.slice(0, 10)) { // Check first 10 for performance
+          // Check all museums to ensure none are missed
+          for (let i = 0; i < allMuseums.length; i++) {
+            const museum = allMuseums[i];
+            
+            // Update progress indicator
+            if (i % 20 === 0) {
+              listDiv.innerHTML = `<div class="loading">正在检查远程数据... (${i}/${allMuseums.length})</div>`;
+            }
+            
             const data = await loader.loadFromTier2(museum.id);
             if (data) {
               currentMuseums.push({
