@@ -7087,7 +7087,6 @@ main[role="main"] {
 }
 
 /* Hide assessment-related elements when assessments are disabled */
-body.hide-assessments .museum-checkin-button {
-    display: none !important;
-}
+/* Note: museum-checkin-button is intentionally NOT hidden here because */
+/* check-in functionality is independent of parent-child assessment features */
 }

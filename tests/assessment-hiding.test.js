@@ -219,6 +219,29 @@ describe('Assessment Hiding Feature', () => {
                 expect(assessmentButtons[0].textContent).toContain('亲子测评');
             }
         });
+        
+        test('should NOT hide check-in buttons with CSS when assessmentHidden is true', () => {
+            // This is a regression test for issue: 打卡按钮不需要被设置页面中的是否显示亲子关系功能影响
+            // The check-in button should never be hidden by the hide-assessments CSS class
+            // because check-in functionality is independent of assessment features
+            
+            // Load and check the CSS file to ensure the incorrect rule is not present
+            const fs = require('fs');
+            const path = require('path');
+            const cssPath = path.join(__dirname, '..', 'style.css');
+            const cssContent = fs.readFileSync(cssPath, 'utf8');
+            
+            // Verify that the CSS does NOT contain a rule hiding .museum-checkin-button
+            // when body has .hide-assessments class
+            const badRule1 = 'body.hide-assessments .museum-checkin-button';
+            const badRule2 = '.hide-assessments .museum-checkin-button';
+            
+            expect(cssContent).not.toContain(badRule1);
+            expect(cssContent).not.toContain(badRule2);
+            
+            // Verify that other assessment-related elements ARE still hidden
+            expect(cssContent).toContain('.hide-assessments .assessment-button');
+        });
     });
 
     describe('Complete Integration Test', () => {
