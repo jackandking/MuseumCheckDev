@@ -91,11 +91,13 @@
     <div class="card">
       <div class="section-title">加载博物馆数据</div>
       <div class="form-group">
-        <label for="quickLoadMuseumId">快速加载（指定博物馆 ID）</label>
+        <label for="quickLoadMuseumId">快速加载（选择博物馆）</label>
         <div style="display: flex; gap: 10px; align-items: flex-start;">
           <div style="flex: 1;">
-            <input type="text" id="quickLoadMuseumId" placeholder="输入博物馆 ID，例如: forbidden-city" />
-            <div class="hint">输入单个博物馆 ID 可快速加载，无需扫描所有博物馆</div>
+            <select id="quickLoadMuseumId">
+              <option value="">-- 选择要加载的博物馆 --</option>
+            </select>
+            <div class="hint">从列表选择博物馆可快速加载，无需扫描所有博物馆</div>
           </div>
           <button id="quickLoadBtn" class="btn btn-primary" style="margin-top: 0;">🔍 加载</button>
         </div>
@@ -221,15 +223,24 @@
       let currentMuseums = [];
       let currentData = null;
 
-      // Initialize museum ID selector
+      // Initialize museum ID selectors
       function initMuseumSelector() {
-        const select = document.getElementById('museumIdSelect');
+        const uploadSelect = document.getElementById('museumIdSelect');
+        const quickLoadSelect = document.getElementById('quickLoadMuseumId');
+        
         if (typeof MUSEUMS_META !== 'undefined') {
           MUSEUMS_META.forEach(museum => {
-            const option = document.createElement('option');
-            option.value = museum.id;
-            option.textContent = `${museum.name} (${museum.id})`;
-            select.appendChild(option);
+            // Add to upload selector
+            const uploadOption = document.createElement('option');
+            uploadOption.value = museum.id;
+            uploadOption.textContent = `${museum.name} (${museum.id})`;
+            uploadSelect.appendChild(uploadOption);
+            
+            // Add to quick load selector
+            const quickLoadOption = document.createElement('option');
+            quickLoadOption.value = museum.id;
+            quickLoadOption.textContent = `${museum.name} (${museum.id})`;
+            quickLoadSelect.appendChild(quickLoadOption);
           });
         }
       }
@@ -720,10 +731,10 @@
 
       // Quick load function - load specific museum by ID
       async function quickLoadMuseum() {
-        const museumId = document.getElementById('quickLoadMuseumId').value.trim();
+        const museumId = document.getElementById('quickLoadMuseumId').value;
         
         if (!museumId) {
-          showStatus('请输入博物馆 ID', 'error');
+          showStatus('请选择博物馆', 'error');
           return;
         }
 
@@ -765,9 +776,9 @@
       // Quick load button
       document.getElementById('quickLoadBtn').onclick = quickLoadMuseum;
       
-      // Allow Enter key to trigger quick load
-      document.getElementById('quickLoadMuseumId').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+      // Allow dropdown change to trigger quick load (optional convenience)
+      document.getElementById('quickLoadMuseumId').addEventListener('change', function(e) {
+        if (e.target.value) {
           quickLoadMuseum();
         }
       });
