@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>博物馆数据管理 | MuseumCheck</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Helvetica,Arial; background:#f7f9fb; color:#2c3e50; margin:0; padding:0;}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .header{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:20px;margin-bottom:16px}
+    .title{font-size:24px;font-weight:800;margin:0 0 8px}
+    .subtitle{font-size:14px;color:#667;margin:0}
+    .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:20px;margin-bottom:16px}
+    .section-title{font-size:18px;font-weight:700;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid #eef2f6}
+    .actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+    .btn{padding:10px 16px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s}
+    .btn-primary{background:linear-gradient(135deg,#2c5aa0,#5b8bd9);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(44,90,160,0.3)}
+    .btn-secondary{background:#eef2f6;color:#2c3e50}
+    .btn-secondary:hover{background:#dde5ed}
+    .btn-danger{background:linear-gradient(135deg,#dc3545,#e74c3c);color:#fff}
+    .btn-danger:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,53,69,0.3)}
+    .btn-success{background:linear-gradient(135deg,#28a745,#5cb85c);color:#fff}
+    .btn-success:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(40,167,69,0.3)}
+    .museum-list{display:grid;gap:12px}
+    .museum-item{background:#f8f9fa;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s}
+    .museum-item:hover{background:#e9ecef;transform:translateX(4px)}
+    .museum-info{flex:1}
+    .museum-name{font-size:16px;font-weight:600;color:#2c3e50;margin:0 0 4px}
+    .museum-meta{font-size:13px;color:#667}
+    .museum-actions{display:flex;gap:8px}
+    .form-group{margin-bottom:16px}
+    label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;color:#2c3e50}
+    input, select, textarea{width:100%;padding:10px;border-radius:10px;border:2px solid #dee2e6;font-size:14px;font-family:inherit;box-sizing:border-box}
+    textarea{min-height:400px;font-family:monospace;font-size:13px}
+    .hint{font-size:13px;color:#667;margin-top:6px}
+    .status{padding:8px 12px;border-radius:8px;font-size:13px;margin-bottom:16px}
+    .status-success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+    .status-error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+    .status-info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
+    .loading{text-align:center;padding:40px;color:#667}
+    .tier-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px}
+    .tier-1{background:#d4edda;color:#155724}
+    .tier-2{background:#fff3cd;color:#856404}
+    .tier-3{background:#d1ecf1;color:#0c5460}
+    .empty-state{text-align:center;padding:60px 20px;color:#667}
+    .empty-state-icon{font-size:48px;margin-bottom:16px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1 class="title">博物馆数据管理</h1>
+      <p class="subtitle">管理远程存储（Tier 2）中的博物馆数据，用于开发和调试</p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">快速操作</div>
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-primary">🔄 刷新列表</button>
+        <button id="uploadBtn" class="btn btn-success">📤 上传新数据</button>
+        <button id="backBtn" class="btn btn-secondary">← 返回设置</button>
+      </div>
+    </div>
+
+    <div id="statusMsg"></div>
+
+    <div class="card">
+      <div class="section-title">远程存储（Tier 2）中的博物馆</div>
+      <div id="museumList" class="museum-list">
+        <div class="loading">正在加载...</div>
+      </div>
+    </div>
+
+    <div class="card" id="uploadCard" style="display:none;">
+      <div class="section-title">上传/编辑博物馆数据</div>
+      <form id="uploadForm">
+        <div class="form-group">
+          <label for="museumId">博物馆 ID *</label>
+          <input type="text" id="museumId" placeholder="例如: forbidden-city" required />
+          <div class="hint">使用小写字母和连字符，例如: forbidden-city, national-museum</div>
+        </div>
+
+        <div class="form-group">
+          <label for="museumData">博物馆数据 (JSON) *</label>
+          <textarea id="museumData" placeholder='{"id":"forbidden-city","name":"故宫博物院",...}' required></textarea>
+          <div class="hint">输入完整的博物馆数据 JSON 对象</div>
+        </div>
+
+        <div class="form-group">
+          <label for="expireAt">过期时间</label>
+          <select id="expireAt">
+            <option value="permanent">永久保存</option>
+            <option value="1day">1 天后过期</option>
+            <option value="7days">7 天后过期</option>
+            <option value="30days">30 天后过期</option>
+          </select>
+          <div class="hint">数据过期后会自动删除</div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-success">✓ 提交</button>
+          <button type="button" id="cancelUploadBtn" class="btn btn-secondary">✕ 取消</button>
+          <button type="button" id="validateBtn" class="btn btn-secondary">🔍 验证 JSON</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="museums-data.js"></script>
+  <script src="museum-data-loader.js"></script>
+  <script>
+    (function(){
+      const loader = new MuseumDataLoader();
+      let currentMuseums = [];
+
+      // Show status message
+      function showStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('statusMsg');
+        statusDiv.innerHTML = `<div class="status status-${type}">${message}</div>`;
+        setTimeout(() => {
+          statusDiv.innerHTML = '';
+        }, 5000);
+      }
+
+      // Load and display museums in KV store
+      async function loadKVStoreMuseums() {
+        const listDiv = document.getElementById('museumList');
+        listDiv.innerHTML = '<div class="loading">正在加载远程数据...</div>';
+
+        try {
+          // Get list of museums from Tier 3 to check
+          const allMuseums = await loader.loadAllMuseums();
+          currentMuseums = [];
+
+          // Check which museums exist in KV store (Tier 2)
+          for (const museum of allMuseums.slice(0, 10)) { // Check first 10 for performance
+            const data = await loader.loadFromTier2(museum.id);
+            if (data) {
+              currentMuseums.push({
+                id: museum.id,
+                name: data.name || museum.name,
+                location: data.location || museum.location,
+                hasData: true
+              });
+            }
+          }
+
+          renderMuseumList();
+        } catch (error) {
+          console.error('Error loading KV store museums:', error);
+          listDiv.innerHTML = `<div class="status status-error">加载失败: ${error.message}</div>`;
+        }
+      }
+
+      // Render museum list
+      function renderMuseumList() {
+        const listDiv = document.getElementById('museumList');
+        
+        if (currentMuseums.length === 0) {
+          listDiv.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📦</div>
+              <div>远程存储中暂无博物馆数据</div>
+              <div class="hint">点击"上传新数据"按钮添加数据</div>
+            </div>
+          `;
+          return;
+        }
+
+        listDiv.innerHTML = currentMuseums.map(m => `
+          <div class="museum-item">
+            <div class="museum-info">
+              <div class="museum-name">
+                ${m.name}
+                <span class="tier-badge tier-2">Tier 2</span>
+              </div>
+              <div class="museum-meta">ID: ${m.id} • ${m.location || '未知位置'}</div>
+            </div>
+            <div class="museum-actions">
+              <button class="btn btn-secondary btn-sm" onclick="viewMuseum('${m.id}')">查看</button>
+              <button class="btn btn-secondary btn-sm" onclick="editMuseum('${m.id}')">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteMuseum('${m.id}')">删除</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // View museum data
+      window.viewMuseum = async function(museumId) {
+        try {
+          const data = await loader.loadFromTier2(museumId);
+          if (data) {
+            const formatted = JSON.stringify(data, null, 2);
+            alert('博物馆数据:\n\n' + formatted.substring(0, 500) + '\n\n...(数据已截断)');
+          } else {
+            showStatus('未找到该博物馆数据', 'error');
+          }
+        } catch (error) {
+          showStatus('加载失败: ' + error.message, 'error');
+        }
+      };
+
+      // Edit museum data
+      window.editMuseum = async function(museumId) {
+        try {
+          const data = await loader.loadFromTier2(museumId);
+          if (data) {
+            document.getElementById('museumId').value = museumId;
+            document.getElementById('museumId').readOnly = true;
+            document.getElementById('museumData').value = JSON.stringify(data, null, 2);
+            document.getElementById('uploadCard').style.display = 'block';
+            document.getElementById('uploadCard').scrollIntoView({ behavior: 'smooth' });
+          } else {
+            showStatus('未找到该博物馆数据', 'error');
+          }
+        } catch (error) {
+          showStatus('加载失败: ' + error.message, 'error');
+        }
+      };
+
+      // Delete museum data
+      window.deleteMuseum = async function(museumId) {
+        if (!confirm(`确定要从远程存储删除"${museumId}"吗？\n\n注意：这不会影响静态文件和内置数据。`)) {
+          return;
+        }
+
+        try {
+          const success = await loader.deleteFromKVStore(museumId);
+          if (success) {
+            showStatus('删除成功', 'success');
+            await loadKVStoreMuseums();
+          } else {
+            showStatus('删除失败', 'error');
+          }
+        } catch (error) {
+          showStatus('删除失败: ' + error.message, 'error');
+        }
+      };
+
+      // Show upload form
+      document.getElementById('uploadBtn').onclick = function() {
+        document.getElementById('museumId').value = '';
+        document.getElementById('museumId').readOnly = false;
+        document.getElementById('museumData').value = '';
+        document.getElementById('uploadCard').style.display = 'block';
+        document.getElementById('uploadCard').scrollIntoView({ behavior: 'smooth' });
+      };
+
+      // Cancel upload
+      document.getElementById('cancelUploadBtn').onclick = function() {
+        document.getElementById('uploadCard').style.display = 'none';
+      };
+
+      // Validate JSON
+      document.getElementById('validateBtn').onclick = function() {
+        try {
+          const data = document.getElementById('museumData').value;
+          const parsed = JSON.parse(data);
+          
+          // Basic validation
+          const required = ['id', 'name', 'location'];
+          const missing = required.filter(field => !parsed[field]);
+          
+          if (missing.length > 0) {
+            showStatus('缺少必需字段: ' + missing.join(', '), 'error');
+          } else {
+            showStatus('JSON 格式正确 ✓', 'success');
+          }
+        } catch (error) {
+          showStatus('JSON 格式错误: ' + error.message, 'error');
+        }
+      };
+
+      // Submit upload
+      document.getElementById('uploadForm').onsubmit = async function(e) {
+        e.preventDefault();
+
+        const museumId = document.getElementById('museumId').value.trim();
+        const dataStr = document.getElementById('museumData').value.trim();
+        const expireOption = document.getElementById('expireAt').value;
+
+        // Validate
+        if (!museumId || !dataStr) {
+          showStatus('请填写所有必需字段', 'error');
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(dataStr);
+        } catch (error) {
+          showStatus('JSON 格式错误: ' + error.message, 'error');
+          return;
+        }
+
+        // Ensure ID matches
+        if (data.id !== museumId) {
+          showStatus('博物馆 ID 不匹配', 'error');
+          return;
+        }
+
+        // Calculate expiration
+        let expireAt = 4866674732; // Default: year 2124
+        const now = Math.floor(Date.now() / 1000);
+        switch (expireOption) {
+          case '1day': expireAt = now + 86400; break;
+          case '7days': expireAt = now + 604800; break;
+          case '30days': expireAt = now + 2592000; break;
+        }
+
+        // Upload
+        try {
+          const success = await loader.saveToKVStore(museumId, data, expireAt);
+          if (success) {
+            showStatus('上传成功 ✓', 'success');
+            document.getElementById('uploadCard').style.display = 'none';
+            await loadKVStoreMuseums();
+          } else {
+            showStatus('上传失败', 'error');
+          }
+        } catch (error) {
+          showStatus('上传失败: ' + error.message, 'error');
+        }
+      };
+
+      // Refresh button
+      document.getElementById('refreshBtn').onclick = loadKVStoreMuseums;
+
+      // Back button
+      document.getElementById('backBtn').onclick = function() {
+        location.href = 'settings.html';
+      };
+
+      // Initial load
+      loadKVStoreMuseums();
+    })();
+  </script>
+</body>
+</html>

@@ -49,6 +49,26 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="title" style="font-size:18px">博物馆数据源优先级</div>
+      <div class="row">
+        <label for="dataPriority">数据加载优先级</label>
+        <select id="dataPriority">
+          <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（推荐）</option>
+          <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（开发调试）</option>
+          <option value="tier3-tier1-tier2">内置数据 → 静态文件 → 远程存储（离线优先）</option>
+        </select>
+        <div class="hint">
+          <strong>静态文件</strong>：稳定发布的博物馆数据<br>
+          <strong>远程存储</strong>：开发调试中的最新内容<br>
+          <strong>内置数据</strong>：应用默认数据
+        </div>
+      </div>
+      <div class="row">
+        <button id="manageDataBtn" class="btn btn-secondary" style="width:100%">管理远程数据</button>
+      </div>
+    </div>
+
     <div class="actions">
       <button id="saveBtn" class="btn btn-primary">保存</button>
       <button id="backBtn" class="btn btn-secondary">返回</button>
@@ -63,6 +83,16 @@
           const role = localStorage.getItem('caregiverRole') || 'parent';
           document.getElementById('ageGroup').value = age;
           document.getElementById('caregiverRole').value = role;
+          
+          // Load data priority setting
+          const prioritySettings = localStorage.getItem('museumDataTierPriority');
+          let priorityValue = 'tier1-tier2-tier3'; // default
+          if (prioritySettings) {
+            const parsed = JSON.parse(prioritySettings);
+            const priority = parsed.priority || ['tier1', 'tier2', 'tier3'];
+            priorityValue = priority.join('-');
+          }
+          document.getElementById('dataPriority').value = priorityValue;
         }catch(e){}
       }
       function save(){
@@ -71,6 +101,12 @@
           const role = document.getElementById('caregiverRole').value;
           localStorage.setItem('ageGroup', age);
           localStorage.setItem('caregiverRole', role);
+          
+          // Save data priority setting
+          const priorityValue = document.getElementById('dataPriority').value;
+          const priority = priorityValue.split('-');
+          localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
+          
           alert('设置已保存');
         }catch(e){ alert('保存失败，请重试'); }
       }
@@ -78,8 +114,12 @@
         const ref = document.referrer || 'index.html';
         location.href = ref;
       }
+      function manageData(){
+        location.href = 'museum-data-manager.html';
+      }
       document.getElementById('saveBtn').onclick = save;
       document.getElementById('backBtn').onclick = back;
+      document.getElementById('manageDataBtn').onclick = manageData;
       load();
     })();
   </script>

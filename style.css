@@ -2803,6 +2803,37 @@ main[role="main"] {
     background: linear-gradient(135deg, #c0392b, #a93226);
 }
 
+.settings-button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--btn-border-radius);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    min-width: 130px;
+    min-height: var(--btn-min-height-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+}
+
+.settings-button:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9, #21618c);
+}
+
+.settings-button:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
 .clear-data-button-icon {
     /* Icon variant of clear data button */
     min-width: auto;

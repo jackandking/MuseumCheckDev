@@ -42,7 +42,21 @@ https://museumcheck.cn/
 - 无需注册账号，隐私友好
 - 数据持久保存，支持多次访问
 
-### 🎯 博物馆专用打卡页面 (新功能)
+### 🔧 三级数据管理系统 (新功能)
+灵活的博物馆数据加载机制，支持开发调试和稳定发布：
+
+- **Tier 1 - 静态文件**：单个博物馆的静态 JSON 文件 (`/museums/{museum-id}.json`)，用于稳定发布的内容
+- **Tier 2 - 远程存储**：云端 KV 存储中的博物馆数据，用于开发调试和快速迭代
+- **Tier 3 - 内置数据**：应用默认的完整博物馆数据 (`museums-data.js`)，保证离线可用
+
+**特性**：
+- 可配置的加载优先级（默认：静态文件 → 远程存储 → 内置数据）
+- 智能缓存机制，提升加载性能
+- 远程数据管理界面，支持在线编辑、上传、删除博物馆数据
+- 无缝降级：任何层级失败自动切换到下一优先级
+- 详细文档：参见下方"开发者指南"
+
+### 🎯 博物馆专用打卡页面
 专为博物馆现场体验设计的独立页面：
 - **二维码接入**：博物馆可在烟花墙放置二维码，访客扫码即可使用
 - **孩子任务专注**：大卡片展示，适合儿童操作
@@ -343,6 +357,178 @@ python3 -m http.server 8000
 # 验证版本一致性
 node validate-version.js
 
+# 运行单元测试
+npm test
+
 # 访问应用
 # http://localhost:8000
 ```
+
+## 🔧 开发者指南 - 三级数据管理系统
+
+### 系统架构
+
+MuseumCheck 使用灵活的三级数据管理架构，支持开发调试和稳定发布：
+
+```
+Tier 1: 静态文件 (/museums/{museum-id}.json)
+   ↓ (未找到)
+Tier 2: 远程存储 (KV Store)
+   ↓ (未找到)
+Tier 3: 内置数据 (museums-data.js)
+```
+
+### 使用场景
+
+#### Tier 1 - 静态文件（推荐用于稳定发布）
+- **用途**：已验证、稳定的博物馆数据
+- **位置**：`/museums/{museum-id}.json`
+- **优势**：快速加载、版本控制友好、可缓存
+- **示例**：
+  ```bash
+  # 创建新的博物馆静态文件
+  cat > museums/example-museum.json << 'EOF'
+  {
+    "id": "example-museum",
+    "name": "示例博物馆",
+    "location": "北京",
+    "description": "这是一个示例博物馆",
+    "tags": ["历史", "文化"],
+    "checklists": { ... }
+  }
+  EOF
+  ```
+
+#### Tier 2 - 远程存储（用于开发调试）
+- **用途**：开发中的博物馆数据、A/B 测试、快速迭代
+- **位置**：云端 KV 存储（AWS Lambda + DynamoDB）
+- **优势**：无需部署即可更新、支持在线编辑
+- **管理界面**：访问 `museum-data-manager.html`
+- **操作**：
+  1. 点击设置 → 管理远程数据
+  2. 上传/编辑/删除博物馆数据
+  3. 设置过期时间（开发数据建议 1-7 天）
+
+#### Tier 3 - 内置数据（保底方案）
+- **用途**：默认数据、离线支持
+- **位置**：`museums-data.js`（全量数据）和 `museums-meta.js`（元数据）
+- **优势**：保证离线可用、首次加载快速
+
+### 配置数据加载优先级
+
+用户可以在设置中调整加载优先级：
+
+1. **默认模式**（推荐）：静态文件 → 远程存储 → 内置数据
+   - 适合普通用户
+   - 优先使用稳定的静态文件
+
+2. **开发模式**：远程存储 → 静态文件 → 内置数据
+   - 适合内容开发者
+   - 优先使用最新的远程数据
+
+3. **离线模式**：内置数据 → 静态文件 → 远程存储
+   - 适合网络不稳定环境
+   - 优先使用本地数据
+
+### 开发工作流
+
+#### 场景 1：添加新博物馆
+```bash
+# 步骤 1：在远程存储中创建草稿（开发调试）
+# 访问 museum-data-manager.html，上传新博物馆数据，设置过期时间为 7 天
+
+# 步骤 2：验证内容
+# 在设置中切换到"开发模式"，测试新博物馆数据
+
+# 步骤 3：稳定后发布为静态文件
+# 将数据导出为 JSON 文件，保存到 /museums/ 目录
+
+# 步骤 4：更新到内置数据（可选）
+# 将数据添加到 museums-data.js 以支持离线使用
+```
+
+#### 场景 2：更新现有博物馆
+```bash
+# 步骤 1：在远程存储中更新
+# 使用管理界面编辑博物馆数据
+
+# 步骤 2：验证更新
+# 测试确认更新正确
+
+# 步骤 3：同步到静态文件
+# 更新对应的 JSON 文件
+
+# 步骤 4：更新内置数据
+# 同步到 museums-data.js
+```
+
+### API 使用示例
+
+```javascript
+// 获取数据加载器实例
+const loader = window.museumDataLoader;
+
+// 加载单个博物馆（按优先级自动选择数据源）
+const museum = await loader.loadMuseum('forbidden-city');
+
+// 加载所有博物馆列表
+const museums = await loader.loadAllMuseums();
+
+// 更改优先级
+loader.updatePrioritySettings(['tier2', 'tier1', 'tier3']);
+
+// 保存数据到远程存储
+await loader.saveToKVStore('museum-id', museumData, expireTimestamp);
+
+// 删除远程数据
+await loader.deleteFromKVStore('museum-id');
+
+// 清除缓存
+loader.clearCache(); // 清除所有缓存
+loader.clearCache('museum-id'); // 清除特定博物馆缓存
+```
+
+### 测试
+
+```bash
+# 运行单元测试
+npm test
+
+# 运行数据加载器测试
+npm test -- tests/museum-data-loader.test.js
+
+# 测试覆盖率
+npm run test:coverage
+```
+
+### 故障排查
+
+**问题：博物馆数据未更新**
+- 检查数据源优先级设置
+- 清除浏览器缓存：`museumDataLoader.clearCache()`
+- 检查远程存储是否有新数据
+- 验证 JSON 文件格式是否正确
+
+**问题：远程数据加载失败**
+- 检查网络连接
+- 验证 KV Store API 是否可访问
+- 查看浏览器控制台错误信息
+- 确认数据未过期
+
+**问题：静态文件 404**
+- 确认文件路径：`/museums/{museum-id}.json`
+- 检查文件命名是否匹配博物馆 ID
+- 验证 HTTP 服务器配置
+
+### 贡献指南
+
+欢迎贡献新的博物馆数据！请遵循以下流程：
+
+1. Fork 本仓库
+2. 创建功能分支
+3. 使用远程存储测试新数据
+4. 验证通过后创建静态文件
+5. 提交 Pull Request
+6. 参与代码审查
+
+详见 **[wiki/Contributing.md](wiki/Contributing.md)**

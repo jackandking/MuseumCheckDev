@@ -497,6 +497,31 @@
             <div class="settings-section">
                 <h3>🗑️ 数据管理</h3>
                 <div class="settings-item">
+                    <label class="settings-label" for="dataTierPrioritySelector">博物馆数据优先级：</label>
+                    <div class="settings-input-group">
+                        <select id="dataTierPrioritySelector" class="settings-input">
+                            <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（推荐）</option>
+                            <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（开发调试）</option>
+                            <option value="tier3-tier1-tier2">内置数据 → 静态文件 → 远程存储（离线优先）</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">
+                        选择博物馆数据加载的优先级顺序<br>
+                        • <strong>静态文件</strong>：稳定发布的单个博物馆数据文件<br>
+                        • <strong>远程存储</strong>：开发调试中的最新内容（云端KV存储）<br>
+                        • <strong>内置数据</strong>：应用默认数据（离线可用）
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label">高级数据管理：</label>
+                    <div class="settings-input-group">
+                        <button id="openDataManagerButton" class="settings-button">
+                            🔧 管理远程数据
+                        </button>
+                    </div>
+                    <div class="settings-hint">打开远程数据管理页面，可查看、上传、编辑、删除云端存储的博物馆数据</div>
+                </div>
+                <div class="settings-item">
                     <label class="settings-label">清空所有数据：</label>
                     <div class="settings-input-group">
                         <button id="clearAllDataButton" class="clear-data-button clear-all-button">
@@ -611,6 +636,7 @@
         }catch(e){}
       })();
     </script>
+    <script src="museum-data-loader.js"></script>
     <script src="museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
     <script>
       // Adopt meta as default dataset before main script executes

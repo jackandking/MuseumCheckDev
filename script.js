@@ -4803,6 +4803,26 @@ class MuseumCheckApp {
             this.clearAllData();
         });
 
+        // Data tier priority selector
+        const dataTierSelector = document.getElementById('dataTierPrioritySelector');
+        if (dataTierSelector) {
+            dataTierSelector.addEventListener('change', (e) => {
+                const priority = e.target.value.split('-');
+                if (window.museumDataLoader) {
+                    window.museumDataLoader.updatePrioritySettings(priority);
+                    this.showNotification('数据优先级已更新', 2000);
+                }
+            });
+        }
+
+        // Open data manager button
+        const openDataManagerBtn = document.getElementById('openDataManagerButton');
+        if (openDataManagerBtn) {
+            openDataManagerBtn.addEventListener('click', () => {
+                window.open('museum-data-manager.html', '_blank');
+            });
+        }
+
         // Achievement poster generation button
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
@@ -7542,6 +7562,13 @@ class MuseumCheckApp {
         const ageGroupSelector = document.getElementById('ageGroupSelector');
         if (ageGroupSelector) {
             ageGroupSelector.value = this.currentAge;
+        }
+        
+        // Update data tier priority selector
+        const dataTierSelector = document.getElementById('dataTierPrioritySelector');
+        if (dataTierSelector && window.museumDataLoader) {
+            const priority = window.museumDataLoader.getPrioritySettings();
+            dataTierSelector.value = priority.join('-');
         }
         
         // Update fireworks retention time slider
