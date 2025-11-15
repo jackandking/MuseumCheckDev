@@ -11909,8 +11909,104 @@ class MuseumCheckApp {
   }catch(e){}
 })();
 
+// ===== HOW TO PLAY GUIDE MODULE =====
+// Introductory guide for new users that auto-closes after 10 seconds
+const HowToPlayGuide = {
+    STORAGE_KEY: 'howToPlayGuideShown',
+    AUTO_CLOSE_SECONDS: 10,
+    
+    init() {
+        // Check if guide has been shown before
+        const hasBeenShown = localStorage.getItem(this.STORAGE_KEY);
+        
+        // Show guide only for first-time users
+        if (!hasBeenShown) {
+            this.showGuide();
+        }
+    },
+    
+    showGuide() {
+        const guideElement = document.getElementById('howToPlayGuide');
+        const timerElement = document.getElementById('timerCount');
+        const closeButton = document.getElementById('closeGuideButton');
+        
+        if (!guideElement) return;
+        
+        // Display the guide
+        guideElement.style.display = 'block';
+        
+        // Set up manual close button
+        if (closeButton) {
+            closeButton.addEventListener('click', () => this.closeGuide());
+        }
+        
+        // Set up auto-close timer
+        let secondsLeft = this.AUTO_CLOSE_SECONDS;
+        
+        const countdown = setInterval(() => {
+            secondsLeft--;
+            if (timerElement) {
+                timerElement.textContent = secondsLeft;
+            }
+            
+            if (secondsLeft <= 0) {
+                clearInterval(countdown);
+                this.closeGuide();
+            }
+        }, 1000);
+        
+        // Store timer interval ID so we can clear it on manual close
+        guideElement.dataset.timerId = countdown;
+    },
+    
+    closeGuide() {
+        const guideElement = document.getElementById('howToPlayGuide');
+        
+        if (!guideElement) return;
+        
+        // Clear the countdown timer if it exists
+        const timerId = guideElement.dataset.timerId;
+        if (timerId) {
+            clearInterval(parseInt(timerId));
+        }
+        
+        // Add fade-out animation
+        guideElement.style.animation = 'guideFadeOut 0.3s ease-out';
+        
+        setTimeout(() => {
+            guideElement.style.display = 'none';
+            guideElement.style.animation = '';
+        }, 300);
+        
+        // Mark guide as shown so it won't appear again
+        localStorage.setItem(this.STORAGE_KEY, 'true');
+    }
+};
+
+// Add fade-out animation CSS dynamically if not already in stylesheet
+if (!document.querySelector('style[data-guide-animations]')) {
+    const style = document.createElement('style');
+    style.setAttribute('data-guide-animations', 'true');
+    style.textContent = `
+        @keyframes guideFadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new MuseumCheckApp();
     try { window.museumCheck = window.app; } catch(e) {}
+    
+    // Initialize the how-to-play guide for new users
+    HowToPlayGuide.init();
 });

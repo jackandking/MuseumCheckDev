@@ -197,8 +197,6 @@
 
         <main role="main">
             <section class="museum-list" id="museums">
-                <h2>全国主要博物馆清单</h2>
-                
                 <div class="stats" role="status" aria-live="polite">
                     <div class="progress-display">
                         <div class="progress-text minecraft-themed">
@@ -238,6 +236,34 @@
                                     <span class="score-label">最新得分</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- How to Play Guide - appears before search for new users -->
+                <div id="howToPlayGuide" class="how-to-play-guide" style="display: none;">
+                    <div class="guide-content">
+                        <button id="closeGuideButton" class="guide-close-button" title="关闭引导">✕</button>
+                        <h3 class="guide-title">🎉 欢迎来到博物馆打卡！</h3>
+                        <div class="guide-description">
+                            <p class="guide-intro">让孩子爱上博物馆，通过亲子游增进亲子关系</p>
+                            <div class="guide-steps">
+                                <div class="guide-step">
+                                    <span class="step-icon">1️⃣</span>
+                                    <span class="step-text">选择孩子的年龄段，获取适龄内容</span>
+                                </div>
+                                <div class="guide-step">
+                                    <span class="step-icon">2️⃣</span>
+                                    <span class="step-text">点击博物馆卡片查看详细参观指南</span>
+                                </div>
+                                <div class="guide-step">
+                                    <span class="step-icon">3️⃣</span>
+                                    <span class="step-text">完成任务打卡，记录精彩的亲子时光</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="guide-timer" id="guideTimer">
+                            <span id="timerText">本提示将在 <span id="timerCount">10</span> 秒后自动关闭</span>
                         </div>
                     </div>
                 </div>
