@@ -6,7 +6,7 @@ This directory contains tools to ensure systematic data quality in the MuseumChe
 
 ### Image Search Tools
 
-**Two powerful tools are available to find museum and treasure photos. ALWAYS try Wikimedia first, use Bing website search as backup.**
+**Three powerful tools are available to find museum and treasure photos. ALWAYS try Wikimedia first, then Baidu for Chinese museums, use Bing as final backup.**
 
 #### 🥇 Option 1: search-museum-images-wikimedia.js (RECOMMENDED FIRST)
 
@@ -48,15 +48,56 @@ node tools/search-museum-images-wikimedia.js "上海博物馆" "大克鼎"
 
 ---
 
-#### 🥈 Option 2: bing-image-search-helper.html (BACKUP - 免费浏览器工具)
+#### 🥈 Option 2: baidu-image-search-helper.html (中国博物馆首选 - 免费浏览器工具)
 
-**免费的浏览器图片搜索助手 - 当Wikimedia没有理想图片时使用！**
+**百度图片搜索助手 - 中国博物馆和文物图片搜索最佳选择！**
+
+这是一个基于网页的交互式工具，帮助您通过百度免费搜索博物馆和文物图片。
+
+**为什么选择百度：**
+- 🏆 **中国内容最全** - 收录的中国博物馆和文物图片数量最多、最全面
+- ✅ **中文搜索最强** - 对中文关键词理解最准确，搜索结果更精准
+- ✅ **图片质量高** - 提供高清大图，适合用于展示和设计
+- ✅ **搜索功能强大** - 支持按尺寸、颜色、类型等多维度筛选
+- ✅ **完全免费** - 无需任何API密钥或付费订阅
+- ⚠️ **注意：使用前必须验证图片许可证**
+
+**何时使用此工具：**
+- 🏆 搜索中国博物馆和文物图片（首选方案）
+- ✅ Wikimedia没有该博物馆的图片
+- ✅ 需要更多高质量的中文图片资源
+- ✅ 需要利用百度强大的中文搜索能力
+
+**使用方法：**
+```bash
+# 直接在浏览器中打开
+open tools/baidu-image-search-helper.html
+
+# 或通过HTTP服务器访问
+python3 -m http.server 8000
+# 然后访问: http://localhost:8000/tools/baidu-image-search-helper.html
+```
+
+**工作流程：**
+1. 在网页中输入博物馆和文物名称
+2. 点击搜索按钮，自动在百度打开优化的搜索结果
+3. 浏览图片，右键"复制图片地址"
+4. 将URL粘贴到博物馆数据中
+5. **重要**：访问源页面验证图片许可证
+
+**详细文档：** 查看 [BAIDU_IMAGE_SEARCH_HELPER.md](BAIDU_IMAGE_SEARCH_HELPER.md)
+
+---
+
+#### 🥉 Option 3: bing-image-search-helper.html (国际博物馆备选 - 免费浏览器工具)
+
+**免费的浏览器图片搜索助手 - 适合国际博物馆！**
 
 这是一个基于网页的交互式工具，帮助您通过Bing网站免费搜索博物馆和文物图片。
 
 **何时使用此工具：**
-- ❌ Wikimedia没有该博物馆的图片
-- ❌ Wikimedia图片质量不够或不够代表性
+- ✅ 搜索国际博物馆图片
+- ❌ Wikimedia和百度都没有理想图片
 - ❌ 需要更多样化的角度或视图
 - ⚠️ **注意：使用前必须验证图片许可证**
 
@@ -87,7 +128,7 @@ python3 -m http.server 8000
 
 ---
 
-#### 🔧 Option 3: search-museum-images.js (高级 - 需要API密钥)
+#### 🔧 Option 4: search-museum-images.js (高级 - 需要API密钥)
 
 **Bing Image Search API工具 - 用于批量自动化处理**
 
@@ -141,28 +182,39 @@ node tools/search-museum-images-demo.js "故宫博物院" "清明上河图"
 
 **标准流程（ALWAYS follow this order）：**
 
-1. **首先尝试Wikimedia Commons**
+1. **首先尝试Wikimedia Commons**（免费许可保证）
    ```bash
    node tools/search-museum-images-wikimedia.js "博物馆名称" "文物名称"
    ```
    - 检查返回的图片是否合适
    - 所有图片都是免费许可，可以直接使用
+   - 如果找到合适的图片，工作完成
 
-2. **如果Wikimedia没有理想图片，使用Bing浏览器工具作为备选**
+2. **如果Wikimedia没有理想图片，使用百度图片搜索（中国博物馆首选）**
    ```bash
-   # 打开免费的浏览器搜索助手（无需API密钥）
-   open tools/bing-image-search-helper.html
+   # 打开免费的百度搜索助手（无需API密钥）
+   open tools/baidu-image-search-helper.html
    ```
+   - 🏆 **中国博物馆和文物的最佳选择**
+   - 中文搜索结果最准确、最全面
    - ⚠️ **重要**: 必须验证图片许可证
    - 访问源页面确认图片可以使用
    - 优先选择Public Domain, CC0, CC BY, CC BY-SA许可的图片
 
-3. **验证图片URL可访问性**
+3. **如果需要国际博物馆图片，使用Bing浏览器工具作为补充**
+   ```bash
+   # 打开免费的Bing搜索助手（无需API密钥）
+   open tools/bing-image-search-helper.html
+   ```
+   - 适合搜索国际博物馆
+   - ⚠️ **重要**: 必须验证图片许可证
+
+4. **验证图片URL可访问性**
    ```bash
    node tools/verify-treasure-images.js <image-url>
    ```
 
-4. **添加到博物馆数据结构**
+5. **添加到博物馆数据结构**
    ```javascript
    {
        id: 'museum-id',
@@ -178,21 +230,23 @@ node tools/search-museum-images-demo.js "故宫博物院" "清明上河图"
    }
    ```
 
-5. **验证数据质量**
+6. **验证数据质量**
    ```bash
    npm run validate-data
    ```
 
 ### 图片搜索工具对比
 
-| 特性 | Wikimedia (首选) | Bing Helper (备选) | Bing API (高级) |
-|------|-----------------|-------------------|----------------|
-| 是否免费 | ✅ 完全免费 | ✅ 完全免费 | ⚠️ 需API密钥 |
-| 许可证 | ✅ 自动开源 | ❌ 需手动验证 | ❌ 需手动验证 |
-| 图片质量 | ⭐⭐⭐⭐ 高 | ⭐⭐⭐⭐⭐ 非常高 | ⭐⭐⭐⭐⭐ 非常高 |
-| 使用难度 | 简单（命令行） | 非常简单（网页） | 中等（需API） |
-| 自动化 | ✅ 命令行自动化 | ❌ 手动操作 | ✅ 命令行自动化 |
-| 推荐场景 | **日常使用首选** | **Wikimedia无结果** | 批量自动化处理 |
+| 特性 | Wikimedia (首选) | 百度图片 (中国博物馆) | Bing图片 (国际) | Bing API (高级) |
+|------|-----------------|---------------------|----------------|----------------|
+| 是否免费 | ✅ 完全免费 | ✅ 完全免费 | ✅ 完全免费 | ⚠️ 需API密钥 |
+| 许可证 | ✅ 自动开源 | ❌ 需手动验证 | ❌ 需手动验证 | ❌ 需手动验证 |
+| 中文内容 | ⭐⭐⭐ 有限 | ⭐⭐⭐⭐⭐ 最丰富 | ⭐⭐⭐⭐ 较丰富 | ⭐⭐⭐⭐ 较丰富 |
+| 中国博物馆 | ⭐⭐⭐ 部分 | 🏆 最全面 | ⭐⭐⭐⭐ 全面 | ⭐⭐⭐⭐ 全面 |
+| 图片质量 | ⭐⭐⭐⭐ 高 | ⭐⭐⭐⭐⭐ 非常高 | ⭐⭐⭐⭐⭐ 非常高 | ⭐⭐⭐⭐⭐ 非常高 |
+| 使用难度 | 简单（命令行） | 非常简单（网页） | 非常简单（网页） | 中等（需API） |
+| 自动化 | ✅ 命令行自动化 | ❌ 手动操作 | ❌ 手动操作 | ✅ 命令行自动化 |
+| 推荐场景 | **免费许可首选** | **中国博物馆首选** | 国际博物馆 | 批量自动化处理 |
 
 ---
 

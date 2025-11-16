@@ -273,7 +273,13 @@
             <input type="text" id="searchQuery" placeholder="输入搜索关键词" />
             <div class="hint" id="searchHint">将在 Wikimedia Commons 中搜索免费授权的图片</div>
           </div>
-          <button class="btn btn-primary" onclick="performImageSearch()">🔍 开始搜索</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="performImageSearch()">🔍 开始搜索 (Wikimedia)</button>
+            <button class="btn btn-secondary" onclick="openBaiduImageSearch()">🔍 百度图片搜索</button>
+          </div>
+          <div class="hint" style="margin-top: 12px; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;">
+            💡 <strong>提示：</strong>Wikimedia Commons 提供免费授权图片；百度图片搜索提供更全面的中国博物馆图片，但需手动验证版权。
+          </div>
         </div>
         <div id="searchResults"></div>
       </div>
@@ -1022,6 +1028,35 @@
       const modal = document.getElementById('imageSearchModal');
       modal.classList.remove('active');
       imageSearchContext = { type: null, collectionIndex: null };
+    }
+
+    function openBaiduImageSearch() {
+      const searchQuery = document.getElementById('searchQuery').value.trim();
+      const type = imageSearchContext.type;
+      
+      if (!searchQuery) {
+        alert('请输入搜索关键词');
+        return;
+      }
+
+      // Build optimized search query
+      let optimizedQuery = searchQuery;
+      if (type === 'museum') {
+        optimizedQuery = `${searchQuery} 博物馆 外观 建筑`;
+      } else if (type === 'treasure') {
+        const museumName = document.getElementById('edit-name').value;
+        optimizedQuery = museumName ? `${searchQuery} ${museumName} 文物 高清` : `${searchQuery} 文物 高清`;
+      }
+
+      // Generate Baidu image search URL
+      const encodedQuery = encodeURIComponent(optimizedQuery);
+      const baiduUrl = `https://image.baidu.com/search/index?tn=baiduimage&word=${encodedQuery}`;
+      
+      // Open in new tab
+      window.open(baiduUrl, '_blank');
+      
+      // Optionally close the modal
+      // closeImageSearch();
     }
 
     async function performImageSearch() {
