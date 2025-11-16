@@ -4841,6 +4841,22 @@ class MuseumCheckApp {
             });
         }
 
+        // Open fireworks admin button
+        const openFireworksAdminBtn = document.getElementById('openFireworksAdminButton');
+        if (openFireworksAdminBtn) {
+            openFireworksAdminBtn.addEventListener('click', () => {
+                window.open('admin-fireworks.html?admin=1', '_blank');
+            });
+        }
+
+        // Open leaderboard admin button
+        const openLeaderboardAdminBtn = document.getElementById('openLeaderboardAdminButton');
+        if (openLeaderboardAdminBtn) {
+            openLeaderboardAdminBtn.addEventListener('click', () => {
+                window.open('admin-leaderboard.html?admin=1', '_blank');
+            });
+        }
+
         // Achievement poster generation button
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
