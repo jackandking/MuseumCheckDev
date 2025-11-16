@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bing图片搜索助手 - MuseumCheck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 
+                         'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .search-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .info-section {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .info-section li {
+            margin-bottom: 8px;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-link-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .quick-link-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .quick-link-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .quick-link-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tips {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .tips h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tips ol {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .tips li {
+            margin-bottom: 8px;
+        }
+
+        .result-preview {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-preview.active {
+            display: block;
+        }
+
+        .result-preview h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-preview pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Bing图片搜索助手</h1>
+            <p>为MuseumCheck项目搜索博物馆和文物图片</p>
+        </div>
+
+        <div class="content">
+            <!-- Search Form -->
+            <div class="search-section">
+                <h2>🔍 图片搜索</h2>
+                
+                <div class="form-group">
+                    <label for="museumName">博物馆名称 *</label>
+                    <input type="text" id="museumName" placeholder="例如: 故宫博物院" value="故宫博物院">
+                </div>
+
+                <div class="form-group">
+                    <label for="treasureName">文物名称（可选）</label>
+                    <input type="text" id="treasureName" placeholder="例如: 清明上河图">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="searchMuseum()">
+                        🏛️ 搜索博物馆图片
+                    </button>
+                    <button class="btn btn-primary" onclick="searchTreasure()">
+                        🎨 搜索文物图片
+                    </button>
+                    <button class="btn btn-success" onclick="searchBoth()">
+                        🔍 同时搜索两者
+                    </button>
+                </div>
+            </div>
+
+            <!-- Information Section -->
+            <div class="info-section">
+                <h3>📖 使用说明</h3>
+                <ul>
+                    <li><strong>博物馆图片搜索：</strong>输入博物馆名称，点击"搜索博物馆图片"，将打开Bing图片搜索</li>
+                    <li><strong>文物图片搜索：</strong>输入博物馆和文物名称，点击"搜索文物图片"</li>
+                    <li><strong>同时搜索：</strong>在新标签页中同时打开博物馆和文物的搜索结果</li>
+                    <li><strong>复制图片URL：</strong>在Bing搜索结果中，右键点击图片选择"复制图片地址"</li>
+                </ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="search-section">
+                <h2>⚡ 快速搜索</h2>
+                <div class="quick-links">
+                    <div class="quick-link-card" onclick="quickSearch('故宫博物院', '')">
+                        <h4>故宫博物院</h4>
+                        <p>搜索故宫建筑图片</p>
+                    </div>
+                    <div class="quick-link-card" onclick="quickSearch('中国国家博物馆', '')">
+                        <h4>中国国家博物馆</h4>
+                        <p>搜索国博建筑图片</p>
+                    </div>
+                    <div class="quick-link-card" onclick="quickSearch('上海博物馆', '')">
+                        <h4>上海博物馆</h4>
+                        <p>搜索上博建筑图片</p>
+                    </div>
+                    <div class="quick-link-card" onclick="quickSearch('秦始皇帝陵博物院', '')">
+                        <h4>秦始皇帝陵博物院</h4>
+                        <p>搜索兵马俑博物馆</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="tips">
+                <h3>💡 图片选择建议</h3>
+                <ol>
+                    <li><strong>图片质量：</strong>选择高清、清晰的图片（建议800x600以上）</li>
+                    <li><strong>版权问题：</strong>优先选择来自官方网站、维基百科或知识共享许可的图片</li>
+                    <li><strong>代表性：</strong>选择最能代表博物馆或文物特征的照片</li>
+                    <li><strong>验证URL：</strong>复制URL后，建议使用verify-treasure-images.js工具验证链接有效性</li>
+                    <li><strong>替代方案：</strong>如果Bing搜索结果不理想，可以尝试使用Wikimedia Commons工具（免费、开源许可）</li>
+                </ol>
+            </div>
+
+            <!-- Alternative Tools -->
+            <div class="info-section">
+                <h3>🛠️ 其他图片搜索工具</h3>
+                <ul>
+                    <li><strong>Wikimedia Commons（推荐）：</strong>
+                        <code>node tools/search-museum-images-wikimedia.js "博物馆名称"</code>
+                        <br>免费、开源许可、无需API密钥
+                    </li>
+                    <li><strong>Bing API：</strong>
+                        <code>node tools/search-museum-images.js "博物馆名称"</code>
+                        <br>需要API密钥，每月1000次免费查询
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Result Preview -->
+            <div id="resultPreview" class="result-preview">
+                <h3>🔗 生成的搜索URL</h3>
+                <pre id="urlDisplay"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Generate Bing Image Search URL
+         * @param {string} query - Search query
+         * @returns {string} - Bing image search URL
+         */
+        function generateBingImageSearchUrl(query) {
+            const encodedQuery = encodeURIComponent(query);
+            return `https://www.bing.com/images/search?q=${encodedQuery}&form=HDRSC2&first=1`;
+        }
+
+        /**
+         * Search for museum building images
+         */
+        function searchMuseum() {
+            const museumName = document.getElementById('museumName').value.trim();
+            
+            if (!museumName) {
+                alert('请输入博物馆名称');
+                return;
+            }
+
+            // Create optimized search query for museum buildings
+            const query = `${museumName} 博物馆 外观 建筑`;
+            const url = generateBingImageSearchUrl(query);
+            
+            // Show generated URL
+            showResultPreview(url);
+            
+            // Open in new tab
+            window.open(url, '_blank');
+        }
+
+        /**
+         * Search for treasure/artifact images
+         */
+        function searchTreasure() {
+            const museumName = document.getElementById('museumName').value.trim();
+            const treasureName = document.getElementById('treasureName').value.trim();
+            
+            if (!treasureName) {
+                alert('请输入文物名称');
+                return;
+            }
+
+            // Create optimized search query for treasures
+            const query = treasureName + (museumName ? ` ${museumName}` : '') + ' 文物 高清';
+            const url = generateBingImageSearchUrl(query);
+            
+            // Show generated URL
+            showResultPreview(url);
+            
+            // Open in new tab
+            window.open(url, '_blank');
+        }
+
+        /**
+         * Search for both museum and treasure images
+         */
+        function searchBoth() {
+            const museumName = document.getElementById('museumName').value.trim();
+            const treasureName = document.getElementById('treasureName').value.trim();
+            
+            if (!museumName) {
+                alert('请输入博物馆名称');
+                return;
+            }
+
+            // Search museum
+            const museumQuery = `${museumName} 博物馆 外观 建筑`;
+            const museumUrl = generateBingImageSearchUrl(museumQuery);
+            window.open(museumUrl, '_blank');
+
+            // Search treasure if provided
+            if (treasureName) {
+                setTimeout(() => {
+                    const treasureQuery = `${treasureName} ${museumName} 文物 高清`;
+                    const treasureUrl = generateBingImageSearchUrl(treasureQuery);
+                    window.open(treasureUrl, '_blank');
+                    
+                    // Show both URLs
+                    showResultPreview(`博物馆: ${museumUrl}\n\n文物: ${treasureUrl}`);
+                }, 500);
+            } else {
+                showResultPreview(museumUrl);
+            }
+        }
+
+        /**
+         * Quick search with predefined museum
+         * @param {string} museumName - Museum name
+         * @param {string} treasureName - Treasure name (optional)
+         */
+        function quickSearch(museumName, treasureName) {
+            document.getElementById('museumName').value = museumName;
+            if (treasureName) {
+                document.getElementById('treasureName').value = treasureName;
+            }
+            searchMuseum();
+        }
+
+        /**
+         * Show result preview
+         * @param {string} content - Content to display
+         */
+        function showResultPreview(content) {
+            const preview = document.getElementById('resultPreview');
+            const display = document.getElementById('urlDisplay');
+            
+            display.textContent = content;
+            preview.classList.add('active');
+            
+            // Scroll to preview
+            preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Handle Enter key press
+        document.getElementById('museumName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMuseum();
+            }
+        });
+
+        document.getElementById('treasureName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchTreasure();
+            }
+        });
+    </script>
+</body>
+</html>
