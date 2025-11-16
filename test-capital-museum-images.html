@@ -164,13 +164,16 @@
         <div class="grid" id="treasures-grid"></div>
     </div>
 
-    <script src="museums/capital-museum.js"></script>
+    <script src="museums-data.js"></script>
     <script>
         const statusContainer = document.getElementById('status-container');
         const museumBuilding = document.getElementById('museum-building');
         const treasuresGrid = document.getElementById('treasures-grid');
         
         const imageStatuses = [];
+        
+        // Load museum data from MUSEUMS array (equivalent to old window.MUSEUM_CAPITAL)
+        const museum = window.MUSEUMS && window.MUSEUMS.find(m => m.id === 'beijing-capital-museum');
         
         function updateStatus() {
             const total = imageStatuses.length;
@@ -228,12 +231,10 @@
         }
         
         async function loadImages() {
-            if (!window.MUSEUM_CAPITAL) {
+            if (!museum) {
                 statusContainer.innerHTML = '<div class="status-item error">❌ 无法加载博物馆数据</div>';
                 return;
             }
-            
-            const museum = window.MUSEUM_CAPITAL;
             
             // Test museum building image
             try {

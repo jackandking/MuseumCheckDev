@@ -10,20 +10,27 @@ const path = require('path');
 
 describe('Pinghu Museum workflow age coverage', () => {
   let museum;
+  let workflows;
 
   beforeAll(() => {
-    const filePath = path.join(__dirname, '..', 'museums', 'pinghu-museum.js');
-    expect(fs.existsSync(filePath)).toBe(true);
-    delete require.cache[filePath];
-    require(filePath);
-    museum = window && window.MUSEUM_PINGHU;
+    // Load museum data from museums-data.js
+    const museumsDataPath = path.join(__dirname, '..', 'museums-data.js');
+    delete require.cache[museumsDataPath];
+    require(museumsDataPath);
+    museum = global.MUSEUMS && global.MUSEUMS.find(m => m.id === 'pinghu-museum');
+    
+    // Load workflows from workflows-data.js
+    const workflowsDataPath = path.join(__dirname, '..', 'workflows-data.js');
+    delete require.cache[workflowsDataPath];
+    require(workflowsDataPath);
+    workflows = global.WORKFLOWS && global.WORKFLOWS['pinghu-museum'];
   });
 
   test('treasure-discovery workflow should cover all age groups', () => {
     expect(museum).toBeTruthy();
-    expect(Array.isArray(museum.workflows)).toBe(true);
+    expect(Array.isArray(workflows)).toBe(true);
     
-    const treasureWorkflow = museum.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     expect(treasureWorkflow).toBeTruthy();
     expect(treasureWorkflow.name).toBe('镇馆之宝探索');
     
@@ -36,7 +43,7 @@ describe('Pinghu Museum workflow age coverage', () => {
   });
 
   test('all tasks in treasure-discovery workflow should support all age groups', () => {
-    const treasureWorkflow = museum.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     expect(Array.isArray(treasureWorkflow.tasks)).toBe(true);
     expect(treasureWorkflow.tasks.length).toBeGreaterThan(0);
     

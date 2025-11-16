@@ -24,14 +24,6 @@
   <div id="results"></div>
 
   <script src="museums-data.js"></script>
-  <script src="museums/pinghu-museum.js"></script>
-  <script>
-    // Merge pinghu museum override
-    if(window.MUSEUM_PINGHU && Array.isArray(window.MUSEUMS)){
-      const idx = window.MUSEUMS.findIndex(x => x && x.id === 'pinghu-museum');
-      if(idx >= 0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], window.MUSEUM_PINGHU);
-    }
-  </script>
   <script src="workflows-data.js"></script>
   <script src="single-museum.js"></script>
   

@@ -74,25 +74,8 @@
   </div>
 
   <script src="museums-data.js"></script>
-  <script src="museums/capital-museum.js"></script>
   <script>
-    // Merge logic (same as in HTML files)
-    (function(){
-      try{
-        if(Array.isArray(window.MUSEUMS)){
-          var overrides = [];
-          if(window.MUSEUM_CAPITAL) overrides.push(window.MUSEUM_CAPITAL);
-          overrides.forEach(function(m){
-            if(!m || !m.id) return;
-            var idx = window.MUSEUMS.findIndex(function(x){ return x && x.id===m.id; });
-            if(idx>=0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], m);
-            else window.MUSEUMS.push(m);
-          });
-        }
-      }catch(e){ console.error('Merge error:', e); }
-    })();
-
-    // Find the capital museum
+    // Find the capital museum from museums-data.js
     const capitalMuseum = window.MUSEUMS.find(m => m && m.id === 'beijing-capital-museum');
     
     // Display load status

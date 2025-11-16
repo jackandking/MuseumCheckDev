@@ -810,26 +810,7 @@
     <script src="museum-data-loader.js"></script>
     <!-- Auto-generate treasure hunt workflows for all museums -->
     <script src="treasure-workflow-generator.js"></script>
-    <!-- Per-museum data file(s) override -->
-    <script src="museums/pinghu-museum.js"></script>
-    <script src="museums/capital-museum.js"></script>
-    <script>
-      (function(){
-        try{
-          if(Array.isArray(window.MUSEUMS)){
-            var overrides=[];
-            if(window.MUSEUM_PINGHU) overrides.push(window.MUSEUM_PINGHU);
-            if(window.MUSEUM_CAPITAL) overrides.push(window.MUSEUM_CAPITAL);
-            overrides.forEach(function(m){
-              if(!m||!m.id) return;
-              var idx = window.MUSEUMS.findIndex(function(x){ return x && x.id===m.id; });
-              if(idx>=0) window.MUSEUMS[idx] = Object.assign({}, window.MUSEUMS[idx], m);
-              else window.MUSEUMS.push(m);
-            });
-          }
-        }catch(e){}
-      })();
-    </script>
+    <!-- Museum data loaded from museums-data.js and Tier 1 JSON files via museum-data-loader.js -->
     <script src="firework.js"></script>
     
     <script>

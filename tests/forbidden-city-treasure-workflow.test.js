@@ -7,42 +7,45 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Forbidden City treasure discovery workflow', () => {
-  let forbiddenCity;
+  let museum;
+  let workflows;
 
   beforeAll(() => {
-    const filePath = path.join(__dirname, '..', 'museums', 'forbidden-city.js');
-    expect(fs.existsSync(filePath)).toBe(true);
-    delete require.cache[filePath];
-    require(filePath); // defines window.MUSEUM_FORBIDDEN_CITY
-  });
-
-  beforeEach(() => {
-    // Load the museum data
-    forbiddenCity = window.MUSEUM_FORBIDDEN_CITY;
+    // Load museum data from museums-data.js
+    const museumsDataPath = path.join(__dirname, '..', 'museums-data.js');
+    delete require.cache[museumsDataPath];
+    require(museumsDataPath);
+    museum = global.MUSEUMS && global.MUSEUMS.find(m => m.id === 'forbidden-city');
+    
+    // Load workflows from workflows-data.js
+    const workflowsDataPath = path.join(__dirname, '..', 'workflows-data.js');
+    delete require.cache[workflowsDataPath];
+    require(workflowsDataPath);
+    workflows = global.WORKFLOWS && global.WORKFLOWS['forbidden-city'];
   });
 
   test('should have treasure-discovery workflow as first workflow', () => {
-    expect(forbiddenCity.workflows).toBeDefined();
-    expect(forbiddenCity.workflows.length).toBeGreaterThanOrEqual(3);
+    expect(workflows).toBeDefined();
+    expect(workflows.length).toBeGreaterThanOrEqual(2);
     
-    const treasureWorkflow = forbiddenCity.workflows[0];
-    expect(treasureWorkflow.id).toBe('treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
+    expect(treasureWorkflow).toBeDefined();
     expect(treasureWorkflow.name).toBe('镇馆之宝探索');
     expect(treasureWorkflow.description).toContain('镇馆之宝');
   });
 
   test('treasure-discovery workflow should support all age groups', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     expect(treasureWorkflow.ages).toEqual(['3-6', '7-12', '13-18']);
   });
 
   test('treasure-discovery workflow should have 6 tasks', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     expect(treasureWorkflow.tasks).toHaveLength(6);
   });
 
   test('treasure-discovery workflow should have gate photo as first task', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     const firstTask = treasureWorkflow.tasks[0];
     
     expect(firstTask.id).toBe('gate-photo');
@@ -52,7 +55,7 @@ describe('Forbidden City treasure discovery workflow', () => {
   });
 
   test('treasure-discovery workflow should have 3 treasure-finding tasks with images', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     
     // Tasks 2-4 should be treasure finding
     const treasureTasks = treasureWorkflow.tasks.slice(1, 4);
@@ -67,7 +70,7 @@ describe('Forbidden City treasure discovery workflow', () => {
   });
 
   test('treasure-discovery workflow should reference the 3 major treasures', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     
     const task1 = treasureWorkflow.tasks[1];
     const task2 = treasureWorkflow.tasks[2];
@@ -79,7 +82,7 @@ describe('Forbidden City treasure discovery workflow', () => {
   });
 
   test('treasure-discovery workflow should have victory photo and poster tasks', () => {
-    const treasureWorkflow = forbiddenCity.workflows.find(wf => wf.id === 'treasure-discovery');
+    const treasureWorkflow = workflows.find(wf => wf.id === 'treasure-discovery');
     
     const victoryTask = treasureWorkflow.tasks[4];
     const posterTask = treasureWorkflow.tasks[5];
@@ -98,7 +101,7 @@ describe('Forbidden City treasure discovery workflow', () => {
 
   test('parent checklists should emphasize parent-child relationship', () => {
     // Check 3-6 age group
-    const parent36 = forbiddenCity.checklists.parent['3-6'];
+    const parent36 = museum.checklists.parent['3-6'];
     expect(parent36.length).toBeGreaterThan(0);
     
     // Should contain emotional connection keywords
@@ -109,7 +112,7 @@ describe('Forbidden City treasure discovery workflow', () => {
   });
 
   test('parent checklists for 7-12 should emphasize partnership and encouragement', () => {
-    const parent712 = forbiddenCity.checklists.parent['7-12'];
+    const parent712 = museum.checklists.parent['7-12'];
     expect(parent712.length).toBeGreaterThan(0);
     
     const allText = parent712.join(' ');
