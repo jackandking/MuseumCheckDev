@@ -95,6 +95,21 @@
     @media (max-width: 1200px) {
       .editor-layout{grid-template-columns:1fr}
     }
+    @media (max-width: 768px) {
+      .field-row{grid-template-columns:1fr;gap:6px}
+      .field-label{padding-top:0;font-size:13px}
+      .input-with-search{flex-direction:column;align-items:stretch}
+      .search-image-btn{margin-top:8px;width:100%}
+    }
+    .image-preview-container{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .image-preview-thumb{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid #dee2e6;background:#f8f9fa}
+    .image-preview-thumb.loading{opacity:0.5}
+    .image-preview-placeholder{width:80px;height:80px;border-radius:8px;border:2px dashed #dee2e6;background:#f8f9fa;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999;text-align:center;padding:4px}
+    .input-wrapper{flex:1;min-width:0}
+    .image-selected-feedback{animation:pulse 0.3s ease-in-out}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05);background:#f0f8f5}}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#28a745;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:2000;animation:slideUp 0.3s ease-out}
+    @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
   </style>
 </head>
 <body>
@@ -181,9 +196,16 @@
           </div>
           <div class="field-row">
             <div class="field-label">主图URL:</div>
-            <div class="input-with-search">
-              <input type="text" id="edit-image" placeholder="图片URL" />
-              <button type="button" class="search-image-btn" onclick="openImageSearch('museum')">🔍 搜索图片</button>
+            <div class="image-preview-container">
+              <div id="museum-image-preview-wrapper">
+                <div class="image-preview-placeholder">暂无图片</div>
+              </div>
+              <div class="input-wrapper">
+                <div class="input-with-search">
+                  <input type="text" id="edit-image" placeholder="图片URL" onchange="updateImagePreview('museum-image-preview-wrapper', this.value)" />
+                  <button type="button" class="search-image-btn" onclick="openImageSearch('museum')">🔍 搜索图片</button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="field-row">
@@ -369,6 +391,9 @@
         document.getElementById('edit-image').value = data.image || '';
         document.getElementById('edit-tags').value = (data.tags || []).join(', ');
         
+        // Update museum image preview
+        updateImagePreview('museum-image-preview-wrapper', data.image || '');
+        
         // JSON editor
         document.getElementById('museumDataJson').value = JSON.stringify(data, null, 2);
         
@@ -394,9 +419,16 @@
             </div>
             <div class="field-row">
               <div class="field-label">图片URL:</div>
-              <div class="input-with-search">
-                <input type="text" class="col-image" value="${col.imageUrl || ''}" placeholder="图片URL" />
-                <button type="button" class="search-image-btn" onclick="openImageSearch('treasure', ${index})">🔍 搜索图片</button>
+              <div class="image-preview-container">
+                <div id="collection-image-preview-${index}">
+                  ${col.imageUrl ? `<img src="${col.imageUrl}" class="image-preview-thumb" onerror="this.parentElement.innerHTML='<div class=\\'image-preview-placeholder\\'>图片加载失败</div>'" />` : '<div class="image-preview-placeholder">暂无图片</div>'}
+                </div>
+                <div class="input-wrapper">
+                  <div class="input-with-search">
+                    <input type="text" class="col-image" value="${col.imageUrl || ''}" placeholder="图片URL" onchange="updateImagePreview('collection-image-preview-${index}', this.value)" />
+                    <button type="button" class="search-image-btn" onclick="openImageSearch('treasure', ${index})">🔍 搜索图片</button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="field-row">
@@ -806,6 +838,49 @@
       initMuseumSelector();
     })();
 
+    // Image Preview Helper Functions (Global scope)
+    function updateImagePreview(containerId, imageUrl) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (!imageUrl || imageUrl.trim() === '') {
+        container.innerHTML = '<div class="image-preview-placeholder">暂无图片</div>';
+        return;
+      }
+      
+      // Show loading state
+      container.innerHTML = '<img src="' + imageUrl + '" class="image-preview-thumb loading" />';
+      
+      // Load image
+      const img = container.querySelector('img');
+      img.onload = function() {
+        img.classList.remove('loading');
+      };
+      img.onerror = function() {
+        container.innerHTML = '<div class="image-preview-placeholder">图片加载失败</div>';
+      };
+    }
+
+    function showToast(message, duration = 2000) {
+      // Remove existing toast if any
+      const existingToast = document.querySelector('.toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+      
+      // Create new toast
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      // Remove after duration
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+
     // Image Search Functions (Global scope for onclick handlers)
     let imageSearchContext = { type: null, collectionIndex: null };
     const wikimediaSearch = new WikimediaImageSearch();
@@ -922,9 +997,18 @@
         }
       });
 
-      // Populate the appropriate field
+      // Populate the appropriate field and update preview
       if (imageSearchContext.type === 'museum') {
-        document.getElementById('edit-image').value = url;
+        const input = document.getElementById('edit-image');
+        input.value = url;
+        input.classList.add('image-selected-feedback');
+        setTimeout(() => input.classList.remove('image-selected-feedback'), 300);
+        
+        // Update preview
+        updateImagePreview('museum-image-preview-wrapper', url);
+        
+        // Show toast notification
+        showToast('✓ 已选择博物馆图片');
         console.log('✅ 已选择博物馆图片:', url);
       } else if (imageSearchContext.type === 'treasure' && imageSearchContext.collectionIndex !== null) {
         const collectionItems = document.querySelectorAll('.array-item[data-index]');
@@ -933,6 +1017,15 @@
           const imageInput = collectionItem.querySelector('.col-image');
           if (imageInput) {
             imageInput.value = url;
+            imageInput.classList.add('image-selected-feedback');
+            setTimeout(() => imageInput.classList.remove('image-selected-feedback'), 300);
+            
+            // Update preview
+            const previewId = 'collection-image-preview-' + imageSearchContext.collectionIndex;
+            updateImagePreview(previewId, url);
+            
+            // Show toast notification
+            showToast('✓ 已选择文物图片');
             console.log('✅ 已选择文物图片:', url);
           }
         }
