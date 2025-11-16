@@ -281,6 +281,7 @@
   </div>
 
   <script src="wikimedia-image-search.js"></script>
+  <script src="deepseek-api.js"></script>
   <script src="museums-meta.js"></script>
   <script src="museums-data.js"></script>
   <script src="museum-data-loader.js"></script>
@@ -614,7 +615,7 @@
       }
 
       // Validate data
-      window.validateData = function() {
+      window.validateData = async function() {
         try {
           const data = buildDataFromEditors();
           
@@ -626,13 +627,88 @@
           
           if (missing.length > 0) {
             showStatus('缺少必需字段: ' + missing.join(', '), 'error');
-          } else {
-            showStatus('数据验证通过 ✓', 'success');
+            return;
+          }
+          
+          showStatus('基础数据验证通过 ✓', 'success');
+          
+          // Check if we should validate treasures with AI
+          if (data.collections && data.collections.length > 0) {
+            const deepseekAPI = new DeepSeekAPI();
+            
+            if (!deepseekAPI.hasApiKey()) {
+              showStatus('基础验证通过 ✓ | 提示：配置 DeepSeek API Key 可验证镇馆之宝真实性', 'info');
+              return;
+            }
+            
+            // Ask user if they want to validate with AI
+            if (!confirm('是否使用 AI 验证镇馆之宝的真实性？\n\n这将调用 DeepSeek API 检查当前列出的镇馆之宝是否确实属于该博物馆。')) {
+              return;
+            }
+            
+            showStatus('正在使用 AI 验证镇馆之宝...', 'info');
+            
+            try {
+              const validationResult = await deepseekAPI.validateTreasures(
+                data.name,
+                data.collections
+              );
+              
+              // Display validation results
+              displayValidationResults(validationResult, data.name);
+              
+            } catch (error) {
+              showStatus('AI 验证失败: ' + error.message, 'error');
+            }
           }
         } catch (error) {
           showStatus('数据验证错误: ' + error.message, 'error');
         }
       };
+      
+      // Display AI validation results
+      function displayValidationResults(result, museumName) {
+        let message = `<h3>🤖 AI 验证结果：${museumName}</h3>`;
+        
+        if (result.isValid && result.invalidTreasures.length === 0) {
+          message += '<div class="status status-success">✓ 所有镇馆之宝验证通过！</div>';
+        } else {
+          message += '<div class="status status-error">⚠️ 发现不正确的镇馆之宝</div>';
+          
+          if (result.invalidTreasures.length > 0) {
+            message += '<h4>不正确的文物：</h4><ul>';
+            result.invalidTreasures.forEach(name => {
+              message += `<li style="color: #dc3545;">${name}</li>`;
+            });
+            message += '</ul>';
+          }
+        }
+        
+        if (result.recommendations && result.recommendations.length > 0) {
+          message += '<h4>AI 推荐的镇馆之宝：</h4>';
+          message += '<div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-top: 12px;">';
+          result.recommendations.forEach((rec, index) => {
+            message += `
+              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #dee2e6;">
+                <strong>${index + 1}. ${rec.name}</strong><br>
+                <span style="color: #667; font-size: 14px;">${rec.description}</span>
+              </div>
+            `;
+          });
+          message += '</div>';
+          
+          if (!result.isValid || result.invalidTreasures.length > 0) {
+            message += '<p style="margin-top: 16px; color: #856404; background: #fff3cd; padding: 12px; border-radius: 8px;">💡 建议：将推荐的镇馆之宝替换到数据中</p>';
+          }
+        }
+        
+        // Show in a modal-like display
+        const statusDiv = document.getElementById('statusMsg');
+        statusDiv.innerHTML = `<div class="status status-info" style="max-width: 100%; white-space: normal; text-align: left;">${message}</div>`;
+        
+        // Scroll to results
+        statusDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
 
       // Submit museum data
       window.submitMuseumData = function() {

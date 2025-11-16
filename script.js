@@ -4644,6 +4644,24 @@ class MuseumCheckApp {
             });
         }
 
+        // Auto-save DeepSeek API Key on blur
+        const deepseekApiKeyInput = document.getElementById('deepseekApiKeyInput');
+        if (deepseekApiKeyInput) {
+            deepseekApiKeyInput.addEventListener('blur', () => {
+                const apiKey = deepseekApiKeyInput.value.trim();
+                if (apiKey) {
+                    localStorage.setItem('deepseekApiKey', apiKey);
+                } else {
+                    localStorage.removeItem('deepseekApiKey');
+                }
+                
+                // Track API key saved event
+                this.trackEvent('deepseek_api_key_saved', {
+                    'has_key': !!apiKey
+                });
+            });
+        }
+
         // Auto-save age group on change
         const ageGroupSelector = document.getElementById('ageGroupSelector');
         if (ageGroupSelector) {
@@ -7570,6 +7588,13 @@ class MuseumCheckApp {
         const nicknameInput = document.getElementById('childNicknameInput');
         if (nicknameInput) {
             nicknameInput.value = this.childNickname;
+        }
+        
+        // Update DeepSeek API Key input
+        const deepseekApiKeyInput = document.getElementById('deepseekApiKeyInput');
+        if (deepseekApiKeyInput) {
+            const apiKey = localStorage.getItem('deepseekApiKey') || '';
+            deepseekApiKeyInput.value = apiKey;
         }
         
         // Update current age group display
