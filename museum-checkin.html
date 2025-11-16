@@ -806,6 +806,8 @@
 
     <!-- Load dependencies -->
     <script src="museums-data.js"></script>
+    <!-- Museum data loader for dynamic data priority support -->
+    <script src="museum-data-loader.js"></script>
     <!-- Auto-generate treasure hunt workflows for all museums -->
     <script src="treasure-workflow-generator.js"></script>
     <!-- Per-museum data file(s) override -->
@@ -853,13 +855,13 @@
         let currentTaskIndex = null;
 
         // Initialize the application
-        function init() {
+        async function init() {
             if (editMode) {
                 document.getElementById('editModeIndicator').classList.add('show');
             }
 
             updatePageTitle();
-            loadMuseumData();
+            await loadMuseumData(); // Wait for async museum data loading
             setupEventListeners();
             loadCompletedTasks();
             loadPhotos(); // Load saved photos
@@ -869,9 +871,26 @@
             checkCompletion(); // Check if all tasks complete
         }
 
-        // Load museum data
-        function loadMuseumData() {
-            currentMuseum = MUSEUMS.find(m => m.id === museumId);
+        // Load museum data with dynamic data priority support
+        async function loadMuseumData() {
+            // Use museum data loader if available (respects tier priority)
+            let museum = null;
+            if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
+                try {
+                    museum = await window.museumDataLoader.loadMuseum(museumId, false); // Don't use cache
+                    console.log(`Loaded museum ${museumId} via museumDataLoader`);
+                } catch (error) {
+                    console.warn('Error loading museum with museumDataLoader:', error);
+                }
+            }
+            
+            // Fallback to static MUSEUMS array
+            if (!museum) {
+                museum = MUSEUMS.find(m => m.id === museumId);
+                console.log(`Loaded museum ${museumId} from static MUSEUMS array`);
+            }
+            
+            currentMuseum = museum;
             
             if (!currentMuseum) {
                 document.getElementById('museumName').textContent = '博物馆未找到';

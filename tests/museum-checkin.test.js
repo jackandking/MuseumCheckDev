@@ -42,6 +42,7 @@ describe('Museum Check-in Page', () => {
 
         test('should include required JavaScript dependencies', () => {
             expect(htmlContent).toContain('<script src="museums-data.js"></script>');
+            expect(htmlContent).toContain('<script src="museum-data-loader.js"></script>');
             expect(htmlContent).toContain('<script src="firework.js"></script>');
         });
 
@@ -140,6 +141,32 @@ describe('Museum Check-in Page', () => {
             expect(htmlContent).toContain('function saveChildNickname');
             const saveNicknameFnMatch = htmlContent.match(/function saveChildNickname[\s\S]{0,500}updatePageTitle\(\)/);
             expect(saveNicknameFnMatch).toBeTruthy();
+        });
+
+        test('should use museumDataLoader for dynamic data priority', () => {
+            // Check that loadMuseumData is async
+            expect(htmlContent).toContain('async function loadMuseumData()');
+            
+            // Check that it uses museumDataLoader
+            expect(htmlContent).toContain('window.museumDataLoader');
+            expect(htmlContent).toContain('museumDataLoader.loadMuseum');
+            
+            // Check that it has fallback to static MUSEUMS array
+            expect(htmlContent).toContain('MUSEUMS.find');
+        });
+
+        test('should not use cache when loading museum data', () => {
+            // Verify loadMuseum is called with false to bypass cache
+            const loadMuseumMatch = htmlContent.match(/museumDataLoader\.loadMuseum\([^,]+,\s*false\)/);
+            expect(loadMuseumMatch).toBeTruthy();
+        });
+
+        test('should wait for async museum data loading in init', () => {
+            // Check that init function is async
+            expect(htmlContent).toContain('async function init()');
+            
+            // Check that it awaits loadMuseumData
+            expect(htmlContent).toContain('await loadMuseumData()');
         });
     });
 
