@@ -4,35 +4,41 @@ window.MUSEUM_CAPITAL = {
   location: '北京',
   description: '展示北京历史文化的市属综合性博物馆',
   tags: ['北京历史', '古都文化', '民俗'],
-  image: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3ACapital_Museum_in_Beijing.jpg',
+  image: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg',
   collections: [
     { 
+      name: '元代景德镇窑青花凤首扁壶', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/65/%E6%99%AF%E5%BE%B7%E9%95%87%E7%AA%91%E9%9D%92%E8%8A%B1%E5%87%A4%E9%A6%96%E6%89%81%E5%A3%B609124.jpg',
+      description: '元代青花瓷代表作，壶身绘凤凰纹饰，造型优美，釉色纯正，是元代景德镇窑的精品，体现了元代制瓷工艺的高超水平'
+    },
+    { 
+      name: '乾隆款金嵌珍珠天球仪', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Qianlong_Celestial_Globe.jpg/400px-Qianlong_Celestial_Globe.jpg',
+      description: '清乾隆时期制作的天文仪器，镶嵌珍珠标注星座位置，工艺精湛，既是科学仪器，又是艺术珍品，反映了清代天文学与工艺美术的结合'
+    },
+    { 
+      name: '明代金丝翼善冠', 
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Golden_Crown_Replica_of_King_Wanli.jpg',
+      description: '明代皇帝冠冕，用金丝编织而成，上嵌珠宝，制作精美，是明代皇家礼制文化的重要实物，展现了明代金属工艺的高超技艺'
+    },
+    { 
       name: '神兽玉佩', 
-      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3A%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a1/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG',
       description: '首都博物馆珍贵的玉器藏品，以青玉为材，雕刻神话祥瑞动物形象。玉佩造型生动，工艺精湛，融入浮雕、阴刻等技法，寓意吉祥如意、辟邪纳福，体现了古代玉器艺术的高超水平和礼制文化'
-    },
-    { 
-      name: '董鼎', 
-      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3A%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg',
-      description: '西周时期重要的青铜礼器，用于宗庙祭祀和象征权力地位。董鼎造型端庄，器型为传统的三足两耳样式，纹饰以夔龙、云雷等为主，厚重庄严，是研究西周历史、制度和青铜铸造工艺的重要实物资料'
-    },
-    { 
-      name: '象首绂簠', 
-      imageUrl: 'https://zh.wikipedia.org/zh-cn/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86#/media/File%3AFu_in_Capital_Museum_China.jpg',
-      description: '春秋时期精美的青铜礼器，为盛放食物的"簠"类器物。最大特色是装饰有象首造型，象征祥瑞、力量和高贵。采用复杂的分段模铸造工艺，结合写实与装饰性，展现古代冶铸技术的高超水平和独特的美学价值'
     }
   ],
   workflows: [
     {
       id: 'treasure-discovery',
       name: '镇馆之宝探索',
-      description: '围绕首都博物馆三大特色藏品的亲子探索路线',
+      description: '围绕首都博物馆四大特色藏品的亲子探索路线',
       ages: ['3-6', '7-12', '13-18'],
       tasks: [
         { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在首都博物馆门口拍一张照片', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-jade', role: 'child', type: 'photo', title: '文化瑰宝 1/3', subtitle: '找到「神兽玉佩」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG/800px-%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-ding', role: 'child', type: 'photo', title: '文化瑰宝 2/3', subtitle: '找到「董鼎」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg/800px-%E9%A6%96%E9%83%BD%E5%8D%9A%E7%89%A9%E9%A6%86%E8%97%8F%E8%91%A3%E9%BC%8E.jpg', ages: ['3-6','7-12','13-18'] },
-        { id: 'find-fu', role: 'child', type: 'photo', title: '文化瑰宝 3/3', subtitle: '找到「象首绂簠」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Fu_in_Capital_Museum_China.jpg/800px-Fu_in_Capital_Museum_China.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-porcelain', role: 'child', type: 'photo', title: '文化瑰宝 1/4', subtitle: '找到「元代景德镇窑青花凤首扁壶」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/65/%E6%99%AF%E5%BE%B7%E9%95%87%E7%AA%91%E9%9D%92%E8%8A%B1%E5%87%A4%E9%A6%96%E6%89%81%E5%A3%B609124.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-globe', role: 'child', type: 'photo', title: '文化瑰宝 2/4', subtitle: '找到「乾隆款金嵌珍珠天球仪」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Qianlong_Celestial_Globe.jpg/400px-Qianlong_Celestial_Globe.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-crown', role: 'child', type: 'photo', title: '文化瑰宝 3/4', subtitle: '找到「明代金丝翼善冠」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Golden_Crown_Replica_of_King_Wanli.jpg', ages: ['3-6','7-12','13-18'] },
+        { id: 'find-jade', role: 'child', type: 'photo', title: '文化瑰宝 4/4', subtitle: '找到「神兽玉佩」并合影', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a1/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG', ages: ['3-6','7-12','13-18'] },
         { id: 'victory-photo', role: 'parent', type: 'photo', title: '完成合影', subtitle: '和家长比心/拥抱/击掌，留下美好瞬间！', ages: ['3-6','7-12','13-18'] },
         { id: 'poster', role: 'parent', type: 'poster', title: '成就海报', subtitle: '生成专属成就海报', ages: ['3-6','7-12','13-18'] }
       ]

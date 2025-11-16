@@ -2249,11 +2249,11 @@ const MUSEUMS = [
         location: '北京',
         description: '展示北京历史文化的市属综合性博物馆',
         tags: ['北京历史', '古都文化', '民俗'],
-        image: 'https://eb118-file.cdn.bcebos.com/upload/8e5e95e9a5b8432caa39da051544fcaa_1262462398.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg',
         collections: [
             {
                 "name": "元代景德镇窑青花凤首扁壶",
-                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Yuan_Dynasty_Blue_and_White_Flask.jpg/400px-Yuan_Dynasty_Blue_and_White_Flask.jpg",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/65/%E6%99%AF%E5%BE%B7%E9%95%87%E7%AA%91%E9%9D%92%E8%8A%B1%E5%87%A4%E9%A6%96%E6%89%81%E5%A3%B609124.jpg",
                 "description": "元代青花瓷代表作，壶身绘凤凰纹饰，造型优美，釉色纯正，是元代景德镇窑的精品，体现了元代制瓷工艺的高超水平"
             },
             {
@@ -2263,8 +2263,13 @@ const MUSEUMS = [
             },
             {
                 "name": "明代金丝翼善冠",
-                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ming_Dynasty_Crown.jpg/400px-Ming_Dynasty_Crown.jpg",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Golden_Crown_Replica_of_King_Wanli.jpg",
                 "description": "明代皇帝冠冕，用金丝编织而成，上嵌珠宝，制作精美，是明代皇家礼制文化的重要实物，展现了明代金属工艺的高超技艺"
+            },
+            {
+                "name": "神兽玉佩",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/%E7%A5%9E%E5%85%BD%E7%8E%89%E4%BD%A9.JPG",
+                "description": "首都博物馆珍贵的玉器藏品，以青玉为材，雕刻神话祥瑞动物形象。玉佩造型生动，工艺精湛，融入浮雕、阴刻等技法，寓意吉祥如意、辟邪纳福，体现了古代玉器艺术的高超水平和礼制文化"
             }
         ],
         checklists: {

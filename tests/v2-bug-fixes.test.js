@@ -123,9 +123,10 @@ describe('Museum Data Files', () => {
             // Check that it has custom checklists defined
             expect(capitalContent).toContain('checklists:');
             expect(capitalContent).toContain('child:');
-            expect(capitalContent).toContain('北京孔庙大成殿牌匾');
-            expect(capitalContent).toContain('元大都城墙遗址');
-            expect(capitalContent).toContain('景德镇窑青花凤首扁壶');
+            expect(capitalContent).toContain('元代景德镇窑青花凤首扁壶');
+            expect(capitalContent).toContain('乾隆款金嵌珍珠天球仪');
+            expect(capitalContent).toContain('明代金丝翼善冠');
+            expect(capitalContent).toContain('神兽玉佩');
         });
 
         test('should have collections array for workflow generation', () => {
