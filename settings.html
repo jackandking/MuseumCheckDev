@@ -94,7 +94,10 @@
             priorityValue = priority.join('-');
           }
           document.getElementById('dataPriority').value = priorityValue;
-        }catch(e){}
+          console.log('Settings loaded. Priority:', priorityValue);
+        }catch(e){
+          console.error('Error loading settings:', e);
+        }
       }
       function save(){
         try{
@@ -108,6 +111,12 @@
           const priority = priorityValue.split('-');
           localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
           
+          // Update museumDataLoader's in-memory priority to match
+          if (window.museumDataLoader && typeof window.museumDataLoader.updatePrioritySettings === 'function') {
+            window.museumDataLoader.updatePrioritySettings(priority);
+            console.log('Museum data loader priority updated:', priority);
+          }
+          
           // Clear museum data cache when priority changes so new priority takes effect
           if (window.museumDataLoader && typeof window.museumDataLoader.clearCache === 'function') {
             window.museumDataLoader.clearCache();
@@ -115,7 +124,10 @@
           }
           
           alert('设置已保存');
-        }catch(e){ alert('保存失败，请重试'); }
+        }catch(e){ 
+          console.error('Error saving settings:', e);
+          alert('保存失败，请重试'); 
+        }
       }
       function back(){
         const ref = document.referrer || 'index.html';

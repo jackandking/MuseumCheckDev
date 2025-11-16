@@ -327,6 +327,11 @@ class MuseumDataLoader {
 // Create and export global instance
 const museumDataLoader = new MuseumDataLoader();
 
+// Make available on window object for browser usage
+if (typeof window !== 'undefined') {
+    window.museumDataLoader = museumDataLoader;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { MuseumDataLoader, museumDataLoader };
