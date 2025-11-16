@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试：镇馆之宝照片动态数据优先级</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        button.success {
+            background: #28a745;
+        }
+        
+        button.success:hover {
+            background: #218838;
+        }
+        
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result-box.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .result-box.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .treasure-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .comparison-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .comparison-item h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.success {
+            background: #28a745;
+        }
+        
+        .status-indicator.error {
+            background: #dc3545;
+        }
+        
+        .status-indicator.pending {
+            background: #ffc107;
+        }
+        
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ 镇馆之宝照片动态数据优先级测试</h1>
+        <p class="subtitle">测试修复：设置动态数据优先后，打卡页面显示新的镇馆之宝照片</p>
+        
+        <div class="info-box">
+            <strong>📋 测试场景：</strong>上海博物馆<br>
+            <strong>🐛 问题描述：</strong>设置动态数据优先，更新镇馆之宝照片后，打卡页面不显示新照片<br>
+            <strong>✅ 修复方案：</strong>在 museum-checkin.html 中合并 KV store 数据和 Tier 3 数据
+        </div>
+        
+        <div class="section">
+            <h2>📊 当前状态</h2>
+            <div class="step">
+                <strong>数据优先级设置：</strong>
+                <span id="currentPriority">加载中...</span>
+            </div>
+            <div class="step">
+                <strong>Museum Data Loader：</strong>
+                <span id="loaderStatus">检查中...</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 步骤 1：查看当前博物馆数据</h2>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>加载上海博物馆数据（Tier 3 静态数据）</strong>
+                <br>
+                <button onclick="loadTier3Data()">查看 Tier 3 数据</button>
+                <div id="tier3Result"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 步骤 2：模拟上传新照片到 KV Store</h2>
+            <div class="warning-box">
+                ⚠️ 此测试需要联网访问 KV Store API。如果网络受限，将显示模拟数据。
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>上传测试数据到 KV Store（包含新的镇馆之宝照片）</strong>
+                <br>
+                <button onclick="uploadTestData()">上传测试数据到 KV Store</button>
+                <div id="uploadResult"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>⚙️ 步骤 3：设置动态数据优先</h2>
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>将数据优先级设置为：KV Store → 静态文件 → 内置数据</strong>
+                <br>
+                <button onclick="setPriorityKVFirst()">设置 KV Store 优先</button>
+                <button class="secondary" onclick="setPriorityDefault()">恢复默认优先级</button>
+                <div id="priorityResult"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>✅ 步骤 4：验证数据合并</h2>
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>测试 museum-checkin.html 的数据加载逻辑</strong>
+                <br>
+                <button class="success" onclick="testDataMerging()">测试数据合并</button>
+                <div id="mergeResult"></div>
+            </div>
+            
+            <div class="comparison-grid" id="comparisonGrid" style="display: none;">
+                <div class="comparison-item">
+                    <h3>原始照片（Tier 3）</h3>
+                    <img id="oldPhoto" class="treasure-image" alt="原始照片">
+                </div>
+                <div class="comparison-item">
+                    <h3>新照片（KV Store）</h3>
+                    <img id="newPhoto" class="treasure-image" alt="新照片">
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 步骤 5：实际验证</h2>
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>在实际打卡页面查看效果</strong>
+                <br>
+                <button onclick="openCheckinPage()">打开上海博物馆打卡页面</button>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                    ℹ️ 打开后检查镇馆之宝任务卡片是否显示新的照片
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load dependencies -->
+    <script src="museums-data.js"></script>
+    <script src="museum-data-loader.js"></script>
+    
+    <script>
+        // Test data for KV store
+        const TEST_KV_DATA = {
+            id: 'shanghai-museum',
+            name: '上海博物馆',
+            location: '上海',
+            description: '以古代艺术为主的综合性博物馆，被誉为"中华艺术宫"',
+            tags: ['艺术', '文物', '收藏'],
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Shanghai_Museum_2019.jpg/600px-Shanghai_Museum_2019.jpg',
+            collections: [
+                {
+                    name: '大克鼎',
+                    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Da_Ke_ding.jpg/400px-Da_Ke_ding.jpg',
+                    description: '西周晚期青铜器，高93.1厘米，重201.5公斤 [测试新照片]'
+                },
+                {
+                    name: '商鞅方升',
+                    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Shang_Yang_Fang_Sheng.jpg/400px-Shang_Yang_Fang_Sheng.jpg',
+                    description: '战国时期秦国的标准量器 [测试新照片]'
+                }
+            ]
+        };
+        
+        // Check initial state
+        window.addEventListener('DOMContentLoaded', () => {
+            checkCurrentState();
+        });
+        
+        function checkCurrentState() {
+            // Check data priority
+            const priority = window.museumDataLoader ? 
+                window.museumDataLoader.getPrioritySettings() : 
+                ['tier1', 'tier2', 'tier3'];
+            
+            document.getElementById('currentPriority').textContent = 
+                priority.join(' → ').replace('tier1', '静态文件').replace('tier2', 'KV Store').replace('tier3', '内置数据');
+            
+            // Check loader status
+            const loaderStatus = window.museumDataLoader ? 
+                '✅ 已加载' : 
+                '❌ 未加载';
+            document.getElementById('loaderStatus').innerHTML = loaderStatus;
+        }
+        
+        function loadTier3Data() {
+            const museum = MUSEUMS.find(m => m.id === 'shanghai-museum');
+            const resultDiv = document.getElementById('tier3Result');
+            
+            if (museum) {
+                const hasChecklists = museum.checklists && museum.checklists.child;
+                const collectionCount = museum.collections ? museum.collections.length : 0;
+                const firstCollection = museum.collections && museum.collections[0];
+                
+                resultDiv.innerHTML = `
+                    <div class="result-box success">
+                        <strong>✅ 成功加载 Tier 3 数据</strong><br><br>
+                        博物馆名称: ${museum.name}<br>
+                        镇馆之宝数量: ${collectionCount}<br>
+                        第一个镇馆之宝: ${firstCollection ? firstCollection.name : '无'}<br>
+                        原始照片 URL: ${firstCollection ? firstCollection.imageUrl : '无'}<br>
+                        包含 Checklist: ${hasChecklists ? '✅ 是' : '❌ 否'}
+                    </div>
+                `;
+                
+                if (firstCollection && firstCollection.imageUrl) {
+                    resultDiv.innerHTML += `
+                        <img src="${firstCollection.imageUrl}" class="treasure-image" alt="${firstCollection.name}">
+                    `;
+                }
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-box error">
+                        ❌ 未找到上海博物馆数据
+                    </div>
+                `;
+            }
+        }
+        
+        async function uploadTestData() {
+            const resultDiv = document.getElementById('uploadResult');
+            resultDiv.innerHTML = '<div class="result-box">⏳ 正在上传测试数据...</div>';
+            
+            try {
+                const success = await window.museumDataLoader.saveToKVStore(
+                    'shanghai-museum',
+                    TEST_KV_DATA,
+                    Math.floor(Date.now() / 1000) + 3600 // 1 hour expiration
+                );
+                
+                if (success) {
+                    resultDiv.innerHTML = `
+                        <div class="result-box success">
+                            <strong>✅ 成功上传测试数据到 KV Store</strong><br><br>
+                            博物馆 ID: shanghai-museum<br>
+                            新照片 URL: ${TEST_KV_DATA.collections[0].imageUrl}<br>
+                            过期时间: 1 小时后<br><br>
+                            ⚠️ 注意：KV Store 数据不包含 checklist，需要与 Tier 3 合并
+                        </div>
+                    `;
+                } else {
+                    throw new Error('上传失败');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result-box error">
+                        ❌ 上传失败: ${error.message}<br><br>
+                        可能原因：<br>
+                        1. 网络连接问题<br>
+                        2. KV Store API 不可用<br>
+                        3. CORS 限制<br><br>
+                        💡 你可以继续测试数据合并逻辑（步骤 4）
+                    </div>
+                `;
+            }
+        }
+        
+        function setPriorityKVFirst() {
+            const priority = ['tier2', 'tier1', 'tier3'];
+            window.museumDataLoader.updatePrioritySettings(priority);
+            window.museumDataLoader.clearCache();
+            
+            document.getElementById('priorityResult').innerHTML = `
+                <div class="result-box success">
+                    ✅ 已设置优先级为: KV Store → 静态文件 → 内置数据<br>
+                    缓存已清空，下次加载将使用新优先级
+                </div>
+            `;
+            
+            checkCurrentState();
+        }
+        
+        function setPriorityDefault() {
+            const priority = ['tier1', 'tier2', 'tier3'];
+            window.museumDataLoader.updatePrioritySettings(priority);
+            window.museumDataLoader.clearCache();
+            
+            document.getElementById('priorityResult').innerHTML = `
+                <div class="result-box">
+                    ℹ️ 已恢复默认优先级: 静态文件 → KV Store → 内置数据<br>
+                    缓存已清空
+                </div>
+            `;
+            
+            checkCurrentState();
+        }
+        
+        async function testDataMerging() {
+            const resultDiv = document.getElementById('mergeResult');
+            resultDiv.innerHTML = '<div class="result-box">⏳ 正在测试数据合并...</div>';
+            
+            try {
+                // Simulate the logic from museum-checkin.html loadMuseumData()
+                let museum = null;
+                if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
+                    museum = await window.museumDataLoader.loadMuseum('shanghai-museum', false);
+                }
+                
+                if (!museum) {
+                    museum = MUSEUMS.find(m => m.id === 'shanghai-museum');
+                }
+                
+                // Merge logic (THE FIX!)
+                let currentMuseum;
+                if (museum) {
+                    const tier3Museum = MUSEUMS.find(m => m.id === 'shanghai-museum');
+                    if (tier3Museum) {
+                        currentMuseum = { ...tier3Museum, ...museum };
+                        console.log('Merged dynamic data with Tier 3 data');
+                    } else {
+                        currentMuseum = museum;
+                    }
+                }
+                
+                // Verify the merged data
+                const hasChecklists = currentMuseum.checklists && currentMuseum.checklists.child;
+                const hasCollections = currentMuseum.collections && currentMuseum.collections.length > 0;
+                const firstCollection = currentMuseum.collections && currentMuseum.collections[0];
+                
+                const tier3Museum = MUSEUMS.find(m => m.id === 'shanghai-museum');
+                const tier3Photo = tier3Museum.collections && tier3Museum.collections[0] && tier3Museum.collections[0].imageUrl;
+                const mergedPhoto = firstCollection && firstCollection.imageUrl;
+                const photoChanged = tier3Photo !== mergedPhoto;
+                
+                resultDiv.innerHTML = `
+                    <div class="result-box ${hasChecklists && hasCollections ? 'success' : 'error'}">
+                        <strong>${hasChecklists && hasCollections ? '✅' : '❌'} 数据合并测试结果</strong><br><br>
+                        
+                        <strong>📊 合并后的数据：</strong><br>
+                        包含 Checklist: ${hasChecklists ? '✅ 是（来自 Tier 3）' : '❌ 否'}<br>
+                        包含镇馆之宝: ${hasCollections ? '✅ 是' : '❌ 否'}<br>
+                        镇馆之宝照片: ${mergedPhoto || '无'}<br>
+                        照片已更新: ${photoChanged ? '✅ 是（来自 KV Store）' : '❌ 否（仍是 Tier 3）'}<br><br>
+                        
+                        <strong>🔍 验证要点：</strong><br>
+                        ${hasChecklists ? '✅' : '❌'} Checklist 数据存在（必须来自 Tier 3）<br>
+                        ${hasCollections ? '✅' : '❌'} Collections 数据存在<br>
+                        ${photoChanged ? '✅' : '⚠️'} 照片 URL 已更新（如果设置了 KV Store 优先）<br><br>
+                        
+                        <strong>💡 结论：</strong><br>
+                        ${hasChecklists && hasCollections ? 
+                            '数据合并成功！新照片和 checklist 都可用。' : 
+                            '数据合并失败！可能缺少 checklist 或 collections。'}
+                    </div>
+                `;
+                
+                // Show comparison
+                if (tier3Photo && mergedPhoto) {
+                    document.getElementById('comparisonGrid').style.display = 'grid';
+                    document.getElementById('oldPhoto').src = tier3Photo;
+                    document.getElementById('newPhoto').src = mergedPhoto;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result-box error">
+                        ❌ 测试失败: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        function openCheckinPage() {
+            window.open('museum-checkin.html?museum=shanghai-museum&age=7-12', '_blank');
+        }
+    </script>
+</body>
+</html>

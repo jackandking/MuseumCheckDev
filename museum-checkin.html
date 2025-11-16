@@ -890,7 +890,22 @@
                 console.log(`Loaded museum ${museumId} from static MUSEUMS array`);
             }
             
-            currentMuseum = museum;
+            // Merge dynamic data (from KV store/Tier 1) with complete Tier 3 data
+            // KV store typically has updated images/collections but may lack checklists
+            // This ensures we have both new photos AND checklist data
+            if (museum) {
+                const tier3Museum = MUSEUMS.find(m => m.id === museumId);
+                if (tier3Museum) {
+                    // Merge: Tier 3 data as base, override with loaded data
+                    // This preserves checklists from Tier 3 while using updated collections/images
+                    currentMuseum = { ...tier3Museum, ...museum };
+                    console.log(`Merged dynamic data with Tier 3 data for museum ${museumId}`);
+                } else {
+                    currentMuseum = museum;
+                }
+            } else {
+                currentMuseum = null;
+            }
             
             if (!currentMuseum) {
                 document.getElementById('museumName').textContent = '博物馆未找到';
