@@ -6819,21 +6819,46 @@ class MuseumCheckApp {
             if (modal) modal.classList.remove('hidden');
         } catch(e) {}
 
-        // If current museum lacks checklists (meta dataset), load full data then reopen
-        try {
-            const noChecklist = !(museum && museum.checklists && museum.checklists.parent && museum.checklists.child);
-            if (noChecklist) {
-                this.ensureFullMuseumsData().then(() => {
-                    const full = (typeof this.getMuseumById === 'function') ? this.getMuseumById(museum.id) : (window.MUSEUMS || []).find(m=>m.id===museum.id) || museum;
-                    if (full && full.checklists && full.checklists.parent && full.checklists.child) {
-                        this.openMuseumModal(full, activeTab);
-                    }
-                }).catch(() => {
-                    // failed to load: keep placeholder; user can close modal
-                });
-                return;
-            }
-        } catch (e) { /* ignore */ }
+        // Load museum data with dynamic data priority support
+        // This allows updated data from KV store to override static data
+        this.getMuseumByIdWithLoader(museum.id, false).then(loadedMuseum => {
+            const museumToUse = loadedMuseum || museum;
+            
+            // If current museum lacks checklists (meta dataset), load full data then reopen
+            try {
+                const noChecklist = !(museumToUse && museumToUse.checklists && museumToUse.checklists.parent && museumToUse.checklists.child);
+                if (noChecklist) {
+                    this.ensureFullMuseumsData().then(() => {
+                        const full = (typeof this.getMuseumById === 'function') ? this.getMuseumById(museumToUse.id) : (window.MUSEUMS || []).find(m=>m.id===museumToUse.id) || museumToUse;
+                        if (full && full.checklists && full.checklists.parent && full.checklists.child) {
+                            // Merge dynamic data (like images) with checklist data
+                            const merged = { ...full, ...loadedMuseum };
+                            this.renderMuseumModalContent(merged, activeTab, safeGuidance, mi, ageLabels);
+                        }
+                    }).catch(() => {
+                        // failed to load: keep placeholder; user can close modal
+                    });
+                    return;
+                }
+            } catch (e) { /* ignore */ }
+            
+            // Render with loaded museum data (includes any KV store updates)
+            this.renderMuseumModalContent(museumToUse, activeTab, safeGuidance, mi, ageLabels);
+        }).catch(error => {
+            console.error('Error loading museum with dynamic data:', error);
+            // Fallback to original museum object
+            this.renderMuseumModalContent(museum, activeTab, safeGuidance, mi, ageLabels);
+        });
+    }
+
+    /**
+     * Render museum modal content
+     * Extracted from openMuseumModal to support async data loading
+     */
+    renderMuseumModalContent(museum, activeTab, safeGuidance, mi, ageLabels) {
+        const modal = document.getElementById('museumModal');
+        const content = document.getElementById('modalContent');
+        const title = document.getElementById('modalTitle');
 
         // Ensure currentAge is synced with UI selection and has a valid checklist
         try {
@@ -11737,6 +11762,34 @@ class MuseumCheckApp {
 
     getMuseumById(museumId) {
         return MUSEUMS.find(museum => museum.id === museumId);
+    }
+
+    /**
+     * Get museum by ID with dynamic data priority support
+     * This method respects the user's tier priority settings and checks:
+     * - Tier 1: Static JSON files (/museums/{id}.json)
+     * - Tier 2: KV store (remote/dynamic data)
+     * - Tier 3: Built-in MUSEUMS array
+     * @param {string} museumId - Museum identifier
+     * @param {boolean} useCache - Whether to use cached data
+     * @returns {Promise<Object|null>} Museum data with latest updates
+     */
+    async getMuseumByIdWithLoader(museumId, useCache = true) {
+        try {
+            // Use museumDataLoader if available (respects tier priority)
+            if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
+                const museum = await window.museumDataLoader.loadMuseum(museumId, useCache);
+                if (museum) {
+                    return museum;
+                }
+            }
+            
+            // Fallback to static MUSEUMS array
+            return this.getMuseumById(museumId);
+        } catch (error) {
+            console.warn(`Error loading museum ${museumId} with loader, falling back to static data:`, error);
+            return this.getMuseumById(museumId);
+        }
     }
 
     getAgeGroupLabel(ageGroup) {

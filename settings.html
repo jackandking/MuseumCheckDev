@@ -75,6 +75,7 @@
     </div>
   </div>
 
+  <script src="museum-data-loader.js"></script>
   <script>
     (function(){
       function load(){
@@ -106,6 +107,12 @@
           const priorityValue = document.getElementById('dataPriority').value;
           const priority = priorityValue.split('-');
           localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
+          
+          // Clear museum data cache when priority changes so new priority takes effect
+          if (window.museumDataLoader && typeof window.museumDataLoader.clearCache === 'function') {
+            window.museumDataLoader.clearCache();
+            console.log('Museum data cache cleared due to priority change');
+          }
           
           alert('设置已保存');
         }catch(e){ alert('保存失败，请重试'); }

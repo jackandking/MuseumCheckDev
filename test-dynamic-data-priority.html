@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Data Priority Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            font-size: 18px;
+            margin-top: 0;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.success {
+            background: #28a745;
+        }
+        select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .result pre {
+            margin: 5px 0;
+            overflow-x: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .museum-image {
+            max-width: 300px;
+            height: auto;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Dynamic Data Priority Test</h1>
+    <p>This page tests the dynamic data priority feature. You can update museum data in the KV store and see if the application respects your priority settings.</p>
+
+    <div class="card">
+        <h2>1. Check Current Settings</h2>
+        <div class="controls">
+            <button onclick="checkCurrentPriority()">Check Current Priority</button>
+            <button class="secondary" onclick="clearCache()">Clear Cache</button>
+        </div>
+        <div id="priorityResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. Change Data Priority</h2>
+        <p>Select a priority order:</p>
+        <div class="controls">
+            <select id="prioritySelector">
+                <option value="tier1-tier2-tier3">Static Files → Remote Storage → Built-in (Recommended)</option>
+                <option value="tier2-tier1-tier3">Remote Storage → Static Files → Built-in (Debug Mode)</option>
+                <option value="tier3-tier1-tier2">Built-in → Static Files → Remote Storage (Offline First)</option>
+            </select>
+            <button onclick="updatePriority()">Update Priority</button>
+        </div>
+        <div id="priorityUpdateResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+        <h2>3. Test Museum Loading</h2>
+        <p>Load a museum and see which tier it comes from:</p>
+        <div class="controls">
+            <select id="museumSelector">
+                <option value="beijing-capital-museum">首都博物馆 (Capital Museum)</option>
+                <option value="forbidden-city">故宫博物院 (Forbidden City)</option>
+                <option value="national-museum">中国国家博物馆 (National Museum)</option>
+            </select>
+            <button onclick="testMuseumLoad()">Load Museum</button>
+            <button class="secondary" onclick="testMuseumLoadNoCache()">Load (No Cache)</button>
+        </div>
+        <div id="museumLoadResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+        <h2>4. Simulate KV Store Update</h2>
+        <p>Upload test data to KV store and verify it's loaded with correct priority:</p>
+        <div class="controls">
+            <input type="text" id="testImageUrl" placeholder="Test image URL" style="width: 400px; padding: 8px;">
+            <button class="success" onclick="uploadTestData()">Upload to KV Store</button>
+        </div>
+        <div id="uploadResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+        <h2>5. Instructions</h2>
+        <ol>
+            <li>Check the current priority setting (should be default: tier1-tier2-tier3)</li>
+            <li>Load a museum (e.g., 首都博物馆) and note the image URL</li>
+            <li>Upload test data to KV store with a different image URL</li>
+            <li>Change priority to "Remote Storage → Static Files → Built-in"</li>
+            <li>Clear cache and reload the museum - it should now use the KV store image</li>
+            <li>Change priority back and verify it uses the static file image again</li>
+        </ol>
+    </div>
+
+    <script src="museum-data-loader.js"></script>
+    <script>
+        const loader = window.museumDataLoader;
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result status ${type}`;
+            element.innerHTML = message;
+        }
+
+        function checkCurrentPriority() {
+            const priority = loader.getPrioritySettings();
+            const priorityValue = priority.join('-');
+            
+            showStatus('priorityResult', `
+                <strong>Current Priority:</strong> ${priorityValue}<br>
+                <strong>Order:</strong> ${priority.map((t, i) => `${i+1}. ${t}`).join(' → ')}<br>
+                <strong>LocalStorage:</strong> <code>${localStorage.getItem('museumDataTierPriority')}</code>
+            `, 'info');
+        }
+
+        function clearCache() {
+            loader.clearCache();
+            showStatus('priorityResult', '✅ Cache cleared successfully!', 'success');
+        }
+
+        function updatePriority() {
+            const priorityValue = document.getElementById('prioritySelector').value;
+            const priority = priorityValue.split('-');
+            
+            loader.updatePrioritySettings(priority);
+            loader.clearCache(); // Clear cache so new priority takes effect
+            
+            showStatus('priorityUpdateResult', `
+                <strong>✅ Priority updated successfully!</strong><br>
+                <strong>New Order:</strong> ${priority.join(' → ')}<br>
+                <strong>Cache:</strong> Cleared
+            `, 'success');
+        }
+
+        async function testMuseumLoad(useCache = true) {
+            const museumId = document.getElementById('museumSelector').value;
+            const museumName = document.getElementById('museumSelector').selectedOptions[0].text;
+            
+            showStatus('museumLoadResult', `⏳ Loading ${museumName}...`, 'info');
+            
+            try {
+                const startTime = Date.now();
+                const museum = await loader.loadMuseum(museumId, useCache);
+                const loadTime = Date.now() - startTime;
+                
+                if (museum) {
+                    const imageSrc = museum.image || 'No image';
+                    const imageHtml = museum.image 
+                        ? `<img src="${museum.image}" class="museum-image" alt="${museum.name}" />` 
+                        : '<em>No image available</em>';
+                    
+                    showStatus('museumLoadResult', `
+                        <strong>✅ Museum loaded successfully!</strong><br>
+                        <strong>Name:</strong> ${museum.name}<br>
+                        <strong>ID:</strong> ${museum.id}<br>
+                        <strong>Image URL:</strong> <code style="word-break: break-all;">${imageSrc}</code><br>
+                        <strong>Load Time:</strong> ${loadTime}ms<br>
+                        <strong>Using Cache:</strong> ${useCache ? 'Yes' : 'No'}<br>
+                        ${imageHtml}
+                    `, 'success');
+                } else {
+                    showStatus('museumLoadResult', `❌ Museum "${museumId}" not found`, 'error');
+                }
+            } catch (error) {
+                showStatus('museumLoadResult', `❌ Error loading museum: ${error.message}`, 'error');
+            }
+        }
+
+        function testMuseumLoadNoCache() {
+            testMuseumLoad(false);
+        }
+
+        async function uploadTestData() {
+            const museumId = document.getElementById('museumSelector').value;
+            const testImageUrl = document.getElementById('testImageUrl').value.trim();
+            
+            if (!testImageUrl) {
+                showStatus('uploadResult', '❌ Please enter a test image URL', 'error');
+                return;
+            }
+            
+            const testData = {
+                id: museumId,
+                name: `Test: ${museumId}`,
+                location: 'Test Location',
+                description: 'Test data uploaded via dynamic data priority test page',
+                image: testImageUrl,
+                tags: ['test'],
+                collections: [],
+                workflows: []
+            };
+            
+            showStatus('uploadResult', `⏳ Uploading test data to KV store...`, 'info');
+            
+            try {
+                const success = await loader.saveToKVStore(museumId, testData, 4866674732);
+                
+                if (success) {
+                    showStatus('uploadResult', `
+                        <strong>✅ Test data uploaded successfully!</strong><br>
+                        <strong>Museum ID:</strong> ${museumId}<br>
+                        <strong>Test Image:</strong> <code style="word-break: break-all;">${testImageUrl}</code><br>
+                        <br>
+                        <em>Now change priority to "Remote Storage → Static Files → Built-in",
+                        clear cache, and reload the museum to see the updated image.</em>
+                    `, 'success');
+                } else {
+                    showStatus('uploadResult', '❌ Failed to upload test data', 'error');
+                }
+            } catch (error) {
+                showStatus('uploadResult', `❌ Error uploading: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Museum Data Loader initialized');
+            console.log('Current priority:', loader.getPrioritySettings());
+        });
+    </script>
+</body>
+</html>
