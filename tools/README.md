@@ -6,17 +6,65 @@ This directory contains tools to ensure systematic data quality in the MuseumChe
 
 ### Image Search Tools
 
-#### bing-image-search-helper.html (推荐新手使用)
+**Two powerful tools are available to find museum and treasure photos. ALWAYS try Wikimedia first, use Bing website search as backup.**
 
-**免费的浏览器图片搜索助手 - 无需API密钥！**
+#### 🥇 Option 1: search-museum-images-wikimedia.js (RECOMMENDED FIRST)
+
+**Wikimedia Commons免费图片搜索工具 - 首选方案！**
+
+使用Wikimedia Commons的免费API搜索博物馆和文物图片，所有图片均为开源许可。
+
+**为什么优先使用：**
+- ✅ **完全免费** - 无需API密钥，立即可用
+- ✅ **开源许可** - 所有图片都有明确的自由许可（Public Domain, CC0, CC BY-SA）
+- ✅ **无版权问题** - 来自文化机构的高质量策展图片
+- ✅ **命令行自动化** - 直接返回图片URL列表
+- ✅ **多语言搜索** - 自动尝试中文和英文搜索词
+
+**使用方法：**
+```bash
+# 搜索博物馆建筑图片
+node tools/search-museum-images-wikimedia.js "故宫博物院"
+
+# 搜索博物馆和文物图片
+node tools/search-museum-images-wikimedia.js "故宫博物院" "清明上河图"
+
+# 更多例子
+node tools/search-museum-images-wikimedia.js "中国国家博物馆" "后母戊鼎"
+node tools/search-museum-images-wikimedia.js "上海博物馆" "大克鼎"
+```
+
+**输出示例：**
+```
+📸 Museum Building Photos - 故宫博物院
+================================================================================
+[1] The Forbidden City, Beijing, China (故宫博物院).jpg
+    URL: https://upload.wikimedia.org/wikipedia/commons/...
+    Thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/...
+    Size: 3472x4624 (image/jpeg)
+    Source: https://commons.wikimedia.org/wiki/File:...
+    License: 💡 All images from Wikimedia Commons are under free licenses
+```
+
+---
+
+#### 🥈 Option 2: bing-image-search-helper.html (BACKUP - 免费浏览器工具)
+
+**免费的浏览器图片搜索助手 - 当Wikimedia没有理想图片时使用！**
 
 这是一个基于网页的交互式工具，帮助您通过Bing网站免费搜索博物馆和文物图片。
 
+**何时使用此工具：**
+- ❌ Wikimedia没有该博物馆的图片
+- ❌ Wikimedia图片质量不够或不够代表性
+- ❌ 需要更多样化的角度或视图
+- ⚠️ **注意：使用前必须验证图片许可证**
+
 **特点：**
-- ✅ 完全免费 - 无需任何API密钥或付费订阅
-- ✅ 简单易用 - 图形化界面，无需命令行
-- ✅ 智能搜索 - 自动优化搜索关键词
-- ✅ 快速访问 - 预设常用博物馆快速搜索
+- ✅ **完全免费** - 无需任何API密钥或付费订阅
+- ✅ **简单易用** - 图形化界面，无需命令行
+- ✅ **智能搜索** - 自动优化搜索关键词
+- ✅ **快速访问** - 预设常用博物馆快速搜索
 
 **使用方法：**
 ```bash
@@ -33,94 +81,118 @@ python3 -m http.server 8000
 2. 点击搜索按钮，自动在Bing打开优化的搜索结果
 3. 浏览图片，右键"复制图片地址"
 4. 将URL粘贴到博物馆数据中
+5. **重要**：访问源页面验证图片许可证
 
 **详细文档：** 查看 [BING_IMAGE_SEARCH_HELPER.md](BING_IMAGE_SEARCH_HELPER.md)
 
 ---
 
-#### search-museum-images-wikimedia.js (推荐自动化使用)
+#### 🔧 Option 3: search-museum-images.js (高级 - 需要API密钥)
 
-**Wikimedia Commons免费图片搜索工具 - 命令行自动化，无需API密钥！**
+**Bing Image Search API工具 - 用于批量自动化处理**
 
-使用Wikimedia Commons的免费API搜索博物馆和文物图片，所有图片均为开源许可。
+**仅适用于高级用户和批量处理场景。大多数用户应使用上面的浏览器工具。**
 
-**特点：**
-- ✅ 完全免费 - 无需API密钥
-- ✅ 开源许可 - 所有图片都有明确的自由许可
-- ✅ 命令行工具 - 适合批量处理
-- ✅ 自动化 - 直接返回图片URL
+**何时使用此工具：**
+- 需要批量处理大量博物馆数据
+- 需要编程自动化图片搜索
+- 愿意设置Azure账户和API密钥
+
+**前置要求：**
+- Bing Search API key from Azure Cognitive Services
+- Set environment variable: `BING_SEARCH_API_KEY=your_api_key`
+
+**获取API密钥：**
+1. 访问 https://azure.microsoft.com/services/cognitive-services/bing-web-search-api/
+2. 注册免费Azure账户
+3. 创建Bing Search资源
+4. 复制API密钥
+5. 设置环境变量：`export BING_SEARCH_API_KEY=your_key_here`
 
 **使用方法：**
 ```bash
 # 搜索博物馆建筑图片
-node tools/search-museum-images-wikimedia.js "故宫博物院"
-
-# 搜索博物馆和文物图片
-node tools/search-museum-images-wikimedia.js "故宫博物院" "清明上河图"
-```
-
-**输出：**
-返回格式化的图片URL列表，包含：
-- 完整图片URL
-- 缩略图URL
-- 图片尺寸和格式
-- Wikimedia页面链接
-
----
-
-#### search-museum-images.js (需要API密钥)
-
-**Bing Image Search API工具 - 高级自动化搜索**
-
-This tool uses the Bing Image Search API to find high-quality photos of museums and their treasures (镇馆之宝), returning image URLs that can be added to the museum data.
-
-**Prerequisites:**
-- Bing Search API key from Azure Cognitive Services
-- Set environment variable: `BING_SEARCH_API_KEY=your_api_key`
-
-**Usage:**
-```bash
-# Search for museum building photos
 node tools/search-museum-images.js "故宫博物院"
 
-# Search for both museum and treasure photos
+# 搜索博物馆和文物图片
 node tools/search-museum-images.js "故宫博物院" "清明上河图"
 
-# More examples
+# 更多例子
 node tools/search-museum-images.js "中国国家博物馆" "后母戊鼎"
 node tools/search-museum-images.js "上海博物馆" "大克鼎"
 ```
 
-**Output:**
+**输出：**
 Returns a formatted list of image URLs with metadata:
 - Full image URL (for `image` and `imageUrl` fields)
 - Thumbnail URL
 - Image dimensions and file size
 - Source page URL
 
-**Demo Version:**
+**Demo Version (测试用):**
 For testing without an API key, use the demo version:
 ```bash
 node tools/search-museum-images-demo.js "故宫博物院" "清明上河图"
 ```
 
-**Workflow:**
-1. Run the search tool to find image URLs
-2. Review results and select appropriate images
-3. Copy URLs to museum data structure
-4. Use `verify-treasure-images.js` to validate URLs are accessible
-
 ---
 
-### 图片搜索工具使用建议
+### 📋 推荐的图片搜索工作流程
 
-根据您的需求选择合适的工具：
+**标准流程（ALWAYS follow this order）：**
 
-| 场景 | 推荐工具 | 原因 |
-|------|---------|------|
-| 新手用户、临时搜索 | `bing-image-search-helper.html` | 无需安装、图形界面、即开即用 |
-| 批量处理、需要明确许可 | `search-museum-images-wikimedia.js` | 自动化、开源许可、免费 |
-| 大规模自动化 | `search-museum-images.js` | 结果丰富、可编程（需API密钥） |
+1. **首先尝试Wikimedia Commons**
+   ```bash
+   node tools/search-museum-images-wikimedia.js "博物馆名称" "文物名称"
+   ```
+   - 检查返回的图片是否合适
+   - 所有图片都是免费许可，可以直接使用
+
+2. **如果Wikimedia没有理想图片，使用Bing浏览器工具作为备选**
+   ```bash
+   # 打开免费的浏览器搜索助手（无需API密钥）
+   open tools/bing-image-search-helper.html
+   ```
+   - ⚠️ **重要**: 必须验证图片许可证
+   - 访问源页面确认图片可以使用
+   - 优先选择Public Domain, CC0, CC BY, CC BY-SA许可的图片
+
+3. **验证图片URL可访问性**
+   ```bash
+   node tools/verify-treasure-images.js <image-url>
+   ```
+
+4. **添加到博物馆数据结构**
+   ```javascript
+   {
+       id: 'museum-id',
+       name: '博物馆名称',
+       image: 'URL_FROM_SEARCH_TOOL',
+       collections: [
+           {
+               name: '文物名称',
+               imageUrl: 'URL_FROM_SEARCH_TOOL',
+               description: '...'
+           }
+       ]
+   }
+   ```
+
+5. **验证数据质量**
+   ```bash
+   npm run validate-data
+   ```
+
+### 图片搜索工具对比
+
+| 特性 | Wikimedia (首选) | Bing Helper (备选) | Bing API (高级) |
+|------|-----------------|-------------------|----------------|
+| 是否免费 | ✅ 完全免费 | ✅ 完全免费 | ⚠️ 需API密钥 |
+| 许可证 | ✅ 自动开源 | ❌ 需手动验证 | ❌ 需手动验证 |
+| 图片质量 | ⭐⭐⭐⭐ 高 | ⭐⭐⭐⭐⭐ 非常高 | ⭐⭐⭐⭐⭐ 非常高 |
+| 使用难度 | 简单（命令行） | 非常简单（网页） | 中等（需API） |
+| 自动化 | ✅ 命令行自动化 | ❌ 手动操作 | ✅ 命令行自动化 |
+| 推荐场景 | **日常使用首选** | **Wikimedia无结果** | 批量自动化处理 |
 
 ---
 
