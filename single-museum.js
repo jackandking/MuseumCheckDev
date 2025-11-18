@@ -388,10 +388,12 @@
     list.forEach(m => {
       const card = document.createElement('div');
       card.className = 'sg-card';
+      card.dataset.museumId = m.id;
       const img = document.createElement('img');
       img.alt = m.name;
       img.loading = 'lazy';
       img.src = m.image || fallbackImage(m);
+      img.dataset.tier3Image = m.image || fallbackImage(m);
       const name = document.createElement('div');
       name.className = 'sg-card-name';
       name.textContent = m.name;
@@ -401,7 +403,51 @@
       card.append(img, name, desc);
       card.onclick = () => onSelectMuseum(m);
       grid.appendChild(card);
+      
+      // Lazily load Tier 1/2 image when card becomes visible
+      tryLoadEnrichedImageForCard(card, img, m);
     });
+  }
+  
+  // Lazy load enriched image for museum card
+  async function tryLoadEnrichedImageForCard(card, img, museum){
+    try {
+      // Only load for museums with workflows (same filter as hasAvailableWorkflow)
+      if (!window.museumDataLoader || typeof window.museumDataLoader.loadMuseum !== 'function') {
+        return;
+      }
+      
+      // Use Intersection Observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(async entry => {
+            if (entry.isIntersecting) {
+              observer.unobserve(card);
+              await loadEnrichedImage();
+            }
+          });
+        }, { rootMargin: '50px' });
+        observer.observe(card);
+      } else {
+        // Fallback: load immediately
+        await loadEnrichedImage();
+      }
+      
+      async function loadEnrichedImage() {
+        try {
+          const loaded = await window.museumDataLoader.loadMuseum(museum.id, true);
+          if (loaded && loaded.image && loaded.image !== img.dataset.tier3Image) {
+            // Update image if Tier 1/2 has a different image
+            img.src = loaded.image;
+            console.log(`Updated card image for ${museum.id} from Tier 1/2`);
+          }
+        } catch (error) {
+          // Silent fallback to Tier 3 image
+        }
+      }
+    } catch (error) {
+      // Silent fallback to Tier 3 image
+    }
   }
 
   function fallbackImage(m){
@@ -418,19 +464,48 @@
   async function onSelectMuseum(m){
     // Try to load enriched museum data from 3-tier system
     let enrichedMuseum = m;
+    let needWorkflowRegeneration = false;
     
     if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
       try {
         const loaded = await window.museumDataLoader.loadMuseum(m.id, true);
         if (loaded) {
           console.log(`Loaded enriched data for ${m.id} from museum data loader`);
+          
+          // Check if enriched data has different image or collections than original
+          const hasNewImage = loaded.image && loaded.image !== m.image;
+          const hasNewCollections = loaded.collections && JSON.stringify(loaded.collections) !== JSON.stringify(m.collections);
+          needWorkflowRegeneration = hasNewImage || hasNewCollections;
+          
           // Merge enriched data with original museum to preserve workflows from treasure-workflow-generator
           // Tier 1 JSON files have image/collections but not workflows field
           // MUSEUMS array has workflows added by treasure-workflow-generator
           enrichedMuseum = {
             ...loaded,  // Enriched data (image, collections, checklists from Tier 1)
-            workflows: m.workflows || loaded.workflows  // Preserve workflows from MUSEUMS array
+            workflows: m.workflows || loaded.workflows  // Preserve workflows from MUSEUMS array initially
           };
+          
+          // Regenerate treasure hunt workflow if we have enriched collections/image
+          if (needWorkflowRegeneration && window.TreasureWorkflowGenerator) {
+            console.log(`Regenerating treasure hunt workflow for ${m.id} with enriched data`);
+            try {
+              const newWorkflow = window.TreasureWorkflowGenerator.generateTreasureHuntWorkflow(enrichedMuseum);
+              
+              // Replace or add the treasure-discovery workflow
+              if (!enrichedMuseum.workflows) {
+                enrichedMuseum.workflows = [];
+              }
+              const treasureIdx = enrichedMuseum.workflows.findIndex(wf => wf.id === 'treasure-discovery');
+              if (treasureIdx >= 0) {
+                enrichedMuseum.workflows[treasureIdx] = newWorkflow;
+              } else {
+                enrichedMuseum.workflows.push(newWorkflow);
+              }
+              console.log(`Updated treasure-discovery workflow with ${enrichedMuseum.collections ? enrichedMuseum.collections.length : 0} treasures`);
+            } catch (error) {
+              console.error(`Failed to regenerate treasure hunt workflow for ${m.id}:`, error);
+            }
+          }
         } else {
           console.log(`Using fallback data for ${m.id} from MUSEUMS array`);
         }
