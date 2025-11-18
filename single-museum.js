@@ -10,9 +10,6 @@
     try { return localStorage.getItem('ageGroup') || '7-12'; } catch(e){ return '7-12'; }
   }
 
-  // v3 supported museums (导览模式可用清单)
-  const V3_SUPPORTED = ['forbidden-city', 'pinghu-museum', 'beijing-capital-museum'];
-
   function getUrlParams(){
     try{
       const u = new URL(location.href);
@@ -2159,7 +2156,8 @@
 
     if(musSel){
       const all = Array.isArray(MUSEUMS)?MUSEUMS:[];
-      const list = all.filter(m=> m && V3_SUPPORTED.includes(m.id)).sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'zh-CN'));
+      // Filter museums that have collections (镇馆之宝)
+      const list = all.filter(m=> m && m.collections && Array.isArray(m.collections) && m.collections.length > 0).sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'zh-CN'));
       musSel.innerHTML = '<option value="">请选择博物馆</option>' + list.map(m=> `<option value="${m.id}">${m.name}</option>`).join('');
       const cur = state.selectedMuseum && state.selectedMuseum.id;
       if(cur) musSel.value = cur;

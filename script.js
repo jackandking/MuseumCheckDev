@@ -5958,20 +5958,6 @@ class MuseumCheckApp {
         try {
             const grid = document.getElementById('museumGrid');
             const loadingIndicator = document.getElementById('loadingIndicator');
-            // v3 support whitelist (single-museum workflow) - All Beijing museums with treasure workflows
-            const V3_SUPPORTED = [
-                'forbidden-city',
-                'national-museum',
-                'pinghu-museum', 
-                'beijing-capital-museum',
-                'china-art-museum',
-                'china-military-museum',
-                'beijing-natural-history-museum',
-                'china-railway-museum',
-                'beijing-planetarium',
-                'beijing-art-museum',
-                'china-science-technology-museum'
-            ];
             
             // Hide loading indicator
             if (loadingIndicator) {
@@ -5999,6 +5985,10 @@ class MuseumCheckApp {
                     ? `<div class="museum-tags">${tagList.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>`
                     : '';
                 
+                // Check if museum has collections data (check both current data and MUSEUMS array)
+                // This implements the v2 approach: dynamically check for collections instead of hardcoded lists
+                const hasCollections = this.museumHasCollections(museum);
+                
                 const card = document.createElement('div');
                 card.className = `museum-card ${isVisited ? 'visited' : ''} ${isFavorite ? 'favorite' : ''}`;
                 card.innerHTML = `
@@ -6012,7 +6002,7 @@ class MuseumCheckApp {
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
-                                ${V3_SUPPORTED.includes(museum.id) ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览</button>` : ''}
+                                ${hasCollections ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览</button>` : ''}
                                 ${isVisited && !this.assessmentHidden 
                                     ? (hasAssessment 
                                         ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
@@ -11831,6 +11821,43 @@ class MuseumCheckApp {
             console.warn(`Error loading museum ${museumId} with loader, falling back to static data:`, error);
             return this.getMuseumById(museumId);
         }
+    }
+
+    /**
+     * Check if a museum has collections data
+     * Uses v2 approach: checks dynamically across all data tiers instead of hardcoded lists
+     * Priority: current museum data -> MUSEUMS array (from museums-data.js or museums-meta.js)
+     * @param {Object} museum - Museum object (may be partial data)
+     * @returns {boolean} True if museum has collections
+     */
+    museumHasCollections(museum) {
+        // Check current museum object first
+        if (museum.collections && Array.isArray(museum.collections) && museum.collections.length > 0) {
+            return true;
+        }
+        
+        // Check hasCollections metadata flag (from museums-meta.js or museums-data.js)
+        if (museum.hasCollections === true) {
+            return true;
+        }
+        
+        // Fallback: check MUSEUMS array (Tier 3 - museums-data.js or museums-meta.js)
+        // This ensures we show navigation button even if grid data doesn't have collections loaded yet
+        if (museum.id && typeof MUSEUMS !== 'undefined' && Array.isArray(MUSEUMS)) {
+            const fullMuseum = MUSEUMS.find(m => m.id === museum.id);
+            if (fullMuseum) {
+                // Check hasCollections flag first
+                if (fullMuseum.hasCollections === true) {
+                    return true;
+                }
+                // Check collections array
+                if (fullMuseum.collections && Array.isArray(fullMuseum.collections) && fullMuseum.collections.length > 0) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     getAgeGroupLabel(ageGroup) {

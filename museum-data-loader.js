@@ -189,13 +189,15 @@ class MuseumDataLoader {
             }
             
             // Return shallow copy to prevent mutations
+            // Include collections field to allow dynamic V3 navigation button check
             return MUSEUMS.map(m => ({
                 id: m.id,
                 name: m.name,
                 location: m.location,
                 description: m.description,
                 tags: m.tags,
-                image: m.image
+                image: m.image,
+                collections: m.collections  // Include collections for V3 navigation check
             }));
         } catch (error) {
             console.error('Error loading all museums:', error);
