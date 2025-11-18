@@ -115,12 +115,13 @@
   <div class="wrap">
     <div class="header">
       <h1 class="title">博物馆数据管理</h1>
-      <p class="subtitle">管理远程存储（Tier 2）中的博物馆数据，用于开发和调试</p>
+      <p class="subtitle">查看所有博物馆数据（T1/T2/T3），编辑远程存储（Tier 2）中的数据</p>
     </div>
 
     <div class="card">
       <div class="section-title">快速操作</div>
       <div class="actions">
+        <button id="loadAllBtn" class="btn btn-primary">📋 加载所有博物馆</button>
         <button id="uploadBtn" class="btn btn-success">📤 上传新数据</button>
         <button id="backToHomeBtn" class="btn btn-secondary">🏠 返回主页</button>
         <button id="backBtn" class="btn btn-secondary">← 返回设置</button>
@@ -146,7 +147,7 @@
     </div>
 
     <div class="card">
-      <div class="section-title">远程存储（Tier 2）中的博物馆</div>
+      <div class="section-title">所有博物馆数据（Tier 1 + Tier 2 + Tier 3）</div>
       <div id="museumList" class="museum-list">
         <div class="empty-state">
           <div class="empty-state-icon">🔍</div>
@@ -787,38 +788,95 @@
           listDiv.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">📦</div>
-              <div>远程存储中暂无博物馆数据</div>
-              <div class="hint">点击"上传新数据"按钮添加数据</div>
+              <div>选择博物馆以查看所有数据源</div>
+              <div class="hint">使用上方的快速加载选择器</div>
             </div>
           `;
           return;
         }
 
-        listDiv.innerHTML = currentMuseums.map(m => `
-          <div class="museum-item">
-            <div class="museum-info">
-              <div class="museum-name">
-                ${m.name}
-                <span class="tier-badge tier-2">Tier 2</span>
+        listDiv.innerHTML = currentMuseums.map(m => {
+          const tierInfo = getTierInfo(m.tier);
+          const isEditable = m.tier === 'tier2';
+          
+          return `
+            <div class="museum-item">
+              <div class="museum-info">
+                <div class="museum-name">
+                  ${m.name}
+                  <span class="tier-badge ${tierInfo.badgeClass}">${tierInfo.label}</span>
+                </div>
+                <div class="museum-meta">ID: ${m.id} • ${m.location || '未知位置'} • ${tierInfo.description}</div>
               </div>
-              <div class="museum-meta">ID: ${m.id} • ${m.location || '未知位置'}</div>
+              <div class="museum-actions">
+                <button class="btn btn-secondary btn-sm" onclick="viewMuseum('${m.id}', '${m.tier}')">查看</button>
+                ${isEditable ? `
+                  <button class="btn btn-secondary btn-sm" onclick="editMuseum('${m.id}')">编辑</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteMuseum('${m.id}')">删除</button>
+                ` : `
+                  <button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可编辑">编辑</button>
+                  <button class="btn btn-danger btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可删除">删除</button>
+                `}
+              </div>
             </div>
-            <div class="museum-actions">
-              <button class="btn btn-secondary btn-sm" onclick="viewMuseum('${m.id}')">查看</button>
-              <button class="btn btn-secondary btn-sm" onclick="editMuseum('${m.id}')">编辑</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteMuseum('${m.id}')">删除</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+      }
+      
+      // Get tier information for display
+      function getTierInfo(tier) {
+        switch(tier) {
+          case 'tier1':
+            return {
+              label: 'Tier 1',
+              badgeClass: 'tier-1',
+              description: '静态文件（/museums/*.json）'
+            };
+          case 'tier2':
+            return {
+              label: 'Tier 2',
+              badgeClass: 'tier-2',
+              description: '远程存储（KV Store，可编辑）'
+            };
+          case 'tier3':
+            return {
+              label: 'Tier 3',
+              badgeClass: 'tier-3',
+              description: '内置数据（museums-data.js）'
+            };
+          default:
+            return {
+              label: 'Unknown',
+              badgeClass: 'tier-3',
+              description: '未知数据源'
+            };
+        }
       }
 
       // View museum data
-      window.viewMuseum = async function(museumId) {
+      window.viewMuseum = async function(museumId, tier) {
         try {
-          const data = await loader.loadFromTier2(museumId);
+          let data = null;
+          let tierName = '';
+          
+          if (tier === 'tier1') {
+            data = await loader.loadFromTier1(museumId);
+            tierName = 'Tier 1 (静态文件)';
+          } else if (tier === 'tier2') {
+            data = await loader.loadFromTier2(museumId);
+            tierName = 'Tier 2 (远程存储)';
+          } else if (tier === 'tier3') {
+            data = await loader.loadFromTier3(museumId);
+            tierName = 'Tier 3 (内置数据)';
+          }
+          
           if (data) {
             const formatted = JSON.stringify(data, null, 2);
-            alert('博物馆数据:\n\n' + formatted.substring(0, 500) + '\n\n...(数据已截断)');
+            const maxLength = 1000;
+            const displayText = formatted.length > maxLength 
+              ? formatted.substring(0, maxLength) + '\n\n...(数据已截断，完整数据 ' + formatted.length + ' 字符)'
+              : formatted;
+            alert(`博物馆数据 [${tierName}]:\n\n${displayText}`);
           } else {
             showStatus('未找到该博物馆数据', 'error');
           }
@@ -857,6 +915,103 @@
         }
       };
 
+      // Load all museums from all tiers
+      async function loadAllMuseums() {
+        const listDiv = document.getElementById('museumList');
+        listDiv.innerHTML = '<div class="loading">正在加载所有博物馆数据...</div>';
+        
+        try {
+          // Get museum list from MUSEUMS_META
+          if (typeof MUSEUMS_META === 'undefined') {
+            showStatus('MUSEUMS_META 未找到', 'error');
+            return;
+          }
+          
+          currentMuseums = [];
+          const museumIds = new Set(MUSEUMS_META.map(m => m.id));
+          
+          showStatus('正在扫描所有数据源...', 'info');
+          
+          // Load data from all tiers for each museum
+          let processed = 0;
+          for (const museumId of museumIds) {
+            processed++;
+            if (processed % 10 === 0) {
+              showStatus(`正在扫描博物馆 ${processed}/${museumIds.size}...`, 'info');
+            }
+            
+            const tier1Data = await loader.loadFromTier1(museumId);
+            const tier2Data = await loader.loadFromTier2(museumId);
+            const tier3Data = await loader.loadFromTier3(museumId);
+            
+            if (tier1Data) {
+              currentMuseums.push({
+                id: museumId,
+                name: tier1Data.name || museumId,
+                location: tier1Data.location || '未知位置',
+                tier: 'tier1',
+                hasData: true,
+                data: tier1Data
+              });
+            }
+            
+            if (tier2Data) {
+              currentMuseums.push({
+                id: museumId,
+                name: tier2Data.name || museumId,
+                location: tier2Data.location || '未知位置',
+                tier: 'tier2',
+                hasData: true,
+                data: tier2Data
+              });
+            }
+            
+            if (tier3Data && !tier1Data && !tier2Data) {
+              // Only show T3 if not in T1 or T2 to avoid too much duplication
+              currentMuseums.push({
+                id: museumId,
+                name: tier3Data.name || museumId,
+                location: tier3Data.location || '未知位置',
+                tier: 'tier3',
+                hasData: true,
+                data: tier3Data
+              });
+            }
+          }
+          
+          if (currentMuseums.length > 0) {
+            // Sort by tier and name
+            currentMuseums.sort((a, b) => {
+              if (a.tier !== b.tier) {
+                const tierOrder = { tier1: 1, tier2: 2, tier3: 3 };
+                return tierOrder[a.tier] - tierOrder[b.tier];
+              }
+              return a.name.localeCompare(b.name, 'zh-CN');
+            });
+            
+            renderMuseumList();
+            
+            const t1Count = currentMuseums.filter(m => m.tier === 'tier1').length;
+            const t2Count = currentMuseums.filter(m => m.tier === 'tier2').length;
+            const t3Count = currentMuseums.filter(m => m.tier === 'tier3').length;
+            
+            showStatus(`加载完成！共 ${currentMuseums.length} 条数据 (T1: ${t1Count}, T2: ${t2Count}, T3: ${t3Count})`, 'success');
+          } else {
+            listDiv.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-state-icon">❌</div>
+                <div>未找到任何博物馆数据</div>
+              </div>
+            `;
+            showStatus('未找到任何博物馆数据', 'info');
+          }
+        } catch (error) {
+          console.error('Error loading all museums:', error);
+          listDiv.innerHTML = `<div class="status status-error">加载失败: ${error.message}</div>`;
+          showStatus('加载失败: ' + error.message, 'error');
+        }
+      }
+
       // Show upload form
       document.getElementById('uploadBtn').onclick = function() {
         document.getElementById('museumIdSelect').value = '';
@@ -871,7 +1026,7 @@
         document.getElementById('uploadCard').style.display = 'none';
       };
 
-      // Quick load function - load specific museum by ID
+      // Quick load function - load specific museum by ID from all tiers
       async function quickLoadMuseum() {
         const museumId = document.getElementById('quickLoadMuseumId').value;
         
@@ -884,29 +1039,65 @@
         listDiv.innerHTML = '<div class="loading">正在加载博物馆数据...</div>';
 
         try {
-          // Try to load from Tier 2 (KV store)
-          const data = await loader.loadFromTier2(museumId);
+          // Try to load from all tiers
+          const tier1Data = await loader.loadFromTier1(museumId);
+          const tier2Data = await loader.loadFromTier2(museumId);
+          const tier3Data = await loader.loadFromTier3(museumId);
           
-          if (data) {
-            // Found in KV store
-            currentMuseums = [{
+          currentMuseums = [];
+          
+          // Add data from each tier that has it
+          if (tier1Data) {
+            currentMuseums.push({
               id: museumId,
-              name: data.name || museumId,
-              location: data.location || '未知位置',
-              hasData: true
-            }];
+              name: tier1Data.name || museumId,
+              location: tier1Data.location || '未知位置',
+              tier: 'tier1',
+              hasData: true,
+              data: tier1Data
+            });
+          }
+          
+          if (tier2Data) {
+            currentMuseums.push({
+              id: museumId,
+              name: tier2Data.name || museumId,
+              location: tier2Data.location || '未知位置',
+              tier: 'tier2',
+              hasData: true,
+              data: tier2Data
+            });
+          }
+          
+          if (tier3Data) {
+            currentMuseums.push({
+              id: museumId,
+              name: tier3Data.name || museumId,
+              location: tier3Data.location || '未知位置',
+              tier: 'tier3',
+              hasData: true,
+              data: tier3Data
+            });
+          }
+          
+          if (currentMuseums.length > 0) {
             renderMuseumList();
-            showStatus(`成功加载博物馆: ${data.name || museumId}`, 'success');
+            const tierNames = currentMuseums.map(m => {
+              if (m.tier === 'tier1') return 'Tier 1 (静态文件)';
+              if (m.tier === 'tier2') return 'Tier 2 (远程存储)';
+              return 'Tier 3 (内置数据)';
+            }).join(', ');
+            showStatus(`成功加载博物馆: ${currentMuseums[0].name}，数据源: ${tierNames}`, 'success');
           } else {
-            // Not found in KV store
+            // Not found in any tier
             listDiv.innerHTML = `
               <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
-                <div>博物馆 "${museumId}" 在远程存储中未找到</div>
-                <div class="hint">可以点击"上传新数据"按钮添加此博物馆</div>
+                <div>博物馆 "${museumId}" 在所有数据源中未找到</div>
+                <div class="hint">可以点击"上传新数据"按钮添加到远程存储（Tier 2）</div>
               </div>
             `;
-            showStatus(`博物馆 "${museumId}" 在远程存储（Tier 2）中未找到`, 'info');
+            showStatus(`博物馆 "${museumId}" 在所有数据源（T1/T2/T3）中未找到`, 'info');
           }
         } catch (error) {
           console.error('Error loading museum:', error);
@@ -917,6 +1108,9 @@
 
       // Quick load button
       document.getElementById('quickLoadBtn').onclick = quickLoadMuseum;
+      
+      // Load all museums button
+      document.getElementById('loadAllBtn').onclick = loadAllMuseums;
       
       // Allow dropdown change to trigger quick load (optional convenience)
       document.getElementById('quickLoadMuseumId').addEventListener('change', function(e) {
