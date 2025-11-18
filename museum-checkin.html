@@ -974,7 +974,12 @@
             // Try to get collection image URL for treasure hunt tasks
             let imageUrl = '';
             try {
-                if (currentMuseum && Array.isArray(currentMuseum.collections) && subtitle) {
+                // Check if this is a 门口打卡 task - use museum image
+                if (currentMuseum && title && title.includes('门口打卡')) {
+                    imageUrl = currentMuseum.image || '';
+                }
+                // Otherwise, try to match collection images for treasure hunt tasks
+                else if (currentMuseum && Array.isArray(currentMuseum.collections) && subtitle) {
                     const nameMatch = subtitle.match(/「([^」]+)」/);
                     const collName = nameMatch && nameMatch[1];
                     if (collName) {
@@ -1091,12 +1096,19 @@
                 const imgEl = document.getElementById('modalImage');
                 const m = currentMuseum;
                 let matchedUrl = '';
-                if (imgEl && m && Array.isArray(m.collections)) {
+                
+                // Check if this is a 门口打卡 task - use museum image
+                if (title && title.includes('门口打卡') && m && m.image) {
+                    matchedUrl = m.image;
+                }
+                // Otherwise, try to match collection images for treasure hunt tasks
+                else if (imgEl && m && Array.isArray(m.collections)) {
                     const nameMatch = subtitle && subtitle.match(/「([^」]+)」/);
                     const collName = nameMatch && nameMatch[1];
                     const found = m.collections.find(c => c && c.name === collName);
                     matchedUrl = found && (found.imageUrl || found.url) || '';
                 }
+                
                 if (imgEl) {
                     if (matchedUrl) { imgEl.src = matchedUrl; imgEl.style.display = 'block'; }
                     else { imgEl.removeAttribute('src'); imgEl.style.display = 'none'; }

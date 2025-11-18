@@ -28,6 +28,19 @@
   }
 
   function buildForbiddenCityGrandparentMvpRoute(museum){
+    const gatePhotoTask = {
+      id: 'act:forbidden-city:gate-photo',
+      role: 'parent',
+      type: 'photo',
+      title: '门口打卡',
+      subtitle: '在午门或太和殿前合影'
+    };
+    
+    // Add museum image if available
+    if (museum && museum.image) {
+      gatePhotoTask.imageUrl = museum.image;
+    }
+    
     return {
       id: 'route:forbidden-city:grandparent-3-6-mvp',
       name: '祖父母·省心路线',
@@ -37,7 +50,7 @@
           { id: 'act:forbidden-city:enroute-tts-nearby', role: 'parent', type: 'tts', title: '快到啦', subtitle: '还有10分钟就到啦，猜猜大门有几个门钉？', tts: '还有10分钟就到啦！我们再玩个小游戏：猜猜故宫的大门有几个门钉？到了我们一起数一数～', ages:['3-6'] }
         ],
         visit: [
-          { id: 'act:forbidden-city:gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在午门或太和殿前合影' },
+          gatePhotoTask,
           { id: 'act:forbidden-city:find-throne', role: 'child', type: 'confirm', title: '找龙椅', subtitle: '找到皇帝的宝座并观察一个细节' },
           { id: 'act:forbidden-city:count-roof-beasts', role: 'child', type: 'confirm', title: '屋顶小兽', subtitle: '抬头数一数屋檐上的小兽' },
           { id: 'act:forbidden-city:victory-photo', role: 'parent', type: 'photo', title: '胜利合影', subtitle: '参观结束前再合影留念' }
@@ -678,6 +691,19 @@
 
   function buildDefaultWorkflow(museum){
     // Map the existing static three-step visit flow into a workflow structure
+    const gatePhotoTask = {
+      id: 'gate-photo',
+      role: 'parent',
+      type: 'photo',
+      title: '门口打卡',
+      subtitle: '在博物馆门口合影'
+    };
+    
+    // Add museum image if available
+    if (museum && museum.image) {
+      gatePhotoTask.imageUrl = museum.image;
+    }
+    
     return {
       id: 'default-basic',
       name: '基础三步走',
@@ -685,7 +711,7 @@
       tasks: {
         enroute: [],
         visit: [
-          { id: 'gate-photo', role: 'parent', type: 'photo', title: '门口打卡', subtitle: '在博物馆门口合影' },
+          gatePhotoTask,
           { id: 'find-treasure', role: 'child', type: 'confirm', title: '寻找宝藏', subtitle: '找到一件喜欢的展品，说出你看到的两个细节' },
           { id: 'victory-photo', role: 'parent', type: 'photo', title: '胜利合影', subtitle: '在大厅或出口处合影' }
         ]

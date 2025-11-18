@@ -144,16 +144,21 @@
     const museumName = museum.name || '博物馆';
     
     // Build tasks array
-    const tasks = [
-      {
-        id: 'gate-photo',
-        role: 'parent',
-        type: 'photo',
-        title: '门口打卡',
-        subtitle: `在${museumName}门口拍一张照片`,
-        ages: ['3-6', '7-12', '13-18']
-      }
-    ];
+    const gatePhotoTask = {
+      id: 'gate-photo',
+      role: 'parent',
+      type: 'photo',
+      title: '门口打卡',
+      subtitle: `在${museumName}门口拍一张照片`,
+      ages: ['3-6', '7-12', '13-18']
+    };
+    
+    // Add museum image if available
+    if (museum.image) {
+      gatePhotoTask.imageUrl = museum.image;
+    }
+    
+    const tasks = [gatePhotoTask];
 
     // Add treasure hunt tasks
     treasures.forEach((treasure, index) => {
