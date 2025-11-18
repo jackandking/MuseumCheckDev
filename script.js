@@ -6006,6 +6006,7 @@ class MuseumCheckApp {
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
                                 ${hasCollections ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览</button>` : ''}
+                                <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
                                 ${isVisited && !this.assessmentHidden 
                                     ? (hasAssessment 
                                         ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
@@ -6025,6 +6026,7 @@ class MuseumCheckApp {
                         !e.target.classList.contains('assessment-button') &&
                         !e.target.classList.contains('museum-fireworks-button') &&
                         !e.target.classList.contains('museum-checkin-button') &&
+                        !e.target.classList.contains('museum-manage-button') &&
                         !e.target.classList.contains('favorite-button')) {
                         this.openMuseumModal(museum);
                     }
@@ -6103,6 +6105,23 @@ class MuseumCheckApp {
                     v3Btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         window.location.href = `single-museum.html?museum=${museum.id}`;
+                    });
+                }
+
+                // Add manage button event
+                const manageButton = card.querySelector('.museum-manage-button');
+                if (manageButton) {
+                    manageButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Navigate to museum-data-manager.html with museum ID parameter
+                        window.location.href = `museum-data-manager.html?museum=${encodeURIComponent(museum.id)}`;
+                        
+                        // Track event
+                        this.trackEvent('museum_manage_opened', {
+                            'museum_id': museum.id,
+                            'museum_name': museum.name,
+                            'museum_location': museum.location
+                        });
                     });
                 }
 

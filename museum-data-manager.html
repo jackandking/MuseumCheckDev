@@ -937,6 +937,26 @@
 
       // Initial load
       initMuseumSelector();
+      
+      // Check for museum parameter in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const museumIdFromUrl = urlParams.get('museum');
+      
+      if (museumIdFromUrl) {
+        // Auto-select the museum in the quick load selector
+        const quickLoadSelect = document.getElementById('quickLoadMuseumId');
+        quickLoadSelect.value = museumIdFromUrl;
+        
+        // Show upload card and load the museum data
+        document.getElementById('uploadCard').style.display = 'block';
+        document.getElementById('museumIdSelect').value = museumIdFromUrl;
+        loadMuseumData(museumIdFromUrl);
+        
+        // Scroll to the upload card
+        setTimeout(() => {
+          document.getElementById('uploadCard').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
     })();
 
     // Image Preview Helper Functions (Global scope)
