@@ -84,7 +84,19 @@ MuseumCheck 使用灵活的三级数据管理架构，支持开发调试和稳�
 ### 创建静态文件
 
 ```bash
-# 方法 1：从 museums-data.js 提取
+# 方法 1：使用导出工具从 KV Store 导出（推荐）
+npm run export:kvstore                    # 导出所有博物馆
+npm run export:kvstore:dry-run            # 试运行，查看将导出什么
+npm run export:kvstore:force              # 强制覆盖现有文件
+
+# 或者导出特定博物馆
+node tools/export-kvstore-to-static.js --museum forbidden-city
+node tools/export-kvstore-to-static.js --museums forbidden-city,national-museum
+
+# 详细文档
+# 参见 tools/README_EXPORT_KVSTORE.md
+
+# 方法 2：从 museums-data.js 提取
 node -e "
 const fs = require('fs');
 const MUSEUMS = require('./museums-data.js').MUSEUMS;
@@ -92,11 +104,11 @@ const museum = MUSEUMS.find(m => m.id === 'forbidden-city');
 fs.writeFileSync('museums/forbidden-city.json', JSON.stringify(museum, null, 2));
 "
 
-# 方法 2：从远程存储导出
+# 方法 3：从远程存储导出
 # 访问 museum-data-manager.html
 # 点击"查看" → 复制 JSON → 保存为文件
 
-# 方法 3：手动创建
+# 方法 4：手动创建
 cat > museums/new-museum.json << 'EOF'
 {
   "id": "new-museum",

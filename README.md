@@ -366,6 +366,39 @@ npm test
 
 ## 🔧 开发者指南 - 三级数据管理系统
 
+### 数据导出工具
+
+**从 KV Store 导出静态文件：**
+```bash
+# 导出所有博物馆数据到静态文件
+npm run export:kvstore
+
+# 预览将导出哪些博物馆（不实际写入文件）
+npm run export:kvstore:dry-run
+
+# 强制覆盖现有文件
+npm run export:kvstore:force
+
+# 导出特定博物馆
+node tools/export-kvstore-to-static.js --museum forbidden-city
+
+# 详细文档
+# 参见 tools/README_EXPORT_KVSTORE.md
+```
+
+### 工作流程
+
+**开发新博物馆内容：**
+1. 在 `museum-data-manager.html` 中编辑和上传到 KV Store
+2. 在开发模式中测试验证
+3. 使用 `npm run export:kvstore` 导出为静态文件
+4. 提交静态文件到版本控制
+
+**完整文档：**
+- [三级数据管理系统](MUSEUM_DATA_MANAGEMENT.md)
+- [导出工具使用指南](tools/README_EXPORT_KVSTORE.md)
+- [数据管理界面](museum-data-manager.html)
+
 ### 系统架构
 
 MuseumCheck 使用灵活的三级数据管理架构，支持开发调试和稳定发布：
