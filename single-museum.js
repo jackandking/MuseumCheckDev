@@ -415,17 +415,40 @@
     } catch(e){ return false; }
   }
 
-  function onSelectMuseum(m){
-    state.selectedMuseum = m;
+  async function onSelectMuseum(m){
+    // Try to load enriched museum data from 3-tier system
+    let enrichedMuseum = m;
+    
+    if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
+      try {
+        const loaded = await window.museumDataLoader.loadMuseum(m.id, true);
+        if (loaded) {
+          console.log(`Loaded enriched data for ${m.id} from museum data loader`);
+          // Merge enriched data with original museum to preserve workflows from treasure-workflow-generator
+          // Tier 1 JSON files have image/collections but not workflows field
+          // MUSEUMS array has workflows added by treasure-workflow-generator
+          enrichedMuseum = {
+            ...loaded,  // Enriched data (image, collections, checklists from Tier 1)
+            workflows: m.workflows || loaded.workflows  // Preserve workflows from MUSEUMS array
+          };
+        } else {
+          console.log(`Using fallback data for ${m.id} from MUSEUMS array`);
+        }
+      } catch (error) {
+        console.warn(`Failed to load enriched data for ${m.id}, using fallback:`, error);
+      }
+    }
+    
+    state.selectedMuseum = enrichedMuseum;
     // Update header museum name
     const headerName = document.getElementById('headerMuseumName');
-    if(headerName && m){
-      headerName.textContent = m.name || '';
+    if(headerName && enrichedMuseum){
+      headerName.textContent = enrichedMuseum.name || '';
     }
     // Optional: load workflows for this museum
-    setupWorkflowPicker(m);
+    setupWorkflowPicker(enrichedMuseum);
     // Apply default/explicit workflow selection without showing picker
-    applyWorkflowSettingForMuseum(m);
+    applyWorkflowSettingForMuseum(enrichedMuseum);
     // Skip prep/enroute steps for Pinghu Museum (simplified workflow)
     // Simplified flow: after museum selection, show workflow picker in select step
     // User clicks "开始探险" button to start visit step
@@ -2217,7 +2240,7 @@
     });
   }
 
-  function init(){
+  async function init(){
     initSelect();
     
     // Try to restore workflow state if available
@@ -2246,7 +2269,7 @@
       if(museumId){
         const m = (Array.isArray(MUSEUMS)?MUSEUMS:[]).find(x=> x && x.id===museumId);
         if(m){
-          onSelectMuseum(m);
+          await onSelectMuseum(m);
           
           // If we have restored state, find and select the workflow
           if(restoredState && restoredState.workflowId){

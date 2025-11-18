@@ -5375,6 +5375,50 @@ main[role="main"] {
     margin-bottom: 20px;
 }
 
+.settings-section-header {
+    color: var(--primary-color);
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e9ecef;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.settings-section-header:hover {
+    color: #1e4d8b;
+}
+
+.settings-section-toggle {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+    color: #6c757d;
+}
+
+.settings-section[data-collapsed="false"] .settings-section-header {
+    margin-bottom: 20px;
+}
+
+.settings-section[data-collapsed="true"] .settings-section-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.settings-section[data-collapsed="true"] {
+    padding: 15px 25px;
+}
+
+.settings-section-content {
+    transition: all 0.3s ease;
+}
+
 .settings-section h3 {
     color: var(--primary-color);
     font-size: 18px;
@@ -5386,6 +5430,7 @@ main[role="main"] {
     padding-bottom: 12px;
     border-bottom: 2px solid #e9ecef;
 }
+
 
 .settings-item {
     display: flex;

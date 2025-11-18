@@ -391,8 +391,12 @@
         <div class="modal-content settings-content">
             <span class="close">&times;</span>
             <h2>⚙️ 设置</h2>
-            <div class="settings-section">
-                <h3>👶 孩子信息</h3>
+            <div class="settings-section" data-collapsed="false">
+                <h3 class="settings-section-header">
+                    <span>👶 孩子信息</span>
+                    <span class="settings-section-toggle">▼</span>
+                </h3>
+                <div class="settings-section-content">
                 <div class="settings-item">
                     <label class="settings-label" for="childNicknameInput">孩子昵称：</label>
                     <div class="settings-input-group">
@@ -415,134 +419,15 @@
                     </div>
                     <div class="settings-hint">更改后将立即重新加载博物馆内容</div>
                 </div>
-            </div>
-            <div class="settings-section">
-                <h3>🎆 烟花设置</h3>
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworksRetentionInput">烟花留存时间：</label>
-                    <div class="settings-input-group">
-                        <input type="range" id="fireworksRetentionInput" class="settings-slider" min="1" max="1440" value="1" step="1">
-                        <span class="settings-value" id="fireworksRetentionDisplay">1 分钟</span>
-                    </div>
-                    <div class="settings-hint">烟花成就的保存时长（1分钟 - 1天）</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworkTypeSelector">烟花类型：</label>
-                    <div class="settings-input-group">
-                        <select id="fireworkTypeSelector" class="settings-input">
-                            <option value="heart">❤️ 爱心</option>
-                            <option value="circle">⭕ 圆形</option>
-                            <option value="star">⭐ 星形</option>
-                            <option value="diamond">💎 菱形</option>
-                            <option value="spiral">🌀 螺旋</option>
-                            <option value="butterfly">🦋 蝴蝶</option>
-                            <option value="rose">🌹 玫瑰</option>
-                            <option value="sunburst">☀️ 太阳爆发</option>
-                            <option value="cascade">💧 瀑布</option>
-                            <option value="ring">⭕ 光环</option>
-                            <option value="crosshatch">🔲 网格</option>
-                        </select>
-                    </div>
-                    <div class="settings-hint">选择烟花绽放的形状，更改后立即生效</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworkLaunchIntervalInput">烟花发射间隔：</label>
-                    <div class="settings-input-group">
-                        <input type="range" id="fireworkLaunchIntervalInput" class="settings-slider" min="500" max="5000" value="1000" step="100">
-                        <span class="settings-value" id="fireworkLaunchIntervalDisplay">1.0 秒</span>
-                    </div>
-                    <div class="settings-hint">点击屏幕发射烟花的最小间隔（0.5秒 - 5秒）</div>
                 </div>
             </div>
-            <div class="settings-section">
-                <h3>🔀 博物馆排序</h3>
-                <div class="settings-item">
-                    <label class="settings-label" for="sortBySelector">排序方式：</label>
-                    <div class="settings-input-group">
-                        <select id="sortBySelector" class="settings-input">
-                            <option value="default">默认（综合排序）</option>
-                            <option value="name">名称</option>
-                            <option value="location">地区</option>
-                            <option value="visited">参观状态</option>
-                            <option value="distance">距离</option>
-                        </select>
-                    </div>
-                    <div class="settings-hint">选择博物馆列表的排序方式，更改后立即生效</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label">综合排序规则：</label>
-                    <div class="settings-hint" style="margin-top: 0;">
-                        默认排序优先级：<br>
-                        1️⃣ 收藏的博物馆 → 2️⃣ 有烟花的博物馆 → 3️⃣ 未参观的博物馆 → 4️⃣ 离你较近的博物馆
-                    </div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>🤖 AI 功能设置</h3>
-                <div class="settings-item">
-                    <label class="settings-label" for="deepseekApiKeyInput">DeepSeek API Key：</label>
-                    <div class="settings-input-group">
-                        <input type="password" id="deepseekApiKeyInput" class="settings-input" placeholder="输入您的 DeepSeek API Key">
-                    </div>
-                    <div class="settings-hint">
-                        用于 AI 验证博物馆数据。获取 API Key：<a href="https://platform.deepseek.com" target="_blank" style="color:#2c5aa0; text-decoration:underline;">platform.deepseek.com</a>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>👁️ 显示选项</h3>
-                <div class="settings-item">
-                    <label class="settings-label" for="showAssessmentToggle">显示亲子测评功能：</label>
-                    <div class="settings-input-group">
-                        <input type="checkbox" id="showAssessmentToggle" class="settings-checkbox">
-                    </div>
-                    <div class="settings-hint">控制是否显示亲子测评相关功能（测评按钮、测评历史等）</div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>📖 使用帮助</h3>
-                <div class="settings-item">
-                    <label class="settings-label">玩法提示：</label>
-                    <div class="settings-input-group">
-                        <button id="showGuideButton" class="settings-button">
-                            💡 查看玩法提示
-                        </button>
-                    </div>
-                    <div class="settings-hint">重新查看应用的使用说明和玩法提示</div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>📊 应用信息</h3>
-                <div class="settings-item">
-                    <label class="settings-label">博物馆数量：</label>
-                    <span class="settings-value" id="museumCountSettings">0</span>
-                </div>
-                <div class="settings-item">
-                    <div class="settings-hint" style="margin-top: 16px; text-align: right;">
-                        <a href="minecraft-images-demo.html" target="_blank" style="color: #999; font-size: 11px; text-decoration: none;">🎮 资源库</a>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>ℹ️ 关于我们</h3>
-                <div class="settings-item">
-                    <div class="about-content">
-                        <p class="about-title">博物馆打卡 - 中国博物馆亲子参观指南</p>
-                        <p class="about-description">通过博物馆亲子游增进亲子关系</p>
-                        <p class="about-features">精选全国260家知名博物馆，通过专业的亲子互动指导，让每次参观都成为增进亲子关系的宝贵机会</p>
-                        <ul class="about-features-list">
-                            <li>📍 收录全国主要博物馆</li>
-                            <li>👶 3-18岁分龄参观指南</li>
-                            <li>👪 家长准备清单</li>
-                            <li>🎯 孩子探索任务</li>
-                            <li>📈 参观进度追踪</li>
-                            <li>💾 本地数据存储</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>🗑️ 数据管理</h3>
+            <!-- Data Management Section - Moved up for better accessibility -->
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>🗑️ 数据管理</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
                 <div class="settings-item">
                     <label class="settings-label" for="dataTierPrioritySelector">博物馆数据优先级：</label>
                     <div class="settings-input-group">
@@ -594,6 +479,167 @@
                         </button>
                     </div>
                     <div class="settings-hint">此操作将删除所有参观记录、清单完成记录、任务照片、成就进度和测评记录，操作不可撤销</div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>🎆 烟花设置</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label" for="fireworksRetentionInput">烟花留存时间：</label>
+                    <div class="settings-input-group">
+                        <input type="range" id="fireworksRetentionInput" class="settings-slider" min="1" max="1440" value="1" step="1">
+                        <span class="settings-value" id="fireworksRetentionDisplay">1 分钟</span>
+                    </div>
+                    <div class="settings-hint">烟花成就的保存时长（1分钟 - 1天）</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="fireworkTypeSelector">烟花类型：</label>
+                    <div class="settings-input-group">
+                        <select id="fireworkTypeSelector" class="settings-input">
+                            <option value="heart">❤️ 爱心</option>
+                            <option value="circle">⭕ 圆形</option>
+                            <option value="star">⭐ 星形</option>
+                            <option value="diamond">💎 菱形</option>
+                            <option value="spiral">🌀 螺旋</option>
+                            <option value="butterfly">🦋 蝴蝶</option>
+                            <option value="rose">🌹 玫瑰</option>
+                            <option value="sunburst">☀️ 太阳爆发</option>
+                            <option value="cascade">💧 瀑布</option>
+                            <option value="ring">⭕ 光环</option>
+                            <option value="crosshatch">🔲 网格</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">选择烟花绽放的形状，更改后立即生效</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="fireworkLaunchIntervalInput">烟花发射间隔：</label>
+                    <div class="settings-input-group">
+                        <input type="range" id="fireworkLaunchIntervalInput" class="settings-slider" min="500" max="5000" value="1000" step="100">
+                        <span class="settings-value" id="fireworkLaunchIntervalDisplay">1.0 秒</span>
+                    </div>
+                    <div class="settings-hint">点击屏幕发射烟花的最小间隔（0.5秒 - 5秒）</div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>🔀 博物馆排序</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label" for="sortBySelector">排序方式：</label>
+                    <div class="settings-input-group">
+                        <select id="sortBySelector" class="settings-input">
+                            <option value="default">默认（综合排序）</option>
+                            <option value="name">名称</option>
+                            <option value="location">地区</option>
+                            <option value="visited">参观状态</option>
+                            <option value="distance">距离</option>
+                        </select>
+                    </div>
+                    <div class="settings-hint">选择博物馆列表的排序方式，更改后立即生效</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label">综合排序规则：</label>
+                    <div class="settings-hint" style="margin-top: 0;">
+                        默认排序优先级：<br>
+                        1️⃣ 收藏的博物馆 → 2️⃣ 有烟花的博物馆 → 3️⃣ 未参观的博物馆 → 4️⃣ 离你较近的博物馆
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>🤖 AI 功能设置</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label" for="deepseekApiKeyInput">DeepSeek API Key：</label>
+                    <div class="settings-input-group">
+                        <input type="password" id="deepseekApiKeyInput" class="settings-input" placeholder="输入您的 DeepSeek API Key">
+                    </div>
+                    <div class="settings-hint">
+                        用于 AI 验证博物馆数据。获取 API Key：<a href="https://platform.deepseek.com" target="_blank" style="color:#2c5aa0; text-decoration:underline;">platform.deepseek.com</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>👁️ 显示选项</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label" for="showAssessmentToggle">显示亲子测评功能：</label>
+                    <div class="settings-input-group">
+                        <input type="checkbox" id="showAssessmentToggle" class="settings-checkbox">
+                    </div>
+                    <div class="settings-hint">控制是否显示亲子测评相关功能（测评按钮、测评历史等）</div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>📖 使用帮助</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label">玩法提示：</label>
+                    <div class="settings-input-group">
+                        <button id="showGuideButton" class="settings-button">
+                            💡 查看玩法提示
+                        </button>
+                    </div>
+                    <div class="settings-hint">重新查看应用的使用说明和玩法提示</div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>📊 应用信息</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <label class="settings-label">博物馆数量：</label>
+                    <span class="settings-value" id="museumCountSettings">0</span>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-hint" style="margin-top: 16px; text-align: right;">
+                        <a href="minecraft-images-demo.html" target="_blank" style="color: #999; font-size: 11px; text-decoration: none;">🎮 资源库</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>ℹ️ 关于我们</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content" style="display: none;">
+                <div class="settings-item">
+                    <div class="about-content">
+                        <p class="about-title">博物馆打卡 - 中国博物馆亲子参观指南</p>
+                        <p class="about-description">通过博物馆亲子游增进亲子关系</p>
+                        <p class="about-features">精选全国260家知名博物馆，通过专业的亲子互动指导，让每次参观都成为增进亲子关系的宝贵机会</p>
+                        <ul class="about-features-list">
+                            <li>📍 收录全国主要博物馆</li>
+                            <li>👶 3-18岁分龄参观指南</li>
+                            <li>👪 家长准备清单</li>
+                            <li>🎯 孩子探索任务</li>
+                            <li>📈 参观进度追踪</li>
+                            <li>💾 本地数据存储</li>
+                        </ul>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

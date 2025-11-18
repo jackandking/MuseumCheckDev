@@ -4622,6 +4622,9 @@ class MuseumCheckApp {
             }
         });
 
+        // Initialize collapsible settings sections
+        this.initializeCollapsibleSections();
+
         // Auto-save nickname on blur (when user leaves the input field)
         const nicknameInput = document.getElementById('childNicknameInput');
         if (nicknameInput) {
@@ -7408,6 +7411,69 @@ class MuseumCheckApp {
 
     closeSettingsModal() {
         document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    initializeCollapsibleSections() {
+        const settingsSections = document.querySelectorAll('.settings-section');
+        
+        settingsSections.forEach(section => {
+            const header = section.querySelector('.settings-section-header');
+            if (!header) return;
+            
+            const content = section.querySelector('.settings-section-content');
+            const toggle = section.querySelector('.settings-section-toggle');
+            if (!content || !toggle) return;
+            
+            // Add click handler to header
+            header.addEventListener('click', () => {
+                const isCollapsed = section.getAttribute('data-collapsed') === 'true';
+                
+                if (isCollapsed) {
+                    // Expand section
+                    section.setAttribute('data-collapsed', 'false');
+                    content.style.display = 'block';
+                    toggle.textContent = '▼';
+                    
+                    // Animate content reveal
+                    content.style.maxHeight = '0';
+                    content.style.overflow = 'hidden';
+                    content.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        content.style.opacity = '1';
+                        
+                        setTimeout(() => {
+                            content.style.maxHeight = 'none';
+                            content.style.overflow = 'visible';
+                        }, 300);
+                    }, 10);
+                } else {
+                    // Collapse section
+                    section.setAttribute('data-collapsed', 'true');
+                    toggle.textContent = '▶';
+                    
+                    // Animate content hide
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.overflow = 'hidden';
+                    
+                    setTimeout(() => {
+                        content.style.maxHeight = '0';
+                        content.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            content.style.display = 'none';
+                        }, 300);
+                    }, 10);
+                }
+                
+                // Track collapse/expand event
+                this.trackEvent('settings_section_toggled', {
+                    'section': header.textContent.trim(),
+                    'action': isCollapsed ? 'expanded' : 'collapsed'
+                });
+            });
+        });
     }
 
     async showLeaderboardModal() {
