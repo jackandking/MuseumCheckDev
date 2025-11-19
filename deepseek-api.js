@@ -186,6 +186,98 @@ ${treasureNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
     }
 
     /**
+     * Generate treasure recommendations for a museum using DeepSeek AI
+     * @param {string} museumName - Name of the museum
+     * @returns {Promise<Array<{name: string, imageUrl: string, description: string}>>} Array of treasure objects
+     */
+    async generateTreasures(museumName) {
+        if (!museumName || !museumName.trim()) {
+            throw new Error('博物馆名称不能为空');
+        }
+
+        const prompt = `请为"${museumName}"推荐3个真实的、著名的镇馆之宝。
+
+要求：
+1. 文物必须真实存在且确实是该博物馆的重要收藏
+2. 每个文物需要包括：
+   - 文物名称（准确的名称）
+   - 详细描述（100-150字，包括文物的历史、特点、文化价值等）
+   - 图片URL（如果知道的话，否则留空）
+
+请用以下JSON格式回答：
+[
+  {
+    "name": "文物名称1",
+    "imageUrl": "图片URL或留空",
+    "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
+  },
+  {
+    "name": "文物名称2",
+    "imageUrl": "图片URL或留空",
+    "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
+  },
+  {
+    "name": "文物名称3",
+    "imageUrl": "图片URL或留空",
+    "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
+  }
+]
+
+注意：只返回JSON数组，不要有其他文字。`;
+
+        try {
+            const responseText = await this.callAPI(prompt);
+            
+            // Try to extract JSON array from response
+            let jsonMatch = responseText.match(/\[[\s\S]*\]/);
+            if (!jsonMatch) {
+                // Try to parse the whole response as JSON
+                try {
+                    const parsed = JSON.parse(responseText);
+                    return this.parseGenerationResponse(parsed);
+                } catch (e) {
+                    throw new Error('AI 返回的格式不正确，无法解析');
+                }
+            }
+
+            const jsonStr = jsonMatch[0];
+            const result = JSON.parse(jsonStr);
+            
+            return this.parseGenerationResponse(result);
+        } catch (error) {
+            console.error('生成镇馆之宝失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Parse and validate the treasure generation response
+     * @param {Array} result - Parsed JSON array
+     * @returns {Array<{name: string, imageUrl: string, description: string}>} Validated treasure objects
+     */
+    parseGenerationResponse(result) {
+        if (!Array.isArray(result)) {
+            throw new Error('AI 返回的数据格式不正确');
+        }
+
+        // Filter and validate treasures
+        const treasures = result
+            .filter(item => item && typeof item === 'object' && item.name)
+            .map(item => ({
+                name: item.name || '',
+                imageUrl: item.imageUrl || '',
+                description: item.description || ''
+            }));
+
+        // Ensure at least 3 treasures
+        if (treasures.length < 3) {
+            throw new Error('AI 生成的镇馆之宝少于3个，请重试');
+        }
+
+        return treasures;
+    }
+
+    /**
      * Quick test of API connection
      * @returns {Promise<boolean>} True if API is working
      */

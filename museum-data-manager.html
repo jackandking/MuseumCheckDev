@@ -216,7 +216,11 @@
 
           <h3>馆藏精品</h3>
           <div id="collections-editor"></div>
-          <button class="add-btn" onclick="addCollection()">➕ 添加馆藏</button>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="add-btn" onclick="addCollection()">➕ 添加馆藏</button>
+            <button id="auto-generate-btn" class="add-btn" onclick="autoGenerateTreasures()" style="background: linear-gradient(135deg, #9c27b0, #ba68c8); display: none;">🤖 自动添加镇馆之宝</button>
+          </div>
+          <div class="hint" id="auto-generate-hint" style="display: none; color: #9c27b0; margin-top: 8px;">💡 博物馆暂无镇馆之宝数据，可使用 AI 自动生成</div>
 
           <h3>参观路线 (Workflows)</h3>
           <div id="workflows-editor"></div>
@@ -445,6 +449,17 @@
             </div>
           </div>
         `).join('');
+        
+        // Show/hide auto-generate button based on collections count
+        const autoGenerateBtn = document.getElementById('auto-generate-btn');
+        const autoGenerateHint = document.getElementById('auto-generate-hint');
+        if (collections.length === 0) {
+          autoGenerateBtn.style.display = 'block';
+          autoGenerateHint.style.display = 'block';
+        } else {
+          autoGenerateBtn.style.display = 'none';
+          autoGenerateHint.style.display = 'none';
+        }
       }
 
       // Render workflows editor
@@ -489,6 +504,59 @@
         const collections = getCollectionsFromEditor();
         collections.splice(index, 1);
         renderCollectionsEditor(collections);
+      };
+
+      // Auto-generate treasures using DeepSeek API
+      window.autoGenerateTreasures = async function() {
+        const museumName = document.getElementById('edit-name').value;
+        
+        // Validate museum name
+        if (!museumName || !museumName.trim()) {
+          showStatus('请先填写博物馆名称', 'error');
+          return;
+        }
+        
+        // Check API key
+        const deepseekAPI = new DeepSeekAPI();
+        if (!deepseekAPI.hasApiKey()) {
+          const userChoice = confirm(
+            '🤖 AI 自动生成镇馆之宝\n\n' +
+            '此功能使用 DeepSeek AI 自动为博物馆生成 3 个真实的镇馆之宝数据。\n\n' +
+            '⚠️ 当前未配置 DeepSeek API Key\n\n' +
+            '是否前往设置页面配置 API Key？'
+          );
+          
+          if (userChoice) {
+            window.location.href = 'settings.html';
+          }
+          return;
+        }
+        
+        // Confirm action
+        if (!confirm(`🤖 是否使用 AI 自动生成"${museumName}"的镇馆之宝数据？\n\n这将调用 DeepSeek API 生成 3 个真实的镇馆之宝。`)) {
+          return;
+        }
+        
+        // Show loading status
+        showStatus('正在使用 AI 生成镇馆之宝数据...', 'info');
+        
+        try {
+          // Call API to generate treasures
+          const treasures = await deepseekAPI.generateTreasures(museumName);
+          
+          // Update collections editor with generated data
+          renderCollectionsEditor(treasures);
+          
+          // Show success message
+          showStatus(`✓ 成功生成 ${treasures.length} 个镇馆之宝！请检查并编辑数据。`, 'success');
+          
+          // Scroll to collections editor
+          document.getElementById('collections-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          
+        } catch (error) {
+          showStatus('AI 生成失败: ' + error.message, 'error');
+          console.error('Auto-generate treasures error:', error);
+        }
       };
 
       // Add new workflow
