@@ -1295,9 +1295,17 @@ function createFireworksSystem(container) {
         
         localAnimationId = requestAnimationFrame(animateLocal);
         
-        // Clear canvas with fade effect
-        localCtx.fillStyle = 'rgba(10, 14, 39, 0.2)';
-        localCtx.fillRect(0, 0, localCanvas.width, localCanvas.height);
+        // Check if there are any active fireworks or particles
+        const hasActiveElements = localFireworks.length > 0 || localParticles.length > 0;
+        
+        if (hasActiveElements) {
+            // Clear canvas with fade effect when there are active elements
+            localCtx.fillStyle = 'rgba(10, 14, 39, 0.2)';
+            localCtx.fillRect(0, 0, localCanvas.width, localCanvas.height);
+        } else {
+            // Completely clear the canvas when idle (no fireworks or particles)
+            localCtx.clearRect(0, 0, localCanvas.width, localCanvas.height);
+        }
         
         // Update and draw fireworks
         for (let i = localFireworks.length - 1; i >= 0; i--) {

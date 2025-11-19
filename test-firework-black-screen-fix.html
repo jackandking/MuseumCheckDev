@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firework Black Screen Fix Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    #testArea {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    button {
+      background: #2e7cf6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 8px 4px;
+    }
+    button:hover {
+      background: #2567d9;
+    }
+    .info {
+      background: #e3f2fd;
+      padding: 16px;
+      border-left: 4px solid #2e7cf6;
+      margin: 16px 0;
+      border-radius: 4px;
+    }
+    .success {
+      background: #e8f5e9;
+      border-left-color: #4caf50;
+    }
+    .warning {
+      background: #fff3e0;
+      border-left-color: #ff9800;
+    }
+    #status {
+      font-size: 14px;
+      margin-top: 16px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    .fireworks-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div id="testArea">
+    <h1>🎆 Firework Black Screen Fix Test</h1>
+    
+    <div class="info">
+      <strong>测试目标：</strong>验证烟花动画完成后，画布是否正确清除，不会留下黑屏。
+    </div>
+    
+    <div>
+      <button id="launchOneBtn">发射一个烟花</button>
+      <button id="launchThreeBtn">发射三个烟花</button>
+      <button id="checkCanvasBtn">检查画布状态</button>
+    </div>
+    
+    <div id="status">
+      <div><strong>状态：</strong><span id="statusText">等待测试...</span></div>
+      <div><strong>动画系统：</strong><span id="systemStatus">未初始化</span></div>
+      <div><strong>活跃烟花：</strong><span id="fireworkCount">0</span></div>
+      <div><strong>活跃粒子：</strong><span id="particleCount">0</span></div>
+      <div><strong>画布透明度：</strong><span id="canvasOpacity">-</span></div>
+    </div>
+    
+    <div class="info warning">
+      <strong>测试步骤：</strong>
+      <ol>
+        <li>点击"发射一个烟花"或"发射三个烟花"</li>
+        <li>等待动画完成（约5-6秒）</li>
+        <li>点击"检查画布状态"验证画布是否清除</li>
+        <li>确认画布透明度接近100%，无黑屏覆盖</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Fireworks container -->
+  <div id="fireworksCanvas" class="fireworks-container"></div>
+
+  <!-- Load firework system -->
+  <script src="firework.js"></script>
+  <script>
+    let fireworkSystem = null;
+    
+    // Initialize firework system
+    function initFireworks() {
+      const container = document.getElementById('fireworksCanvas');
+      if (!container) {
+        setStatus('❌ 错误：找不到画布容器', 'error');
+        return false;
+      }
+      
+      if (typeof createFireworksSystem !== 'function') {
+        setStatus('❌ 错误：找不到 createFireworksSystem 函数', 'error');
+        return false;
+      }
+      
+      try {
+        fireworkSystem = createFireworksSystem(container);
+        fireworkSystem.start();
+        document.getElementById('systemStatus').textContent = '已初始化并运行';
+        setStatus('✅ 烟花系统初始化成功', 'success');
+        
+        // Start monitoring
+        startMonitoring();
+        return true;
+      } catch (e) {
+        setStatus('❌ 错误：' + e.message, 'error');
+        console.error('Failed to initialize firework system:', e);
+        return false;
+      }
+    }
+    
+    function setStatus(text, type = 'info') {
+      const statusEl = document.getElementById('statusText');
+      statusEl.textContent = text;
+      statusEl.style.color = type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : '#2c3e50';
+    }
+    
+    function launchFirework() {
+      if (!fireworkSystem) {
+        if (!initFireworks()) return;
+      }
+      
+      try {
+        fireworkSystem.launchFirework('7-12', '小明');
+        setStatus('🎆 烟花发射！', 'info');
+      } catch (e) {
+        setStatus('❌ 发射失败：' + e.message, 'error');
+        console.error('Failed to launch firework:', e);
+      }
+    }
+    
+    function launchMultiple(count) {
+      if (!fireworkSystem) {
+        if (!initFireworks()) return;
+      }
+      
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          try {
+            fireworkSystem.launchFirework('7-12', '小明');
+          } catch (e) {
+            console.error('Failed to launch firework:', e);
+          }
+        }, i * 500);
+      }
+      setStatus(`🎆 发射${count}个烟花！`, 'info');
+    }
+    
+    function checkCanvasState() {
+      const container = document.getElementById('fireworksCanvas');
+      const canvas = container ? container.querySelector('canvas') : null;
+      
+      if (!canvas) {
+        setStatus('❌ 画布不存在', 'error');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const pixels = imageData.data;
+      
+      // Calculate transparency ratio
+      let transparentPixels = 0;
+      let opaquePixels = 0;
+      
+      for (let i = 3; i < pixels.length; i += 4) {
+        const alpha = pixels[i];
+        if (alpha < 10) {
+          transparentPixels++;
+        } else {
+          opaquePixels++;
+        }
+      }
+      
+      const totalPixels = pixels.length / 4;
+      const transparencyRatio = (transparentPixels / totalPixels * 100).toFixed(2);
+      
+      document.getElementById('canvasOpacity').textContent = `${transparencyRatio}% 透明`;
+      
+      if (transparencyRatio > 99) {
+        setStatus('✅ 画布已清除！透明度: ' + transparencyRatio + '%', 'success');
+      } else if (transparencyRatio > 95) {
+        setStatus('⚠️ 画布基本清除，透明度: ' + transparencyRatio + '%', 'info');
+      } else {
+        setStatus('❌ 画布未清除！透明度: ' + transparencyRatio + '%。检测到黑屏问题！', 'error');
+      }
+    }
+    
+    function startMonitoring() {
+      setInterval(() => {
+        if (!fireworkSystem || !fireworkSystem.getParticleCount) return;
+        
+        const totalCount = fireworkSystem.getParticleCount();
+        document.getElementById('fireworkCount').textContent = '-';
+        document.getElementById('particleCount').textContent = totalCount;
+      }, 100);
+    }
+    
+    // Event listeners
+    document.getElementById('launchOneBtn').addEventListener('click', () => launchFirework());
+    document.getElementById('launchThreeBtn').addEventListener('click', () => launchMultiple(3));
+    document.getElementById('checkCanvasBtn').addEventListener('click', () => checkCanvasState());
+    
+    // Auto-initialize on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        setStatus('准备就绪，点击按钮开始测试', 'info');
+      }, 500);
+    });
+  </script>
+</body>
+</html>
