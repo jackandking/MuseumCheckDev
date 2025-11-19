@@ -24,12 +24,20 @@
     .btn-success:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(40,167,69,0.3)}
     .btn-sm{padding:6px 12px;font-size:13px}
     .museum-list{display:grid;gap:12px}
-    .museum-item{background:#f8f9fa;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s}
-    .museum-item:hover{background:#e9ecef;transform:translateX(4px)}
+    .museum-item{background:#f8f9fa;border-radius:10px;padding:16px;transition:all 0.2s}
+    .museum-item:hover{background:#e9ecef}
+    .museum-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
     .museum-info{flex:1}
     .museum-name{font-size:16px;font-weight:600;color:#2c3e50;margin:0 0 4px}
     .museum-meta{font-size:13px;color:#667}
-    .museum-actions{display:flex;gap:8px}
+    .museum-actions{display:flex;gap:8px;flex-shrink:0}
+    .museum-data-preview{margin-top:12px;padding-top:12px;border-top:1px solid #dee2e6}
+    .data-field{margin-bottom:8px;font-size:13px}
+    .data-field-label{font-weight:600;color:#2c3e50;display:inline-block;min-width:80px}
+    .data-field-value{color:#667}
+    .data-tag{display:inline-block;background:#e9ecef;padding:2px 8px;border-radius:4px;font-size:12px;margin-right:4px;margin-bottom:4px}
+    .data-count{display:inline-block;background:#fff3cd;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:8px;color:#856404}
+    .data-description{color:#667;font-size:13px;line-height:1.5;margin:8px 0;max-height:60px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
     .form-group{margin-bottom:16px}
     label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;color:#2c3e50}
     input, select, textarea{width:100%;padding:10px;border-radius:10px;border:2px solid #dee2e6;font-size:14px;font-family:inherit;box-sizing:border-box}
@@ -848,7 +856,7 @@
         }, 5000);
       }
 
-      // Render museum list
+      // Render museum list with expanded data preview
       function renderMuseumList() {
         const listDiv = document.getElementById('museumList');
         
@@ -866,26 +874,96 @@
         listDiv.innerHTML = currentMuseums.map(m => {
           const tierInfo = getTierInfo(m.tier);
           const isEditable = m.tier === 'tier2';
+          const data = m.data || {};
+          
+          // Build data preview sections
+          let dataPreview = '';
+          
+          // Description
+          if (data.description) {
+            dataPreview += `
+              <div class="data-field">
+                <span class="data-field-label">简介:</span>
+                <div class="data-description">${escapeHtml(data.description)}</div>
+              </div>
+            `;
+          }
+          
+          // Tags
+          if (data.tags && data.tags.length > 0) {
+            dataPreview += `
+              <div class="data-field">
+                <span class="data-field-label">标签:</span>
+                <span class="data-field-value">
+                  ${data.tags.map(tag => `<span class="data-tag">${escapeHtml(tag)}</span>`).join('')}
+                </span>
+              </div>
+            `;
+          }
+          
+          // Collections count
+          const collectionsCount = data.collections ? data.collections.length : 0;
+          const workflowsCount = data.workflows ? data.workflows.length : 0;
+          const checklistsCount = data.checklists ? 
+            (Object.keys(data.checklists.parent || {}).length + Object.keys(data.checklists.child || {}).length) : 0;
+          
+          if (collectionsCount > 0 || workflowsCount > 0 || checklistsCount > 0) {
+            dataPreview += `
+              <div class="data-field">
+                <span class="data-field-label">数据统计:</span>
+                <span class="data-field-value">
+                  ${collectionsCount > 0 ? `<span class="data-count">馆藏 ${collectionsCount}</span>` : ''}
+                  ${workflowsCount > 0 ? `<span class="data-count">路线 ${workflowsCount}</span>` : ''}
+                  ${checklistsCount > 0 ? `<span class="data-count">清单 ${checklistsCount}</span>` : ''}
+                </span>
+              </div>
+            `;
+          }
+          
+          // Image indicator
+          if (data.image) {
+            dataPreview += `
+              <div class="data-field">
+                <span class="data-field-label">主图:</span>
+                <span class="data-field-value">✓ 已设置</span>
+              </div>
+            `;
+          }
+          
+          // Collections preview (first 3)
+          if (data.collections && data.collections.length > 0) {
+            const collectionsPreview = data.collections.slice(0, 3).map(c => escapeHtml(c.name || '未命名')).join(', ');
+            const moreCount = data.collections.length > 3 ? ` 等 ${data.collections.length} 件` : '';
+            dataPreview += `
+              <div class="data-field">
+                <span class="data-field-label">馆藏精品:</span>
+                <span class="data-field-value">${collectionsPreview}${moreCount}</span>
+              </div>
+            `;
+          }
           
           return `
             <div class="museum-item">
-              <div class="museum-info">
-                <div class="museum-name">
-                  ${m.name}
-                  <span class="tier-badge ${tierInfo.badgeClass}">${tierInfo.label}</span>
+              <div class="museum-item-header">
+                <div class="museum-info">
+                  <div class="museum-name">
+                    ${escapeHtml(m.name)}
+                    <span class="tier-badge ${tierInfo.badgeClass}">${tierInfo.label}</span>
+                  </div>
+                  <div class="museum-meta">ID: ${m.id} • ${m.location || '未知位置'} • ${tierInfo.description}</div>
                 </div>
-                <div class="museum-meta">ID: ${m.id} • ${m.location || '未知位置'} • ${tierInfo.description}</div>
+                <div class="museum-actions">
+                  <button class="btn btn-secondary btn-sm" onclick="viewMuseum('${m.id}', '${m.tier}')">查看</button>
+                  ${isEditable ? `
+                    <button class="btn btn-secondary btn-sm" onclick="editMuseum('${m.id}')">编辑</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMuseum('${m.id}')">删除</button>
+                  ` : `
+                    <button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可编辑">编辑</button>
+                    <button class="btn btn-danger btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可删除">删除</button>
+                  `}
+                </div>
               </div>
-              <div class="museum-actions">
-                <button class="btn btn-secondary btn-sm" onclick="viewMuseum('${m.id}', '${m.tier}')">查看</button>
-                ${isEditable ? `
-                  <button class="btn btn-secondary btn-sm" onclick="editMuseum('${m.id}')">编辑</button>
-                  <button class="btn btn-danger btn-sm" onclick="deleteMuseum('${m.id}')">删除</button>
-                ` : `
-                  <button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可编辑">编辑</button>
-                  <button class="btn btn-danger btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="只有 Tier 2 数据可删除">删除</button>
-                `}
-              </div>
+              ${dataPreview ? `<div class="museum-data-preview">${dataPreview}</div>` : ''}
             </div>
           `;
         }).join('');
