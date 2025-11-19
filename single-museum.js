@@ -2338,16 +2338,23 @@
       const mid = p.museum || p.museumId;
       hasMuseumParam = !!(mid);
       
-      // If we have restored state, use that museum ID
-      const museumId = restoredState ? restoredState.museumId : mid;
+      // Prioritize URL parameter over restored state (when user explicitly navigates from homepage)
+      // Only use restored state if no URL parameter is present (user refreshing/returning to page)
+      const museumId = mid || (restoredState ? restoredState.museumId : null);
+      
+      // Clear saved state when URL parameter is present (fresh navigation intent)
+      if(hasMuseumParam && museumId){
+        __clearWorkflowState();
+      }
       
       if(museumId){
         const m = (Array.isArray(MUSEUMS)?MUSEUMS:[]).find(x=> x && x.id===museumId);
         if(m){
           await onSelectMuseum(m);
           
-          // If we have restored state, find and select the workflow
-          if(restoredState && restoredState.workflowId){
+          // Only restore workflow state if we're using the saved museum (no URL param override)
+          // When URL param is present, start fresh workflow for the newly selected museum
+          if(!hasMuseumParam && restoredState && restoredState.workflowId){
             const workflows = state.workflows || [];
             const wf = workflows.find(w => w && w.id === restoredState.workflowId);
             if(wf){
