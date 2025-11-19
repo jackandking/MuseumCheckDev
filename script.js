@@ -4881,6 +4881,14 @@ class MuseumCheckApp {
             });
         }
 
+        // Open treasures page button
+        const openTreasuresBtn = document.getElementById('openTreasuresButton');
+        if (openTreasuresBtn) {
+            openTreasuresBtn.addEventListener('click', () => {
+                window.location.href = 'treasures.html';
+            });
+        }
+
         // Achievement poster generation button
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
