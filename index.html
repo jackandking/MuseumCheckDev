@@ -36,6 +36,7 @@
     <meta name="msvalidate.01" content="bing-verification-museum-check">
     
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="achievement-gamification.css">
     <!-- Performance: preconnect/dns-prefetch to CDN hosting images -->
     <link rel="preconnect" href="https://eb118-file.cdn.bcebos.com" crossorigin>
     <link rel="dns-prefetch" href="//eb118-file.cdn.bcebos.com">
@@ -319,12 +320,44 @@
         <div class="modal-content achievement-content">
             <span class="close">&times;</span>
             <h2>🎖️ 我的成就</h2>
+            
+            <!-- Gamification Stats Cards -->
+            <div class="gamification-stats">
+                <div class="stat-card xp">
+                    <div class="stat-card-icon">⭐</div>
+                    <div class="stat-card-value" id="gamificationXP">0</div>
+                    <div class="stat-card-label">总经验值</div>
+                </div>
+                <div class="stat-card level">
+                    <div class="stat-card-icon">🎖️</div>
+                    <div class="stat-card-value" id="gamificationLevel">1</div>
+                    <div class="stat-card-label">当前等级</div>
+                </div>
+                <div class="stat-card streak">
+                    <div class="stat-card-icon">🔥</div>
+                    <div class="stat-card-value" id="gamificationStreak">0</div>
+                    <div class="stat-card-label">连续打卡</div>
+                </div>
+                <div class="stat-card achievements">
+                    <div class="stat-card-icon">🏆</div>
+                    <div class="stat-card-value" id="totalAchievements">0</div>
+                    <div class="stat-card-label">已解锁成就</div>
+                </div>
+            </div>
+            
+            <!-- XP Progress Bar -->
+            <div class="xp-level-display">
+                <div class="xp-level-info">
+                    <div class="xp-level-label">距离下一等级</div>
+                    <div id="xpProgressText" class="xp-progress-text">0 / 0 XP</div>
+                </div>
+                <div class="xp-progress-bar">
+                    <div class="xp-progress-fill" id="xpProgressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            
             <div class="achievement-summary">
                 <div class="achievement-overview">
-                    <div class="achievement-stat">
-                        <span class="stat-number" id="totalAchievements">0</span>
-                        <span class="stat-label">总成就</span>
-                    </div>
                     <div class="achievement-stat">
                         <span class="stat-number" id="visitProgress">0</span>
                         <span class="stat-label">参观进度</span>
@@ -334,6 +367,13 @@
                     🎨 生成成就海报
                 </button>
             </div>
+            
+            <!-- Achievement Hints Section -->
+            <div id="achievementHints" class="achievement-hints" style="display: none;">
+                <div class="achievement-hints-title">💡 即将解锁</div>
+                <div id="achievementHintsList"></div>
+            </div>
+            
             <div id="achievementList" class="achievement-list">
                 <!-- Achievements will be populated by JavaScript -->
             </div>
@@ -481,6 +521,57 @@
                 </div>
                 </div>
             </div>
+            
+            <!-- Gamification Settings Section -->
+            <div class="settings-section" data-collapsed="true">
+                <h3 class="settings-section-header">
+                    <span>🎮 成就游戏化设置</span>
+                    <span class="settings-section-toggle">▶</span>
+                </h3>
+                <div class="settings-section-content gamification-settings" style="display: none;">
+                    <div class="gamification-setting-item">
+                        <div class="gamification-setting-label">
+                            <div class="gamification-setting-icon">🔊</div>
+                            <div class="gamification-setting-text">
+                                <div class="gamification-setting-name">成就音效</div>
+                                <div class="gamification-setting-description">解锁成就时播放音效</div>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="gamificationSoundToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="gamification-setting-item">
+                        <div class="gamification-setting-label">
+                            <div class="gamification-setting-icon">✨</div>
+                            <div class="gamification-setting-text">
+                                <div class="gamification-setting-name">成就动画</div>
+                                <div class="gamification-setting-description">解锁成就时显示动画效果</div>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="gamificationAnimationsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">成就统计：</label>
+                        <div class="settings-value">
+                            <div class="gamification-stats-mini">
+                                <span id="statsXP">0 XP</span> · 
+                                <span id="statsLevel">等级 1</span> · 
+                                <span id="statsStreak">连续 0 天</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-hint">
+                        成就游戏化系统为每次小成就提供即时反馈和情绪价值，
+                        通过经验值、等级和连续打卡激励持续参观博物馆。
+                    </div>
+                </div>
+            </div>
+            
             <div class="settings-section" data-collapsed="true">
                 <h3 class="settings-section-header">
                     <span>🎆 烟花设置</span>
@@ -770,6 +861,7 @@
     </script>
     <!-- Museum data loaded from museums-data.js and Tier 1 JSON files via museum-data-loader.js -->
     <script src="firework.js"></script>
+    <script src="achievement-gamification.js"></script>
     <script src="script.js"></script>
     <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
     <span id="sectionMuseumCount" style="display:none"></span>
