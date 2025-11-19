@@ -551,6 +551,7 @@
     </div>
     
     <script src="museums-data.js"></script>
+    <script src="museum-data-loader.js"></script>
     <script src="image-proxy-helper.js"></script>
     <script>
         // Image loading tracking
@@ -622,6 +623,12 @@
         if (localStorage.getItem('museumcheck_proxy_mode') === 'true') {
             proxyModeEnabled = true;
             console.log('📡 Proxy mode enabled - using image proxy service');
+        }
+        
+        // Initialize museum data loader for tier-based loading
+        // Use window property to avoid redeclaration issues
+        if (!window.museumDataLoader && typeof MuseumDataLoader !== 'undefined') {
+            window.museumDataLoader = new MuseumDataLoader();
         }
         
         // Helper function to create image with better error handling
@@ -829,12 +836,25 @@
             });
         }
         
-        function showTreasureDetail(museum) {
+        async function showTreasureDetail(museumBasicInfo) {
             const modal = document.getElementById('treasureModal');
             const modalBody = document.getElementById('modalBody');
             
-            document.getElementById('modalMuseumName').textContent = museum.name;
-            document.getElementById('modalMuseumLocation').textContent = `📍 ${museum.location} | ${museum.description}`;
+            // Show loading state
+            document.getElementById('modalMuseumName').textContent = museumBasicInfo.name;
+            document.getElementById('modalMuseumLocation').textContent = `📍 ${museumBasicInfo.location} | ${museumBasicInfo.description}`;
+            modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">加载中...</div>';
+            modal.style.display = 'block';
+            
+            // Load full museum data based on tier settings
+            // This respects user's tier priority settings (Tier 1 → Tier 2 → Tier 3)
+            const museum = await window.museumDataLoader.loadMuseum(museumBasicInfo.id);
+            
+            if (!museum) {
+                // Fallback to basic info if dynamic loading fails
+                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: #e74c3c;">无法加载博物馆详细信息</div>';
+                return;
+            }
             
             let content = '';
             
@@ -862,12 +882,53 @@
                 content += `</div>`;
             }
             
+            // Extract treasure mentions from checklists for detail view
+            const treasures = {
+                simple: [],    // 3-6 age group
+                detailed: [],  // 7-12 age group  
+                academic: []   // 13-18 age group
+            };
+            
+            if (museum.checklists && museum.checklists.parent) {
+                ['3-6', '7-12', '13-18'].forEach(ageGroup => {
+                    const items = museum.checklists.parent[ageGroup] || [];
+                    items.forEach(item => {
+                        if (item.includes('镇馆之宝')) {
+                            if (ageGroup === '3-6') {
+                                treasures.simple.push(item);
+                            } else if (ageGroup === '7-12') {
+                                treasures.detailed.push(item);
+                            } else if (ageGroup === '13-18') {
+                                treasures.academic.push(item);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            if (museum.checklists && museum.checklists.child) {
+                ['3-6', '7-12', '13-18'].forEach(ageGroup => {
+                    const items = museum.checklists.child[ageGroup] || [];
+                    items.forEach(item => {
+                        if (item.includes('镇馆之宝')) {
+                            if (ageGroup === '3-6') {
+                                treasures.simple.push(item);
+                            } else if (ageGroup === '7-12') {
+                                treasures.detailed.push(item);
+                            } else if (ageGroup === '13-18') {
+                                treasures.academic.push(item);
+                            }
+                        }
+                    });
+                });
+            }
+            
             // Simple introduction (3-6 age group)
-            if (museum.treasures.simple.length > 0) {
+            if (treasures.simple.length > 0) {
                 content += `
                     <div class="treasure-detail-section">
                         <h3>🎈 儿童版介绍 (3-6岁)</h3>
-                        ${museum.treasures.simple.map(item => `
+                        ${treasures.simple.map(item => `
                             <div class="treasure-detail-item">${item}</div>
                         `).join('')}
                     </div>
@@ -875,11 +936,11 @@
             }
             
             // Detailed explanation (7-12 age group)
-            if (museum.treasures.detailed.length > 0) {
+            if (treasures.detailed.length > 0) {
                 content += `
                     <div class="treasure-detail-section">
                         <h3>📚 详细介绍 (7-12岁)</h3>
-                        ${museum.treasures.detailed.map(item => `
+                        ${treasures.detailed.map(item => `
                             <div class="treasure-detail-item">${item}</div>
                         `).join('')}
                     </div>
@@ -887,11 +948,11 @@
             }
             
             // Academic analysis (13-18 age group)
-            if (museum.treasures.academic.length > 0) {
+            if (treasures.academic.length > 0) {
                 content += `
                     <div class="treasure-detail-section">
                         <h3>🎓 学术解析 (13-18岁)</h3>
-                        ${museum.treasures.academic.map(item => `
+                        ${treasures.academic.map(item => `
                             <div class="treasure-detail-item">${item}</div>
                         `).join('')}
                     </div>
@@ -899,7 +960,6 @@
             }
             
             modalBody.innerHTML = content;
-            modal.style.display = 'block';
         }
         
         // Event listeners
