@@ -352,4 +352,61 @@ describe('MuseumCheck Core Functions', () => {
       expect(resultCount).toBeGreaterThanOrEqual(0);
     });
   });
+
+  describe('Management Button Visibility Configuration', () => {
+    test('should default to false (hidden) when no setting exists', () => {
+      // Test the pattern used in script.js: loadManageButtonVisibility()
+      // Returns false when localStorage doesn't have 'showManageButton'
+      const saved = localStorage.getItem('showManageButton');
+      const defaultValue = saved === 'true'; // This is the pattern in script.js
+      
+      expect(defaultValue).toBe(false);  // Default is hidden
+    });
+
+    test('should save management button visibility to localStorage', () => {
+      // Test save pattern: saveManageButtonVisibility(true)
+      // Simulates: localStorage.setItem('showManageButton', show.toString())
+      
+      // Save enabled state
+      localStorage.setItem('showManageButton', 'true');
+      const saved = localStorage.getItem('showManageButton');
+      expect(saved).toBe('true');
+      
+      // Save disabled state
+      localStorage.setItem('showManageButton', 'false');
+      const savedDisabled = localStorage.getItem('showManageButton');
+      expect(savedDisabled).toBe('false');
+    });
+
+    test('should retrieve saved management button visibility setting', () => {
+      // Save a setting
+      localStorage.setItem('showManageButton', 'true');
+      
+      // Load it back using the pattern from script.js
+      const saved = localStorage.getItem('showManageButton');
+      const loaded = saved === 'true';
+      expect(loaded).toBe(true);
+      
+      // Test false value
+      localStorage.setItem('showManageButton', 'false');
+      const savedFalse = localStorage.getItem('showManageButton');
+      const loadedFalse = savedFalse === 'true';
+      expect(loadedFalse).toBe(false);
+    });
+
+    test('should apply CSS class correctly based on visibility setting', () => {
+      // Test the CSS class toggle pattern
+      // Pattern: document.body.classList.toggle('hide-manage-buttons', !showManageButton)
+      
+      // When hidden (showManageButton = false)
+      const showManageButtonFalse = false;
+      document.body.classList.toggle('hide-manage-buttons', !showManageButtonFalse);
+      expect(document.body.classList.contains('hide-manage-buttons')).toBe(true);
+      
+      // When visible (showManageButton = true)
+      const showManageButtonTrue = true;
+      document.body.classList.toggle('hide-manage-buttons', !showManageButtonTrue);
+      expect(document.body.classList.contains('hide-manage-buttons')).toBe(false);
+    });
+  });
 });

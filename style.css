@@ -6407,6 +6407,11 @@ main[role="main"] {
     display: none !important;
 }
 
+/* Management button hiding */
+.hide-manage-buttons .museum-manage-button {
+    display: none !important;
+}
+
 /* ===== Fireworks Feature Styles ===== */
 
 /* Fireworks Stats Section */

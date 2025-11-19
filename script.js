@@ -3609,6 +3609,7 @@ class MuseumCheckApp {
         this.sortBy = this.loadSortPreference(); // Load sorting preference
         this.userLocation = null; // Will be set if user grants location permission
         this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
+        this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
@@ -3674,6 +3675,9 @@ class MuseumCheckApp {
         
         // Apply assessment visibility setting
         this.applyAssessmentVisibility();
+        
+        // Apply management button visibility setting
+        this.applyManageButtonVisibility();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -4819,6 +4823,23 @@ class MuseumCheckApp {
             });
         }
 
+        // Management button visibility toggle
+        const showManageButtonToggle = document.getElementById('showManageButtonToggle');
+        if (showManageButtonToggle) {
+            showManageButtonToggle.addEventListener('change', (e) => {
+                const showManageButton = e.target.checked;
+                const result = this.saveManageButtonVisibility(showManageButton);
+                
+                if (result.success) {
+                    // Track manage button visibility change
+                    this.trackEvent('manage_button_visibility_changed', {
+                        'show_manage_button': showManageButton,
+                        'auto_saved': true
+                    });
+                }
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -5454,6 +5475,38 @@ class MuseumCheckApp {
             body.classList.add('hide-assessments');
         } else {
             body.classList.remove('hide-assessments');
+        }
+    }
+
+    loadManageButtonVisibility() {
+        try {
+            const saved = localStorage.getItem('showManageButton');
+            // Default to false (hidden) if not saved
+            return saved === 'true';
+        } catch (error) {
+            console.error('Failed to load manage button visibility:', error);
+            return false; // Default to hidden
+        }
+    }
+
+    saveManageButtonVisibility(showManageButton) {
+        try {
+            localStorage.setItem('showManageButton', showManageButton ? 'true' : 'false');
+            this.manageButtonHidden = !showManageButton;
+            this.applyManageButtonVisibility();
+            return { success: true, message: '显示设置已保存' };
+        } catch (error) {
+            console.error('Failed to save manage button visibility:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    applyManageButtonVisibility() {
+        const body = document.body;
+        if (this.manageButtonHidden) {
+            body.classList.add('hide-manage-buttons');
+        } else {
+            body.classList.remove('hide-manage-buttons');
         }
     }
 
@@ -7748,6 +7801,12 @@ class MuseumCheckApp {
         const showAssessmentToggle = document.getElementById('showAssessmentToggle');
         if (showAssessmentToggle) {
             showAssessmentToggle.checked = !this.assessmentHidden;
+        }
+
+        // Update management button visibility toggle
+        const showManageButtonToggle = document.getElementById('showManageButtonToggle');
+        if (showManageButtonToggle) {
+            showManageButtonToggle.checked = !this.manageButtonHidden;
         }
     }
 
