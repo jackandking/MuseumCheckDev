@@ -6,8 +6,8 @@ const UI_CONSTANTS = {
         HIGHLIGHT_DURATION: 2000,           // Duration for element highlighting (ms)
         TRANSITION_DURATION: 300,           // Standard transition duration (ms)
         MODAL_OPEN_DELAY: 500,             // Delay before opening modal (ms)
-        NOTIFICATION_DURATION: 2500,        // Default notification display duration (ms)
-        NOTIFICATION_DURATION_LARGE: 3500   // Extended notification duration for large content (ms)
+        NOTIFICATION_DURATION: 800,         // Quick firework animation duration for task completion (ms) - v2 style
+        NOTIFICATION_DURATION_LARGE: 1200   // Quick firework animation duration for museum visits (ms) - v2 style
     },
     
     COLORS: {
@@ -9812,12 +9812,12 @@ class MuseumCheckApp {
                 particle.classList.add('particle-explode');
             }, 50);
             
-            // Remove particle
+            // Remove particle quickly for v2 style effect (600ms for small, 800ms for large)
             setTimeout(() => {
                 if (particle && particle.parentNode) {
                     particle.parentNode.removeChild(particle);
                 }
-            }, 1500);
+            }, isLarge ? 800 : 600);
         }
     }
 
@@ -9839,11 +9839,12 @@ class MuseumCheckApp {
             celebration.classList.add('celebration-appear');
         }, 200);
         
+        // Quick celebration display for v2 style (800ms for small, 1200ms for large)
         setTimeout(() => {
             if (celebration && celebration.parentNode) {
                 celebration.parentNode.removeChild(celebration);
             }
-        }, 3000);
+        }, isLarge ? 1200 : 800);
         
         return celebration;
     }
@@ -9852,16 +9853,17 @@ class MuseumCheckApp {
         // Create multiple small rockets for more impact
         const rocketCount = Math.floor(Math.random() * 2) + 1;
         
+        // Quick succession for v2 style - reduced delay from 300ms to 150ms
         for (let i = 0; i < rocketCount; i++) {
             setTimeout(() => {
                 this.createRocketAnimation(false, sourceElement);
-            }, i * 300);
+            }, i * 150);
         }
         
-        // Add celebration effect
+        // Quick celebration effect - reduced delay from 500ms to 300ms
         setTimeout(() => {
             this.createCelebrationEffect(false);
-        }, 500);
+        }, 300);
         
         // Track small rocket animation
         this.trackEvent('enhanced_small_rocket_animation', {
@@ -9874,16 +9876,17 @@ class MuseumCheckApp {
         // Create multiple large rockets for museum visits
         const rocketCount = Math.floor(Math.random() * 3) + 2; // 2-4 rockets
         
+        // Quick succession for v2 style - reduced delay from 400ms to 200ms
         for (let i = 0; i < rocketCount; i++) {
             setTimeout(() => {
                 this.createRocketAnimation(true, sourceElement);
-            }, i * 400);
+            }, i * 200);
         }
         
-        // Add celebration effect
+        // Quick celebration effect - reduced delay from 800ms to 400ms
         setTimeout(() => {
             this.createCelebrationEffect(true);
-        }, 800);
+        }, 400);
         
         // Track large rocket animation  
         this.trackEvent('enhanced_large_rocket_animation', {
