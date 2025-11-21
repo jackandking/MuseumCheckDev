@@ -17440,6 +17440,24 @@ const MUSEUMS = [
         location: '平湖',
         description: '展示平湖历史与地方文化的综合性博物馆',
         tags: ['历史', '地方', '文化'],
+        image: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG',
+        collections: [
+            {
+                "name": "良渚文化神人兽面纹玉琮",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%B1%9F%E5%8D%97%E6%B0%B4%E4%B9%A1%E5%8D%9A%E7%89%A9%E9%A6%86%2C_2022-05-28_26.jpg",
+                "description": "这件玉琮出土于平湖庄桥坟遗址，属于新石器时代良渚文化（约公元前3300-2300年）。玉琮呈外方内圆造型，通体采用浅浮雕和阴刻技法，刻画了精细繁密的神人兽面纹，体现了良渚先民高超的玉器制作工艺和原始宗教信仰。其纹饰是良渚文化典型的\"神徽\"图案，反映了当时的社会等级和神权观念，对研究长江下游史前文明具有重要价值，是平湖博物馆最具代表性的史前文物之一。"
+            },
+            {
+                "name": "元龙泉窑青瓷舟形砚滴",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Boat-shaped_Water_Container_of_Longquan_Kiln%2C_the_Yuan_Dynasty.JPG",
+                "description": "这件元代龙泉窑青瓷舟形砚滴是平湖博物馆的陶瓷精品。器物造型为一叶扁舟，船篷下坐着一位文人，船头置有船舵，整体施以莹润的粉青釉，釉色均匀如玉。砚滴是文房用具，用于研墨时注水，此器将实用功能与艺术造型完美结合，生动展现了元代文人的雅趣和龙泉窑青瓷的工艺水平。它不仅反映了元代 maritime culture 和文人生活，也是中国古代文房清供艺术的杰出代表。"
+            },
+            {
+                "name": "清康熙五彩人物故事图大盘",
+                "imageUrl": "https://img1.baidu.com/it/u=1575346544,1072619420&fm=253&fmt=auto&app=138&f=JPEG?w=511&h=500",
+                "description": "这件清康熙时期的五彩人物故事图大盘，是平湖博物馆馆藏的重要明清瓷器。盘体硕大，胎质坚致，釉面莹润。盘心以五彩（红、绿、黄、褐、蓝等色）绘饰精美的人物故事场景，构图饱满，人物形象生动，画工细腻。康熙五彩以色彩鲜艳、对比强烈著称，此盘体现了当时景德镇窑高超的制瓷和彩绘技艺。其纹饰可能取材于历史故事或戏曲场景，具有很高的艺术欣赏和历史研究价值，展现了清代瓷器艺术的辉煌成就。"
+            }
+        ],
         checklists: {
             parent: {
                 '3-6': [

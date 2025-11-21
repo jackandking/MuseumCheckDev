@@ -34,28 +34,27 @@ describe('Capital Museum Tier 1 Loading', () => {
             expect(data.id).toBe('beijing-capital-museum');
         });
 
-        test('beijing-capital-museum.json should have 4 collections', () => {
+        test('beijing-capital-museum.json should have 3 collections (updated from KV store)', () => {
             const jsonPath = path.join(__dirname, '..', 'museums', 'beijing-capital-museum.json');
             const content = fs.readFileSync(jsonPath, 'utf8');
             const data = JSON.parse(content);
             
             expect(data.collections).toBeInstanceOf(Array);
-            expect(data.collections.length).toBe(4);
+            expect(data.collections.length).toBe(3);
         });
 
-        test('beijing-capital-museum.json collections should have correct names', () => {
+        test('beijing-capital-museum.json collections should have correct names (updated from KV store)', () => {
             const jsonPath = path.join(__dirname, '..', 'museums', 'beijing-capital-museum.json');
             const content = fs.readFileSync(jsonPath, 'utf8');
             const data = JSON.parse(content);
             
             const expectedCollections = [
                 '元代景德镇窑青花凤首扁壶',
-                '乾隆款金嵌珍珠天球仪',
-                '明代金丝翼善冠',
-                '神兽玉佩'
+                '堇鼎',
+                '伯矩鬲'
             ];
             
-            expect(data.collections.length).toBe(4);
+            expect(data.collections.length).toBe(3);
             data.collections.forEach((collection, index) => {
                 expect(collection.name).toBe(expectedCollections[index]);
                 expect(collection.imageUrl).toBeTruthy();
@@ -85,7 +84,7 @@ describe('Capital Museum Tier 1 Loading', () => {
     });
 
     describe('Data Consistency', () => {
-        test('Tier 1 data should match museums-data.js collections', () => {
+        test('Tier 1 data should match museums-data.js collections (updated from KV store)', () => {
             // Load Tier 1 JSON file
             const tier1Path = path.join(__dirname, '..', 'museums', 'beijing-capital-museum.json');
             const tier1Content = fs.readFileSync(tier1Path, 'utf8');
@@ -96,12 +95,12 @@ describe('Capital Museum Tier 1 Loading', () => {
             const museumsDataContent = fs.readFileSync(museumsDataPath, 'utf8');
             
             // Extract collections count for Capital Museum from museums-data.js
-            // This is a simple check - we know both should have 4 collections
+            // This is a simple check - we verify Tier 1 has the expected collections from KV store
             const capitalMuseumMatch = museumsDataContent.match(/id:\s*['"]beijing-capital-museum['"]/);
             expect(capitalMuseumMatch).toBeTruthy();
             
-            // Verify Tier 1 has 4 collections
-            expect(tier1Data.collections.length).toBe(4);
+            // Verify Tier 1 has 3 collections (updated from KV store)
+            expect(tier1Data.collections.length).toBe(3);
         });
     });
 });
