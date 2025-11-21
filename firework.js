@@ -692,7 +692,7 @@ class Firework {
         this.showText = true;
         setTimeout(() => {
             this.showText = false;
-        }, 10000); // Show text for 10 seconds
+        }, 2000); // Show text for 2 seconds (reduced from 10 seconds for better UX)
 
         // Premium tier gets multiple layers of sparkle effects for more magical feel
         if (!isBasicTier) {

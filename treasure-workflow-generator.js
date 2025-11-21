@@ -168,7 +168,12 @@
         type: 'photo',
         title: `镇馆之宝 ${index + 1}/${treasures.length}`,
         subtitle: `找到「${treasure.name}」并合影`,
-        ages: ['3-6', '7-12', '13-18']
+        ages: ['3-6', '7-12', '13-18'],
+        source: {
+          from: 'treasure-hunt',
+          name: treasure.name,
+          index: index
+        }
       };
 
       // Add imageUrl if available
