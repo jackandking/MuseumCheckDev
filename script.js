@@ -12211,8 +12211,8 @@ class MuseumCheckApp {
 
     /**
      * Check if a museum has collections data
-     * Uses v2 approach: checks dynamically across all data tiers instead of hardcoded lists
-     * Priority: current museum data -> MUSEUMS array (from museums-data.js or museums-meta.js)
+     * Uses v2 approach: checks dynamically by examining actual collections array
+     * Priority: current museum data -> MUSEUMS array (from museums-data.js)
      * @param {Object} museum - Museum object (may be partial data)
      * @returns {boolean} True if museum has collections
      */
@@ -12222,24 +12222,12 @@ class MuseumCheckApp {
             return true;
         }
         
-        // Check hasCollections metadata flag (from museums-meta.js or museums-data.js)
-        if (museum.hasCollections === true) {
-            return true;
-        }
-        
-        // Fallback: check MUSEUMS array (Tier 3 - museums-data.js or museums-meta.js)
+        // Fallback: check MUSEUMS array (Tier 3 - museums-data.js)
         // This ensures we show navigation button even if grid data doesn't have collections loaded yet
         if (museum.id && typeof MUSEUMS !== 'undefined' && Array.isArray(MUSEUMS)) {
             const fullMuseum = MUSEUMS.find(m => m.id === museum.id);
-            if (fullMuseum) {
-                // Check hasCollections flag first
-                if (fullMuseum.hasCollections === true) {
-                    return true;
-                }
-                // Check collections array
-                if (fullMuseum.collections && Array.isArray(fullMuseum.collections) && fullMuseum.collections.length > 0) {
-                    return true;
-                }
+            if (fullMuseum && fullMuseum.collections && Array.isArray(fullMuseum.collections) && fullMuseum.collections.length > 0) {
+                return true;
             }
         }
         

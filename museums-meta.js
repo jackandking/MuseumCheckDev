@@ -9,8 +9,7 @@ window.MUSEUMS_META = [
       "建筑",
       "文物"
     ],
-    "image": "http://eb118-file.cdn.bcebos.com/upload/c67a7249b6884703bfc8faceb3a8ad9d_2209653549.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
-    "hasCollections": true
+    "image": "http://eb118-file.cdn.bcebos.com/upload/c67a7249b6884703bfc8faceb3a8ad9d_2209653549.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85"
   },
   {
     "id": "national-museum",
@@ -21,8 +20,7 @@ window.MUSEUMS_META = [
       "文化",
       "艺术"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/5b6fdbca17a04047b55adc6658a750bd_2211489532.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
-    "hasCollections": true
+    "image": "https://eb118-file.cdn.bcebos.com/upload/5b6fdbca17a04047b55adc6658a750bd_2211489532.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85"
   },
   {
     "id": "shanghai-museum",
@@ -33,8 +31,7 @@ window.MUSEUMS_META = [
       "文物",
       "收藏"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&",
-    "hasCollections": true
+    "image": "https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&"
   },
   {
     "id": "terracotta-warriors",
@@ -45,8 +42,7 @@ window.MUSEUMS_META = [
       "考古",
       "世界遗产"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "nanjing-museum",
@@ -57,8 +53,7 @@ window.MUSEUMS_META = [
       "艺术",
       "民俗"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "hubei-museum",
@@ -69,8 +64,7 @@ window.MUSEUMS_META = [
       "音乐",
       "青铜器"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "shaanxi-history",
@@ -81,8 +75,7 @@ window.MUSEUMS_META = [
       "文物",
       "古代文明"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "suzhou-museum",
@@ -93,8 +86,7 @@ window.MUSEUMS_META = [
       "建筑",
       "江南文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhejiang-museum",
@@ -105,8 +97,7 @@ window.MUSEUMS_META = [
       "文化",
       "江南"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guangdong-museum",
@@ -117,8 +108,7 @@ window.MUSEUMS_META = [
       "海丝",
       "文物"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "sichuan-museum",
@@ -129,8 +119,7 @@ window.MUSEUMS_META = [
       "历史",
       "民俗"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "henan-museum",
@@ -141,8 +130,7 @@ window.MUSEUMS_META = [
       "文物",
       "历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "liaoning-museum",
@@ -153,8 +141,7 @@ window.MUSEUMS_META = [
       "考古",
       "历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shandong-museum",
@@ -165,8 +152,7 @@ window.MUSEUMS_META = [
       "孔子",
       "历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tianjin-museum",
@@ -177,8 +163,7 @@ window.MUSEUMS_META = [
       "文化",
       "天津"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-art-museum",
@@ -189,8 +174,7 @@ window.MUSEUMS_META = [
       "艺术",
       "绘画"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "hunan-museum",
@@ -201,8 +185,7 @@ window.MUSEUMS_META = [
       "汉代",
       "湖湘文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tibet-museum",
@@ -213,8 +196,7 @@ window.MUSEUMS_META = [
       "雪域高原",
       "佛教"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xinjiang-museum",
@@ -225,8 +207,7 @@ window.MUSEUMS_META = [
       "多民族",
       "西域文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yunnan-museum",
@@ -237,8 +218,7 @@ window.MUSEUMS_META = [
       "西南文化",
       "边疆历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "inner-mongolia-museum",
@@ -249,8 +229,7 @@ window.MUSEUMS_META = [
       "蒙古族",
       "游牧文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chongqing-three-gorges-museum",
@@ -261,8 +240,7 @@ window.MUSEUMS_META = [
       "巴渝文化",
       "山城历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "qinghai-museum",
@@ -273,8 +251,7 @@ window.MUSEUMS_META = [
       "多民族",
       "高原文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "heilongjiang-museum",
@@ -285,8 +262,7 @@ window.MUSEUMS_META = [
       "中俄交流",
       "近代史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "ningxia-museum",
@@ -297,8 +273,7 @@ window.MUSEUMS_META = [
       "伊斯兰文化",
       "西夏历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "beijing-capital-museum",
@@ -309,8 +284,7 @@ window.MUSEUMS_META = [
       "古都文化",
       "民俗"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg",
-    "hasCollections": true
+    "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg"
   },
   {
     "id": "china-military-museum",
@@ -321,8 +295,7 @@ window.MUSEUMS_META = [
       "革命历史",
       "国防教育"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "beijing-natural-history-museum",
@@ -333,8 +306,7 @@ window.MUSEUMS_META = [
       "生物进化",
       "古生物"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "china-railway-museum",
@@ -345,8 +317,7 @@ window.MUSEUMS_META = [
       "交通运输",
       "工业发展"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "beijing-planetarium",
@@ -357,8 +328,7 @@ window.MUSEUMS_META = [
       "宇宙探索",
       "科普教育"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "shanghai-science-technology-museum",
@@ -369,8 +339,7 @@ window.MUSEUMS_META = [
       "科学教育",
       "互动体验"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&",
-    "hasCollections": false
+    "image": "https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&"
   },
   {
     "id": "shanghai-history-museum",
@@ -381,8 +350,7 @@ window.MUSEUMS_META = [
       "海派文化",
       "近代史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guangzhou-museum",
@@ -393,8 +361,7 @@ window.MUSEUMS_META = [
       "广州历史",
       "海上丝绸之路"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shenzhen-museum",
@@ -405,8 +372,7 @@ window.MUSEUMS_META = [
       "城市发展",
       "现代化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xian-museum",
@@ -417,8 +383,7 @@ window.MUSEUMS_META = [
       "丝绸之路",
       "唐文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chengdu-jinsha-museum",
@@ -429,8 +394,7 @@ window.MUSEUMS_META = [
       "考古发现",
       "金沙文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanjing-massacre-memorial",
@@ -441,8 +405,7 @@ window.MUSEUMS_META = [
       "爱国主义",
       "和平教育"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hangzhou-museum",
@@ -453,8 +416,7 @@ window.MUSEUMS_META = [
       "江南文化",
       "杭州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "ningbo-museum",
@@ -465,8 +427,7 @@ window.MUSEUMS_META = [
       "港口贸易",
       "商业历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wuxi-museum",
@@ -477,8 +438,7 @@ window.MUSEUMS_META = [
       "水乡文化",
       "民族工业"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "changzhou-museum",
@@ -489,8 +449,7 @@ window.MUSEUMS_META = [
       "江南文化",
       "现代发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yangzhou-museum",
@@ -501,8 +460,7 @@ window.MUSEUMS_META = [
       "盐商文化",
       "园林艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hefei-museum",
@@ -513,8 +471,7 @@ window.MUSEUMS_META = [
       "安徽历史",
       "新安文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanchang-museum",
@@ -525,8 +482,7 @@ window.MUSEUMS_META = [
       "江西历史",
       "陶瓷文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jinan-museum",
@@ -537,8 +493,7 @@ window.MUSEUMS_META = [
       "齐鲁文化",
       "济南历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "qingdao-museum",
@@ -549,8 +504,7 @@ window.MUSEUMS_META = [
       "青岛历史",
       "近代建筑"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhengzhou-museum",
@@ -561,8 +515,7 @@ window.MUSEUMS_META = [
       "商代文明",
       "黄河文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wuhan-museum",
@@ -573,8 +526,7 @@ window.MUSEUMS_META = [
       "武汉历史",
       "长江文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "changsha-museum",
@@ -585,8 +537,7 @@ window.MUSEUMS_META = [
       "长沙历史",
       "楚汉文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "kunming-museum",
@@ -597,8 +548,7 @@ window.MUSEUMS_META = [
       "民族文化",
       "春城文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guiyang-museum",
@@ -609,8 +559,7 @@ window.MUSEUMS_META = [
       "贵州历史",
       "山地文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fuzhou-museum",
@@ -621,8 +570,7 @@ window.MUSEUMS_META = [
       "海洋文化",
       "侨乡文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanning-museum",
@@ -633,8 +581,7 @@ window.MUSEUMS_META = [
       "民族文化",
       "桂文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "haikou-museum",
@@ -645,8 +592,7 @@ window.MUSEUMS_META = [
       "热带文化",
       "海南历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shijiazhuang-museum",
@@ -657,8 +603,7 @@ window.MUSEUMS_META = [
       "河北历史",
       "中山国"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "taiyuan-museum",
@@ -669,8 +614,7 @@ window.MUSEUMS_META = [
       "煤炭文化",
       "古建筑"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hohhot-museum",
@@ -681,8 +625,7 @@ window.MUSEUMS_META = [
       "自然生态",
       "蒙古族文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yinchuan-museum",
@@ -693,8 +636,7 @@ window.MUSEUMS_META = [
       "美术教育",
       "地域文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "urumqi-museum",
@@ -705,8 +647,7 @@ window.MUSEUMS_META = [
       "丝路文化",
       "矿物资源"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lanzhou-museum",
@@ -717,8 +658,7 @@ window.MUSEUMS_META = [
       "马踏飞燕",
       "敦煌文化"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "xining-museum",
@@ -729,8 +669,7 @@ window.MUSEUMS_META = [
       "高原文化",
       "民族医学"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "dongying-museum",
@@ -741,8 +680,7 @@ window.MUSEUMS_META = [
       "湿地文化",
       "黄河文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yantai-museum",
@@ -753,8 +691,7 @@ window.MUSEUMS_META = [
       "海洋文化",
       "近代开埠"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "linyi-museum",
@@ -765,8 +702,7 @@ window.MUSEUMS_META = [
       "革命文化",
       "临沂历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wenzhou-museum",
@@ -777,8 +713,7 @@ window.MUSEUMS_META = [
       "商业文化",
       "温州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shaoxing-museum",
@@ -789,8 +724,7 @@ window.MUSEUMS_META = [
       "越文化",
       "文人文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jiaxing-museum",
@@ -801,8 +735,7 @@ window.MUSEUMS_META = [
       "江南文化",
       "嘉兴历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huzhou-museum",
@@ -813,8 +746,7 @@ window.MUSEUMS_META = [
       "丝绸文化",
       "湖笔文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huzhou-science-technology-museum",
@@ -826,8 +758,7 @@ window.MUSEUMS_META = [
       "科学探索",
       "湖州特色"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jingdezhen-museum",
@@ -838,8 +769,7 @@ window.MUSEUMS_META = [
       "制瓷工艺",
       "瓷都文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "quanzhou-museum",
@@ -850,8 +780,7 @@ window.MUSEUMS_META = [
       "海外交通",
       "泉州文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xiamen-museum",
@@ -862,8 +791,7 @@ window.MUSEUMS_META = [
       "侨乡文化",
       "海岛文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "dongguan-museum",
@@ -874,8 +802,7 @@ window.MUSEUMS_META = [
       "东莞历史",
       "改革开放"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "foshan-museum",
@@ -886,8 +813,7 @@ window.MUSEUMS_META = [
       "武术文化",
       "陶瓷文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhuhai-museum",
@@ -898,8 +824,7 @@ window.MUSEUMS_META = [
       "珠海历史",
       "经济特区"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhongshan-museum",
@@ -910,8 +835,7 @@ window.MUSEUMS_META = [
       "革命文化",
       "中山历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shantou-museum",
@@ -922,8 +846,7 @@ window.MUSEUMS_META = [
       "侨乡文化",
       "商贸文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "meizhou-museum",
@@ -934,8 +857,7 @@ window.MUSEUMS_META = [
       "围屋建筑",
       "梅州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhanjiang-museum",
@@ -946,8 +868,7 @@ window.MUSEUMS_META = [
       "海洋文化",
       "雷州文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jiangmen-museum",
@@ -958,8 +879,7 @@ window.MUSEUMS_META = [
       "碉楼文化",
       "江门历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "macao-museum",
@@ -970,8 +890,7 @@ window.MUSEUMS_META = [
       "澳门历史",
       "文化交融"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hongkong-history-museum",
@@ -982,8 +901,7 @@ window.MUSEUMS_META = [
       "中西文化",
       "国际都市"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "baotou-museum",
@@ -994,8 +912,7 @@ window.MUSEUMS_META = [
       "草原文化",
       "钢铁文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "daqing-museum",
@@ -1006,8 +923,7 @@ window.MUSEUMS_META = [
       "工业精神",
       "东北文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "anshan-museum",
@@ -1018,8 +934,7 @@ window.MUSEUMS_META = [
       "工业文明",
       "东北历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yichang-museum",
@@ -1030,8 +945,7 @@ window.MUSEUMS_META = [
       "长江文明",
       "水利文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "luoyang-museum",
@@ -1042,8 +956,7 @@ window.MUSEUMS_META = [
       "洛阳历史",
       "牡丹文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "kaifeng-museum",
@@ -1054,8 +967,7 @@ window.MUSEUMS_META = [
       "古都历史",
       "汴京文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xianning-museum",
@@ -1066,8 +978,7 @@ window.MUSEUMS_META = [
       "温泉文化",
       "竹文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jingzhou-museum",
@@ -1078,8 +989,7 @@ window.MUSEUMS_META = [
       "历史名城",
       "文物考古"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yueyang-museum",
@@ -1090,8 +1000,7 @@ window.MUSEUMS_META = [
       "洞庭湖文明",
       "文学文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "changde-museum",
@@ -1102,8 +1011,7 @@ window.MUSEUMS_META = [
       "桃花源文化",
       "常德历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xiangtan-museum",
@@ -1114,8 +1022,7 @@ window.MUSEUMS_META = [
       "湖湘文化",
       "名人文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chenzhou-museum",
@@ -1126,8 +1033,7 @@ window.MUSEUMS_META = [
       "郴州历史",
       "矿物文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hengyang-museum",
@@ -1138,8 +1044,7 @@ window.MUSEUMS_META = [
       "衡阳历史",
       "宗教文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shaoyang-museum",
@@ -1150,8 +1055,7 @@ window.MUSEUMS_META = [
       "邵阳历史",
       "民俗文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yiyang-museum",
@@ -1162,8 +1066,7 @@ window.MUSEUMS_META = [
       "益阳历史",
       "水乡文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huaihua-museum",
@@ -1174,8 +1077,7 @@ window.MUSEUMS_META = [
       "怀化历史",
       "多民族文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "loudi-museum",
@@ -1186,8 +1088,7 @@ window.MUSEUMS_META = [
       "娄底历史",
       "工业文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xiangxi-museum",
@@ -1198,8 +1099,7 @@ window.MUSEUMS_META = [
       "苗族文化",
       "湘西风情"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhangjiajie-museum",
@@ -1210,8 +1110,7 @@ window.MUSEUMS_META = [
       "土家族文化",
       "世界遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guilin-museum",
@@ -1222,8 +1121,7 @@ window.MUSEUMS_META = [
       "桂北文化",
       "世界遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "liuzhou-museum",
@@ -1234,8 +1132,7 @@ window.MUSEUMS_META = [
       "柳州历史",
       "民族工业"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "beihai-museum",
@@ -1246,8 +1143,7 @@ window.MUSEUMS_META = [
       "北部湾文化",
       "港口文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wuzhou-museum",
@@ -1258,8 +1154,7 @@ window.MUSEUMS_META = [
       "梧州历史",
       "骑楼文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yulin-museum",
@@ -1270,8 +1165,7 @@ window.MUSEUMS_META = [
       "玉林历史",
       "民俗文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "baise-museum",
@@ -1282,8 +1176,7 @@ window.MUSEUMS_META = [
       "百色起义",
       "红色教育"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hechi-museum",
@@ -1294,8 +1187,7 @@ window.MUSEUMS_META = [
       "民族文化",
       "生态文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "laibin-museum",
@@ -1306,8 +1198,7 @@ window.MUSEUMS_META = [
       "来宾历史",
       "民族融合"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chongzuo-museum",
@@ -1318,8 +1209,7 @@ window.MUSEUMS_META = [
       "左江文化",
       "骆越文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "qinzhou-museum",
@@ -1330,8 +1220,7 @@ window.MUSEUMS_META = [
       "钦州历史",
       "陶瓷艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fangchenggang-museum",
@@ -1342,8 +1231,7 @@ window.MUSEUMS_META = [
       "港口文化",
       "京族文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guigang-museum",
@@ -1354,8 +1242,7 @@ window.MUSEUMS_META = [
       "贵港历史",
       "内河港口"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "pingxiang-museum",
@@ -1366,8 +1253,7 @@ window.MUSEUMS_META = [
       "萍乡历史",
       "煤炭文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xinyu-museum",
@@ -1378,8 +1264,7 @@ window.MUSEUMS_META = [
       "新余历史",
       "工业文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yingtan-museum",
@@ -1390,8 +1275,7 @@ window.MUSEUMS_META = [
       "鹰潭历史",
       "龙虎山文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jian-museum",
@@ -1402,8 +1286,7 @@ window.MUSEUMS_META = [
       "吉安历史",
       "书院文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shangrao-museum",
@@ -1414,8 +1297,7 @@ window.MUSEUMS_META = [
       "上饶历史",
       "生态文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "ganzhou-museum",
@@ -1426,8 +1308,7 @@ window.MUSEUMS_META = [
       "赣州历史",
       "宋城文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jiujiang-museum",
@@ -1438,8 +1319,7 @@ window.MUSEUMS_META = [
       "九江历史",
       "长江文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "beijing-art-museum",
@@ -1450,8 +1330,7 @@ window.MUSEUMS_META = [
       "绘画",
       "雕塑"
     ],
-    "image": "",
-    "hasCollections": true
+    "image": ""
   },
   {
     "id": "shanghai-railway-museum",
@@ -1462,8 +1341,7 @@ window.MUSEUMS_META = [
       "交通",
       "工业"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guangzhou-maritime-museum",
@@ -1474,8 +1352,7 @@ window.MUSEUMS_META = [
       "丝绸之路",
       "港口"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xian-tang-dynasty-museum",
@@ -1486,8 +1363,7 @@ window.MUSEUMS_META = [
       "丝绸之路",
       "商贸"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "harbin-architecture-museum",
@@ -1498,8 +1374,7 @@ window.MUSEUMS_META = [
       "中西合璧",
       "历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "kunming-ethnic-museum",
@@ -1510,8 +1385,7 @@ window.MUSEUMS_META = [
       "少数民族",
       "云南"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "urumqi-xinjiang-museum",
@@ -1522,8 +1396,7 @@ window.MUSEUMS_META = [
       "丝绸之路",
       "多民族"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lhasa-potala-palace-museum",
@@ -1534,8 +1407,7 @@ window.MUSEUMS_META = [
       "宫殿建筑",
       "世界文化遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanchang-august-first-museum",
@@ -1546,8 +1418,7 @@ window.MUSEUMS_META = [
       "军事",
       "红色教育"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "taiyuan-coal-museum",
@@ -1558,8 +1429,7 @@ window.MUSEUMS_META = [
       "能源",
       "地质"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shijiazhuang-hebei-museum",
@@ -1570,8 +1440,7 @@ window.MUSEUMS_META = [
       "燕赵文化",
       "古代文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hohhot-inner-mongolia-museum",
@@ -1582,8 +1451,7 @@ window.MUSEUMS_META = [
       "蒙古族",
       "游牧文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yinchuan-ningxia-museum",
@@ -1594,8 +1462,7 @@ window.MUSEUMS_META = [
       "西夏历史",
       "伊斯兰文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xining-qinghai-museum",
@@ -1606,8 +1473,7 @@ window.MUSEUMS_META = [
       "多民族",
       "藏羌文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lanzhou-gansu-museum",
@@ -1618,8 +1484,7 @@ window.MUSEUMS_META = [
       "甘肃历史",
       "民族文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fuzhou-fujian-museum",
@@ -1630,8 +1495,7 @@ window.MUSEUMS_META = [
       "闽台文化",
       "福建历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanning-guangxi-museum",
@@ -1642,8 +1506,7 @@ window.MUSEUMS_META = [
       "南疆民族",
       "桂林山水"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "haikou-hainan-museum",
@@ -1654,8 +1517,7 @@ window.MUSEUMS_META = [
       "海洋文明",
       "海南历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guiyang-guizhou-museum",
@@ -1666,8 +1528,7 @@ window.MUSEUMS_META = [
       "民族文化",
       "喀斯特"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "changsha-hunan-museum",
@@ -1678,8 +1539,7 @@ window.MUSEUMS_META = [
       "马王堆",
       "汉代文物"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wuhan-hubei-museum",
@@ -1690,8 +1550,7 @@ window.MUSEUMS_META = [
       "编钟",
       "战国文物"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhengzhou-henan-museum",
@@ -1702,8 +1561,7 @@ window.MUSEUMS_META = [
       "华夏文明",
       "河南历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jinan-shandong-museum",
@@ -1714,8 +1572,7 @@ window.MUSEUMS_META = [
       "孔孟之乡",
       "儒家文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanjing-jiangsu-museum",
@@ -1726,8 +1583,7 @@ window.MUSEUMS_META = [
       "六朝古都",
       "金陵历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hangzhou-zhejiang-museum",
@@ -1738,8 +1594,7 @@ window.MUSEUMS_META = [
       "江南水乡",
       "丝绸文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hefei-anhui-museum",
@@ -1750,8 +1605,7 @@ window.MUSEUMS_META = [
       "皖南古村落",
       "徽商"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "kunshan-opera-museum",
@@ -1762,8 +1616,7 @@ window.MUSEUMS_META = [
       "戏曲文化",
       "非遗"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "suzhou-garden-museum",
@@ -1774,8 +1627,7 @@ window.MUSEUMS_META = [
       "造园文化",
       "江南文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhenjiang-museum",
@@ -1786,8 +1638,7 @@ window.MUSEUMS_META = [
       "长江文明",
       "山水文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "taizhou-museum",
@@ -1798,8 +1649,7 @@ window.MUSEUMS_META = [
       "淮扬文化",
       "水乡文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huaian-museum",
@@ -1810,8 +1660,7 @@ window.MUSEUMS_META = [
       "运河名城",
       "名人故里"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yancheng-museum",
@@ -1822,8 +1671,7 @@ window.MUSEUMS_META = [
       "湿地生态",
       "海滨文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lianyungang-museum",
@@ -1834,8 +1682,7 @@ window.MUSEUMS_META = [
       "西游记",
       "港口文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xuzhou-museum",
@@ -1846,8 +1693,7 @@ window.MUSEUMS_META = [
       "楚汉争霸",
       "彭城文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "suqian-museum",
@@ -1858,8 +1704,7 @@ window.MUSEUMS_META = [
       "楚文化",
       "宿迁历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "weihai-museum",
@@ -1870,8 +1715,7 @@ window.MUSEUMS_META = [
       "海防历史",
       "近代史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "qingdao-beer-museum",
@@ -1882,8 +1726,7 @@ window.MUSEUMS_META = [
       "工业遗产",
       "德式建筑"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "weifang-museum",
@@ -1894,8 +1737,7 @@ window.MUSEUMS_META = [
       "民俗文化",
       "手工艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "linyi-yimeng-culture-museum",
@@ -1906,8 +1748,7 @@ window.MUSEUMS_META = [
       "革命老区",
       "红色文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "dezhou-museum",
@@ -1918,8 +1759,7 @@ window.MUSEUMS_META = [
       "德州历史",
       "京杭大运河"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "liaocheng-museum",
@@ -1930,8 +1770,7 @@ window.MUSEUMS_META = [
       "水城",
       "古城文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "binzhou-museum",
@@ -1942,8 +1781,7 @@ window.MUSEUMS_META = [
       "渤海湾",
       "滨州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zaozhuang-museum",
@@ -1954,8 +1792,7 @@ window.MUSEUMS_META = [
       "台儿庄",
       "运河古城"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "rizhao-museum",
@@ -1966,8 +1803,7 @@ window.MUSEUMS_META = [
       "阳光海岸",
       "海滨城市"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "laiwu-museum",
@@ -1978,8 +1814,7 @@ window.MUSEUMS_META = [
       "莱芜战役",
       "工业文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jinhua-museum",
@@ -1990,8 +1825,7 @@ window.MUSEUMS_META = [
       "东阳木雕",
       "传统工艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "quzhou-museum",
@@ -2002,8 +1836,7 @@ window.MUSEUMS_META = [
       "江南儒学",
       "衢州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lishui-museum",
@@ -2014,8 +1847,7 @@ window.MUSEUMS_META = [
       "处州历史",
       "山水文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "taizhou-zhejiang-museum",
@@ -2026,8 +1858,7 @@ window.MUSEUMS_META = [
       "天台山",
       "台州历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhoushan-museum",
@@ -2038,8 +1869,7 @@ window.MUSEUMS_META = [
       "观音文化",
       "渔业文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "anqing-museum",
@@ -2050,8 +1880,7 @@ window.MUSEUMS_META = [
       "桐城派",
       "安庆文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chizhou-museum",
@@ -2062,8 +1891,7 @@ window.MUSEUMS_META = [
       "地藏文化",
       "佛教文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xuancheng-museum",
@@ -2074,8 +1902,7 @@ window.MUSEUMS_META = [
       "宣纸",
       "传统工艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huangshan-museum",
@@ -2086,8 +1913,7 @@ window.MUSEUMS_META = [
       "徽州文化",
       "世界文化遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fuyang-museum",
@@ -2098,8 +1924,7 @@ window.MUSEUMS_META = [
       "淮河文明",
       "皖北文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "suzhou-anhui-museum",
@@ -2110,8 +1935,7 @@ window.MUSEUMS_META = [
       "皖北民俗",
       "地方文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huaibei-museum",
@@ -2122,8 +1946,7 @@ window.MUSEUMS_META = [
       "汉代文化",
       "淮北历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "bengbu-museum",
@@ -2134,8 +1957,7 @@ window.MUSEUMS_META = [
       "淮河文明",
       "蚌埠历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "maanshan-museum",
@@ -2146,8 +1968,7 @@ window.MUSEUMS_META = [
       "李白文化",
       "诗城"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tongling-museum",
@@ -2158,8 +1979,7 @@ window.MUSEUMS_META = [
       "铜都",
       "铜陵历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chaohu-museum",
@@ -2170,8 +1990,7 @@ window.MUSEUMS_META = [
       "环湖生态",
       "湖泊文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "bozhou-museum",
@@ -2182,8 +2001,7 @@ window.MUSEUMS_META = [
       "老庄文化",
       "道教文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "liuan-museum",
@@ -2194,8 +2012,7 @@ window.MUSEUMS_META = [
       "大别山",
       "革命历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "huangshan-city-museum",
@@ -2206,8 +2023,7 @@ window.MUSEUMS_META = [
       "新安江画派",
       "徽商文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xuancheng-ancient-museum",
@@ -2218,8 +2034,7 @@ window.MUSEUMS_META = [
       "谢朓文化",
       "古代文学"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chizhou-jiuhua-museum",
@@ -2230,8 +2045,7 @@ window.MUSEUMS_META = [
       "九华山佛教",
       "佛教艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "chuzhou-museum",
@@ -2242,8 +2056,7 @@ window.MUSEUMS_META = [
       "欧阳修",
       "古代文学"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "luan-museum",
@@ -2254,8 +2067,7 @@ window.MUSEUMS_META = [
       "皖西文化",
       "六安瓜片"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "mingguang-museum",
@@ -2266,8 +2078,7 @@ window.MUSEUMS_META = [
       "淮河文明",
       "地方文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tianchang-museum",
@@ -2278,8 +2089,7 @@ window.MUSEUMS_META = [
       "汉墓文物",
       "考古发现"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "dingyuan-museum",
@@ -2290,8 +2100,7 @@ window.MUSEUMS_META = [
       "地方文化",
       "文化传承"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-geology-museum",
@@ -2302,8 +2111,7 @@ window.MUSEUMS_META = [
       "矿物标本",
       "地球历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-postal-museum",
@@ -2314,8 +2122,7 @@ window.MUSEUMS_META = [
       "邮票文化",
       "通信发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lu-xun-museum",
@@ -2326,8 +2133,7 @@ window.MUSEUMS_META = [
       "现代文学",
       "鲁迅研究"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "jilin-museum",
@@ -2338,8 +2144,7 @@ window.MUSEUMS_META = [
       "满族文化",
       "关东风情"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-aviation-museum",
@@ -2350,8 +2155,7 @@ window.MUSEUMS_META = [
       "航空技术",
       "国防科技"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-film-museum",
@@ -2362,8 +2166,7 @@ window.MUSEUMS_META = [
       "影视文化",
       "艺术发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shanghai-world-expo-museum",
@@ -2374,8 +2177,7 @@ window.MUSEUMS_META = [
       "国际交流",
       "现代发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-tea-museum",
@@ -2386,8 +2188,7 @@ window.MUSEUMS_META = [
       "传统文化",
       "农业文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-silk-museum",
@@ -2398,8 +2199,7 @@ window.MUSEUMS_META = [
       "纺织技术",
       "工艺美术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-porcelain-museum",
@@ -2410,8 +2210,7 @@ window.MUSEUMS_META = [
       "工艺美术",
       "传统技艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "dalian-museum",
@@ -2422,8 +2221,7 @@ window.MUSEUMS_META = [
       "现代发展",
       "海滨城市"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-maritime-museum",
@@ -2434,8 +2232,7 @@ window.MUSEUMS_META = [
       "航海文化",
       "海洋科技"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-sports-museum",
@@ -2446,8 +2243,7 @@ window.MUSEUMS_META = [
       "奥运文化",
       "体育精神"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-agriculture-museum",
@@ -2458,8 +2254,7 @@ window.MUSEUMS_META = [
       "农耕文明",
       "农业科技"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tsinghua-museum",
@@ -2470,8 +2265,7 @@ window.MUSEUMS_META = [
       "艺术教育",
       "文化传承"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "peking-university-museum",
@@ -2482,8 +2276,7 @@ window.MUSEUMS_META = [
       "考古学",
       "艺术研究"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fudan-museum",
@@ -2494,8 +2287,7 @@ window.MUSEUMS_META = [
       "科学教育",
       "文化展示"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanjing-museum-new",
@@ -2506,8 +2298,7 @@ window.MUSEUMS_META = [
       "城市历史",
       "金陵文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "urumqi-museum-new",
@@ -2518,8 +2309,7 @@ window.MUSEUMS_META = [
       "乌鲁木齐历史",
       "丝路文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lhasa-museum-new",
@@ -2530,8 +2320,7 @@ window.MUSEUMS_META = [
       "藏族文明",
       "雪域圣城"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hohhot-museum-new",
@@ -2542,8 +2331,7 @@ window.MUSEUMS_META = [
       "蒙古族文化",
       "青城历史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "yinchuan-museum-new",
@@ -2554,8 +2342,7 @@ window.MUSEUMS_META = [
       "银川历史",
       "塞上江南"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "haikou-museum-new",
@@ -2566,8 +2353,7 @@ window.MUSEUMS_META = [
       "海口历史",
       "热带风情"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "lanzhou-museum-new",
@@ -2578,8 +2364,7 @@ window.MUSEUMS_META = [
       "兰州历史",
       "丝路重镇"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xining-museum-new",
@@ -2590,8 +2375,7 @@ window.MUSEUMS_META = [
       "西宁历史",
       "青藏门户"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "taiyuan-museum-new",
@@ -2602,8 +2386,7 @@ window.MUSEUMS_META = [
       "太原历史",
       "龙城风韵"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shijiazhuang-museum-new",
@@ -2614,8 +2397,7 @@ window.MUSEUMS_META = [
       "石家庄历史",
       "庄园文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "harbin-museum-new",
@@ -2626,8 +2408,7 @@ window.MUSEUMS_META = [
       "哈尔滨历史",
       "中俄文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "changchun-museum-new",
@@ -2638,8 +2419,7 @@ window.MUSEUMS_META = [
       "长春历史",
       "北国春城"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shenyang-museum-new",
@@ -2650,8 +2430,7 @@ window.MUSEUMS_META = [
       "沈阳历史",
       "盛京文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhengzhou-museum-new",
@@ -2662,8 +2441,7 @@ window.MUSEUMS_META = [
       "郑州历史",
       "商都文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hefei-museum-new",
@@ -2674,8 +2452,7 @@ window.MUSEUMS_META = [
       "合肥历史",
       "科教名城"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "nanchang-museum-new",
@@ -2686,8 +2463,7 @@ window.MUSEUMS_META = [
       "南昌历史",
       "英雄城市"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "fuzhou-museum-new",
@@ -2698,8 +2474,7 @@ window.MUSEUMS_META = [
       "福州历史",
       "榕城风韵"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guiyang-museum-new",
@@ -2710,8 +2485,7 @@ window.MUSEUMS_META = [
       "贵阳历史",
       "林城特色"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-medical-museum",
@@ -2722,8 +2496,7 @@ window.MUSEUMS_META = [
       "医学历史",
       "健康科学"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-printing-museum",
@@ -2734,8 +2507,7 @@ window.MUSEUMS_META = [
       "四大发明",
       "文化传播"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-science-technology-museum",
@@ -2746,8 +2518,7 @@ window.MUSEUMS_META = [
       "科普教育",
       "创新发展"
     ],
-    "image": "http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
-    "hasCollections": true
+    "image": "http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85"
   },
   {
     "id": "china-women-children-museum",
@@ -2758,8 +2529,7 @@ window.MUSEUMS_META = [
       "儿童成长",
       "社会进步"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-currency-museum",
@@ -2770,8 +2540,7 @@ window.MUSEUMS_META = [
       "金融文化",
       "经济发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-ethnic-museum",
@@ -2782,8 +2551,7 @@ window.MUSEUMS_META = [
       "文化多样性",
       "民族团结"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-coal-museum",
@@ -2794,8 +2562,7 @@ window.MUSEUMS_META = [
       "能源发展",
       "工业文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-tobacco-museum",
@@ -2806,8 +2573,7 @@ window.MUSEUMS_META = [
       "传统文化",
       "健康教育"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-wine-museum",
@@ -2818,8 +2584,7 @@ window.MUSEUMS_META = [
       "传统工艺",
       "文化传承"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-watch-museum",
@@ -2830,8 +2595,7 @@ window.MUSEUMS_META = [
       "精密制造",
       "工匠精神"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-glass-museum",
@@ -2842,8 +2606,7 @@ window.MUSEUMS_META = [
       "传统技艺",
       "现代工业"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-furniture-museum",
@@ -2854,8 +2617,7 @@ window.MUSEUMS_META = [
       "传统工艺",
       "木工技艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "shanghai-auto-museum",
@@ -2866,8 +2628,7 @@ window.MUSEUMS_META = [
       "交通发展",
       "工业设计"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "guangzhou-chen-family-temple",
@@ -2878,8 +2639,7 @@ window.MUSEUMS_META = [
       "传统工艺",
       "祠堂文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "xian-banpo-museum",
@@ -2890,8 +2650,7 @@ window.MUSEUMS_META = [
       "考古遗址",
       "原始社会"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "tianjin-natural-history-museum",
@@ -2902,8 +2661,7 @@ window.MUSEUMS_META = [
       "生物多样性",
       "地球演化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "wuhan-revolution-museum",
@@ -2914,8 +2672,7 @@ window.MUSEUMS_META = [
       "红色文化",
       "近代史"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "hangzhou-silk-museum",
@@ -2926,8 +2683,7 @@ window.MUSEUMS_META = [
       "传统工艺",
       "文化遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "suzhou-silk-museum",
@@ -2938,8 +2694,7 @@ window.MUSEUMS_META = [
       "丝绸工艺",
       "江南文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-ceramics-museum",
@@ -2950,8 +2705,7 @@ window.MUSEUMS_META = [
       "传统工艺",
       "文化遗产"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-bamboo-museum",
@@ -2962,8 +2716,7 @@ window.MUSEUMS_META = [
       "生态文明",
       "绿色发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-kite-museum",
@@ -2974,8 +2727,7 @@ window.MUSEUMS_META = [
       "民间艺术",
       "传统技艺"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-paper-museum",
@@ -2986,8 +2738,7 @@ window.MUSEUMS_META = [
       "四大发明",
       "文化传承"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-folk-museum",
@@ -2998,8 +2749,7 @@ window.MUSEUMS_META = [
       "传统节日",
       "民间艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-calligraphy-museum",
@@ -3010,8 +2760,7 @@ window.MUSEUMS_META = [
       "文字文化",
       "传统艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-opera-museum",
@@ -3022,8 +2771,7 @@ window.MUSEUMS_META = [
       "传统表演",
       "非遗文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-music-museum",
@@ -3034,8 +2782,7 @@ window.MUSEUMS_META = [
       "传统乐器",
       "音乐艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-dance-museum",
@@ -3046,8 +2793,7 @@ window.MUSEUMS_META = [
       "民族舞蹈",
       "表演艺术"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-photography-museum",
@@ -3058,8 +2804,7 @@ window.MUSEUMS_META = [
       "视觉文化",
       "技术发展"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-architecture-museum",
@@ -3070,8 +2815,7 @@ window.MUSEUMS_META = [
       "传统建筑",
       "现代建筑"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-water-museum",
@@ -3082,8 +2826,7 @@ window.MUSEUMS_META = [
       "治水文化",
       "生态文明"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "china-garden-museum",
@@ -3094,8 +2837,7 @@ window.MUSEUMS_META = [
       "景观艺术",
       "生态美学"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "pinghu-lishu-memorial",
@@ -3106,8 +2848,7 @@ window.MUSEUMS_META = [
       "艺术教育",
       "佛教文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "zhaoyuan-hengli-watch-museum",
@@ -3118,8 +2859,7 @@ window.MUSEUMS_META = [
       "科技互动",
       "精密制造"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   },
   {
     "id": "pinghu-museum",
@@ -3130,7 +2870,6 @@ window.MUSEUMS_META = [
       "地方",
       "文化"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": ""
   }
 ];
