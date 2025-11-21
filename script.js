@@ -12222,6 +12222,11 @@ class MuseumCheckApp {
             return true;
         }
         
+        // Check if museum meta has hasCollections flag (from museums-meta.js)
+        if (museum.hasCollections === true) {
+            return true;
+        }
+        
         // Fallback: check MUSEUMS array (Tier 3 - museums-data.js)
         // This ensures we show navigation button even if grid data doesn't have collections loaded yet
         if (museum.id && typeof MUSEUMS !== 'undefined' && Array.isArray(MUSEUMS)) {

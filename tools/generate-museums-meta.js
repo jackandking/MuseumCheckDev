@@ -44,7 +44,8 @@ function toMeta(arrayJs) {
     name: m.name,
     location: m.location,
     tags: m.tags || [],
-    image: m.image || ''
+    image: m.image || '',
+    hasCollections: !!(m.collections && Array.isArray(m.collections) && m.collections.length > 0)
   }));
 }
 
