@@ -898,7 +898,17 @@
           // Check if treasure already exists
           const existingIndex = collections.findIndex(c => c.name === name);
           if (existingIndex !== -1) {
-            showStatus(`藏品"${name}"已存在，无需重复添加`, 'info');
+            // Show inline error message without clearing validation results
+            const recommendationDiv = document.getElementById('recommendation-' + index);
+            if (recommendationDiv) {
+              const button = recommendationDiv.querySelector('button');
+              if (button) {
+                button.textContent = '⚠️ 已存在';
+                button.disabled = true;
+                button.style.opacity = '0.6';
+                button.style.cursor = 'not-allowed';
+              }
+            }
             return;
           }
           
@@ -913,6 +923,8 @@
           renderCollectionsEditor(collections);
           
           // Update the button to show it was added
+          // IMPORTANT: Don't call showStatus() here as it clears the entire validation results display,
+          // which would remove all other recommendation buttons and make them impossible to click.
           const recommendationDiv = document.getElementById('recommendation-' + index);
           if (recommendationDiv) {
             const button = recommendationDiv.querySelector('button');
@@ -921,13 +933,12 @@
               button.disabled = true;
               button.style.opacity = '0.6';
               button.style.cursor = 'not-allowed';
+              button.classList.remove('btn-success');
+              button.classList.add('btn-secondary');
             }
           }
           
-          // Show success message
-          showStatus(`✓ 已添加藏品"${name}"到列表`, 'success');
-          
-          // Scroll to collections editor
+          // Scroll to collections editor to show the newly added treasure in the collections list
           setTimeout(() => {
             document.getElementById('collections-editor').scrollIntoView({ 
               behavior: 'smooth', 
@@ -937,7 +948,15 @@
           
         } catch (error) {
           console.error('添加推荐藏品失败:', error);
-          showStatus('添加失败: ' + error.message, 'error');
+          // Show inline error message without clearing validation results
+          const recommendationDiv = document.getElementById('recommendation-' + index);
+          if (recommendationDiv) {
+            const button = recommendationDiv.querySelector('button');
+            if (button) {
+              button.textContent = '❌ 失败';
+              button.style.backgroundColor = '#dc3545';
+            }
+          }
         }
       };
 
