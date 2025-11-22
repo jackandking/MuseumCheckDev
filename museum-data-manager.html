@@ -540,7 +540,7 @@
         }
         
         // Confirm action
-        if (!confirm(`🤖 是否使用 AI 自动生成"${museumName}"的镇馆之宝数据？\n\n这将调用 DeepSeek API 生成 3 个真实的镇馆之宝。`)) {
+        if (!confirm(`🤖 是否使用 AI 自动生成"${museumName}"的镇馆之宝数据？\n\n这将调用 DeepSeek API 生成 3 个真实的镇馆之宝并自动验证其准确性。`)) {
           return;
         }
         
@@ -551,14 +551,67 @@
           // Call API to generate treasures
           const treasures = await deepseekAPI.generateTreasures(museumName);
           
-          // Update collections editor with generated data
-          renderCollectionsEditor(treasures);
+          showStatus('生成成功！正在自动验证镇馆之宝的准确性...', 'info');
           
-          // Show success message
-          showStatus(`✓ 成功生成 ${treasures.length} 个镇馆之宝！请检查并编辑数据。`, 'success');
-          
-          // Scroll to collections editor
-          document.getElementById('collections-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Automatically validate the generated treasures
+          try {
+            const validationResult = await deepseekAPI.validateTreasures(museumName, treasures);
+            
+            // Check if any treasures were marked as invalid
+            if (!validationResult.isValid || validationResult.invalidTreasures.length > 0) {
+              // Filter out invalid treasures
+              const validTreasures = treasures.filter(t => 
+                !validationResult.invalidTreasures.includes(t.name)
+              );
+              
+              // If we have fewer than 3 valid treasures, use the recommendations instead
+              if (validTreasures.length < 3 && validationResult.recommendations.length >= 3) {
+                showStatus(
+                  `⚠️ AI 生成的镇馆之宝中有 ${validationResult.invalidTreasures.length} 个不准确，已自动替换为验证通过的推荐镇馆之宝。`, 
+                  'info'
+                );
+                
+                // Use recommendations from validation
+                const recommendedTreasures = validationResult.recommendations.map(rec => ({
+                  name: rec.name,
+                  imageUrl: '',
+                  description: rec.description
+                }));
+                
+                renderCollectionsEditor(recommendedTreasures);
+              } else if (validTreasures.length >= 3) {
+                showStatus(
+                  `⚠️ AI 生成的镇馆之宝中有 ${validationResult.invalidTreasures.length} 个不准确，已过滤。保留 ${validTreasures.length} 个验证通过的镇馆之宝。`, 
+                  'info'
+                );
+                renderCollectionsEditor(validTreasures);
+              } else {
+                // Not enough valid treasures and no good recommendations
+                showStatus(
+                  '⚠️ AI 生成的镇馆之宝验证未通过。请手动添加或重试。', 
+                  'error'
+                );
+                return;
+              }
+            } else {
+              // All treasures are valid
+              showStatus(`✓ 成功生成 ${treasures.length} 个镇馆之宝，已通过 AI 验证！`, 'success');
+              renderCollectionsEditor(treasures);
+            }
+            
+            // Scroll to collections editor
+            document.getElementById('collections-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+          } catch (validationError) {
+            // Validation failed, but we can still use the generated treasures
+            console.warn('自动验证失败，使用生成的数据:', validationError);
+            showStatus(
+              `✓ 成功生成 ${treasures.length} 个镇馆之宝（自动验证失败，请手动检查）。`, 
+              'info'
+            );
+            renderCollectionsEditor(treasures);
+            document.getElementById('collections-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
           
         } catch (error) {
           showStatus('AI 生成失败: ' + error.message, 'error');
@@ -764,7 +817,7 @@
       
       // Display AI validation results
       function displayValidationResults(result, museumName) {
-        let message = `<h3>🤖 AI 验证结果：${museumName}</h3>`;
+        let message = `<h3>🤖 AI 验证结果：${escapeHtml(museumName)}</h3>`;
         
         if (result.isValid && result.invalidTreasures.length === 0) {
           message += '<div class="status status-success">✓ 所有镇馆之宝验证通过！</div>';
@@ -774,7 +827,7 @@
           if (result.invalidTreasures.length > 0) {
             message += '<h4>不正确的文物：</h4><ul>';
             result.invalidTreasures.forEach(name => {
-              message += `<li style="color: #dc3545;">${name}</li>`;
+              message += `<li style="color: #dc3545;">${escapeHtml(name)}</li>`;
             });
             message += '</ul>';
           }
@@ -784,17 +837,34 @@
           message += '<h4>AI 推荐的镇馆之宝：</h4>';
           message += '<div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-top: 12px;">';
           result.recommendations.forEach((rec, index) => {
+            // Store recommendation data safely in a global variable for click handlers
+            if (!window.pendingRecommendations) window.pendingRecommendations = [];
+            window.pendingRecommendations[index] = {
+              name: rec.name || '',
+              description: rec.description || '',
+              imageUrl: rec.imageUrl || ''
+            };
+            
             message += `
-              <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #dee2e6;">
-                <strong>${index + 1}. ${rec.name}</strong><br>
-                <span style="color: #667; font-size: 14px;">${rec.description}</span>
+              <div id="recommendation-${index}" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: start; gap: 12px;">
+                <div style="flex: 1;">
+                  <strong>${index + 1}. ${escapeHtml(rec.name || '')}</strong><br>
+                  <span style="color: #667; font-size: 14px;">${escapeHtml(rec.description || '')}</span>
+                </div>
+                <button 
+                  class="btn btn-success btn-sm recommendation-add-btn" 
+                  data-rec-index="${index}"
+                  style="flex-shrink: 0; white-space: nowrap;"
+                >
+                  ➕ 添加
+                </button>
               </div>
             `;
           });
           message += '</div>';
           
           if (!result.isValid || result.invalidTreasures.length > 0) {
-            message += '<p style="margin-top: 16px; color: #856404; background: #fff3cd; padding: 12px; border-radius: 8px;">💡 建议：将推荐的镇馆之宝替换到数据中</p>';
+            message += '<p style="margin-top: 16px; color: #856404; background: #fff3cd; padding: 12px; border-radius: 8px;">💡 建议：点击"添加"按钮将推荐的镇馆之宝添加到藏品列表</p>';
           }
         }
         
@@ -802,9 +872,74 @@
         const statusDiv = document.getElementById('statusMsg');
         statusDiv.innerHTML = `<div class="status status-info" style="max-width: 100%; white-space: normal; text-align: left;">${message}</div>`;
         
+        // Add event listeners to buttons (safer than inline onclick)
+        setTimeout(() => {
+          document.querySelectorAll('.recommendation-add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const index = parseInt(this.getAttribute('data-rec-index'));
+              const rec = window.pendingRecommendations[index];
+              if (rec) {
+                addRecommendedTreasure(index, rec.name, rec.imageUrl, rec.description);
+              }
+            });
+          });
+        }, 100);
+        
         // Scroll to results
         statusDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+
+      // Add a recommended treasure to the collections list
+      window.addRecommendedTreasure = function(index, name, imageUrl, description) {
+        try {
+          // Get current collections
+          const collections = getCollectionsFromEditor();
+          
+          // Check if treasure already exists
+          const existingIndex = collections.findIndex(c => c.name === name);
+          if (existingIndex !== -1) {
+            showStatus(`藏品"${name}"已存在，无需重复添加`, 'info');
+            return;
+          }
+          
+          // Add new treasure
+          collections.push({
+            name: name,
+            imageUrl: imageUrl || '',
+            description: description || ''
+          });
+          
+          // Re-render collections editor
+          renderCollectionsEditor(collections);
+          
+          // Update the button to show it was added
+          const recommendationDiv = document.getElementById('recommendation-' + index);
+          if (recommendationDiv) {
+            const button = recommendationDiv.querySelector('button');
+            if (button) {
+              button.textContent = '✓ 已添加';
+              button.disabled = true;
+              button.style.opacity = '0.6';
+              button.style.cursor = 'not-allowed';
+            }
+          }
+          
+          // Show success message
+          showStatus(`✓ 已添加藏品"${name}"到列表`, 'success');
+          
+          // Scroll to collections editor
+          setTimeout(() => {
+            document.getElementById('collections-editor').scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }, 300);
+          
+        } catch (error) {
+          console.error('添加推荐藏品失败:', error);
+          showStatus('添加失败: ' + error.message, 'error');
+        }
+      };
 
       // Submit museum data
       window.submitMuseumData = function() {

@@ -94,42 +94,43 @@ class DeepSeekAPI {
             throw new Error('没有有效的镇馆之宝名称');
         }
 
-        const prompt = `请验证以下信息是否准确：
+        const prompt = `你是一位博物馆文物专家。请仔细验证以下信息是否准确：
 
 博物馆名称：${museumName}
 
 当前列出的镇馆之宝：
 ${treasureNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
-请按以下格式回答：
-
-1. 首先，判断这些文物是否确实是"${museumName}"的真实收藏（回答"是"或"否"）
-2. 如果有不正确的，列出不正确的文物名称
-3. 推荐至少3个该博物馆真实的、著名的镇馆之宝，每个包括：
-   - 文物名称
-   - 简短描述（一句话说明其重要性）
+任务：
+1. 仔细核实每个文物是否确实是"${museumName}"的真实收藏
+2. 标记出不属于该博物馆或名称不准确的文物
+3. 推荐至少3个该博物馆最著名的、确实存在的镇馆之宝
 
 请用以下JSON格式回答：
 {
   "allValid": true/false,
-  "invalidTreasures": ["不正确的文物1", "不正确的文物2"],
+  "invalidTreasures": ["不正确的文物名称（如果有）"],
   "recommendations": [
     {
-      "name": "文物名称1",
-      "description": "简短描述"
+      "name": "文物名称1（使用准确的官方名称）",
+      "description": "100-150字的详细描述，包括历史背景、艺术特点、文化价值"
     },
     {
-      "name": "文物名称2", 
-      "description": "简短描述"
+      "name": "文物名称2（使用准确的官方名称）", 
+      "description": "100-150字的详细描述，包括历史背景、艺术特点、文化价值"
     },
     {
-      "name": "文物名称3",
-      "description": "简短描述"
+      "name": "文物名称3（使用准确的官方名称）",
+      "description": "100-150字的详细描述，包括历史背景、艺术特点、文化价值"
     }
   ]
 }
 
-注意：只返回JSON，不要有其他文字。`;
+注意：
+- 只返回JSON，不要有其他文字
+- 推荐的文物必须确实属于"${museumName}"
+- 如果当前列出的文物都正确，allValid设为true，invalidTreasures为空数组
+- 推荐列表应该包含该博物馆最具代表性的藏品`;
 
         try {
             const responseText = await this.callAPI(prompt);
@@ -195,35 +196,38 @@ ${treasureNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
             throw new Error('博物馆名称不能为空');
         }
 
-        const prompt = `请为"${museumName}"推荐3个真实的、著名的镇馆之宝。
+        const prompt = `你是一位博物馆文物专家。请为"${museumName}"推荐3个真实的、最著名的镇馆之宝。
 
-要求：
-1. 文物必须真实存在且确实是该博物馆的重要收藏
-2. 每个文物需要包括：
-   - 文物名称（准确的名称）
-   - 详细描述（100-150字，包括文物的历史、特点、文化价值等）
-   - 图片URL（如果知道的话，否则留空）
+重要要求：
+1. 文物必须真实存在且确实是"${museumName}"的实际收藏
+2. 必须是该博物馆最具代表性、最知名的藏品
+3. 请仔细核实确保文物名称准确无误
+4. 避免推荐其他博物馆的藏品
+5. 每个文物需要包括：
+   - 文物名称（使用准确的官方名称）
+   - 详细描述（100-150字，包括文物的历史年代、制作工艺、历史背景、艺术特点、文化价值等）
+   - 图片URL（暂时留空字符串）
 
 请用以下JSON格式回答：
 [
   {
     "name": "文物名称1",
-    "imageUrl": "图片URL或留空",
+    "imageUrl": "",
     "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
   },
   {
     "name": "文物名称2",
-    "imageUrl": "图片URL或留空",
+    "imageUrl": "",
     "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
   },
   {
     "name": "文物名称3",
-    "imageUrl": "图片URL或留空",
+    "imageUrl": "",
     "description": "详细描述文物的历史背景、艺术特点、文化价值等，100-150字"
   }
 ]
 
-注意：只返回JSON数组，不要有其他文字。`;
+注意：只返回JSON数组，不要有其他文字。确保推荐的文物确实属于"${museumName}"。`;
 
         try {
             const responseText = await this.callAPI(prompt);
