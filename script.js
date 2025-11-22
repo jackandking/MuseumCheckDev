@@ -3610,6 +3610,7 @@ class MuseumCheckApp {
         this.userLocation = null; // Will be set if user grants location permission
         this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
         this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
+        this.showOnlyMuseumsWithCollections = this.loadShowOnlyMuseumsWithCollections(); // Load from settings, default to true
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
@@ -4891,6 +4892,23 @@ class MuseumCheckApp {
             });
         }
 
+        // Show only museums with collections toggle
+        const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
+        if (showOnlyMuseumsWithCollections) {
+            showOnlyMuseumsWithCollections.addEventListener('change', (e) => {
+                const showOnlyWithCollections = e.target.checked;
+                const result = this.saveShowOnlyMuseumsWithCollections(showOnlyWithCollections);
+                
+                if (result.success) {
+                    // Track setting change
+                    this.trackEvent('show_only_museums_with_collections_changed', {
+                        'show_only_with_collections': showOnlyWithCollections,
+                        'auto_saved': true
+                    });
+                }
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -5569,6 +5587,30 @@ class MuseumCheckApp {
         }
     }
 
+    loadShowOnlyMuseumsWithCollections() {
+        try {
+            const saved = localStorage.getItem('showOnlyMuseumsWithCollections');
+            // Default to true (only show museums with collections) if not saved
+            return saved === null ? true : saved === 'true';
+        } catch (error) {
+            console.error('Failed to load show only museums with collections setting:', error);
+            return true; // Default to showing only museums with collections
+        }
+    }
+
+    saveShowOnlyMuseumsWithCollections(showOnlyWithCollections) {
+        try {
+            localStorage.setItem('showOnlyMuseumsWithCollections', showOnlyWithCollections ? 'true' : 'false');
+            this.showOnlyMuseumsWithCollections = showOnlyWithCollections;
+            // Re-render museums to apply the filter
+            this.renderMuseums();
+            return { success: true, message: '显示设置已保存' };
+        } catch (error) {
+            console.error('Failed to save show only museums with collections setting:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
     saveChildNickname(nickname) {
         try {
             // Validate nickname
@@ -6081,8 +6123,14 @@ class MuseumCheckApp {
             
             grid.innerHTML = '';
 
+            // Apply collection filter if enabled
+            let museumsToRender = this.filteredMuseums;
+            if (this.showOnlyMuseumsWithCollections) {
+                museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
+            }
+
             // Sort museums before rendering
-            const sortedMuseums = this.sortMuseums(this.filteredMuseums);
+            const sortedMuseums = this.sortMuseums(museumsToRender);
 
             sortedMuseums.forEach(museum => {
                 const isVisited = this.visitedMuseums.includes(museum.id);
@@ -7957,6 +8005,12 @@ class MuseumCheckApp {
         const showManageButtonToggle = document.getElementById('showManageButtonToggle');
         if (showManageButtonToggle) {
             showManageButtonToggle.checked = !this.manageButtonHidden;
+        }
+
+        // Update show only museums with collections toggle
+        const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
+        if (showOnlyMuseumsWithCollections) {
+            showOnlyMuseumsWithCollections.checked = this.showOnlyMuseumsWithCollections;
         }
     }
 
