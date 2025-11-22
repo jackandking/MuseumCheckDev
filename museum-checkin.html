@@ -478,10 +478,25 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .completion-celebration.show {
             display: flex;
+            animation: celebrationEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes celebrationEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .celebration-close-button {
@@ -519,6 +534,36 @@
             color: white;
             margin-bottom: 20px;
             text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: titleBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both, glowPulse 2s ease-in-out 1s infinite;
+        }
+
+        @keyframes titleBounce {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.5);
+            }
+            50% {
+                transform: translateY(10px) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2),
+                             0 0 20px rgba(255, 255, 255, 0.3),
+                             0 0 30px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2),
+                             0 0 30px rgba(255, 255, 255, 0.6),
+                             0 0 40px rgba(255, 255, 255, 0.4),
+                             0 0 50px rgba(255, 107, 157, 0.3);
+            }
         }
 
         .poster-container {
@@ -528,6 +573,19 @@
             max-width: 500px;
             width: 100%;
             margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: posterSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+        }
+
+        @keyframes posterSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .poster-preview {
@@ -545,6 +603,18 @@
             gap: 10px;
             max-width: 500px;
             width: 100%;
+            animation: buttonsSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
+        }
+
+        @keyframes buttonsSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .share-button {
@@ -567,6 +637,64 @@
             background: white;
             color: #333;
             border: 2px solid #e9ecef;
+        }
+
+        /* Confetti particles */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1999;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Floating celebration emojis */
+        .celebration-emoji {
+            position: fixed;
+            font-size: 40px;
+            animation: emojiFloat 4s ease-in-out forwards;
+            z-index: 1999;
+            pointer-events: none;
+        }
+
+        @keyframes emojiFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0.5) rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20vh) scale(1.2) rotate(360deg);
+            }
+        }
+
+        /* Celebration overlay for fireworks */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1998;
         }
 
         /* Edit mode styles */
@@ -1054,10 +1182,190 @@
             return card;
         }
 
-        // Open poster modal
+        // Open poster modal with enhanced celebration effects
         function openPosterModal() {
             generatePoster();
-            document.getElementById('completionCelebration').classList.add('show');
+            
+            // Show celebration modal with animation
+            const celebration = document.getElementById('completionCelebration');
+            celebration.classList.add('show');
+            
+            // Create confetti particles
+            createConfetti();
+            
+            // Create floating celebration emojis
+            createCelebrationEmojis();
+            
+            // Launch multiple fireworks for grand celebration
+            launchCelebrationFireworks();
+            
+            // Play celebration sound if available
+            if (typeof playFireworkSound === 'function') {
+                playFireworkSound();
+                // Play additional sounds with delay
+                setTimeout(() => playFireworkSound(), 400);
+                setTimeout(() => playFireworkSound(), 800);
+            }
+        }
+
+        // Create confetti particles effect
+        function createConfetti() {
+            const colors = ['#FF6B9D', '#C44569', '#F8B500', '#54A0FF', '#5F27CD', '#FFD93D', '#6BCF7F'];
+            const confettiCount = 80;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                // Random shapes
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                } else {
+                    confetti.style.width = Math.random() * 8 + 4 + 'px';
+                    confetti.style.height = Math.random() * 8 + 4 + 'px';
+                }
+                
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3500);
+            }
+        }
+
+        // Create floating celebration emojis
+        function createCelebrationEmojis() {
+            const emojis = ['🎉', '🎊', '✨', '🌟', '⭐', '💫', '🎈', '🎆', '🎇', '👏', '🥳', '🏆'];
+            const emojiCount = 15;
+            
+            for (let i = 0; i < emojiCount; i++) {
+                const emoji = document.createElement('div');
+                emoji.className = 'celebration-emoji';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = Math.random() * 100 + '%';
+                emoji.style.animationDelay = Math.random() * 1 + 's';
+                emoji.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                
+                document.body.appendChild(emoji);
+                
+                // Remove emoji after animation
+                setTimeout(() => {
+                    emoji.remove();
+                }, 5000);
+            }
+        }
+
+        // Launch multiple fireworks for celebration
+        function launchCelebrationFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Colors in RGB format for easier alpha manipulation
+            const colors = [
+                '255, 107, 157',  // #FF6B9D Pink
+                '196, 69, 105',   // #C44569 Deep red
+                '248, 181, 0',    // #F8B500 Orange
+                '84, 160, 255',   // #54A0FF Blue
+                '95, 39, 205',    // #5F27CD Purple
+                '255, 217, 61',   // #FFD93D Gold
+                '107, 207, 127'   // #6BCF7F Green
+            ];
+            let allParticles = [];
+            
+            // Create explosion at a position
+            function createExplosion(x, y, color) {
+                const particleCount = 60;
+                const particles = [];
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (Math.PI * 2 * i) / particleCount;
+                    const velocity = Math.random() * 3 + 2;
+                    
+                    particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * velocity,
+                        vy: Math.sin(angle) * velocity,
+                        color: color,
+                        life: 1,
+                        size: Math.random() * 3 + 2
+                    });
+                }
+                
+                return particles;
+            }
+            
+            // Launch fireworks at different positions and times
+            const fireworkPositions = [
+                { x: canvas.width * 0.3, y: canvas.height * 0.3, delay: 0 },
+                { x: canvas.width * 0.7, y: canvas.height * 0.25, delay: 200 },
+                { x: canvas.width * 0.5, y: canvas.height * 0.35, delay: 400 },
+                { x: canvas.width * 0.2, y: canvas.height * 0.4, delay: 600 },
+                { x: canvas.width * 0.8, y: canvas.height * 0.35, delay: 800 },
+                { x: canvas.width * 0.4, y: canvas.height * 0.28, delay: 1000 },
+                { x: canvas.width * 0.6, y: canvas.height * 0.32, delay: 1200 }
+            ];
+            
+            fireworkPositions.forEach(pos => {
+                setTimeout(() => {
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const particles = createExplosion(pos.x, pos.y, color);
+                    allParticles.push(...particles);
+                }, pos.delay);
+            });
+            
+            // Animation loop
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw particles
+                allParticles = allParticles.filter(p => p.life > 0);
+                
+                allParticles.forEach(p => {
+                    // Draw particle with glow
+                    ctx.save();
+                    
+                    // Glow effect
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${p.color}, ${p.life * 0.3})`;
+                    ctx.fill();
+                    
+                    // Core
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${p.color}, ${p.life})`;
+                    ctx.fill();
+                    
+                    ctx.restore();
+                    
+                    // Update position
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05; // Gravity
+                    p.vx *= 0.99; // Air resistance
+                    p.vy *= 0.99;
+                    p.life -= 0.008;
+                });
+                
+                if (allParticles.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            
+            animate();
         }
 
         // Parse task string to extract icon, title, and subtitle
