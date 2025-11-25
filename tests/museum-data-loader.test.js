@@ -85,7 +85,7 @@ describe('MuseumDataLoader', () => {
     });
 
     describe('Tier 1 Loading (Static Files)', () => {
-        test('should load museum from static JSON file', async () => {
+        test('should load museum from static JSON file using relative path', async () => {
             const mockData = {
                 id: 'forbidden-city',
                 name: '故宫博物院',
@@ -99,7 +99,9 @@ describe('MuseumDataLoader', () => {
 
             const result = await loader.loadFromTier1('forbidden-city');
             
-            expect(fetch).toHaveBeenCalledWith('/museums/forbidden-city.json');
+            // CRITICAL: Must use relative path for GitHub Pages compatibility
+            // Absolute path (/museums/...) doesn't work when deployed to subdirectory
+            expect(fetch).toHaveBeenCalledWith('museums/forbidden-city.json');
             expect(result).toEqual(mockData);
         });
 

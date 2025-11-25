@@ -66,7 +66,7 @@ class MuseumDataLoader {
      */
     async loadFromTier1(museumId) {
         try {
-            const response = await fetch(`/museums/${museumId}.json`);
+            const response = await fetch(`museums/${museumId}.json`);
             if (!response.ok) {
                 return null;
             }
