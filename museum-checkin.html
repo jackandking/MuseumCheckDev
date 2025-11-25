@@ -788,6 +788,250 @@
         .settings-content {
             max-width: 600px;
         }
+
+        /* Settings toggle switch */
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Puzzle Game Styles */
+        .puzzle-game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a8d8ea 0%, #7fc8dc 50%, #5ab4d1 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .puzzle-game-overlay.show {
+            display: flex;
+        }
+
+        .puzzle-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .puzzle-moves {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .puzzle-container {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            width: 280px;
+            height: 280px;
+        }
+
+        .puzzle-tile {
+            width: 100%;
+            height: 100%;
+            background-size: 280px 280px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            border: 2px solid #e9ecef;
+        }
+
+        .puzzle-tile:hover:not(.empty) {
+            transform: scale(0.97);
+        }
+
+        .puzzle-tile.empty {
+            background: #f0f0f0 !important;
+            border: 2px dashed #ccc;
+            cursor: default;
+        }
+
+        .puzzle-tile.correct {
+            border: 2px solid #28a745;
+        }
+
+        .puzzle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 310px;
+        }
+
+        .puzzle-button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-button-continue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .puzzle-button-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .puzzle-button-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .puzzle-button-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .puzzle-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .puzzle-complete-message.show {
+            display: block;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .puzzle-reference {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .puzzle-reference-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .puzzle-reference-img {
+            display: none;
+            width: 120px;
+            height: 120px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .puzzle-reference-img.show {
+            display: block;
+        }
+
+        @media (max-width: 360px) {
+            .puzzle-grid {
+                width: 240px;
+                height: 240px;
+            }
+            .puzzle-tile {
+                background-size: 240px 240px;
+            }
+            .puzzle-title {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -904,6 +1148,22 @@
             </div>
 
             <div class="settings-section">
+                <h3>🎮 游戏奖励</h3>
+                <div class="settings-item">
+                    <div class="settings-toggle">
+                        <div>
+                            <label class="settings-label" style="margin-bottom: 0;">九宫格拼图游戏</label>
+                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，用照片玩拼图游戏</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="puzzleGameToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
                 <h3>🗑️ 数据管理</h3>
                 <div class="settings-item">
                     <label class="settings-label">清空打卡数据：</label>
@@ -917,6 +1177,28 @@
     </div>
 
     <canvas class="fireworks-overlay" id="fireworksCanvas"></canvas>
+
+    <!-- Puzzle Game Overlay -->
+    <div class="puzzle-game-overlay" id="puzzleGameOverlay">
+        <div class="puzzle-header">
+            <div class="puzzle-title">🧩 拼图挑战</div>
+            <div class="puzzle-moves">移动次数：<span id="puzzleMoves">0</span></div>
+        </div>
+        <div class="puzzle-container">
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+        </div>
+        <div class="puzzle-reference">
+            <button class="puzzle-reference-btn" id="toggleReference">查看原图 👀</button>
+            <img class="puzzle-reference-img" id="puzzleReferenceImg" alt="原图参考">
+        </div>
+        <div class="puzzle-buttons">
+            <button class="puzzle-button puzzle-button-reset" id="resetPuzzle">🔄 重新打乱</button>
+            <button class="puzzle-button puzzle-button-continue" id="exitPuzzle">继续游览 ➡️</button>
+        </div>
+        <div class="puzzle-complete-message" id="puzzleCompleteMessage">
+            🎉 恭喜完成！
+        </div>
+    </div>
 
     <!-- Completion Celebration -->
     <div class="completion-celebration" id="completionCelebration">
@@ -1465,6 +1747,11 @@
         function completeTask() {
             if (currentTaskIndex === null) return;
 
+            // Check if puzzle game should be shown (has photo and setting enabled)
+            const hasPhoto = !!taskPhotos[currentTaskIndex];
+            const puzzleEnabled = loadPuzzleGameSetting();
+            const showPuzzle = hasPhoto && puzzleEnabled;
+
             completedTasks.add(currentTaskIndex);
             saveCompletedTasks();
             
@@ -1483,6 +1770,14 @@
             
             // Check if all tasks complete
             checkCompletion();
+
+            // Show puzzle game as reward if photo was uploaded and setting is enabled
+            if (showPuzzle) {
+                // Delay slightly to let fireworks animation start
+                setTimeout(() => {
+                    initPuzzleGame(taskPhotos[currentTaskIndex]);
+                }, 800);
+            }
         }
 
         // Celebrate with fireworks animation
@@ -2373,6 +2668,30 @@
                 clearCheckinData();
             };
 
+            // Puzzle game settings toggle
+            const puzzleToggle = document.getElementById('puzzleGameToggle');
+            if (puzzleToggle) {
+                puzzleToggle.addEventListener('change', (e) => {
+                    savePuzzleGameSetting(e.target.checked);
+                });
+            }
+
+            // Puzzle game controls
+            const exitPuzzleBtn = document.getElementById('exitPuzzle');
+            if (exitPuzzleBtn) {
+                exitPuzzleBtn.onclick = closePuzzleGame;
+            }
+
+            const resetPuzzleBtn = document.getElementById('resetPuzzle');
+            if (resetPuzzleBtn) {
+                resetPuzzleBtn.onclick = resetPuzzle;
+            }
+
+            const toggleRefBtn = document.getElementById('toggleReference');
+            if (toggleRefBtn) {
+                toggleRefBtn.onclick = toggleReferenceImage;
+            }
+
             // Close modals on background click
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) {
@@ -2542,8 +2861,213 @@
                 ageGroupSelector.value = ageGroup;
             }
 
+            // Load puzzle game toggle state
+            const puzzleGameEnabled = loadPuzzleGameSetting();
+            const puzzleToggle = document.getElementById('puzzleGameToggle');
+            if (puzzleToggle) {
+                puzzleToggle.checked = puzzleGameEnabled;
+            }
+
             // Show modal
             document.getElementById('settingsModal').classList.add('show');
+        }
+
+        // ===== Puzzle Game Settings =====
+        function loadPuzzleGameSetting() {
+            try {
+                const saved = localStorage.getItem('puzzleGameEnabled');
+                return saved === 'true';  // Default is false (disabled)
+            } catch (error) {
+                console.error('Failed to load puzzle game setting:', error);
+                return false;
+            }
+        }
+
+        function savePuzzleGameSetting(enabled) {
+            try {
+                localStorage.setItem('puzzleGameEnabled', enabled ? 'true' : 'false');
+                return true;
+            } catch (error) {
+                console.error('Failed to save puzzle game setting:', error);
+                return false;
+            }
+        }
+
+        // ===== Puzzle Game Logic =====
+        let puzzleState = [];
+        let puzzleMoves = 0;
+        let puzzleImageUrl = '';
+        const PUZZLE_SIZE = 3;
+        const EMPTY_CELL = 8;  // The empty cell value (last position)
+        const SHUFFLE_MOVES = 100;  // Number of random moves to shuffle puzzle
+
+        // Initialize the puzzle game with a photo
+        function initPuzzleGame(imageUrl) {
+            puzzleImageUrl = imageUrl;
+            puzzleMoves = 0;
+            document.getElementById('puzzleMoves').textContent = '0';
+            
+            // Set reference image
+            const refImg = document.getElementById('puzzleReferenceImg');
+            if (refImg) {
+                refImg.src = imageUrl;
+                refImg.classList.remove('show');
+            }
+            
+            // Create initial state (0-8 where EMPTY_CELL is the empty cell)
+            puzzleState = [0, 1, 2, 3, 4, 5, 6, 7, EMPTY_CELL];
+            
+            // Shuffle the puzzle (ensure it's solvable)
+            shufflePuzzle();
+            
+            // Render the puzzle
+            renderPuzzle();
+            
+            // Hide complete message
+            document.getElementById('puzzleCompleteMessage').classList.remove('show');
+            
+            // Show the puzzle overlay
+            document.getElementById('puzzleGameOverlay').classList.add('show');
+        }
+
+        // Shuffle puzzle ensuring it's solvable
+        function shufflePuzzle() {
+            // Perform random valid moves to ensure solvability
+            const emptyIndex = puzzleState.indexOf(EMPTY_CELL);
+            let currentEmpty = emptyIndex;
+            
+            for (let i = 0; i < SHUFFLE_MOVES; i++) {
+                const neighbors = getValidMoves(currentEmpty);
+                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                
+                // Swap empty with random neighbor
+                puzzleState[currentEmpty] = puzzleState[randomNeighbor];
+                puzzleState[randomNeighbor] = EMPTY_CELL;
+                currentEmpty = randomNeighbor;
+            }
+        }
+
+        // Get valid moves for the empty cell
+        function getValidMoves(emptyIndex) {
+            const moves = [];
+            const row = Math.floor(emptyIndex / PUZZLE_SIZE);
+            const col = emptyIndex % PUZZLE_SIZE;
+            
+            // Up
+            if (row > 0) moves.push(emptyIndex - PUZZLE_SIZE);
+            // Down
+            if (row < PUZZLE_SIZE - 1) moves.push(emptyIndex + PUZZLE_SIZE);
+            // Left
+            if (col > 0) moves.push(emptyIndex - 1);
+            // Right
+            if (col < PUZZLE_SIZE - 1) moves.push(emptyIndex + 1);
+            
+            return moves;
+        }
+
+        // Render the puzzle grid
+        function renderPuzzle() {
+            const grid = document.getElementById('puzzleGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            const gridSize = grid.offsetWidth || 280;
+            const tileSize = gridSize / PUZZLE_SIZE;
+            
+            for (let i = 0; i < puzzleState.length; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'puzzle-tile';
+                tile.dataset.index = i;
+                
+                const value = puzzleState[i];
+                
+                if (value === EMPTY_CELL) {
+                    // Empty cell
+                    tile.classList.add('empty');
+                } else {
+                    // Calculate background position for this tile
+                    const srcRow = Math.floor(value / PUZZLE_SIZE);
+                    const srcCol = value % PUZZLE_SIZE;
+                    
+                    tile.style.backgroundImage = `url(${puzzleImageUrl})`;
+                    tile.style.backgroundPosition = `-${srcCol * tileSize}px -${srcRow * tileSize}px`;
+                    
+                    // Check if tile is in correct position
+                    if (puzzleState[i] === i) {
+                        tile.classList.add('correct');
+                    }
+                    
+                    tile.addEventListener('click', () => handleTileClick(i));
+                }
+                
+                grid.appendChild(tile);
+            }
+        }
+
+        // Handle tile click
+        function handleTileClick(clickedIndex) {
+            const emptyIndex = puzzleState.indexOf(EMPTY_CELL);
+            const validMoves = getValidMoves(emptyIndex);
+            
+            if (validMoves.includes(clickedIndex)) {
+                // Swap tiles
+                puzzleState[emptyIndex] = puzzleState[clickedIndex];
+                puzzleState[clickedIndex] = EMPTY_CELL;
+                
+                // Update moves count
+                puzzleMoves++;
+                document.getElementById('puzzleMoves').textContent = puzzleMoves;
+                
+                // Re-render
+                renderPuzzle();
+                
+                // Check for completion
+                checkPuzzleComplete();
+            }
+        }
+
+        // Check if puzzle is complete
+        function checkPuzzleComplete() {
+            const isComplete = puzzleState.every((value, index) => value === index);
+            
+            if (isComplete) {
+                // Show completion message
+                document.getElementById('puzzleCompleteMessage').classList.add('show');
+                
+                // Play sound if available
+                if (typeof playFireworkSound === 'function') {
+                    playFireworkSound();
+                }
+                
+                // Auto-close after delay
+                setTimeout(() => {
+                    closePuzzleGame();
+                }, 2000);
+            }
+        }
+
+        // Reset/reshuffle the puzzle
+        function resetPuzzle() {
+            puzzleMoves = 0;
+            document.getElementById('puzzleMoves').textContent = '0';
+            document.getElementById('puzzleCompleteMessage').classList.remove('show');
+            shufflePuzzle();
+            renderPuzzle();
+        }
+
+        // Close the puzzle game
+        function closePuzzleGame() {
+            document.getElementById('puzzleGameOverlay').classList.remove('show');
+            document.getElementById('puzzleCompleteMessage').classList.remove('show');
+        }
+
+        // Toggle reference image visibility
+        function toggleReferenceImage() {
+            const refImg = document.getElementById('puzzleReferenceImg');
+            if (refImg) {
+                refImg.classList.toggle('show');
+            }
         }
 
         // Initialize on page load
