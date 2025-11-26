@@ -67,8 +67,8 @@ describe('Puzzle Game Reward Feature', () => {
     });
 
     describe('Puzzle State Management', () => {
-        // Constants
-        const PUZZLE_SIZE = 3;
+        // Constants - Updated to 2x2 grid for easier gameplay
+        const PUZZLE_SIZE = 2;
 
         // Get valid moves for the empty cell
         function getValidMoves(emptyIndex) {
@@ -88,39 +88,36 @@ describe('Puzzle Game Reward Feature', () => {
             return moves;
         }
 
-        test('should return correct valid moves for center position', () => {
-            // Center position (index 4) can move in all 4 directions
-            const moves = getValidMoves(4);
-            expect(moves).toContain(1);  // Up
-            expect(moves).toContain(7);  // Down
-            expect(moves).toContain(3);  // Left
-            expect(moves).toContain(5);  // Right
-            expect(moves.length).toBe(4);
-        });
-
-        test('should return correct valid moves for top-left corner', () => {
-            // Top-left (index 0) can only move down and right
+        test('should return correct valid moves for top-left corner (2x2 grid)', () => {
+            // Top-left (index 0) can move down and right
             const moves = getValidMoves(0);
-            expect(moves).toContain(3);  // Down
+            expect(moves).toContain(2);  // Down
             expect(moves).toContain(1);  // Right
             expect(moves.length).toBe(2);
         });
 
-        test('should return correct valid moves for bottom-right corner', () => {
-            // Bottom-right (index 8) can only move up and left
-            const moves = getValidMoves(8);
-            expect(moves).toContain(5);  // Up
-            expect(moves).toContain(7);  // Left
+        test('should return correct valid moves for top-right corner (2x2 grid)', () => {
+            // Top-right (index 1) can move down and left
+            const moves = getValidMoves(1);
+            expect(moves).toContain(3);  // Down
+            expect(moves).toContain(0);  // Left
             expect(moves.length).toBe(2);
         });
 
-        test('should return correct valid moves for edge positions', () => {
-            // Top-middle (index 1) can move down, left, right
-            const moves = getValidMoves(1);
-            expect(moves).toContain(4);  // Down
-            expect(moves).toContain(0);  // Left
-            expect(moves).toContain(2);  // Right
-            expect(moves.length).toBe(3);
+        test('should return correct valid moves for bottom-left corner (2x2 grid)', () => {
+            // Bottom-left (index 2) can move up and right
+            const moves = getValidMoves(2);
+            expect(moves).toContain(0);  // Up
+            expect(moves).toContain(3);  // Right
+            expect(moves.length).toBe(2);
+        });
+
+        test('should return correct valid moves for bottom-right corner (2x2 grid)', () => {
+            // Bottom-right (index 3) can move up and left
+            const moves = getValidMoves(3);
+            expect(moves).toContain(1);  // Up
+            expect(moves).toContain(2);  // Left
+            expect(moves.length).toBe(2);
         });
     });
 
@@ -129,18 +126,18 @@ describe('Puzzle Game Reward Feature', () => {
             return puzzleState.every((value, index) => value === index);
         }
 
-        test('should return true for completed puzzle', () => {
-            const completed = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        test('should return true for completed 2x2 puzzle', () => {
+            const completed = [0, 1, 2, 3];
             expect(checkPuzzleComplete(completed)).toBe(true);
         });
 
-        test('should return false for incomplete puzzle', () => {
-            const incomplete = [1, 0, 2, 3, 4, 5, 6, 7, 8];
+        test('should return false for incomplete 2x2 puzzle', () => {
+            const incomplete = [1, 0, 2, 3];
             expect(checkPuzzleComplete(incomplete)).toBe(false);
         });
 
-        test('should return false for shuffled puzzle', () => {
-            const shuffled = [3, 1, 2, 0, 4, 5, 6, 7, 8];
+        test('should return false for shuffled 2x2 puzzle', () => {
+            const shuffled = [3, 1, 2, 0];
             expect(checkPuzzleComplete(shuffled)).toBe(false);
         });
     });
@@ -190,20 +187,20 @@ describe('Puzzle Game Reward Feature', () => {
         });
     });
 
-    describe('Puzzle Shuffle Solvability', () => {
+    describe('Puzzle Shuffle Solvability (2x2 Grid)', () => {
         // Simple shuffle using valid moves ensures solvability
-        function shufflePuzzle(initialState, numMoves = 100) {
+        function shufflePuzzle(initialState, numMoves = 20) {
             const state = [...initialState];
-            let emptyIndex = state.indexOf(8);
+            let emptyIndex = state.indexOf(3);  // Empty cell is 3 in 2x2 grid
             
             function getValidMoves(idx) {
                 const moves = [];
-                const row = Math.floor(idx / 3);
-                const col = idx % 3;
-                if (row > 0) moves.push(idx - 3);
-                if (row < 2) moves.push(idx + 3);
+                const row = Math.floor(idx / 2);
+                const col = idx % 2;
+                if (row > 0) moves.push(idx - 2);
+                if (row < 1) moves.push(idx + 2);
                 if (col > 0) moves.push(idx - 1);
-                if (col < 2) moves.push(idx + 1);
+                if (col < 1) moves.push(idx + 1);
                 return moves;
             }
             
@@ -211,38 +208,38 @@ describe('Puzzle Game Reward Feature', () => {
                 const neighbors = getValidMoves(emptyIndex);
                 const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
                 state[emptyIndex] = state[randomNeighbor];
-                state[randomNeighbor] = 8;
+                state[randomNeighbor] = 3;
                 emptyIndex = randomNeighbor;
             }
             
             return state;
         }
 
-        test('shuffled puzzle should have all tiles 0-8', () => {
-            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        test('shuffled 2x2 puzzle should have all tiles 0-3', () => {
+            const initial = [0, 1, 2, 3];
             const shuffled = shufflePuzzle(initial);
             
             // Check all values are present
             const sorted = [...shuffled].sort((a, b) => a - b);
-            expect(sorted).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+            expect(sorted).toEqual([0, 1, 2, 3]);
         });
 
-        test('shuffled puzzle should have exactly 9 tiles', () => {
-            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        test('shuffled 2x2 puzzle should have exactly 4 tiles', () => {
+            const initial = [0, 1, 2, 3];
             const shuffled = shufflePuzzle(initial);
-            expect(shuffled.length).toBe(9);
+            expect(shuffled.length).toBe(4);
         });
 
-        test('shuffle should produce different results each time', () => {
-            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        test('shuffle should produce valid 2x2 puzzle states', () => {
+            const initial = [0, 1, 2, 3];
             const shuffle1 = shufflePuzzle(initial);
             const shuffle2 = shufflePuzzle(initial);
             
-            // While there's a tiny chance they're identical, 
-            // with 100 moves it's virtually impossible
-            // Just check they are valid (all tiles present)
-            expect(shuffle1.length).toBe(9);
-            expect(shuffle2.length).toBe(9);
+            // Check both shuffles are valid (all tiles present)
+            expect(shuffle1.length).toBe(4);
+            expect(shuffle2.length).toBe(4);
+            expect([...shuffle1].sort((a, b) => a - b)).toEqual([0, 1, 2, 3]);
+            expect([...shuffle2].sort((a, b) => a - b)).toEqual([0, 1, 2, 3]);
         });
     });
 });

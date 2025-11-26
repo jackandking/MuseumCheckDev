@@ -888,7 +888,7 @@
 
         .puzzle-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 4px;
             width: 280px;
             height: 280px;
@@ -898,7 +898,7 @@
             width: 100%;
             height: 100%;
             background-size: 280px 280px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.15s ease;
             border: 2px solid #e9ecef;
@@ -1152,7 +1152,7 @@
                 <div class="settings-item">
                     <div class="settings-toggle">
                         <div>
-                            <label class="settings-label" style="margin-bottom: 0;">九宫格拼图游戏</label>
+                            <label class="settings-label" style="margin-bottom: 0;">四宫格拼图游戏</label>
                             <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，用照片玩拼图游戏</div>
                         </div>
                         <label class="toggle-switch">
@@ -2897,9 +2897,9 @@
         let puzzleState = [];
         let puzzleMoves = 0;
         let puzzleImageUrl = '';
-        const PUZZLE_SIZE = 3;
-        const EMPTY_CELL = 8;  // The empty cell value (last position)
-        const SHUFFLE_MOVES = 100;  // Number of random moves to shuffle puzzle
+        const PUZZLE_SIZE = 2;
+        const EMPTY_CELL = 3;  // The empty cell value (last position in 2x2 grid)
+        const SHUFFLE_MOVES = 20;  // Number of random moves to shuffle puzzle (fewer for 2x2)
 
         // Initialize the puzzle game with a photo
         function initPuzzleGame(imageUrl) {
@@ -2914,8 +2914,8 @@
                 refImg.classList.remove('show');
             }
             
-            // Create initial state (0-8 where EMPTY_CELL is the empty cell)
-            puzzleState = [0, 1, 2, 3, 4, 5, 6, 7, EMPTY_CELL];
+            // Create initial state (0-3 where EMPTY_CELL is the empty cell for 2x2 grid)
+            puzzleState = [0, 1, 2, EMPTY_CELL];
             
             // Shuffle the puzzle (ensure it's solvable)
             shufflePuzzle();
