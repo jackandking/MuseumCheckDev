@@ -894,6 +894,10 @@
             height: 280px;
         }
 
+        .puzzle-grid.size-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
         .puzzle-tile {
             width: 100%;
             height: 100%;
@@ -1152,8 +1156,8 @@
                 <div class="settings-item">
                     <div class="settings-toggle">
                         <div>
-                            <label class="settings-label" style="margin-bottom: 0;">四宫格拼图游戏</label>
-                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，用照片玩拼图游戏</div>
+                            <label class="settings-label" style="margin-bottom: 0;">拼图游戏奖励</label>
+                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，用照片玩拼图游戏（门口打卡为四宫格，后续任务为九宫格）</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="puzzleGameToggle">
@@ -1774,8 +1778,10 @@
             // Show puzzle game as reward if photo was uploaded and setting is enabled
             if (showPuzzle) {
                 // Delay slightly to let fireworks animation start
+                // Store current task index for closure
+                const taskIndexForPuzzle = currentTaskIndex;
                 setTimeout(() => {
-                    initPuzzleGame(taskPhotos[currentTaskIndex]);
+                    initPuzzleGame(taskPhotos[taskIndexForPuzzle], taskIndexForPuzzle);
                 }, 800);
             }
         }
@@ -2897,15 +2903,45 @@
         let puzzleState = [];
         let puzzleMoves = 0;
         let puzzleImageUrl = '';
-        const PUZZLE_SIZE = 2;
-        const EMPTY_CELL = 3;  // The empty cell value (last position in 2x2 grid)
-        const SHUFFLE_MOVES = 20;  // Number of random moves to shuffle puzzle (fewer for 2x2)
+        let currentPuzzleSize = 2;  // Dynamic: 2 for 4-grid, 3 for 9-grid
+        const SHUFFLE_MOVES_BASE = 20;  // Base number of random moves for 2x2
 
-        // Initialize the puzzle game with a photo
-        function initPuzzleGame(imageUrl) {
+        // Calculate the empty cell value based on puzzle size
+        function getEmptyCell() {
+            return currentPuzzleSize * currentPuzzleSize - 1;
+        }
+
+        // Determine puzzle size based on task index
+        // First task (门口打卡, index 0) uses 2x2 (4-grid), subsequent tasks use 3x3 (9-grid)
+        function determinePuzzleSize(taskIndex) {
+            // First task uses easier 4-grid (2x2)
+            // Subsequent tasks use more challenging 9-grid (3x3)
+            return taskIndex === 0 ? 2 : 3;
+        }
+
+        // Initialize the puzzle game with a photo and optional task index for difficulty
+        function initPuzzleGame(imageUrl, taskIndex = 0) {
             puzzleImageUrl = imageUrl;
             puzzleMoves = 0;
             document.getElementById('puzzleMoves').textContent = '0';
+            
+            // Determine puzzle size based on task
+            currentPuzzleSize = determinePuzzleSize(taskIndex);
+            
+            // Update grid CSS class for 3x3 mode
+            const grid = document.getElementById('puzzleGrid');
+            if (grid) {
+                grid.classList.remove('size-3');
+                if (currentPuzzleSize === 3) {
+                    grid.classList.add('size-3');
+                }
+            }
+            
+            // Update title based on difficulty
+            const titleEl = document.querySelector('.puzzle-title');
+            if (titleEl) {
+                titleEl.textContent = currentPuzzleSize === 2 ? '🧩 四宫格挑战' : '🧩 九宫格挑战';
+            }
             
             // Set reference image
             const refImg = document.getElementById('puzzleReferenceImg');
@@ -2914,8 +2950,9 @@
                 refImg.classList.remove('show');
             }
             
-            // Create initial state (0-3 where EMPTY_CELL is the empty cell for 2x2 grid)
-            puzzleState = [0, 1, 2, EMPTY_CELL];
+            // Create initial state based on puzzle size
+            const totalCells = currentPuzzleSize * currentPuzzleSize;
+            puzzleState = Array.from({ length: totalCells }, (_, i) => i);
             
             // Shuffle the puzzle (ensure it's solvable)
             shufflePuzzle();
@@ -2933,16 +2970,20 @@
         // Shuffle puzzle ensuring it's solvable
         function shufflePuzzle() {
             // Perform random valid moves to ensure solvability
-            const emptyIndex = puzzleState.indexOf(EMPTY_CELL);
+            const emptyCell = getEmptyCell();
+            const emptyIndex = puzzleState.indexOf(emptyCell);
             let currentEmpty = emptyIndex;
             
-            for (let i = 0; i < SHUFFLE_MOVES; i++) {
+            // More shuffle moves for larger puzzles
+            const shuffleMoves = currentPuzzleSize === 2 ? SHUFFLE_MOVES_BASE : SHUFFLE_MOVES_BASE * 3;
+            
+            for (let i = 0; i < shuffleMoves; i++) {
                 const neighbors = getValidMoves(currentEmpty);
                 const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
                 
                 // Swap empty with random neighbor
                 puzzleState[currentEmpty] = puzzleState[randomNeighbor];
-                puzzleState[randomNeighbor] = EMPTY_CELL;
+                puzzleState[randomNeighbor] = emptyCell;
                 currentEmpty = randomNeighbor;
             }
         }
@@ -2950,17 +2991,17 @@
         // Get valid moves for the empty cell
         function getValidMoves(emptyIndex) {
             const moves = [];
-            const row = Math.floor(emptyIndex / PUZZLE_SIZE);
-            const col = emptyIndex % PUZZLE_SIZE;
+            const row = Math.floor(emptyIndex / currentPuzzleSize);
+            const col = emptyIndex % currentPuzzleSize;
             
             // Up
-            if (row > 0) moves.push(emptyIndex - PUZZLE_SIZE);
+            if (row > 0) moves.push(emptyIndex - currentPuzzleSize);
             // Down
-            if (row < PUZZLE_SIZE - 1) moves.push(emptyIndex + PUZZLE_SIZE);
+            if (row < currentPuzzleSize - 1) moves.push(emptyIndex + currentPuzzleSize);
             // Left
             if (col > 0) moves.push(emptyIndex - 1);
             // Right
-            if (col < PUZZLE_SIZE - 1) moves.push(emptyIndex + 1);
+            if (col < currentPuzzleSize - 1) moves.push(emptyIndex + 1);
             
             return moves;
         }
@@ -2973,7 +3014,9 @@
             grid.innerHTML = '';
             
             const gridSize = grid.offsetWidth || 280;
-            const tileSize = gridSize / PUZZLE_SIZE;
+            const tileSize = gridSize / currentPuzzleSize;
+            
+            const emptyCell = getEmptyCell();
             
             for (let i = 0; i < puzzleState.length; i++) {
                 const tile = document.createElement('div');
@@ -2982,13 +3025,13 @@
                 
                 const value = puzzleState[i];
                 
-                if (value === EMPTY_CELL) {
+                if (value === emptyCell) {
                     // Empty cell
                     tile.classList.add('empty');
                 } else {
                     // Calculate background position for this tile
-                    const srcRow = Math.floor(value / PUZZLE_SIZE);
-                    const srcCol = value % PUZZLE_SIZE;
+                    const srcRow = Math.floor(value / currentPuzzleSize);
+                    const srcCol = value % currentPuzzleSize;
                     
                     tile.style.backgroundImage = `url(${puzzleImageUrl})`;
                     tile.style.backgroundPosition = `-${srcCol * tileSize}px -${srcRow * tileSize}px`;
@@ -3007,13 +3050,14 @@
 
         // Handle tile click
         function handleTileClick(clickedIndex) {
-            const emptyIndex = puzzleState.indexOf(EMPTY_CELL);
+            const emptyCell = getEmptyCell();
+            const emptyIndex = puzzleState.indexOf(emptyCell);
             const validMoves = getValidMoves(emptyIndex);
             
             if (validMoves.includes(clickedIndex)) {
                 // Swap tiles
                 puzzleState[emptyIndex] = puzzleState[clickedIndex];
-                puzzleState[clickedIndex] = EMPTY_CELL;
+                puzzleState[clickedIndex] = emptyCell;
                 
                 // Update moves count
                 puzzleMoves++;

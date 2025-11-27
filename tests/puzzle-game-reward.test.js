@@ -3,7 +3,9 @@
  * 
  * Tests for the puzzle game reward feature
  * Feature: When users complete a task with photo uploaded and setting enabled,
- *          show a 9-puzzle game as a reward
+ *          show a puzzle game as a reward
+ *          - First task (门口打卡): 4-grid (2x2) puzzle
+ *          - Subsequent tasks: 9-grid (3x3) puzzle
  */
 
 describe('Puzzle Game Reward Feature', () => {
@@ -11,6 +13,43 @@ describe('Puzzle Game Reward Feature', () => {
         // Clear localStorage before each test
         localStorage.clear();
     });
+
+    // Shared utility functions to reduce code duplication
+    function createGetValidMoves(puzzleSize) {
+        return function getValidMoves(emptyIndex) {
+            const moves = [];
+            const row = Math.floor(emptyIndex / puzzleSize);
+            const col = emptyIndex % puzzleSize;
+            
+            if (row > 0) moves.push(emptyIndex - puzzleSize);
+            if (row < puzzleSize - 1) moves.push(emptyIndex + puzzleSize);
+            if (col > 0) moves.push(emptyIndex - 1);
+            if (col < puzzleSize - 1) moves.push(emptyIndex + 1);
+            
+            return moves;
+        };
+    }
+
+    function createShufflePuzzle(puzzleSize) {
+        const emptyCell = puzzleSize * puzzleSize - 1;
+        const getValidMoves = createGetValidMoves(puzzleSize);
+        const numMoves = puzzleSize === 2 ? 20 : 60;
+        
+        return function shufflePuzzle(initialState) {
+            const state = [...initialState];
+            let emptyIndex = state.indexOf(emptyCell);
+            
+            for (let i = 0; i < numMoves; i++) {
+                const neighbors = getValidMoves(emptyIndex);
+                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                state[emptyIndex] = state[randomNeighbor];
+                state[randomNeighbor] = emptyCell;
+                emptyIndex = randomNeighbor;
+            }
+            
+            return state;
+        };
+    }
 
     describe('Settings Management', () => {
         // Mock functions that would exist in museum-checkin.html
@@ -66,30 +105,36 @@ describe('Puzzle Game Reward Feature', () => {
         });
     });
 
-    describe('Puzzle State Management', () => {
-        // Constants - Updated to 2x2 grid for easier gameplay
-        const PUZZLE_SIZE = 2;
-
-        // Get valid moves for the empty cell
-        function getValidMoves(emptyIndex) {
-            const moves = [];
-            const row = Math.floor(emptyIndex / PUZZLE_SIZE);
-            const col = emptyIndex % PUZZLE_SIZE;
-            
-            // Up
-            if (row > 0) moves.push(emptyIndex - PUZZLE_SIZE);
-            // Down
-            if (row < PUZZLE_SIZE - 1) moves.push(emptyIndex + PUZZLE_SIZE);
-            // Left
-            if (col > 0) moves.push(emptyIndex - 1);
-            // Right
-            if (col < PUZZLE_SIZE - 1) moves.push(emptyIndex + 1);
-            
-            return moves;
+    describe('Puzzle Size Determination', () => {
+        // First task (门口打卡, index 0) uses 2x2 (4-grid)
+        // Subsequent tasks use 3x3 (9-grid)
+        function determinePuzzleSize(taskIndex) {
+            return taskIndex === 0 ? 2 : 3;
         }
 
+        test('should return 2x2 grid for first task (index 0)', () => {
+            expect(determinePuzzleSize(0)).toBe(2);
+        });
+
+        test('should return 3x3 grid for second task (index 1)', () => {
+            expect(determinePuzzleSize(1)).toBe(3);
+        });
+
+        test('should return 3x3 grid for third task (index 2)', () => {
+            expect(determinePuzzleSize(2)).toBe(3);
+        });
+
+        test('should return 3x3 grid for any subsequent task', () => {
+            expect(determinePuzzleSize(3)).toBe(3);
+            expect(determinePuzzleSize(10)).toBe(3);
+            expect(determinePuzzleSize(100)).toBe(3);
+        });
+    });
+
+    describe('Puzzle State Management - 2x2 Grid', () => {
+        const getValidMoves = createGetValidMoves(2);
+
         test('should return correct valid moves for top-left corner (2x2 grid)', () => {
-            // Top-left (index 0) can move down and right
             const moves = getValidMoves(0);
             expect(moves).toContain(2);  // Down
             expect(moves).toContain(1);  // Right
@@ -97,7 +142,6 @@ describe('Puzzle Game Reward Feature', () => {
         });
 
         test('should return correct valid moves for top-right corner (2x2 grid)', () => {
-            // Top-right (index 1) can move down and left
             const moves = getValidMoves(1);
             expect(moves).toContain(3);  // Down
             expect(moves).toContain(0);  // Left
@@ -105,7 +149,6 @@ describe('Puzzle Game Reward Feature', () => {
         });
 
         test('should return correct valid moves for bottom-left corner (2x2 grid)', () => {
-            // Bottom-left (index 2) can move up and right
             const moves = getValidMoves(2);
             expect(moves).toContain(0);  // Up
             expect(moves).toContain(3);  // Right
@@ -113,10 +156,48 @@ describe('Puzzle Game Reward Feature', () => {
         });
 
         test('should return correct valid moves for bottom-right corner (2x2 grid)', () => {
-            // Bottom-right (index 3) can move up and left
             const moves = getValidMoves(3);
             expect(moves).toContain(1);  // Up
             expect(moves).toContain(2);  // Left
+            expect(moves.length).toBe(2);
+        });
+    });
+
+    describe('Puzzle State Management - 3x3 Grid', () => {
+        const getValidMoves = createGetValidMoves(3);
+
+        test('should return correct valid moves for top-left corner (3x3 grid)', () => {
+            // Index 0: can move down (3) and right (1)
+            const moves = getValidMoves(0);
+            expect(moves).toContain(3);  // Down
+            expect(moves).toContain(1);  // Right
+            expect(moves.length).toBe(2);
+        });
+
+        test('should return correct valid moves for center cell (3x3 grid)', () => {
+            // Index 4: can move all 4 directions
+            const moves = getValidMoves(4);
+            expect(moves).toContain(1);  // Up
+            expect(moves).toContain(7);  // Down
+            expect(moves).toContain(3);  // Left
+            expect(moves).toContain(5);  // Right
+            expect(moves.length).toBe(4);
+        });
+
+        test('should return correct valid moves for top-center cell (3x3 grid)', () => {
+            // Index 1: can move down (4), left (0), right (2)
+            const moves = getValidMoves(1);
+            expect(moves).toContain(4);  // Down
+            expect(moves).toContain(0);  // Left
+            expect(moves).toContain(2);  // Right
+            expect(moves.length).toBe(3);
+        });
+
+        test('should return correct valid moves for bottom-right corner (3x3 grid)', () => {
+            // Index 8: can move up (5) and left (7)
+            const moves = getValidMoves(8);
+            expect(moves).toContain(5);  // Up
+            expect(moves).toContain(7);  // Left
             expect(moves.length).toBe(2);
         });
     });
@@ -136,8 +217,18 @@ describe('Puzzle Game Reward Feature', () => {
             expect(checkPuzzleComplete(incomplete)).toBe(false);
         });
 
-        test('should return false for shuffled 2x2 puzzle', () => {
-            const shuffled = [3, 1, 2, 0];
+        test('should return true for completed 3x3 puzzle', () => {
+            const completed = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            expect(checkPuzzleComplete(completed)).toBe(true);
+        });
+
+        test('should return false for incomplete 3x3 puzzle', () => {
+            const incomplete = [1, 0, 2, 3, 4, 5, 6, 7, 8];
+            expect(checkPuzzleComplete(incomplete)).toBe(false);
+        });
+
+        test('should return false for shuffled 3x3 puzzle', () => {
+            const shuffled = [8, 7, 6, 5, 4, 3, 2, 1, 0];
             expect(checkPuzzleComplete(shuffled)).toBe(false);
         });
     });
@@ -181,45 +272,17 @@ describe('Puzzle Game Reward Feature', () => {
         });
 
         test('should NOT show puzzle by default (setting not set)', () => {
-            // Default case - setting not in localStorage
             const result = shouldShowPuzzle(true, loadPuzzleGameSetting());
-            expect(result).toBe(false);  // Default is disabled
+            expect(result).toBe(false);
         });
     });
 
     describe('Puzzle Shuffle Solvability (2x2 Grid)', () => {
-        // Simple shuffle using valid moves ensures solvability
-        function shufflePuzzle(initialState, numMoves = 20) {
-            const state = [...initialState];
-            let emptyIndex = state.indexOf(3);  // Empty cell is 3 in 2x2 grid
-            
-            function getValidMoves(idx) {
-                const moves = [];
-                const row = Math.floor(idx / 2);
-                const col = idx % 2;
-                if (row > 0) moves.push(idx - 2);
-                if (row < 1) moves.push(idx + 2);
-                if (col > 0) moves.push(idx - 1);
-                if (col < 1) moves.push(idx + 1);
-                return moves;
-            }
-            
-            for (let i = 0; i < numMoves; i++) {
-                const neighbors = getValidMoves(emptyIndex);
-                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-                state[emptyIndex] = state[randomNeighbor];
-                state[randomNeighbor] = 3;
-                emptyIndex = randomNeighbor;
-            }
-            
-            return state;
-        }
+        const shufflePuzzle = createShufflePuzzle(2);
 
         test('shuffled 2x2 puzzle should have all tiles 0-3', () => {
             const initial = [0, 1, 2, 3];
             const shuffled = shufflePuzzle(initial);
-            
-            // Check all values are present
             const sorted = [...shuffled].sort((a, b) => a - b);
             expect(sorted).toEqual([0, 1, 2, 3]);
         });
@@ -229,17 +292,47 @@ describe('Puzzle Game Reward Feature', () => {
             const shuffled = shufflePuzzle(initial);
             expect(shuffled.length).toBe(4);
         });
+    });
 
-        test('shuffle should produce valid 2x2 puzzle states', () => {
-            const initial = [0, 1, 2, 3];
+    describe('Puzzle Shuffle Solvability (3x3 Grid)', () => {
+        const shufflePuzzle = createShufflePuzzle(3);
+
+        test('shuffled 3x3 puzzle should have all tiles 0-8', () => {
+            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            const shuffled = shufflePuzzle(initial);
+            const sorted = [...shuffled].sort((a, b) => a - b);
+            expect(sorted).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        });
+
+        test('shuffled 3x3 puzzle should have exactly 9 tiles', () => {
+            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            const shuffled = shufflePuzzle(initial);
+            expect(shuffled.length).toBe(9);
+        });
+
+        test('shuffle should produce valid 3x3 puzzle states', () => {
+            const initial = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             const shuffle1 = shufflePuzzle(initial);
             const shuffle2 = shufflePuzzle(initial);
             
-            // Check both shuffles are valid (all tiles present)
-            expect(shuffle1.length).toBe(4);
-            expect(shuffle2.length).toBe(4);
-            expect([...shuffle1].sort((a, b) => a - b)).toEqual([0, 1, 2, 3]);
-            expect([...shuffle2].sort((a, b) => a - b)).toEqual([0, 1, 2, 3]);
+            expect(shuffle1.length).toBe(9);
+            expect(shuffle2.length).toBe(9);
+            expect([...shuffle1].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+            expect([...shuffle2].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        });
+    });
+
+    describe('Empty Cell Calculation', () => {
+        function getEmptyCell(puzzleSize) {
+            return puzzleSize * puzzleSize - 1;
+        }
+
+        test('should return 3 for 2x2 grid', () => {
+            expect(getEmptyCell(2)).toBe(3);
+        });
+
+        test('should return 8 for 3x3 grid', () => {
+            expect(getEmptyCell(3)).toBe(8);
         });
     });
 });
