@@ -1534,6 +1534,228 @@
                 height: 60px;
             }
         }
+
+        /* ===== Tank Battle (坦克大战) Game Styles ===== */
+        .tank-battle-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c23 50%, #2d5016 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .tank-battle-overlay.show {
+            display: flex;
+        }
+
+        .tank-battle-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .tank-battle-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .tank-battle-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tank-battle-stats span {
+            color: #FFD700;
+        }
+
+        .tank-battle-container {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 2px solid #4a7c23;
+        }
+
+        .tank-battle-canvas {
+            display: block;
+            border-radius: 8px;
+            background: #1a1a1a;
+        }
+
+        .tank-battle-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .tank-battle-button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tank-battle-button-continue {
+            background: linear-gradient(135deg, #4a7c23 0%, #6b9b2e 100%);
+            color: white;
+        }
+
+        .tank-battle-button-continue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(74, 124, 35, 0.4);
+        }
+
+        .tank-battle-button-reset {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tank-battle-button-reset:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tank-battle-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .tank-battle-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #4a7c23 0%, #6b9b2e 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(74, 124, 35, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tank-battle-complete-message.show {
+            display: block;
+        }
+
+        /* Mobile touch controls for Tank Battle */
+        .tb-touch-controls {
+            display: none;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 15px;
+            align-items: center;
+        }
+
+        .tb-touch-btn {
+            width: 55px;
+            height: 55px;
+            background: rgba(74, 124, 35, 0.5);
+            border: 2px solid #4a7c23;
+            border-radius: 50%;
+            color: #FFD700;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .tb-touch-btn:active {
+            background: rgba(74, 124, 35, 0.8);
+        }
+
+        .tb-dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 55px);
+            grid-template-rows: repeat(3, 55px);
+            gap: 2px;
+        }
+
+        .tb-dpad-btn {
+            width: 55px;
+            height: 55px;
+            background: rgba(74, 124, 35, 0.5);
+            border: 2px solid #4a7c23;
+            border-radius: 8px;
+            color: #FFD700;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tb-dpad-btn:active {
+            background: rgba(74, 124, 35, 0.8);
+        }
+
+        .tb-dpad-btn.empty {
+            visibility: hidden;
+        }
+
+        .tb-fire-btn {
+            width: 70px;
+            height: 70px;
+            font-size: 28px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .tb-touch-controls {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .tank-battle-canvas {
+                max-width: 280px;
+                max-height: 280px;
+            }
+            .tank-battle-title {
+                font-size: 24px;
+            }
+            .tank-battle-stats {
+                font-size: 16px;
+            }
+            .tb-touch-btn, .tb-dpad-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .tb-dpad {
+                grid-template-columns: repeat(3, 45px);
+                grid-template-rows: repeat(3, 45px);
+            }
+            .tb-fire-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1779,6 +2001,41 @@
         </div>
         <div class="space-invaders-complete-message" id="spaceInvadersCompleteMessage">
             🎉 游戏结束！得分：<span id="siFinalScore">0</span>
+        </div>
+    </div>
+
+    <!-- Tank Battle (坦克大战) Game Overlay -->
+    <div class="tank-battle-overlay" id="tankBattleOverlay">
+        <div class="tank-battle-header">
+            <div class="tank-battle-title">🎖️ 坦克大战 🎖️</div>
+            <div class="tank-battle-stats">
+                得分：<span id="tbScore">0</span> | 生命：<span id="tbLives">3</span> | 敌人：<span id="tbEnemiesLeft">5</span>
+            </div>
+        </div>
+        <div class="tank-battle-container">
+            <canvas class="tank-battle-canvas" id="tankBattleCanvas" width="320" height="320"></canvas>
+        </div>
+        <div class="tank-battle-hint">使用方向键移动坦克，空格键发射炮弹！</div>
+        <div class="tb-touch-controls" id="tbTouchControls">
+            <div class="tb-dpad">
+                <button class="tb-dpad-btn empty"></button>
+                <button class="tb-dpad-btn" id="tbUpBtn">⬆️</button>
+                <button class="tb-dpad-btn empty"></button>
+                <button class="tb-dpad-btn" id="tbLeftBtn">⬅️</button>
+                <button class="tb-dpad-btn empty"></button>
+                <button class="tb-dpad-btn" id="tbRightBtn">➡️</button>
+                <button class="tb-dpad-btn empty"></button>
+                <button class="tb-dpad-btn" id="tbDownBtn">⬇️</button>
+                <button class="tb-dpad-btn empty"></button>
+            </div>
+            <button class="tb-touch-btn tb-fire-btn" id="tbFireBtn">💥</button>
+        </div>
+        <div class="tank-battle-buttons">
+            <button class="tank-battle-button tank-battle-button-reset" id="resetTankBattle">🔄 重新开始</button>
+            <button class="tank-battle-button tank-battle-button-continue" id="exitTankBattle">继续游览 ➡️</button>
+        </div>
+        <div class="tank-battle-complete-message" id="tankBattleCompleteMessage">
+            🎉 胜利！得分：<span id="tbFinalScore">0</span>
         </div>
     </div>
 
@@ -2354,7 +2611,7 @@
             checkCompletion();
 
             // Show game as reward if photo was uploaded and setting is enabled
-            // Randomly select between puzzle game, maze game, shooting game, and space invaders
+            // Randomly select between puzzle game, maze game, shooting game, space invaders, and tank battle
             if (showGame) {
                 // Delay slightly to let fireworks animation start
                 // Store current task index for closure
@@ -2367,8 +2624,10 @@
                         initMazeGame(taskIndexForGame);
                     } else if (gameType === 'shooting') {
                         initShootingGame(taskIndexForGame);
-                    } else {
+                    } else if (gameType === 'space-invaders') {
                         initSpaceInvadersGame(taskIndexForGame);
+                    } else {
+                        initTankBattleGame(taskIndexForGame);
                     }
                 }, 800);
             }
@@ -3752,17 +4011,19 @@
         let exitPos = { x: 7, y: 7 };
         let mazeSteps = 0;
         let CELL_SIZE = 30;  // Dynamic based on maze size
+        let fogOfWarEnabled = false;  // Fog of war feature for harder difficulty
+        let visibleRadius = 2;        // Number of cells visible around player (fog of war)
         const EASY_MAZE_SIZE = 9;   // 9x9 for first task
         const HARD_MAZE_SIZE = 15;  // 15x15 for subsequent tasks
         
         // Determine maze size and cell size based on task index
-        // First task (门口打卡, index 0) uses easier 9x9 maze
-        // Subsequent tasks use more challenging 15x15 maze
+        // First task (门口打卡, index 0) uses easier 9x9 maze with no fog
+        // Subsequent tasks use more challenging 15x15 maze with fog of war
         function determineMazeSize(taskIndex) {
             if (taskIndex === 0) {
-                return { size: EASY_MAZE_SIZE, cellSize: 30 };  // Easy: larger cells
+                return { size: EASY_MAZE_SIZE, cellSize: 30, fogEnabled: false, fogRadius: 3 };  // Easy: no fog
             } else {
-                return { size: HARD_MAZE_SIZE, cellSize: 18 };  // Hard: smaller cells to fit
+                return { size: HARD_MAZE_SIZE, cellSize: 18, fogEnabled: true, fogRadius: 2 };   // Hard: fog of war enabled
             }
         }
         const WALL = 1;
@@ -3841,11 +4102,17 @@
             const difficulty = determineMazeSize(taskIndex);
             mazeSize = difficulty.size;
             CELL_SIZE = difficulty.cellSize;
+            fogOfWarEnabled = difficulty.fogEnabled;  // Enable fog for harder difficulty
+            visibleRadius = difficulty.fogRadius;      // Set visible radius
             
             // Update title to reflect difficulty
             const titleEl = document.querySelector('.maze-title');
             if (titleEl) {
-                titleEl.textContent = mazeSize === EASY_MAZE_SIZE ? '🏃 迷宫冒险（简单）' : '🏃 迷宫冒险（困难）';
+                if (fogOfWarEnabled) {
+                    titleEl.textContent = '🏃 迷宫冒险（迷雾模式）';
+                } else {
+                    titleEl.textContent = '🏃 迷宫冒险（简单）';
+                }
             }
             
             generateMaze();
@@ -3873,9 +4140,32 @@
             canvas.width = mazeSize * CELL_SIZE;
             canvas.height = mazeSize * CELL_SIZE;
             
-            // Clear canvas
-            ctx.fillStyle = '#f0f0f0';
+            // Clear canvas with fog color if fog of war enabled
+            if (fogOfWarEnabled) {
+                ctx.fillStyle = '#1a1a2e';  // Dark fog color
+            } else {
+                ctx.fillStyle = '#f0f0f0';
+            }
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Helper function to check if a cell is visible (within player's visible radius)
+            function isCellVisible(x, y) {
+                if (!fogOfWarEnabled) return true;
+                const dx = Math.abs(x - playerPos.x);
+                const dy = Math.abs(y - playerPos.y);
+                return dx <= visibleRadius && dy <= visibleRadius;
+            }
+            
+            // Helper function to get visibility alpha based on distance from player
+            function getVisibilityAlpha(x, y) {
+                if (!fogOfWarEnabled) return 1;
+                const dx = Math.abs(x - playerPos.x);
+                const dy = Math.abs(y - playerPos.y);
+                const distance = Math.max(dx, dy);
+                if (distance > visibleRadius) return 0;
+                // Fade out at the edges
+                return 1 - (distance / (visibleRadius + 1)) * 0.5;
+            }
             
             // Draw maze
             for (let y = 0; y < mazeSize; y++) {
@@ -3883,33 +4173,44 @@
                     const cellX = x * CELL_SIZE;
                     const cellY = y * CELL_SIZE;
                     
+                    // Skip cells not visible in fog of war mode
+                    if (!isCellVisible(x, y)) continue;
+                    
+                    const alpha = getVisibilityAlpha(x, y);
+                    
                     if (mazeGrid[y][x] === WALL) {
                         // Wall
-                        ctx.fillStyle = '#4a4a4a';
+                        ctx.fillStyle = fogOfWarEnabled ? `rgba(74, 74, 74, ${alpha})` : '#4a4a4a';
                         ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
                         
                         // Add 3D effect to walls
-                        ctx.fillStyle = '#3a3a3a';
+                        ctx.fillStyle = fogOfWarEnabled ? `rgba(58, 58, 58, ${alpha})` : '#3a3a3a';
                         ctx.fillRect(cellX + CELL_SIZE - 2, cellY, 2, CELL_SIZE);
                         ctx.fillRect(cellX, cellY + CELL_SIZE - 2, CELL_SIZE, 2);
                     } else {
                         // Path
-                        ctx.fillStyle = '#ffffff';
+                        ctx.fillStyle = fogOfWarEnabled ? `rgba(255, 255, 255, ${alpha})` : '#ffffff';
                         ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
                     }
                 }
             }
             
-            // Draw exit (goal)
-            ctx.fillStyle = '#28a745';
-            ctx.fillRect(exitPos.x * CELL_SIZE + 4, exitPos.y * CELL_SIZE + 4, CELL_SIZE - 8, CELL_SIZE - 8);
-            ctx.fillStyle = '#fff';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏁', exitPos.x * CELL_SIZE + CELL_SIZE / 2, exitPos.y * CELL_SIZE + CELL_SIZE / 2);
+            // Draw exit (goal) - only if visible or always show for navigation
+            const exitVisible = isCellVisible(exitPos.x, exitPos.y);
+            if (exitVisible || !fogOfWarEnabled) {
+                const exitAlpha = fogOfWarEnabled ? getVisibilityAlpha(exitPos.x, exitPos.y) : 1;
+                ctx.globalAlpha = exitAlpha;
+                ctx.fillStyle = '#28a745';
+                ctx.fillRect(exitPos.x * CELL_SIZE + 4, exitPos.y * CELL_SIZE + 4, CELL_SIZE - 8, CELL_SIZE - 8);
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🏁', exitPos.x * CELL_SIZE + CELL_SIZE / 2, exitPos.y * CELL_SIZE + CELL_SIZE / 2);
+                ctx.globalAlpha = 1;
+            }
             
-            // Draw player
+            // Draw player (always fully visible)
             ctx.fillStyle = '#667eea';
             ctx.beginPath();
             ctx.arc(
@@ -3927,6 +4228,22 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('😊', playerPos.x * CELL_SIZE + CELL_SIZE / 2, playerPos.y * CELL_SIZE + CELL_SIZE / 2);
+            
+            // Draw fog gradient overlay for smooth edges (only in fog mode)
+            if (fogOfWarEnabled) {
+                const centerX = playerPos.x * CELL_SIZE + CELL_SIZE / 2;
+                const centerY = playerPos.y * CELL_SIZE + CELL_SIZE / 2;
+                const innerRadius = visibleRadius * CELL_SIZE * 0.7;
+                const outerRadius = (visibleRadius + 1) * CELL_SIZE;
+                
+                const gradient = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, outerRadius);
+                gradient.addColorStop(0, 'rgba(26, 26, 46, 0)');
+                gradient.addColorStop(0.7, 'rgba(26, 26, 46, 0.3)');
+                gradient.addColorStop(1, 'rgba(26, 26, 46, 0.9)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
         // Move player in the maze
@@ -4414,29 +4731,29 @@
         
         const SI_CANVAS_WIDTH = 320;
         const SI_CANVAS_HEIGHT = 400;
-        const SI_PLAYER_WIDTH = 40;
-        const SI_PLAYER_HEIGHT = 25;
-        const SI_PLAYER_SPEED = 6;
-        const SI_BULLET_SPEED = 10;
-        const SI_ENEMY_WIDTH = 32;
-        const SI_ENEMY_HEIGHT = 24;
-        const SI_FIRE_COOLDOWN = 300;
-        const SI_ENEMY_FIRE_CHANCE = 0.005;
-        const SI_MAX_BULLETS = 3;
+        const SI_PLAYER_WIDTH = 50;      // Larger player for easier control
+        const SI_PLAYER_HEIGHT = 30;     // Larger player for easier control
+        const SI_PLAYER_SPEED = 8;       // Faster movement for better dodging
+        const SI_BULLET_SPEED = 12;      // Faster bullets for easier hitting
+        const SI_ENEMY_WIDTH = 40;       // Larger enemies = easier targets
+        const SI_ENEMY_HEIGHT = 30;      // Larger enemies = easier targets
+        const SI_FIRE_COOLDOWN = 200;    // Faster shooting for more fun
+        const SI_ENEMY_FIRE_CHANCE = 0.003;  // Enemies fire less often
+        const SI_MAX_BULLETS = 5;        // More bullets on screen
         
         const SI_ENEMY_COLORS = ['#FFD700', '#FF6B00', '#FF00FF', '#00FFFF'];
         
         // Initialize Space Invaders game
         function initSpaceInvadersGame(taskIndex) {
             siScore = 0;
-            siLives = 3;
+            siLives = 5;                 // More lives for better sense of achievement
             siGameOver = false;
             siBullets = [];
             siEnemies = [];
             siEnemyBullets = [];
             siExplosions = [];
             siEnemyDirection = 1;
-            siEnemySpeed = taskIndex === 0 ? 0.8 : 1.2;  // Easier for first task
+            siEnemySpeed = taskIndex === 0 ? 0.5 : 0.8;  // Slower enemies for easier gameplay
             siKeys = { left: false, right: false, fire: false };
             siTouchLeft = false;
             siTouchRight = false;
@@ -4451,9 +4768,9 @@
                 invincibleTime: 0
             };
             
-            // Initialize enemies
-            const rows = taskIndex === 0 ? 3 : 4;
-            const cols = taskIndex === 0 ? 6 : 7;
+            // Initialize enemies - fewer enemies for easier completion
+            const rows = taskIndex === 0 ? 2 : 3;    // Fewer rows
+            const cols = taskIndex === 0 ? 5 : 6;    // Fewer columns
             const startX = (SI_CANVAS_WIDTH - (cols * (SI_ENEMY_WIDTH + 8))) / 2;
             const startY = 50;
             
@@ -4473,7 +4790,7 @@
             
             // Update UI
             document.getElementById('siScore').textContent = '0';
-            document.getElementById('siLives').textContent = '3';
+            document.getElementById('siLives').textContent = '5';
             document.getElementById('spaceInvadersCompleteMessage').classList.remove('show');
             
             // Show overlay
@@ -4808,18 +5125,687 @@
             document.getElementById('spaceInvadersCompleteMessage').classList.remove('show');
         }
 
+        // ===== Tank Battle (坦克大战) Game Logic =====
+        let tbScore = 0;
+        let tbLives = 3;
+        let tbGameOver = false;
+        let tbAnimationId = null;
+        let tbPlayer = null;
+        let tbBullets = [];
+        let tbEnemies = [];
+        let tbEnemyBullets = [];
+        let tbExplosions = [];
+        let tbWalls = [];
+        let tbKeys = { up: false, down: false, left: false, right: false, fire: false };
+        let tbLastFireTime = 0;
+        let tbEnemiesKilled = 0;
+        let tbTotalEnemies = 5;
+        
+        const TB_CANVAS_WIDTH = 320;
+        const TB_CANVAS_HEIGHT = 320;
+        const TB_TILE_SIZE = 32;
+        const TB_TANK_SIZE = 28;
+        const TB_BULLET_SIZE = 6;
+        const TB_PLAYER_SPEED = 2.5;      // Faster player for easier control
+        const TB_ENEMY_SPEED = 1.2;       // Slower enemies for easier gameplay
+        const TB_BULLET_SPEED = 6;
+        const TB_FIRE_COOLDOWN = 400;     // Longer cooldown for more strategic play
+        const TB_ENEMY_FIRE_COOLDOWN = 2500;  // Enemies fire less often
+        const TB_ENEMY_RANDOM_FIRE_CHANCE = 0.015;  // Random fire probability per frame (lower = easier)
+        
+        const TB_COLORS = {
+            player: '#4CAF50',
+            playerBarrel: '#2E7D32',
+            enemy: '#F44336',
+            enemyBarrel: '#C62828',
+            bullet: '#FFD700',
+            wall: '#795548',
+            wallBorder: '#5D4037',
+            grass: '#1a1a1a'
+        };
+        
+        // Initialize Tank Battle game
+        function initTankBattleGame(taskIndex) {
+            tbScore = 0;
+            tbLives = taskIndex === 0 ? 5 : 3;  // More lives for easier difficulty
+            tbGameOver = false;
+            tbBullets = [];
+            tbEnemies = [];
+            tbEnemyBullets = [];
+            tbExplosions = [];
+            tbWalls = [];
+            tbKeys = { up: false, down: false, left: false, right: false, fire: false };
+            tbEnemiesKilled = 0;
+            tbTotalEnemies = taskIndex === 0 ? 3 : 5;  // Fewer enemies for easier mode
+            
+            // Initialize player tank
+            tbPlayer = {
+                x: TB_CANVAS_WIDTH / 2 - TB_TANK_SIZE / 2,
+                y: TB_CANVAS_HEIGHT - TB_TANK_SIZE - 10,
+                width: TB_TANK_SIZE,
+                height: TB_TANK_SIZE,
+                direction: 'up',  // 'up', 'down', 'left', 'right'
+                invincible: false,
+                invincibleTime: 0
+            };
+            
+            // Generate walls (obstacles)
+            generateTBWalls(taskIndex);
+            
+            // Generate enemy tanks
+            generateTBEnemies();
+            
+            // Update UI
+            document.getElementById('tbScore').textContent = '0';
+            document.getElementById('tbLives').textContent = tbLives;
+            document.getElementById('tbEnemiesLeft').textContent = tbTotalEnemies - tbEnemiesKilled;
+            document.getElementById('tankBattleCompleteMessage').classList.remove('show');
+            
+            // Show overlay
+            document.getElementById('tankBattleOverlay').classList.add('show');
+            
+            // Setup keyboard events
+            document.addEventListener('keydown', tbHandleKeyDown);
+            document.addEventListener('keyup', tbHandleKeyUp);
+            
+            // Setup touch controls
+            setupTBTouchControls();
+            
+            // Setup button handlers
+            document.getElementById('resetTankBattle').onclick = () => {
+                cleanupTankBattleGame();
+                initTankBattleGame(taskIndex);
+            };
+            document.getElementById('exitTankBattle').onclick = cleanupTankBattleGame;
+            
+            // Start game loop
+            tbGameLoop();
+        }
+        
+        function generateTBWalls(taskIndex) {
+            tbWalls = [];
+            const wallCount = taskIndex === 0 ? 6 : 10;  // Fewer walls for easier mode
+            
+            // Create some walls in the middle of the battlefield
+            const positions = [
+                { x: 2, y: 3 }, { x: 3, y: 3 }, { x: 6, y: 3 }, { x: 7, y: 3 },
+                { x: 2, y: 6 }, { x: 3, y: 6 }, { x: 6, y: 6 }, { x: 7, y: 6 },
+                { x: 4, y: 4 }, { x: 5, y: 4 }, { x: 4, y: 5 }, { x: 5, y: 5 }
+            ];
+            
+            for (let i = 0; i < Math.min(wallCount, positions.length); i++) {
+                const pos = positions[i];
+                tbWalls.push({
+                    x: pos.x * TB_TILE_SIZE,
+                    y: pos.y * TB_TILE_SIZE,
+                    width: TB_TILE_SIZE,
+                    height: TB_TILE_SIZE,
+                    health: 2  // Walls can take 2 hits
+                });
+            }
+        }
+        
+        function generateTBEnemies() {
+            const spawnPositions = [
+                { x: TB_TILE_SIZE, y: TB_TILE_SIZE },
+                { x: TB_CANVAS_WIDTH - TB_TILE_SIZE - TB_TANK_SIZE, y: TB_TILE_SIZE },
+                { x: TB_CANVAS_WIDTH / 2 - TB_TANK_SIZE / 2, y: TB_TILE_SIZE },
+                { x: TB_TILE_SIZE, y: TB_TILE_SIZE * 3 },
+                { x: TB_CANVAS_WIDTH - TB_TILE_SIZE - TB_TANK_SIZE, y: TB_TILE_SIZE * 3 }
+            ];
+            
+            for (let i = 0; i < tbTotalEnemies; i++) {
+                const pos = spawnPositions[i % spawnPositions.length];
+                tbEnemies.push({
+                    x: pos.x + (i * 5) % 20,  // Slight offset to avoid overlap
+                    y: pos.y,
+                    width: TB_TANK_SIZE,
+                    height: TB_TANK_SIZE,
+                    direction: 'down',
+                    lastFireTime: Date.now() + i * 1000,  // Stagger initial fire times
+                    moveTimer: 0,
+                    moveDirection: Math.random() < 0.5 ? 1 : -1
+                });
+            }
+        }
+        
+        function setupTBTouchControls() {
+            const upBtn = document.getElementById('tbUpBtn');
+            const downBtn = document.getElementById('tbDownBtn');
+            const leftBtn = document.getElementById('tbLeftBtn');
+            const rightBtn = document.getElementById('tbRightBtn');
+            const fireBtn = document.getElementById('tbFireBtn');
+            
+            // Direction buttons
+            upBtn.ontouchstart = (e) => { e.preventDefault(); tbKeys.up = true; };
+            upBtn.ontouchend = () => { tbKeys.up = false; };
+            upBtn.onmousedown = () => { tbKeys.up = true; };
+            upBtn.onmouseup = () => { tbKeys.up = false; };
+            
+            downBtn.ontouchstart = (e) => { e.preventDefault(); tbKeys.down = true; };
+            downBtn.ontouchend = () => { tbKeys.down = false; };
+            downBtn.onmousedown = () => { tbKeys.down = true; };
+            downBtn.onmouseup = () => { tbKeys.down = false; };
+            
+            leftBtn.ontouchstart = (e) => { e.preventDefault(); tbKeys.left = true; };
+            leftBtn.ontouchend = () => { tbKeys.left = false; };
+            leftBtn.onmousedown = () => { tbKeys.left = true; };
+            leftBtn.onmouseup = () => { tbKeys.left = false; };
+            
+            rightBtn.ontouchstart = (e) => { e.preventDefault(); tbKeys.right = true; };
+            rightBtn.ontouchend = () => { tbKeys.right = false; };
+            rightBtn.onmousedown = () => { tbKeys.right = true; };
+            rightBtn.onmouseup = () => { tbKeys.right = false; };
+            
+            fireBtn.ontouchstart = (e) => { e.preventDefault(); tbFireBullet(); };
+            fireBtn.onmousedown = () => { tbFireBullet(); };
+        }
+        
+        function tbHandleKeyDown(e) {
+            if (tbGameOver) return;
+            switch (e.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    tbKeys.up = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    tbKeys.down = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    tbKeys.left = true;
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    tbKeys.right = true;
+                    e.preventDefault();
+                    break;
+                case 'Space':
+                    tbFireBullet();
+                    e.preventDefault();
+                    break;
+            }
+        }
+        
+        function tbHandleKeyUp(e) {
+            switch (e.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    tbKeys.up = false;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    tbKeys.down = false;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    tbKeys.left = false;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    tbKeys.right = false;
+                    break;
+            }
+        }
+        
+        function tbFireBullet() {
+            if (tbGameOver) return;
+            const now = Date.now();
+            if (now - tbLastFireTime < TB_FIRE_COOLDOWN) return;
+            
+            tbLastFireTime = now;
+            
+            let bx, by, vx = 0, vy = 0;
+            switch (tbPlayer.direction) {
+                case 'up':
+                    bx = tbPlayer.x + tbPlayer.width / 2 - TB_BULLET_SIZE / 2;
+                    by = tbPlayer.y - TB_BULLET_SIZE;
+                    vy = -TB_BULLET_SPEED;
+                    break;
+                case 'down':
+                    bx = tbPlayer.x + tbPlayer.width / 2 - TB_BULLET_SIZE / 2;
+                    by = tbPlayer.y + tbPlayer.height;
+                    vy = TB_BULLET_SPEED;
+                    break;
+                case 'left':
+                    bx = tbPlayer.x - TB_BULLET_SIZE;
+                    by = tbPlayer.y + tbPlayer.height / 2 - TB_BULLET_SIZE / 2;
+                    vx = -TB_BULLET_SPEED;
+                    break;
+                case 'right':
+                    bx = tbPlayer.x + tbPlayer.width;
+                    by = tbPlayer.y + tbPlayer.height / 2 - TB_BULLET_SIZE / 2;
+                    vx = TB_BULLET_SPEED;
+                    break;
+            }
+            
+            tbBullets.push({
+                x: bx, y: by,
+                vx: vx, vy: vy,
+                width: TB_BULLET_SIZE,
+                height: TB_BULLET_SIZE,
+                isPlayer: true
+            });
+        }
+        
+        function tbEnemyFire(enemy) {
+            const now = Date.now();
+            if (now - enemy.lastFireTime < TB_ENEMY_FIRE_COOLDOWN) return;
+            
+            enemy.lastFireTime = now;
+            
+            let bx, by, vx = 0, vy = 0;
+            switch (enemy.direction) {
+                case 'up':
+                    bx = enemy.x + enemy.width / 2 - TB_BULLET_SIZE / 2;
+                    by = enemy.y - TB_BULLET_SIZE;
+                    vy = -TB_BULLET_SPEED * 0.7;  // Slower enemy bullets
+                    break;
+                case 'down':
+                    bx = enemy.x + enemy.width / 2 - TB_BULLET_SIZE / 2;
+                    by = enemy.y + enemy.height;
+                    vy = TB_BULLET_SPEED * 0.7;
+                    break;
+                case 'left':
+                    bx = enemy.x - TB_BULLET_SIZE;
+                    by = enemy.y + enemy.height / 2 - TB_BULLET_SIZE / 2;
+                    vx = -TB_BULLET_SPEED * 0.7;
+                    break;
+                case 'right':
+                    bx = enemy.x + enemy.width;
+                    by = enemy.y + enemy.height / 2 - TB_BULLET_SIZE / 2;
+                    vx = TB_BULLET_SPEED * 0.7;
+                    break;
+            }
+            
+            tbEnemyBullets.push({
+                x: bx, y: by,
+                vx: vx, vy: vy,
+                width: TB_BULLET_SIZE,
+                height: TB_BULLET_SIZE,
+                isPlayer: false
+            });
+        }
+        
+        function tbCreateExplosion(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const angle = (Math.PI * 2 * i) / 10;
+                const speed = Math.random() * 2 + 1;
+                tbExplosions.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    color: ['#FFD700', '#FFA500', '#FF6347', '#FF4500'][Math.floor(Math.random() * 4)],
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function tbGameLoop() {
+            if (tbGameOver) return;
+            
+            tbUpdate();
+            tbRender();
+            tbAnimationId = requestAnimationFrame(tbGameLoop);
+        }
+        
+        function tbUpdate() {
+            // Update player
+            let newX = tbPlayer.x;
+            let newY = tbPlayer.y;
+            
+            if (tbKeys.up) {
+                newY -= TB_PLAYER_SPEED;
+                tbPlayer.direction = 'up';
+            }
+            if (tbKeys.down) {
+                newY += TB_PLAYER_SPEED;
+                tbPlayer.direction = 'down';
+            }
+            if (tbKeys.left) {
+                newX -= TB_PLAYER_SPEED;
+                tbPlayer.direction = 'left';
+            }
+            if (tbKeys.right) {
+                newX += TB_PLAYER_SPEED;
+                tbPlayer.direction = 'right';
+            }
+            
+            // Check collision with boundaries
+            newX = Math.max(0, Math.min(TB_CANVAS_WIDTH - tbPlayer.width, newX));
+            newY = Math.max(0, Math.min(TB_CANVAS_HEIGHT - tbPlayer.height, newY));
+            
+            // Check collision with walls
+            const playerRect = { x: newX, y: newY, width: tbPlayer.width, height: tbPlayer.height };
+            let canMove = true;
+            for (const wall of tbWalls) {
+                if (tbIsColliding(playerRect, wall)) {
+                    canMove = false;
+                    break;
+                }
+            }
+            
+            if (canMove) {
+                tbPlayer.x = newX;
+                tbPlayer.y = newY;
+            }
+            
+            // Update player bullets
+            tbBullets = tbBullets.filter(b => {
+                b.x += b.vx;
+                b.y += b.vy;
+                return b.x >= 0 && b.x <= TB_CANVAS_WIDTH && b.y >= 0 && b.y <= TB_CANVAS_HEIGHT;
+            });
+            
+            // Update enemy bullets
+            tbEnemyBullets = tbEnemyBullets.filter(b => {
+                b.x += b.vx;
+                b.y += b.vy;
+                return b.x >= 0 && b.x <= TB_CANVAS_WIDTH && b.y >= 0 && b.y <= TB_CANVAS_HEIGHT;
+            });
+            
+            // Update enemies
+            tbEnemies.forEach(enemy => {
+                enemy.moveTimer++;
+                
+                // Change direction periodically
+                if (enemy.moveTimer > 60 + Math.random() * 60) {
+                    enemy.moveTimer = 0;
+                    const dirs = ['up', 'down', 'left', 'right'];
+                    enemy.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                }
+                
+                // Move enemy
+                let enX = enemy.x;
+                let enY = enemy.y;
+                
+                switch (enemy.direction) {
+                    case 'up': enY -= TB_ENEMY_SPEED; break;
+                    case 'down': enY += TB_ENEMY_SPEED; break;
+                    case 'left': enX -= TB_ENEMY_SPEED; break;
+                    case 'right': enX += TB_ENEMY_SPEED; break;
+                }
+                
+                // Check boundaries
+                enX = Math.max(0, Math.min(TB_CANVAS_WIDTH - enemy.width, enX));
+                enY = Math.max(0, Math.min(TB_CANVAS_HEIGHT - enemy.height, enY));
+                
+                // Check wall collision
+                const enemyRect = { x: enX, y: enY, width: enemy.width, height: enemy.height };
+                let enemyCanMove = true;
+                for (const wall of tbWalls) {
+                    if (tbIsColliding(enemyRect, wall)) {
+                        enemyCanMove = false;
+                        // Change direction when hitting wall
+                        const dirs = ['up', 'down', 'left', 'right'];
+                        enemy.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                        break;
+                    }
+                }
+                
+                if (enemyCanMove) {
+                    enemy.x = enX;
+                    enemy.y = enY;
+                }
+                
+                // Enemy fires at player (with lower probability for easier gameplay)
+                if (Math.random() < TB_ENEMY_RANDOM_FIRE_CHANCE) {
+                    tbEnemyFire(enemy);
+                }
+            });
+            
+            // Update explosions
+            tbExplosions = tbExplosions.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            // Check collisions: player bullets vs enemies
+            for (let i = tbBullets.length - 1; i >= 0; i--) {
+                for (let j = tbEnemies.length - 1; j >= 0; j--) {
+                    if (tbIsColliding(tbBullets[i], tbEnemies[j])) {
+                        tbCreateExplosion(tbEnemies[j].x + tbEnemies[j].width / 2, tbEnemies[j].y + tbEnemies[j].height / 2);
+                        tbScore += 100;
+                        tbEnemiesKilled++;
+                        document.getElementById('tbScore').textContent = tbScore;
+                        document.getElementById('tbEnemiesLeft').textContent = tbTotalEnemies - tbEnemiesKilled;
+                        tbBullets.splice(i, 1);
+                        tbEnemies.splice(j, 1);
+                        
+                        // Check victory
+                        if (tbEnemies.length === 0) {
+                            tbEndGame(true);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // Check collisions: player bullets vs walls
+            for (let i = tbBullets.length - 1; i >= 0; i--) {
+                for (let j = tbWalls.length - 1; j >= 0; j--) {
+                    if (tbIsColliding(tbBullets[i], tbWalls[j])) {
+                        tbWalls[j].health--;
+                        tbBullets.splice(i, 1);
+                        if (tbWalls[j].health <= 0) {
+                            tbCreateExplosion(tbWalls[j].x + tbWalls[j].width / 2, tbWalls[j].y + tbWalls[j].height / 2);
+                            tbWalls.splice(j, 1);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // Check collisions: enemy bullets vs walls
+            for (let i = tbEnemyBullets.length - 1; i >= 0; i--) {
+                for (let j = tbWalls.length - 1; j >= 0; j--) {
+                    if (tbIsColliding(tbEnemyBullets[i], tbWalls[j])) {
+                        tbWalls[j].health--;
+                        tbEnemyBullets.splice(i, 1);
+                        if (tbWalls[j].health <= 0) {
+                            tbCreateExplosion(tbWalls[j].x + tbWalls[j].width / 2, tbWalls[j].y + tbWalls[j].height / 2);
+                            tbWalls.splice(j, 1);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // Check collisions: enemy bullets vs player
+            if (!tbPlayer.invincible) {
+                for (let i = tbEnemyBullets.length - 1; i >= 0; i--) {
+                    if (tbIsColliding(tbEnemyBullets[i], tbPlayer)) {
+                        tbEnemyBullets.splice(i, 1);
+                        tbPlayerHit();
+                        break;
+                    }
+                }
+            }
+            
+            // Update invincibility
+            if (tbPlayer.invincible) {
+                tbPlayer.invincibleTime--;
+                if (tbPlayer.invincibleTime <= 0) tbPlayer.invincible = false;
+            }
+        }
+        
+        function tbIsColliding(a, b) {
+            return a.x < b.x + b.width && a.x + a.width > b.x &&
+                   a.y < b.y + b.height && a.y + a.height > b.y;
+        }
+        
+        function tbPlayerHit() {
+            tbLives--;
+            document.getElementById('tbLives').textContent = tbLives;
+            tbCreateExplosion(tbPlayer.x + tbPlayer.width / 2, tbPlayer.y + tbPlayer.height / 2);
+            
+            if (tbLives <= 0) {
+                tbEndGame(false);
+            } else {
+                tbPlayer.invincible = true;
+                tbPlayer.invincibleTime = 90;
+            }
+        }
+        
+        function tbEndGame(victory) {
+            tbGameOver = true;
+            if (victory) tbScore += 200;  // Bonus for winning
+            document.getElementById('tbFinalScore').textContent = tbScore;
+            document.getElementById('tankBattleCompleteMessage').classList.add('show');
+        }
+        
+        function tbRender() {
+            const canvas = document.getElementById('tankBattleCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas with grass color
+            ctx.fillStyle = TB_COLORS.grass;
+            ctx.fillRect(0, 0, TB_CANVAS_WIDTH, TB_CANVAS_HEIGHT);
+            
+            // Draw grid lines (subtle)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= TB_CANVAS_WIDTH; x += TB_TILE_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, TB_CANVAS_HEIGHT);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= TB_CANVAS_HEIGHT; y += TB_TILE_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(TB_CANVAS_WIDTH, y);
+                ctx.stroke();
+            }
+            
+            // Draw walls
+            tbWalls.forEach(wall => {
+                ctx.fillStyle = TB_COLORS.wall;
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+                ctx.fillStyle = TB_COLORS.wallBorder;
+                ctx.fillRect(wall.x + wall.width - 3, wall.y, 3, wall.height);
+                ctx.fillRect(wall.x, wall.y + wall.height - 3, wall.width, 3);
+            });
+            
+            // Draw player tank
+            if (!tbPlayer.invincible || Math.floor(tbPlayer.invincibleTime / 5) % 2 === 1) {
+                drawTank(ctx, tbPlayer, TB_COLORS.player, TB_COLORS.playerBarrel);
+            }
+            
+            // Draw enemy tanks
+            tbEnemies.forEach(enemy => {
+                drawTank(ctx, enemy, TB_COLORS.enemy, TB_COLORS.enemyBarrel);
+            });
+            
+            // Draw bullets
+            ctx.fillStyle = TB_COLORS.bullet;
+            tbBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x + b.width / 2, b.y + b.height / 2, TB_BULLET_SIZE / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            ctx.fillStyle = '#FF6347';
+            tbEnemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x + b.width / 2, b.y + b.height / 2, TB_BULLET_SIZE / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw explosions
+            tbExplosions.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawTank(ctx, tank, bodyColor, barrelColor) {
+            const x = tank.x;
+            const y = tank.y;
+            const size = TB_TANK_SIZE;
+            
+            // Tank body
+            ctx.fillStyle = bodyColor;
+            ctx.fillRect(x + 2, y + 2, size - 4, size - 4);
+            
+            // Tank tracks
+            ctx.fillStyle = '#333';
+            if (tank.direction === 'up' || tank.direction === 'down') {
+                ctx.fillRect(x, y, 4, size);
+                ctx.fillRect(x + size - 4, y, 4, size);
+            } else {
+                ctx.fillRect(x, y, size, 4);
+                ctx.fillRect(x, y + size - 4, size, 4);
+            }
+            
+            // Tank turret (barrel)
+            ctx.fillStyle = barrelColor;
+            const centerX = x + size / 2;
+            const centerY = y + size / 2;
+            const barrelLength = size / 2;
+            const barrelWidth = 6;
+            
+            ctx.beginPath();
+            switch (tank.direction) {
+                case 'up':
+                    ctx.fillRect(centerX - barrelWidth / 2, y - barrelLength / 2 + 4, barrelWidth, barrelLength);
+                    break;
+                case 'down':
+                    ctx.fillRect(centerX - barrelWidth / 2, y + size - barrelLength / 2 - 4, barrelWidth, barrelLength);
+                    break;
+                case 'left':
+                    ctx.fillRect(x - barrelLength / 2 + 4, centerY - barrelWidth / 2, barrelLength, barrelWidth);
+                    break;
+                case 'right':
+                    ctx.fillRect(x + size - barrelLength / 2 - 4, centerY - barrelWidth / 2, barrelLength, barrelWidth);
+                    break;
+            }
+            
+            // Tank center (turret base)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size / 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function cleanupTankBattleGame() {
+            tbGameOver = true;
+            if (tbAnimationId) {
+                cancelAnimationFrame(tbAnimationId);
+                tbAnimationId = null;
+            }
+            
+            document.removeEventListener('keydown', tbHandleKeyDown);
+            document.removeEventListener('keyup', tbHandleKeyUp);
+            
+            document.getElementById('tankBattleOverlay').classList.remove('show');
+            document.getElementById('tankBattleCompleteMessage').classList.remove('show');
+        }
+
         // ===== Random Game Selection =====
-        // Randomly select between puzzle, maze, shooting, and space invaders game
+        // Randomly select between puzzle, maze, shooting, space invaders, and tank battle game
         function selectRandomGame() {
             const rand = Math.random();
-            if (rand < 0.25) {
+            if (rand < 0.2) {
                 return 'puzzle';
-            } else if (rand < 0.5) {
+            } else if (rand < 0.4) {
                 return 'maze';
-            } else if (rand < 0.75) {
+            } else if (rand < 0.6) {
                 return 'shooting';
-            } else {
+            } else if (rand < 0.8) {
                 return 'space-invaders';
+            } else {
+                return 'tank-battle';
             }
         }
 
