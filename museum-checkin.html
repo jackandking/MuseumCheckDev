@@ -1206,6 +1206,141 @@
                 grid-template-rows: repeat(3, 50px);
             }
         }
+
+        /* Shooting Game Styles */
+        .shooting-game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .shooting-game-overlay.show {
+            display: flex;
+        }
+
+        .shooting-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .shooting-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .shooting-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .shooting-container {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .shooting-canvas {
+            display: block;
+            border-radius: 8px;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .shooting-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .shooting-button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shooting-button-continue {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .shooting-button-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+
+        .shooting-button-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .shooting-button-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .shooting-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f9ca24 0%, #f0932b 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(249, 202, 36, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .shooting-complete-message.show {
+            display: block;
+        }
+
+        .shooting-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 360px) {
+            .shooting-canvas {
+                max-width: 280px;
+                max-height: 350px;
+            }
+            .shooting-title {
+                font-size: 24px;
+            }
+            .shooting-stats {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1327,7 +1462,7 @@
                     <div class="settings-toggle">
                         <div>
                             <label class="settings-label" style="margin-bottom: 0;">小游戏奖励</label>
-                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁拼图游戏或迷宫游戏作为奖励</div>
+                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁拼图、迷宫或射击游戏作为奖励</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="puzzleGameToggle">
@@ -1401,6 +1536,28 @@
         </div>
         <div class="maze-complete-message" id="mazeCompleteMessage">
             🎉 成功逃脱！
+        </div>
+    </div>
+
+    <!-- Shooting Game Overlay -->
+    <div class="shooting-game-overlay" id="shootingGameOverlay">
+        <div class="shooting-header">
+            <div class="shooting-title">🎯 射击大师</div>
+            <div class="shooting-stats">
+                <span>得分：<span id="shootingScore">0</span></span>
+                <span>时间：<span id="shootingTime">30</span>秒</span>
+            </div>
+        </div>
+        <div class="shooting-container">
+            <canvas class="shooting-canvas" id="shootingCanvas" width="320" height="400"></canvas>
+        </div>
+        <div class="shooting-hint">点击或触摸屏幕射击目标</div>
+        <div class="shooting-buttons">
+            <button class="shooting-button shooting-button-reset" id="resetShooting">🔄 重新开始</button>
+            <button class="shooting-button shooting-button-continue" id="exitShooting">继续游览 ➡️</button>
+        </div>
+        <div class="shooting-complete-message" id="shootingCompleteMessage">
+            🎉 游戏结束！得分：<span id="finalScore">0</span>
         </div>
     </div>
 
@@ -1985,8 +2142,10 @@
                 setTimeout(() => {
                     if (gameType === 'puzzle') {
                         initPuzzleGame(taskPhotos[taskIndexForGame], taskIndexForGame);
+                    } else if (gameType === 'maze') {
+                        initMazeGame(taskIndexForGame);
                     } else {
-                        initMazeGame();
+                        initShootingGame(taskIndexForGame);
                     }
                 }, 800);
             }
@@ -2936,6 +3095,17 @@
                 mazeRightBtn.onclick = () => movePlayer(1, 0);
             }
 
+            // Shooting game controls
+            const exitShootingBtn = document.getElementById('exitShooting');
+            if (exitShootingBtn) {
+                exitShootingBtn.onclick = closeShootingGame;
+            }
+
+            const resetShootingBtn = document.getElementById('resetShooting');
+            if (resetShootingBtn) {
+                resetShootingBtn.onclick = resetShootingGame;
+            }
+
             // Close modals on background click
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) {
@@ -3354,11 +3524,24 @@
 
         // ===== Maze Game Logic =====
         let mazeGrid = [];
-        let mazeSize = 9;  // 9x9 maze (odd number for better maze generation)
+        let mazeSize = 9;  // Dynamic: 9x9 for easy, 15x15 for hard (odd numbers for better maze generation)
         let playerPos = { x: 1, y: 1 };
         let exitPos = { x: 7, y: 7 };
         let mazeSteps = 0;
-        const CELL_SIZE = 30;
+        let CELL_SIZE = 30;  // Dynamic based on maze size
+        const EASY_MAZE_SIZE = 9;   // 9x9 for first task
+        const HARD_MAZE_SIZE = 15;  // 15x15 for subsequent tasks
+        
+        // Determine maze size and cell size based on task index
+        // First task (门口打卡, index 0) uses easier 9x9 maze
+        // Subsequent tasks use more challenging 15x15 maze
+        function determineMazeSize(taskIndex) {
+            if (taskIndex === 0) {
+                return { size: EASY_MAZE_SIZE, cellSize: 30 };  // Easy: larger cells
+            } else {
+                return { size: HARD_MAZE_SIZE, cellSize: 18 };  // Hard: smaller cells to fit
+            }
+        }
         const WALL = 1;
         const PATH = 0;
         const PLAYER = 2;
@@ -3426,10 +3609,21 @@
             mazeGrid[exitPos.y][exitPos.x] = PATH;
         }
 
-        // Initialize the maze game
-        function initMazeGame() {
+        // Initialize the maze game with optional task index for difficulty
+        function initMazeGame(taskIndex = 0) {
             mazeSteps = 0;
             document.getElementById('mazeSteps').textContent = '0';
+            
+            // Determine maze difficulty based on task index
+            const difficulty = determineMazeSize(taskIndex);
+            mazeSize = difficulty.size;
+            CELL_SIZE = difficulty.cellSize;
+            
+            // Update title to reflect difficulty
+            const titleEl = document.querySelector('.maze-title');
+            if (titleEl) {
+                titleEl.textContent = mazeSize === EASY_MAZE_SIZE ? '🏃 迷宫冒险（简单）' : '🏃 迷宫冒险（困难）';
+            }
             
             generateMaze();
             renderMaze();
@@ -3640,10 +3834,355 @@
             document.removeEventListener('keydown', handleMazeKeydown);
         }
 
+        // ===== Shooting Game Logic =====
+        let shootingScore = 0;
+        let shootingTimeLeft = 30;
+        let shootingTimer = null;
+        let shootingTargets = [];
+        let shootingAnimationId = null;
+        let currentShootingDifficulty = 1;  // 1 for easy, 2 for hard
+        
+        const SHOOTING_EASY_TIME = 30;   // 30 seconds for first task
+        const SHOOTING_HARD_TIME = 20;   // 20 seconds for subsequent tasks
+        const SHOOTING_CANVAS_WIDTH = 320;
+        const SHOOTING_CANVAS_HEIGHT = 400;
+        const HIT_TOLERANCE = 10;        // Extra pixels for easier hitting
+        
+        // Target types with different points and speeds
+        const TARGET_TYPES = [
+            { emoji: '🎈', points: 10, speed: 2, size: 40 },    // Balloon - slow, easy
+            { emoji: '🦋', points: 20, speed: 3, size: 35 },    // Butterfly - medium
+            { emoji: '🐝', points: 30, speed: 4, size: 30 },    // Bee - fast, harder
+            { emoji: '🌟', points: 50, speed: 5, size: 25 },    // Star - fastest, bonus
+        ];
+        
+        // Determine shooting game difficulty based on task index
+        function determineShootingDifficulty(taskIndex) {
+            if (taskIndex === 0) {
+                return { 
+                    time: SHOOTING_EASY_TIME, 
+                    difficulty: 1,
+                    spawnRate: 1500,  // Slower spawn
+                    maxTargets: 5 
+                };
+            } else {
+                return { 
+                    time: SHOOTING_HARD_TIME, 
+                    difficulty: 2,
+                    spawnRate: 1000,  // Faster spawn
+                    maxTargets: 8 
+                };
+            }
+        }
+        
+        // Create a new target
+        function createShootingTarget(difficulty) {
+            // In hard mode, include more fast targets
+            const typeIndex = difficulty === 1 
+                ? Math.floor(Math.random() * 3)  // Easy: no star
+                : Math.floor(Math.random() * TARGET_TYPES.length);
+            
+            const targetType = TARGET_TYPES[typeIndex];
+            
+            return {
+                x: Math.random() * (SHOOTING_CANVAS_WIDTH - targetType.size),
+                y: SHOOTING_CANVAS_HEIGHT + targetType.size,
+                vx: (Math.random() - 0.5) * 2,  // Random horizontal drift
+                vy: -targetType.speed * (0.8 + Math.random() * 0.4),  // Upward with variation
+                ...targetType,
+                hit: false
+            };
+        }
+        
+        // Initialize the shooting game
+        function initShootingGame(taskIndex = 0) {
+            const settings = determineShootingDifficulty(taskIndex);
+            
+            shootingScore = 0;
+            shootingTimeLeft = settings.time;
+            currentShootingDifficulty = settings.difficulty;
+            shootingTargets = [];
+            
+            document.getElementById('shootingScore').textContent = '0';
+            document.getElementById('shootingTime').textContent = shootingTimeLeft;
+            
+            // Update title to reflect difficulty
+            const titleEl = document.querySelector('.shooting-title');
+            if (titleEl) {
+                titleEl.textContent = settings.difficulty === 1 ? '🎯 射击大师（简单）' : '🎯 射击大师（困难）';
+            }
+            
+            // Hide complete message
+            document.getElementById('shootingCompleteMessage').classList.remove('show');
+            
+            // Show the shooting overlay
+            document.getElementById('shootingGameOverlay').classList.add('show');
+            
+            // Setup canvas click/touch handler
+            const canvas = document.getElementById('shootingCanvas');
+            canvas.onclick = handleShootingClick;
+            canvas.ontouchstart = handleShootingTouch;
+            
+            // Start the game loop
+            startShootingGame(settings);
+        }
+        
+        // Start the shooting game
+        function startShootingGame(settings) {
+            // Clear any existing timer
+            if (shootingTimer) {
+                clearInterval(shootingTimer);
+            }
+            if (shootingAnimationId) {
+                cancelAnimationFrame(shootingAnimationId);
+            }
+            
+            // Spawn initial targets
+            for (let i = 0; i < 3; i++) {
+                shootingTargets.push(createShootingTarget(settings.difficulty));
+            }
+            
+            // Start countdown timer
+            shootingTimer = setInterval(() => {
+                shootingTimeLeft--;
+                document.getElementById('shootingTime').textContent = shootingTimeLeft;
+                
+                // Spawn new targets periodically
+                if (shootingTargets.length < settings.maxTargets && Math.random() < 0.5) {
+                    shootingTargets.push(createShootingTarget(settings.difficulty));
+                }
+                
+                if (shootingTimeLeft <= 0) {
+                    endShootingGame();
+                }
+            }, 1000);
+            
+            // Spawn targets at regular intervals
+            const spawnInterval = setInterval(() => {
+                if (shootingTimeLeft <= 0) {
+                    clearInterval(spawnInterval);
+                    return;
+                }
+                if (shootingTargets.length < settings.maxTargets) {
+                    shootingTargets.push(createShootingTarget(settings.difficulty));
+                }
+            }, settings.spawnRate);
+            
+            // Start animation loop
+            updateShootingGame();
+        }
+        
+        // Update and render the shooting game
+        function updateShootingGame() {
+            if (shootingTimeLeft <= 0) return;
+            
+            const canvas = document.getElementById('shootingCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#87CEEB';  // Sky blue background
+            ctx.fillRect(0, 0, SHOOTING_CANVAS_WIDTH, SHOOTING_CANVAS_HEIGHT);
+            
+            // Draw grass at bottom
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, SHOOTING_CANVAS_HEIGHT - 40, SHOOTING_CANVAS_WIDTH, 40);
+            
+            // Draw some clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(50, 50, 25, 0, Math.PI * 2);
+            ctx.arc(80, 50, 30, 0, Math.PI * 2);
+            ctx.arc(110, 50, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(250, 80, 20, 0, Math.PI * 2);
+            ctx.arc(275, 80, 25, 0, Math.PI * 2);
+            ctx.arc(295, 80, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Update and draw targets
+            shootingTargets = shootingTargets.filter(target => {
+                if (target.hit) return false;
+                
+                // Update position
+                target.x += target.vx;
+                target.y += target.vy;
+                
+                // Bounce off walls
+                if (target.x < 0 || target.x > SHOOTING_CANVAS_WIDTH - target.size) {
+                    target.vx = -target.vx;
+                    target.x = Math.max(0, Math.min(SHOOTING_CANVAS_WIDTH - target.size, target.x));
+                }
+                
+                // Remove if off screen (top)
+                if (target.y < -target.size) {
+                    return false;
+                }
+                
+                // Draw target
+                ctx.font = `${target.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(target.emoji, target.x + target.size / 2, target.y + target.size / 2);
+                
+                return true;
+            });
+            
+            // Continue animation
+            shootingAnimationId = requestAnimationFrame(updateShootingGame);
+        }
+        
+        // Handle click on shooting canvas
+        function handleShootingClick(e) {
+            const canvas = document.getElementById('shootingCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            checkShootingHit(x, y);
+        }
+        
+        // Handle touch on shooting canvas
+        function handleShootingTouch(e) {
+            e.preventDefault();
+            const canvas = document.getElementById('shootingCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            checkShootingHit(x, y);
+        }
+        
+        // Check if a shot hit a target
+        function checkShootingHit(x, y) {
+            for (let i = shootingTargets.length - 1; i >= 0; i--) {
+                const target = shootingTargets[i];
+                const centerX = target.x + target.size / 2;
+                const centerY = target.y + target.size / 2;
+                const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+                
+                if (distance < target.size / 2 + HIT_TOLERANCE) {
+                    // Hit!
+                    target.hit = true;
+                    shootingScore += target.points;
+                    document.getElementById('shootingScore').textContent = shootingScore;
+                    
+                    // Show hit effect
+                    showHitEffect(target.x, target.y);
+                    
+                    // Play sound if available
+                    if (typeof playFireworkSound === 'function') {
+                        playFireworkSound();
+                    }
+                    
+                    break;  // Only hit one target per click
+                }
+            }
+        }
+        
+        // Show a visual hit effect
+        function showHitEffect(x, y) {
+            const canvas = document.getElementById('shootingCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Draw explosion effect
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + 20, y + 20, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.font = '24px Arial';
+            ctx.fillStyle = '#FF6B6B';
+            ctx.textAlign = 'center';
+            ctx.fillText('💥', x + 20, y + 20);
+        }
+        
+        // End the shooting game
+        function endShootingGame() {
+            // Clear timer and animation
+            if (shootingTimer) {
+                clearInterval(shootingTimer);
+                shootingTimer = null;
+            }
+            if (shootingAnimationId) {
+                cancelAnimationFrame(shootingAnimationId);
+                shootingAnimationId = null;
+            }
+            
+            // Show completion message
+            document.getElementById('finalScore').textContent = shootingScore;
+            document.getElementById('shootingCompleteMessage').classList.add('show');
+            
+            // Auto-close after delay
+            setTimeout(() => {
+                closeShootingGame();
+            }, 2500);
+        }
+        
+        // Reset the shooting game
+        function resetShootingGame() {
+            // Stop current game
+            if (shootingTimer) {
+                clearInterval(shootingTimer);
+                shootingTimer = null;
+            }
+            if (shootingAnimationId) {
+                cancelAnimationFrame(shootingAnimationId);
+                shootingAnimationId = null;
+            }
+            
+            // Hide complete message
+            document.getElementById('shootingCompleteMessage').classList.remove('show');
+            
+            // Reinitialize with same difficulty
+            const settings = currentShootingDifficulty === 1 
+                ? { time: SHOOTING_EASY_TIME, difficulty: 1, spawnRate: 1500, maxTargets: 5 }
+                : { time: SHOOTING_HARD_TIME, difficulty: 2, spawnRate: 1000, maxTargets: 8 };
+            
+            shootingScore = 0;
+            shootingTimeLeft = settings.time;
+            shootingTargets = [];
+            
+            document.getElementById('shootingScore').textContent = '0';
+            document.getElementById('shootingTime').textContent = shootingTimeLeft;
+            
+            startShootingGame(settings);
+        }
+        
+        // Close the shooting game
+        function closeShootingGame() {
+            // Stop timers and animation
+            if (shootingTimer) {
+                clearInterval(shootingTimer);
+                shootingTimer = null;
+            }
+            if (shootingAnimationId) {
+                cancelAnimationFrame(shootingAnimationId);
+                shootingAnimationId = null;
+            }
+            
+            document.getElementById('shootingGameOverlay').classList.remove('show');
+            document.getElementById('shootingCompleteMessage').classList.remove('show');
+            
+            // Remove event listeners
+            const canvas = document.getElementById('shootingCanvas');
+            canvas.onclick = null;
+            canvas.ontouchstart = null;
+        }
+
         // ===== Random Game Selection =====
-        // Randomly select between puzzle and maze game
+        // Randomly select between puzzle, maze, and shooting game
         function selectRandomGame() {
-            return Math.random() < 0.5 ? 'puzzle' : 'maze';
+            const rand = Math.random();
+            if (rand < 0.33) {
+                return 'puzzle';
+            } else if (rand < 0.66) {
+                return 'maze';
+            } else {
+                return 'shooting';
+            }
         }
 
         // Initialize on page load

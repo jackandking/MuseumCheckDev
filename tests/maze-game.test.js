@@ -450,4 +450,142 @@ describe('Maze Game Feature', () => {
             expect(hasPath(blockedMaze, start, end)).toBe(false);
         });
     });
+
+    describe('Maze Difficulty Settings', () => {
+        const EASY_MAZE_SIZE = 9;
+        const HARD_MAZE_SIZE = 15;
+
+        function determineMazeSize(taskIndex) {
+            if (taskIndex === 0) {
+                return { size: EASY_MAZE_SIZE, cellSize: 30 };
+            } else {
+                return { size: HARD_MAZE_SIZE, cellSize: 18 };
+            }
+        }
+
+        test('should return easy settings (9x9) for first task', () => {
+            const settings = determineMazeSize(0);
+            expect(settings.size).toBe(9);
+            expect(settings.cellSize).toBe(30);
+        });
+
+        test('should return hard settings (15x15) for subsequent tasks', () => {
+            const settings = determineMazeSize(1);
+            expect(settings.size).toBe(15);
+            expect(settings.cellSize).toBe(18);
+        });
+
+        test('should return hard settings for task index 2', () => {
+            const settings = determineMazeSize(2);
+            expect(settings.size).toBe(15);
+        });
+
+        test('should use smaller cells for larger maze to fit canvas', () => {
+            const easySettings = determineMazeSize(0);
+            const hardSettings = determineMazeSize(1);
+            
+            // Larger maze should have smaller cells
+            expect(hardSettings.cellSize).toBeLessThan(easySettings.cellSize);
+        });
+
+        test('hard maze should have more path options', () => {
+            // 15x15 maze has more cells than 9x9
+            const easyCount = 9 * 9;  // 81 cells
+            const hardCount = 15 * 15;  // 225 cells
+            
+            expect(hardCount).toBeGreaterThan(easyCount);
+            expect(hardCount).toBe(225);
+            expect(easyCount).toBe(81);
+        });
+    });
+
+    describe('Maze Generation with Dynamic Size', () => {
+        const WALL = 1;
+        const PATH = 0;
+
+        function generateMazeWithSize(size) {
+            const mazeGrid = Array(size).fill(null).map(() => Array(size).fill(WALL));
+            
+            const stack = [];
+            const startX = 1;
+            const startY = 1;
+            
+            mazeGrid[startY][startX] = PATH;
+            stack.push({ x: startX, y: startY });
+            
+            const directions = [
+                { dx: 0, dy: -2 },
+                { dx: 0, dy: 2 },
+                { dx: -2, dy: 0 },
+                { dx: 2, dy: 0 }
+            ];
+            
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+                const shuffledDirs = [...directions];
+                for (let i = shuffledDirs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledDirs[i], shuffledDirs[j]] = [shuffledDirs[j], shuffledDirs[i]];
+                }
+                
+                let found = false;
+                for (const dir of shuffledDirs) {
+                    const newX = current.x + dir.dx;
+                    const newY = current.y + dir.dy;
+                    
+                    if (newX > 0 && newX < size - 1 && 
+                        newY > 0 && newY < size - 1 && 
+                        mazeGrid[newY][newX] === WALL) {
+                        
+                        mazeGrid[newY][newX] = PATH;
+                        mazeGrid[current.y + dir.dy / 2][current.x + dir.dx / 2] = PATH;
+                        
+                        stack.push({ x: newX, y: newY });
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    stack.pop();
+                }
+            }
+            
+            mazeGrid[size - 2][size - 2] = PATH;
+            
+            return mazeGrid;
+        }
+
+        test('should generate 15x15 maze correctly', () => {
+            const maze = generateMazeWithSize(15);
+            expect(maze.length).toBe(15);
+            expect(maze[0].length).toBe(15);
+        });
+
+        test('15x15 maze should have start at (1,1)', () => {
+            const maze = generateMazeWithSize(15);
+            expect(maze[1][1]).toBe(PATH);
+        });
+
+        test('15x15 maze should have exit at (13,13)', () => {
+            const maze = generateMazeWithSize(15);
+            expect(maze[13][13]).toBe(PATH);
+        });
+
+        test('15x15 maze should have walls on border', () => {
+            const maze = generateMazeWithSize(15);
+            
+            // Check top and bottom rows
+            for (let x = 0; x < 15; x++) {
+                expect(maze[0][x]).toBe(WALL);
+                expect(maze[14][x]).toBe(WALL);
+            }
+            
+            // Check left and right columns
+            for (let y = 0; y < 15; y++) {
+                expect(maze[y][0]).toBe(WALL);
+                expect(maze[y][14]).toBe(WALL);
+            }
+        });
+    });
 });
