@@ -1341,6 +1341,199 @@
                 font-size: 16px;
             }
         }
+
+        /* ===== Space Invaders (小蜜蜂) Game Styles ===== */
+        .space-invaders-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .space-invaders-overlay.show {
+            display: flex;
+        }
+
+        .space-invaders-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .space-invaders-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .space-invaders-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .space-invaders-stats span {
+            color: #FFD700;
+        }
+
+        .space-invaders-container {
+            background: #000;
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+            border: 2px solid #FFD700;
+        }
+
+        .space-invaders-canvas {
+            display: block;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        .space-invaders-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .space-invaders-button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .space-invaders-button-continue {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+
+        .space-invaders-button-continue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
+        }
+
+        .space-invaders-button-reset {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .space-invaders-button-reset:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .space-invaders-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .space-invaders-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .space-invaders-complete-message.show {
+            display: block;
+        }
+
+        /* Mobile touch controls for Space Invaders */
+        .si-touch-controls {
+            display: none;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 15px;
+        }
+
+        .si-touch-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #FFD700;
+            border-radius: 50%;
+            color: #FFD700;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .si-touch-btn:active {
+            background: rgba(255, 215, 0, 0.6);
+        }
+
+        .si-touch-btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .si-fire-btn {
+            width: 70px;
+            height: 70px;
+            font-size: 28px;
+        }
+
+        @media (max-width: 768px) {
+            .si-touch-controls {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .space-invaders-canvas {
+                max-width: 280px;
+                max-height: 350px;
+            }
+            .space-invaders-title {
+                font-size: 24px;
+            }
+            .space-invaders-stats {
+                font-size: 16px;
+            }
+            .si-touch-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .si-fire-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1558,6 +1751,34 @@
         </div>
         <div class="shooting-complete-message" id="shootingCompleteMessage">
             🎉 游戏结束！得分：<span id="finalScore">0</span>
+        </div>
+    </div>
+
+    <!-- Space Invaders (小蜜蜂) Game Overlay -->
+    <div class="space-invaders-overlay" id="spaceInvadersOverlay">
+        <div class="space-invaders-header">
+            <div class="space-invaders-title">🐝 经典小蜜蜂 🐝</div>
+            <div class="space-invaders-stats">
+                得分：<span id="siScore">0</span> | 生命：<span id="siLives">3</span>
+            </div>
+        </div>
+        <div class="space-invaders-container">
+            <canvas class="space-invaders-canvas" id="spaceInvadersCanvas" width="320" height="400"></canvas>
+        </div>
+        <div class="space-invaders-hint">移动飞船消灭小蜜蜂！</div>
+        <div class="si-touch-controls" id="siTouchControls">
+            <div class="si-touch-btn-group">
+                <button class="si-touch-btn" id="siLeftBtn">◀</button>
+                <button class="si-touch-btn" id="siRightBtn">▶</button>
+            </div>
+            <button class="si-touch-btn si-fire-btn" id="siFireBtn">🔥</button>
+        </div>
+        <div class="space-invaders-buttons">
+            <button class="space-invaders-button space-invaders-button-reset" id="resetSpaceInvaders">🔄 重新开始</button>
+            <button class="space-invaders-button space-invaders-button-continue" id="exitSpaceInvaders">继续游览 ➡️</button>
+        </div>
+        <div class="space-invaders-complete-message" id="spaceInvadersCompleteMessage">
+            🎉 游戏结束！得分：<span id="siFinalScore">0</span>
         </div>
     </div>
 
@@ -2133,7 +2354,7 @@
             checkCompletion();
 
             // Show game as reward if photo was uploaded and setting is enabled
-            // Randomly select between puzzle game and maze game
+            // Randomly select between puzzle game, maze game, shooting game, and space invaders
             if (showGame) {
                 // Delay slightly to let fireworks animation start
                 // Store current task index for closure
@@ -2144,8 +2365,10 @@
                         initPuzzleGame(taskPhotos[taskIndexForGame], taskIndexForGame);
                     } else if (gameType === 'maze') {
                         initMazeGame(taskIndexForGame);
-                    } else {
+                    } else if (gameType === 'shooting') {
                         initShootingGame(taskIndexForGame);
+                    } else {
+                        initSpaceInvadersGame(taskIndexForGame);
                     }
                 }, 800);
             }
@@ -4172,16 +4395,431 @@
             canvas.ontouchstart = null;
         }
 
+        // ===== Space Invaders (小蜜蜂) Game Logic =====
+        let siScore = 0;
+        let siLives = 3;
+        let siGameOver = false;
+        let siAnimationId = null;
+        let siPlayer = null;
+        let siBullets = [];
+        let siEnemies = [];
+        let siEnemyBullets = [];
+        let siExplosions = [];
+        let siEnemyDirection = 1;
+        let siEnemySpeed = 1;
+        let siKeys = { left: false, right: false, fire: false };
+        let siTouchLeft = false;
+        let siTouchRight = false;
+        let siLastFireTime = 0;
+        
+        const SI_CANVAS_WIDTH = 320;
+        const SI_CANVAS_HEIGHT = 400;
+        const SI_PLAYER_WIDTH = 40;
+        const SI_PLAYER_HEIGHT = 25;
+        const SI_PLAYER_SPEED = 6;
+        const SI_BULLET_SPEED = 10;
+        const SI_ENEMY_WIDTH = 32;
+        const SI_ENEMY_HEIGHT = 24;
+        const SI_FIRE_COOLDOWN = 300;
+        const SI_ENEMY_FIRE_CHANCE = 0.005;
+        const SI_MAX_BULLETS = 3;
+        
+        const SI_ENEMY_COLORS = ['#FFD700', '#FF6B00', '#FF00FF', '#00FFFF'];
+        
+        // Initialize Space Invaders game
+        function initSpaceInvadersGame(taskIndex) {
+            siScore = 0;
+            siLives = 3;
+            siGameOver = false;
+            siBullets = [];
+            siEnemies = [];
+            siEnemyBullets = [];
+            siExplosions = [];
+            siEnemyDirection = 1;
+            siEnemySpeed = taskIndex === 0 ? 0.8 : 1.2;  // Easier for first task
+            siKeys = { left: false, right: false, fire: false };
+            siTouchLeft = false;
+            siTouchRight = false;
+            
+            // Initialize player
+            siPlayer = {
+                x: SI_CANVAS_WIDTH / 2 - SI_PLAYER_WIDTH / 2,
+                y: SI_CANVAS_HEIGHT - SI_PLAYER_HEIGHT - 15,
+                width: SI_PLAYER_WIDTH,
+                height: SI_PLAYER_HEIGHT,
+                invincible: false,
+                invincibleTime: 0
+            };
+            
+            // Initialize enemies
+            const rows = taskIndex === 0 ? 3 : 4;
+            const cols = taskIndex === 0 ? 6 : 7;
+            const startX = (SI_CANVAS_WIDTH - (cols * (SI_ENEMY_WIDTH + 8))) / 2;
+            const startY = 50;
+            
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    siEnemies.push({
+                        x: startX + col * (SI_ENEMY_WIDTH + 8),
+                        y: startY + row * (SI_ENEMY_HEIGHT + 8),
+                        width: SI_ENEMY_WIDTH,
+                        height: SI_ENEMY_HEIGHT,
+                        type: row % 4,
+                        animFrame: 0,
+                        animTimer: 0
+                    });
+                }
+            }
+            
+            // Update UI
+            document.getElementById('siScore').textContent = '0';
+            document.getElementById('siLives').textContent = '3';
+            document.getElementById('spaceInvadersCompleteMessage').classList.remove('show');
+            
+            // Show overlay
+            document.getElementById('spaceInvadersOverlay').classList.add('show');
+            
+            // Setup keyboard events
+            document.addEventListener('keydown', siHandleKeyDown);
+            document.addEventListener('keyup', siHandleKeyUp);
+            
+            // Setup touch controls
+            setupSITouchControls();
+            
+            // Setup button handlers
+            document.getElementById('resetSpaceInvaders').onclick = () => {
+                cleanupSpaceInvadersGame();
+                initSpaceInvadersGame(taskIndex);
+            };
+            document.getElementById('exitSpaceInvaders').onclick = cleanupSpaceInvadersGame;
+            
+            // Start game loop
+            siGameLoop();
+        }
+        
+        function setupSITouchControls() {
+            const leftBtn = document.getElementById('siLeftBtn');
+            const rightBtn = document.getElementById('siRightBtn');
+            const fireBtn = document.getElementById('siFireBtn');
+            
+            leftBtn.ontouchstart = (e) => { e.preventDefault(); siTouchLeft = true; };
+            leftBtn.ontouchend = () => { siTouchLeft = false; };
+            leftBtn.onmousedown = () => { siTouchLeft = true; };
+            leftBtn.onmouseup = () => { siTouchLeft = false; };
+            
+            rightBtn.ontouchstart = (e) => { e.preventDefault(); siTouchRight = true; };
+            rightBtn.ontouchend = () => { siTouchRight = false; };
+            rightBtn.onmousedown = () => { siTouchRight = true; };
+            rightBtn.onmouseup = () => { siTouchRight = false; };
+            
+            fireBtn.ontouchstart = (e) => { e.preventDefault(); siFireBullet(); };
+            fireBtn.onmousedown = () => { siFireBullet(); };
+        }
+        
+        function siHandleKeyDown(e) {
+            if (siGameOver) return;
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') { siKeys.left = true; e.preventDefault(); }
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') { siKeys.right = true; e.preventDefault(); }
+            if (e.code === 'Space') { siFireBullet(); e.preventDefault(); }
+        }
+        
+        function siHandleKeyUp(e) {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') siKeys.left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') siKeys.right = false;
+        }
+        
+        function siFireBullet() {
+            if (siGameOver) return;
+            const now = Date.now();
+            if (now - siLastFireTime < SI_FIRE_COOLDOWN) return;
+            if (siBullets.length >= SI_MAX_BULLETS) return;
+            
+            siLastFireTime = now;
+            siBullets.push({
+                x: siPlayer.x + siPlayer.width / 2 - 2,
+                y: siPlayer.y,
+                width: 4,
+                height: 12
+            });
+        }
+        
+        function siCreateExplosion(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const angle = (Math.PI * 2 * i) / 12;
+                const speed = Math.random() * 3 + 2;
+                siExplosions.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    color: SI_ENEMY_COLORS[Math.floor(Math.random() * SI_ENEMY_COLORS.length)],
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function siGameLoop() {
+            if (siGameOver) return;
+            
+            siUpdate();
+            siRender();
+            siAnimationId = requestAnimationFrame(siGameLoop);
+        }
+        
+        function siUpdate() {
+            // Update player
+            if (siKeys.left || siTouchLeft) siPlayer.x -= SI_PLAYER_SPEED;
+            if (siKeys.right || siTouchRight) siPlayer.x += SI_PLAYER_SPEED;
+            siPlayer.x = Math.max(0, Math.min(SI_CANVAS_WIDTH - siPlayer.width, siPlayer.x));
+            
+            // Update bullets
+            siBullets = siBullets.filter(b => {
+                b.y -= SI_BULLET_SPEED;
+                return b.y + b.height > 0;
+            });
+            
+            // Update enemy bullets
+            siEnemyBullets = siEnemyBullets.filter(b => {
+                b.y += 4;
+                return b.y < SI_CANVAS_HEIGHT;
+            });
+            
+            // Update enemies
+            if (siEnemies.length > 0) {
+                let leftMost = SI_CANVAS_WIDTH, rightMost = 0;
+                siEnemies.forEach(e => {
+                    leftMost = Math.min(leftMost, e.x);
+                    rightMost = Math.max(rightMost, e.x + e.width);
+                });
+                
+                let shouldDrop = false;
+                if (siEnemyDirection > 0 && rightMost + siEnemySpeed >= SI_CANVAS_WIDTH) {
+                    siEnemyDirection = -1;
+                    shouldDrop = true;
+                } else if (siEnemyDirection < 0 && leftMost - siEnemySpeed <= 0) {
+                    siEnemyDirection = 1;
+                    shouldDrop = true;
+                }
+                
+                siEnemies.forEach(e => {
+                    e.x += siEnemySpeed * siEnemyDirection;
+                    if (shouldDrop) e.y += 20;
+                    e.animTimer++;
+                    if (e.animTimer > 20) { e.animFrame = (e.animFrame + 1) % 2; e.animTimer = 0; }
+                    
+                    // Random fire
+                    if (Math.random() < SI_ENEMY_FIRE_CHANCE) {
+                        siEnemyBullets.push({
+                            x: e.x + e.width / 2 - 2,
+                            y: e.y + e.height,
+                            width: 4,
+                            height: 10
+                        });
+                    }
+                    
+                    // Check if reached bottom
+                    if (e.y + e.height >= siPlayer.y) {
+                        siEndGame();
+                    }
+                });
+            }
+            
+            // Update explosions
+            siExplosions = siExplosions.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1;
+                p.life -= 0.03;
+                return p.life > 0;
+            });
+            
+            // Check collisions: bullets vs enemies
+            for (let i = siBullets.length - 1; i >= 0; i--) {
+                for (let j = siEnemies.length - 1; j >= 0; j--) {
+                    if (siIsColliding(siBullets[i], siEnemies[j])) {
+                        siCreateExplosion(siEnemies[j].x + siEnemies[j].width / 2, siEnemies[j].y + siEnemies[j].height / 2);
+                        siScore += 10 * (siEnemies[j].type + 1);
+                        document.getElementById('siScore').textContent = siScore;
+                        siBullets.splice(i, 1);
+                        siEnemies.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            
+            // Check collisions: enemy bullets vs player
+            if (!siPlayer.invincible) {
+                for (let i = siEnemyBullets.length - 1; i >= 0; i--) {
+                    if (siIsColliding(siEnemyBullets[i], siPlayer)) {
+                        siEnemyBullets.splice(i, 1);
+                        siPlayerHit();
+                        break;
+                    }
+                }
+            }
+            
+            // Update invincibility
+            if (siPlayer.invincible) {
+                siPlayer.invincibleTime--;
+                if (siPlayer.invincibleTime <= 0) siPlayer.invincible = false;
+            }
+            
+            // Check victory
+            if (siEnemies.length === 0) {
+                siEndGame(true);
+            }
+        }
+        
+        function siIsColliding(a, b) {
+            return a.x < b.x + b.width && a.x + a.width > b.x &&
+                   a.y < b.y + b.height && a.y + a.height > b.y;
+        }
+        
+        function siPlayerHit() {
+            siLives--;
+            document.getElementById('siLives').textContent = siLives;
+            siCreateExplosion(siPlayer.x + siPlayer.width / 2, siPlayer.y + siPlayer.height / 2);
+            
+            if (siLives <= 0) {
+                siEndGame();
+            } else {
+                siPlayer.invincible = true;
+                siPlayer.invincibleTime = 90;
+            }
+        }
+        
+        function siEndGame(victory = false) {
+            siGameOver = true;
+            if (victory) siScore += 100;
+            document.getElementById('siFinalScore').textContent = siScore;
+            document.getElementById('spaceInvadersCompleteMessage').classList.add('show');
+        }
+        
+        function siRender() {
+            const canvas = document.getElementById('spaceInvadersCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, SI_CANVAS_WIDTH, SI_CANVAS_HEIGHT);
+            
+            // Draw stars
+            ctx.fillStyle = '#FFF';
+            for (let i = 0; i < 30; i++) {
+                const x = (i * 37) % SI_CANVAS_WIDTH;
+                const y = (i * 23) % SI_CANVAS_HEIGHT;
+                ctx.fillRect(x, y, 1, 1);
+            }
+            
+            // Draw player (blink when invincible)
+            if (!siPlayer.invincible || Math.floor(siPlayer.invincibleTime / 4) % 2 === 0) {
+                ctx.fillStyle = '#00FF00';
+                ctx.beginPath();
+                ctx.moveTo(siPlayer.x + siPlayer.width / 2, siPlayer.y);
+                ctx.lineTo(siPlayer.x + siPlayer.width, siPlayer.y + siPlayer.height);
+                ctx.lineTo(siPlayer.x + siPlayer.width * 0.7, siPlayer.y + siPlayer.height * 0.7);
+                ctx.lineTo(siPlayer.x + siPlayer.width * 0.3, siPlayer.y + siPlayer.height * 0.7);
+                ctx.lineTo(siPlayer.x, siPlayer.y + siPlayer.height);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Cockpit
+                ctx.fillStyle = '#00CCFF';
+                ctx.beginPath();
+                ctx.arc(siPlayer.x + siPlayer.width / 2, siPlayer.y + siPlayer.height * 0.4, siPlayer.width * 0.12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw bullets
+            ctx.fillStyle = '#FFFF00';
+            ctx.shadowColor = '#FFFF00';
+            ctx.shadowBlur = 8;
+            siBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+            ctx.shadowBlur = 0;
+            
+            // Draw enemy bullets
+            ctx.fillStyle = '#FF0000';
+            ctx.shadowColor = '#FF0000';
+            ctx.shadowBlur = 8;
+            siEnemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+            ctx.shadowBlur = 0;
+            
+            // Draw enemies (bees)
+            siEnemies.forEach(e => {
+                const color = SI_ENEMY_COLORS[e.type];
+                const x = e.x, y = e.y, w = e.width, h = e.height;
+                
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 8;
+                
+                // Body
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(x + w / 2, y + h / 2, w / 2.5, h / 2.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Stripes
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + w * 0.25, y + h * 0.35, w * 0.5, h * 0.08);
+                ctx.fillRect(x + w * 0.2, y + h * 0.5, w * 0.6, h * 0.08);
+                
+                // Wings
+                const wingAngle = e.animFrame === 0 ? 0.3 : -0.3;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.ellipse(x + w * 0.15, y + h * 0.3, w * 0.2, h * 0.12, wingAngle, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(x + w * 0.85, y + h * 0.3, w * 0.2, h * 0.12, -wingAngle, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = '#FFF';
+                ctx.beginPath();
+                ctx.arc(x + w * 0.35, y + h * 0.35, w * 0.06, 0, Math.PI * 2);
+                ctx.arc(x + w * 0.65, y + h * 0.35, w * 0.06, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+            });
+            
+            // Draw explosions
+            siExplosions.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        function cleanupSpaceInvadersGame() {
+            siGameOver = true;
+            if (siAnimationId) {
+                cancelAnimationFrame(siAnimationId);
+                siAnimationId = null;
+            }
+            
+            document.removeEventListener('keydown', siHandleKeyDown);
+            document.removeEventListener('keyup', siHandleKeyUp);
+            
+            document.getElementById('spaceInvadersOverlay').classList.remove('show');
+            document.getElementById('spaceInvadersCompleteMessage').classList.remove('show');
+        }
+
         // ===== Random Game Selection =====
-        // Randomly select between puzzle, maze, and shooting game
+        // Randomly select between puzzle, maze, shooting, and space invaders game
         function selectRandomGame() {
             const rand = Math.random();
-            if (rand < 0.33) {
+            if (rand < 0.25) {
                 return 'puzzle';
-            } else if (rand < 0.66) {
+            } else if (rand < 0.5) {
                 return 'maze';
-            } else {
+            } else if (rand < 0.75) {
                 return 'shooting';
+            } else {
+                return 'space-invaders';
             }
         }
 
