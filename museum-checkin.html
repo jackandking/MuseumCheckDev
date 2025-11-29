@@ -1036,6 +1036,176 @@
                 font-size: 24px;
             }
         }
+
+        /* Maze Game Styles */
+        .maze-game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .maze-game-overlay.show {
+            display: flex;
+        }
+
+        .maze-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .maze-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .maze-steps {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .maze-container {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .maze-canvas {
+            display: block;
+            border-radius: 8px;
+            touch-action: none;
+        }
+
+        .maze-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 310px;
+        }
+
+        .maze-button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .maze-button-continue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .maze-button-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .maze-button-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .maze-button-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .maze-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .maze-control-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .maze-control-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        .maze-control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .maze-control-btn.empty {
+            visibility: hidden;
+        }
+
+        .maze-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .maze-complete-message.show {
+            display: block;
+        }
+
+        .maze-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 360px) {
+            .maze-canvas {
+                max-width: 240px;
+                max-height: 240px;
+            }
+            .maze-title {
+                font-size: 24px;
+            }
+            .maze-control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .maze-controls {
+                grid-template-columns: repeat(3, 50px);
+                grid-template-rows: repeat(3, 50px);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1156,8 +1326,8 @@
                 <div class="settings-item">
                     <div class="settings-toggle">
                         <div>
-                            <label class="settings-label" style="margin-bottom: 0;">拼图游戏奖励</label>
-                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，用照片玩拼图游戏（门口打卡为四宫格，后续任务为九宫格）</div>
+                            <label class="settings-label" style="margin-bottom: 0;">小游戏奖励</label>
+                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁拼图游戏或迷宫游戏作为奖励</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="puzzleGameToggle">
@@ -1201,6 +1371,36 @@
         </div>
         <div class="puzzle-complete-message" id="puzzleCompleteMessage">
             🎉 恭喜完成！
+        </div>
+    </div>
+
+    <!-- Maze Game Overlay -->
+    <div class="maze-game-overlay" id="mazeGameOverlay">
+        <div class="maze-header">
+            <div class="maze-title">🏃 迷宫冒险</div>
+            <div class="maze-steps">步数：<span id="mazeSteps">0</span></div>
+        </div>
+        <div class="maze-container">
+            <canvas class="maze-canvas" id="mazeCanvas" width="280" height="280"></canvas>
+        </div>
+        <div class="maze-hint">使用下方方向键或滑动屏幕移动小人</div>
+        <div class="maze-controls">
+            <button class="maze-control-btn empty"></button>
+            <button class="maze-control-btn" id="mazeUp">⬆️</button>
+            <button class="maze-control-btn empty"></button>
+            <button class="maze-control-btn" id="mazeLeft">⬅️</button>
+            <button class="maze-control-btn empty"></button>
+            <button class="maze-control-btn" id="mazeRight">➡️</button>
+            <button class="maze-control-btn empty"></button>
+            <button class="maze-control-btn" id="mazeDown">⬇️</button>
+            <button class="maze-control-btn empty"></button>
+        </div>
+        <div class="maze-buttons">
+            <button class="maze-button maze-button-reset" id="resetMaze">🔄 重新开始</button>
+            <button class="maze-button maze-button-continue" id="exitMaze">继续游览 ➡️</button>
+        </div>
+        <div class="maze-complete-message" id="mazeCompleteMessage">
+            🎉 成功逃脱！
         </div>
     </div>
 
@@ -1751,10 +1951,10 @@
         function completeTask() {
             if (currentTaskIndex === null) return;
 
-            // Check if puzzle game should be shown (has photo and setting enabled)
+            // Check if game should be shown (has photo and setting enabled)
             const hasPhoto = !!taskPhotos[currentTaskIndex];
             const puzzleEnabled = loadPuzzleGameSetting();
-            const showPuzzle = hasPhoto && puzzleEnabled;
+            const showGame = hasPhoto && puzzleEnabled;
 
             completedTasks.add(currentTaskIndex);
             saveCompletedTasks();
@@ -1775,13 +1975,19 @@
             // Check if all tasks complete
             checkCompletion();
 
-            // Show puzzle game as reward if photo was uploaded and setting is enabled
-            if (showPuzzle) {
+            // Show game as reward if photo was uploaded and setting is enabled
+            // Randomly select between puzzle game and maze game
+            if (showGame) {
                 // Delay slightly to let fireworks animation start
                 // Store current task index for closure
-                const taskIndexForPuzzle = currentTaskIndex;
+                const taskIndexForGame = currentTaskIndex;
+                const gameType = selectRandomGame();
                 setTimeout(() => {
-                    initPuzzleGame(taskPhotos[taskIndexForPuzzle], taskIndexForPuzzle);
+                    if (gameType === 'puzzle') {
+                        initPuzzleGame(taskPhotos[taskIndexForGame], taskIndexForGame);
+                    } else {
+                        initMazeGame();
+                    }
                 }, 800);
             }
         }
@@ -2698,6 +2904,38 @@
                 toggleRefBtn.onclick = toggleReferenceImage;
             }
 
+            // Maze game controls
+            const exitMazeBtn = document.getElementById('exitMaze');
+            if (exitMazeBtn) {
+                exitMazeBtn.onclick = closeMazeGame;
+            }
+
+            const resetMazeBtn = document.getElementById('resetMaze');
+            if (resetMazeBtn) {
+                resetMazeBtn.onclick = resetMaze;
+            }
+
+            // Maze direction buttons
+            const mazeUpBtn = document.getElementById('mazeUp');
+            if (mazeUpBtn) {
+                mazeUpBtn.onclick = () => movePlayer(0, -1);
+            }
+
+            const mazeDownBtn = document.getElementById('mazeDown');
+            if (mazeDownBtn) {
+                mazeDownBtn.onclick = () => movePlayer(0, 1);
+            }
+
+            const mazeLeftBtn = document.getElementById('mazeLeft');
+            if (mazeLeftBtn) {
+                mazeLeftBtn.onclick = () => movePlayer(-1, 0);
+            }
+
+            const mazeRightBtn = document.getElementById('mazeRight');
+            if (mazeRightBtn) {
+                mazeRightBtn.onclick = () => movePlayer(1, 0);
+            }
+
             // Close modals on background click
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) {
@@ -3112,6 +3350,300 @@
             if (refImg) {
                 refImg.classList.toggle('show');
             }
+        }
+
+        // ===== Maze Game Logic =====
+        let mazeGrid = [];
+        let mazeSize = 9;  // 9x9 maze (odd number for better maze generation)
+        let playerPos = { x: 1, y: 1 };
+        let exitPos = { x: 7, y: 7 };
+        let mazeSteps = 0;
+        const CELL_SIZE = 30;
+        const WALL = 1;
+        const PATH = 0;
+        const PLAYER = 2;
+        const EXIT = 3;
+
+        // Generate a maze using recursive backtracking algorithm
+        function generateMaze() {
+            // Initialize maze with walls
+            mazeGrid = Array(mazeSize).fill(null).map(() => Array(mazeSize).fill(WALL));
+            
+            // Start from position (1, 1)
+            const stack = [];
+            const startX = 1;
+            const startY = 1;
+            
+            mazeGrid[startY][startX] = PATH;
+            stack.push({ x: startX, y: startY });
+            
+            const directions = [
+                { dx: 0, dy: -2 },  // Up
+                { dx: 0, dy: 2 },   // Down
+                { dx: -2, dy: 0 },  // Left
+                { dx: 2, dy: 0 }    // Right
+            ];
+            
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+                
+                // Shuffle directions using Fisher-Yates algorithm
+                const shuffledDirs = [...directions];
+                for (let i = shuffledDirs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledDirs[i], shuffledDirs[j]] = [shuffledDirs[j], shuffledDirs[i]];
+                }
+                
+                let found = false;
+                for (const dir of shuffledDirs) {
+                    const newX = current.x + dir.dx;
+                    const newY = current.y + dir.dy;
+                    
+                    if (newX > 0 && newX < mazeSize - 1 && 
+                        newY > 0 && newY < mazeSize - 1 && 
+                        mazeGrid[newY][newX] === WALL) {
+                        
+                        // Carve path
+                        mazeGrid[newY][newX] = PATH;
+                        mazeGrid[current.y + dir.dy / 2][current.x + dir.dx / 2] = PATH;
+                        
+                        stack.push({ x: newX, y: newY });
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    stack.pop();
+                }
+            }
+            
+            // Set start and exit positions
+            playerPos = { x: 1, y: 1 };
+            exitPos = { x: mazeSize - 2, y: mazeSize - 2 };
+            
+            // Ensure exit is reachable
+            mazeGrid[exitPos.y][exitPos.x] = PATH;
+        }
+
+        // Initialize the maze game
+        function initMazeGame() {
+            mazeSteps = 0;
+            document.getElementById('mazeSteps').textContent = '0';
+            
+            generateMaze();
+            renderMaze();
+            
+            // Hide complete message
+            document.getElementById('mazeCompleteMessage').classList.remove('show');
+            
+            // Show the maze overlay
+            document.getElementById('mazeGameOverlay').classList.add('show');
+            
+            // Setup keyboard controls
+            document.addEventListener('keydown', handleMazeKeydown);
+            
+            // Setup touch controls for mobile
+            setupMazeTouchControls();
+        }
+
+        // Render the maze on canvas
+        function renderMaze() {
+            const canvas = document.getElementById('mazeCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size based on maze
+            canvas.width = mazeSize * CELL_SIZE;
+            canvas.height = mazeSize * CELL_SIZE;
+            
+            // Clear canvas
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw maze
+            for (let y = 0; y < mazeSize; y++) {
+                for (let x = 0; x < mazeSize; x++) {
+                    const cellX = x * CELL_SIZE;
+                    const cellY = y * CELL_SIZE;
+                    
+                    if (mazeGrid[y][x] === WALL) {
+                        // Wall
+                        ctx.fillStyle = '#4a4a4a';
+                        ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        
+                        // Add 3D effect to walls
+                        ctx.fillStyle = '#3a3a3a';
+                        ctx.fillRect(cellX + CELL_SIZE - 2, cellY, 2, CELL_SIZE);
+                        ctx.fillRect(cellX, cellY + CELL_SIZE - 2, CELL_SIZE, 2);
+                    } else {
+                        // Path
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+            
+            // Draw exit (goal)
+            ctx.fillStyle = '#28a745';
+            ctx.fillRect(exitPos.x * CELL_SIZE + 4, exitPos.y * CELL_SIZE + 4, CELL_SIZE - 8, CELL_SIZE - 8);
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏁', exitPos.x * CELL_SIZE + CELL_SIZE / 2, exitPos.y * CELL_SIZE + CELL_SIZE / 2);
+            
+            // Draw player
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(
+                playerPos.x * CELL_SIZE + CELL_SIZE / 2,
+                playerPos.y * CELL_SIZE + CELL_SIZE / 2,
+                CELL_SIZE / 3,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+            
+            // Player face
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('😊', playerPos.x * CELL_SIZE + CELL_SIZE / 2, playerPos.y * CELL_SIZE + CELL_SIZE / 2);
+        }
+
+        // Move player in the maze
+        function movePlayer(dx, dy) {
+            const newX = playerPos.x + dx;
+            const newY = playerPos.y + dy;
+            
+            // Check if move is valid
+            if (newX >= 0 && newX < mazeSize && 
+                newY >= 0 && newY < mazeSize && 
+                mazeGrid[newY][newX] !== WALL) {
+                
+                playerPos.x = newX;
+                playerPos.y = newY;
+                mazeSteps++;
+                document.getElementById('mazeSteps').textContent = mazeSteps;
+                
+                renderMaze();
+                
+                // Check if reached exit
+                if (playerPos.x === exitPos.x && playerPos.y === exitPos.y) {
+                    checkMazeComplete();
+                }
+            }
+        }
+
+        // Handle keyboard input for maze
+        function handleMazeKeydown(e) {
+            if (!document.getElementById('mazeGameOverlay').classList.contains('show')) {
+                return;
+            }
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    movePlayer(0, -1);
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    movePlayer(0, 1);
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    movePlayer(-1, 0);
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    movePlayer(1, 0);
+                    break;
+            }
+        }
+
+        // Setup touch controls for mobile
+        function setupMazeTouchControls() {
+            const canvas = document.getElementById('mazeCanvas');
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            canvas.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            canvas.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+                
+                const minSwipeDistance = 30;
+                
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
+                    // Horizontal swipe
+                    if (dx > 0) {
+                        movePlayer(1, 0);  // Right
+                    } else {
+                        movePlayer(-1, 0);  // Left
+                    }
+                } else if (Math.abs(dy) > minSwipeDistance) {
+                    // Vertical swipe
+                    if (dy > 0) {
+                        movePlayer(0, 1);  // Down
+                    } else {
+                        movePlayer(0, -1);  // Up
+                    }
+                }
+            }, { passive: true });
+        }
+
+        // Check if maze is complete
+        function checkMazeComplete() {
+            // Show completion message
+            document.getElementById('mazeCompleteMessage').classList.add('show');
+            
+            // Play sound if available
+            if (typeof playFireworkSound === 'function') {
+                playFireworkSound();
+            }
+            
+            // Auto-close after delay
+            setTimeout(() => {
+                closeMazeGame();
+            }, 2000);
+        }
+
+        // Reset the maze
+        function resetMaze() {
+            mazeSteps = 0;
+            document.getElementById('mazeSteps').textContent = '0';
+            document.getElementById('mazeCompleteMessage').classList.remove('show');
+            generateMaze();
+            renderMaze();
+        }
+
+        // Close the maze game
+        function closeMazeGame() {
+            document.getElementById('mazeGameOverlay').classList.remove('show');
+            document.getElementById('mazeCompleteMessage').classList.remove('show');
+            document.removeEventListener('keydown', handleMazeKeydown);
+        }
+
+        // ===== Random Game Selection =====
+        // Randomly select between puzzle and maze game
+        function selectRandomGame() {
+            return Math.random() < 0.5 ? 'puzzle' : 'maze';
         }
 
         // Initialize on page load
