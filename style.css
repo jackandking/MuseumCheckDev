@@ -6412,6 +6412,11 @@ main[role="main"] {
     display: none !important;
 }
 
+/* Guide button hiding */
+.hide-guide-buttons .museum-v3-button {
+    display: none !important;
+}
+
 /* ===== Fireworks Feature Styles ===== */
 
 /* Fireworks Stats Section */

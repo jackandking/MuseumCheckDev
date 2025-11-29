@@ -3610,6 +3610,7 @@ class MuseumCheckApp {
         this.userLocation = null; // Will be set if user grants location permission
         this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
         this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
+        this.guideButtonHidden = !this.loadGuideButtonVisibility(); // Load from settings, default to hidden
         this.showOnlyMuseumsWithCollections = this.loadShowOnlyMuseumsWithCollections(); // Load from settings, default to true
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
@@ -3684,6 +3685,9 @@ class MuseumCheckApp {
         
         // Apply management button visibility setting
         this.applyManageButtonVisibility();
+        
+        // Apply guide button visibility setting
+        this.applyGuideButtonVisibility();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -4892,6 +4896,23 @@ class MuseumCheckApp {
             });
         }
 
+        // Guide button visibility toggle
+        const showGuideButtonToggle = document.getElementById('showGuideButtonToggle');
+        if (showGuideButtonToggle) {
+            showGuideButtonToggle.addEventListener('change', (e) => {
+                const showGuideButton = e.target.checked;
+                const result = this.saveGuideButtonVisibility(showGuideButton);
+                
+                if (result.success) {
+                    // Track guide button visibility change
+                    this.trackEvent('guide_button_visibility_changed', {
+                        'show_guide_button': showGuideButton,
+                        'auto_saved': true
+                    });
+                }
+            });
+        }
+
         // Show only museums with collections toggle
         const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
         if (showOnlyMuseumsWithCollections) {
@@ -5587,6 +5608,38 @@ class MuseumCheckApp {
         }
     }
 
+    loadGuideButtonVisibility() {
+        try {
+            const saved = localStorage.getItem('showGuideButton');
+            // Default to false (hidden) if not saved
+            return saved === 'true';
+        } catch (error) {
+            console.error('Failed to load guide button visibility:', error);
+            return false; // Default to hidden
+        }
+    }
+
+    saveGuideButtonVisibility(showGuideButton) {
+        try {
+            localStorage.setItem('showGuideButton', showGuideButton ? 'true' : 'false');
+            this.guideButtonHidden = !showGuideButton;
+            this.applyGuideButtonVisibility();
+            return { success: true, message: '显示设置已保存' };
+        } catch (error) {
+            console.error('Failed to save guide button visibility:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    applyGuideButtonVisibility() {
+        const body = document.body;
+        if (this.guideButtonHidden) {
+            body.classList.add('hide-guide-buttons');
+        } else {
+            body.classList.remove('hide-guide-buttons');
+        }
+    }
+
     loadShowOnlyMuseumsWithCollections() {
         try {
             const saved = localStorage.getItem('showOnlyMuseumsWithCollections');
@@ -6181,14 +6234,17 @@ class MuseumCheckApp {
                 `;
 
                 // Add click event for the card (excluding checkbox, buttons)
+                // Navigate to v2 (single-museum.html) when clicking the card
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
                         !e.target.classList.contains('assessment-button') &&
                         !e.target.classList.contains('museum-fireworks-button') &&
                         !e.target.classList.contains('museum-checkin-button') &&
                         !e.target.classList.contains('museum-manage-button') &&
+                        !e.target.classList.contains('museum-v3-button') &&
                         !e.target.classList.contains('favorite-button')) {
-                        this.openMuseumModal(museum);
+                        // Navigate to v2 single museum page
+                        window.location.href = `single-museum.html?museum=${museum.id}`;
                     }
                 });
 
@@ -8005,6 +8061,12 @@ class MuseumCheckApp {
         const showManageButtonToggle = document.getElementById('showManageButtonToggle');
         if (showManageButtonToggle) {
             showManageButtonToggle.checked = !this.manageButtonHidden;
+        }
+
+        // Update guide button visibility toggle
+        const showGuideButtonToggle = document.getElementById('showGuideButtonToggle');
+        if (showGuideButtonToggle) {
+            showGuideButtonToggle.checked = !this.guideButtonHidden;
         }
 
         // Update show only museums with collections toggle
