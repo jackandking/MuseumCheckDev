@@ -3611,6 +3611,7 @@ class MuseumCheckApp {
         this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
         this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
         this.guideButtonHidden = !this.loadGuideButtonVisibility(); // Load from settings, default to hidden
+        this.childModeEnabled = this.loadChildModeEnabled(); // Load child mode setting
         this.showOnlyMuseumsWithCollections = this.loadShowOnlyMuseumsWithCollections(); // Load from settings, default to true
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
@@ -3688,6 +3689,9 @@ class MuseumCheckApp {
         
         // Apply guide button visibility setting
         this.applyGuideButtonVisibility();
+        
+        // Apply child mode setting
+        this.applyChildMode();
         
         // Migrate existing localStorage photos to IndexedDB if supported
         if (this.indexedDBSupported) {
@@ -4930,6 +4934,33 @@ class MuseumCheckApp {
             });
         }
 
+        // Child mode toggle
+        const childModeToggle = document.getElementById('childModeToggle');
+        if (childModeToggle) {
+            childModeToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                const result = this.saveChildModeEnabled(enabled);
+                
+                if (result.success) {
+                    this.showNotification(result.message, 2000);
+                    
+                    // Close settings modal when entering child mode
+                    if (enabled) {
+                        document.getElementById('settingsModal').classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // Child mode indicator click handler (to exit child mode)
+        const childModeIndicator = document.getElementById('childModeIndicator');
+        if (childModeIndicator) {
+            childModeIndicator.addEventListener('click', () => {
+                this.exitChildMode();
+                this.showNotification('已退出孩子模式', 2000);
+            });
+        }
+
         // Clear all data button
         document.getElementById('clearAllDataButton').addEventListener('click', () => {
             this.clearAllData();
@@ -5637,6 +5668,60 @@ class MuseumCheckApp {
             body.classList.add('hide-guide-buttons');
         } else {
             body.classList.remove('hide-guide-buttons');
+        }
+    }
+
+    // Child Mode Functions
+    loadChildModeEnabled() {
+        try {
+            const saved = localStorage.getItem('childModeEnabled');
+            // Default to false (disabled) if not saved
+            return saved === 'true';
+        } catch (error) {
+            console.error('Failed to load child mode setting:', error);
+            return false; // Default to disabled
+        }
+    }
+
+    saveChildModeEnabled(enabled) {
+        try {
+            localStorage.setItem('childModeEnabled', enabled ? 'true' : 'false');
+            this.childModeEnabled = enabled;
+            this.applyChildMode();
+            
+            // Track event
+            this.trackEvent('child_mode_toggle', {
+                'enabled': enabled,
+                'timestamp': new Date().toISOString()
+            });
+            
+            return { success: true, message: enabled ? '已进入孩子模式' : '已退出孩子模式' };
+        } catch (error) {
+            console.error('Failed to save child mode setting:', error);
+            return { success: false, message: '保存失败，请重试' };
+        }
+    }
+
+    applyChildMode() {
+        const body = document.body;
+        if (this.childModeEnabled) {
+            body.classList.add('child-mode');
+            // If a modal is currently open, force show child checklist
+            const childChecklist = document.getElementById('childChecklist');
+            if (childChecklist) {
+                childChecklist.style.display = 'block';
+            }
+        } else {
+            body.classList.remove('child-mode');
+        }
+    }
+
+    exitChildMode() {
+        this.saveChildModeEnabled(false);
+        // Update the toggle in settings if the settings modal is open
+        const childModeToggle = document.getElementById('childModeToggle');
+        if (childModeToggle) {
+            childModeToggle.checked = false;
         }
     }
 
@@ -7086,6 +7171,11 @@ class MuseumCheckApp {
             return;
         }
 
+        // In child mode, always default to child tab (activeTab has default 'parent')
+        if (this.childModeEnabled) {
+            activeTab = 'child';
+        }
+
         const modal = document.getElementById('museumModal');
         const content = document.getElementById('modalContent');
         const title = document.getElementById('modalTitle');
@@ -8067,6 +8157,12 @@ class MuseumCheckApp {
         const showGuideButtonToggle = document.getElementById('showGuideButtonToggle');
         if (showGuideButtonToggle) {
             showGuideButtonToggle.checked = !this.guideButtonHidden;
+        }
+
+        // Update child mode toggle
+        const childModeToggle = document.getElementById('childModeToggle');
+        if (childModeToggle) {
+            childModeToggle.checked = this.childModeEnabled;
         }
 
         // Update show only museums with collections toggle

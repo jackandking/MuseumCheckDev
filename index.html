@@ -158,6 +158,12 @@
         <canvas id="globalFireworksCanvas"></canvas>
     </div>
     
+    <!-- Child Mode Indicator (shown when child mode is active) -->
+    <div id="childModeIndicator" class="child-mode-indicator" title="点击退出孩子模式">
+        <span>👶 孩子模式</span>
+        <span class="exit-text">点击退出</span>
+    </div>
+    
     <div class="container">
         <header>
             <h1>
@@ -457,6 +463,16 @@
                         </select>
                     </div>
                     <div class="settings-hint">更改后将立即重新加载博物馆内容</div>
+                </div>
+                <div class="settings-item">
+                    <label class="settings-label" for="childModeToggle">孩子模式：</label>
+                    <div class="settings-input-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="childModeToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-hint">开启后简化界面，仅显示孩子探索任务，适合把手机给孩子在博物馆里找镇馆之宝</div>
                 </div>
                 </div>
             </div>
