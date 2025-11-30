@@ -3947,12 +3947,29 @@
         // Check if all tasks are complete and update poster card
         function checkCompletion() {
             if (childTasks && childTasks.length > 0 && completedTasks && completedTasks.size === childTasks.length) {
+                // Auto-mark museum as visited when all tasks are completed
+                markMuseumAsVisited();
+                
                 // Re-render tasks to update poster card to completed state
                 renderTasks();
                 // Generate poster in background (for quick loading when opened)
                 setTimeout(() => {
                     generatePoster();
                 }, 500);
+            }
+        }
+        
+        // Mark the museum as visited in localStorage (syncs with main app)
+        function markMuseumAsVisited() {
+            try {
+                const visitedMuseums = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+                if (!visitedMuseums.includes(museumId)) {
+                    visitedMuseums.push(museumId);
+                    localStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+                    console.log('Museum auto-marked as visited:', museumId);
+                }
+            } catch (error) {
+                console.error('Error marking museum as visited:', error);
             }
         }
 

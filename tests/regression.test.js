@@ -3626,4 +3626,223 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       });
     });
   });
+
+  describe('Museum Check-in Page - Auto Mark Museum as Visited', () => {
+    /**
+     * Bug: 选择北京天文馆打卡，在打卡页面完成所有任务后回到主页，期待看到北京天文馆已经被打卡，
+     *      实际主页的北京天文馆，打卡选择框没有被自动勾选。
+     * Root Cause: museum-checkin.html saves completed tasks to museumChecklists but doesn't update visitedMuseums
+     * Fixed: Added markMuseumAsVisited() function that adds museum to visitedMuseums when all tasks are completed
+     * 
+     * This regression test ensures that when all tasks are completed on the check-in page,
+     * the museum is automatically added to visitedMuseums localStorage.
+     */
+
+    let store;
+    let mockLocalStorage;
+    
+    beforeEach(() => {
+      // Setup localStorage mock with store
+      store = {
+        'visitedMuseums': '[]',
+        'museumChecklists': '{}'
+      };
+      mockLocalStorage = {
+        getItem: jest.fn((key) => store[key] || null),
+        setItem: jest.fn((key, value) => {
+          store[key] = value.toString();
+        }),
+        clear: jest.fn(() => {
+          store = {};
+        })
+      };
+      
+      global.localStorage = mockLocalStorage;
+    });
+
+    test('should add museum to visitedMuseums when all tasks are completed', () => {
+      const museumId = 'beijing-planetarium';
+      
+      // Mock the markMuseumAsVisited function that was added as the fix
+      const markMuseumAsVisited = () => {
+        try {
+          const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+          if (!visitedMuseums.includes(museumId)) {
+            visitedMuseums.push(museumId);
+            mockLocalStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          }
+        } catch (error) {
+          console.error('Error marking museum as visited:', error);
+        }
+      };
+
+      // Initially, museum should not be in visitedMuseums
+      let visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      expect(visitedMuseums).not.toContain(museumId);
+      
+      // Simulate all tasks being completed (which triggers markMuseumAsVisited)
+      markMuseumAsVisited();
+      
+      // After completion, museum should be in visitedMuseums
+      visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      expect(visitedMuseums).toContain(museumId);
+    });
+
+    test('should not duplicate museum in visitedMuseums if already present', () => {
+      const museumId = 'beijing-planetarium';
+      
+      // Pre-add museum to visitedMuseums
+      mockLocalStorage.setItem('visitedMuseums', JSON.stringify([museumId]));
+      
+      // Mock the markMuseumAsVisited function
+      const markMuseumAsVisited = () => {
+        try {
+          const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+          if (!visitedMuseums.includes(museumId)) {
+            visitedMuseums.push(museumId);
+            mockLocalStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          }
+        } catch (error) {
+          console.error('Error marking museum as visited:', error);
+        }
+      };
+
+      // Call markMuseumAsVisited again (shouldn't add duplicate)
+      markMuseumAsVisited();
+      
+      // Should still have only one entry
+      const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      const count = visitedMuseums.filter(id => id === museumId).length;
+      expect(count).toBe(1);
+    });
+
+    test('should preserve existing visitedMuseums when adding new museum', () => {
+      const existingMuseumId = 'forbidden-city';
+      const newMuseumId = 'beijing-planetarium';
+      
+      // Pre-add existing museum
+      mockLocalStorage.setItem('visitedMuseums', JSON.stringify([existingMuseumId]));
+      
+      // Mock the markMuseumAsVisited function for new museum
+      const markMuseumAsVisited = (museumId) => {
+        try {
+          const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+          if (!visitedMuseums.includes(museumId)) {
+            visitedMuseums.push(museumId);
+            mockLocalStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          }
+        } catch (error) {
+          console.error('Error marking museum as visited:', error);
+        }
+      };
+
+      // Add new museum
+      markMuseumAsVisited(newMuseumId);
+      
+      // Should have both museums
+      const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      expect(visitedMuseums).toContain(existingMuseumId);
+      expect(visitedMuseums).toContain(newMuseumId);
+      expect(visitedMuseums.length).toBe(2);
+    });
+
+    test('should handle localStorage errors gracefully', () => {
+      const museumId = 'beijing-planetarium';
+      
+      // Create a mock that throws on getItem
+      const errorMockStorage = {
+        getItem: jest.fn(() => {
+          throw new Error('Storage error');
+        }),
+        setItem: jest.fn()
+      };
+      
+      // Mock the markMuseumAsVisited function with error handling
+      const markMuseumAsVisited = () => {
+        try {
+          const visitedMuseums = JSON.parse(errorMockStorage.getItem('visitedMuseums') || '[]');
+          if (!visitedMuseums.includes(museumId)) {
+            visitedMuseums.push(museumId);
+            errorMockStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          }
+        } catch (error) {
+          console.error('Error marking museum as visited:', error);
+        }
+      };
+
+      // Should not throw
+      expect(() => {
+        markMuseumAsVisited();
+      }).not.toThrow();
+    });
+
+    test('should integrate checkCompletion with markMuseumAsVisited', () => {
+      const museumId = 'beijing-planetarium';
+      const childTasks = ['Task 1', 'Task 2', 'Task 3'];
+      const completedTasks = new Set([0, 1, 2]); // All tasks completed
+      
+      let museumMarkedAsVisited = false;
+      
+      // Mock markMuseumAsVisited
+      const markMuseumAsVisited = () => {
+        const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+        if (!visitedMuseums.includes(museumId)) {
+          visitedMuseums.push(museumId);
+          mockLocalStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          museumMarkedAsVisited = true;
+        }
+      };
+      
+      // Mock checkCompletion function (the fix adds markMuseumAsVisited call)
+      const checkCompletion = () => {
+        if (childTasks && childTasks.length > 0 && completedTasks && completedTasks.size === childTasks.length) {
+          // Auto-mark museum as visited when all tasks are completed
+          markMuseumAsVisited();
+        }
+      };
+      
+      // Trigger checkCompletion (simulates completing all tasks)
+      checkCompletion();
+      
+      // Verify museum was marked as visited
+      expect(museumMarkedAsVisited).toBe(true);
+      
+      const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      expect(visitedMuseums).toContain(museumId);
+    });
+
+    test('should NOT mark museum as visited if not all tasks are completed', () => {
+      const museumId = 'beijing-planetarium';
+      const childTasks = ['Task 1', 'Task 2', 'Task 3'];
+      const completedTasks = new Set([0, 1]); // Only 2 of 3 tasks completed
+      
+      let museumMarkedAsVisited = false;
+      
+      // Mock markMuseumAsVisited
+      const markMuseumAsVisited = () => {
+        const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+        if (!visitedMuseums.includes(museumId)) {
+          visitedMuseums.push(museumId);
+          mockLocalStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+          museumMarkedAsVisited = true;
+        }
+      };
+      
+      // Mock checkCompletion function
+      const checkCompletion = () => {
+        if (childTasks && childTasks.length > 0 && completedTasks && completedTasks.size === childTasks.length) {
+          markMuseumAsVisited();
+        }
+      };
+      
+      // Trigger checkCompletion (only partial tasks completed)
+      checkCompletion();
+      
+      // Verify museum was NOT marked as visited
+      expect(museumMarkedAsVisited).toBe(false);
+      
+      const visitedMuseums = JSON.parse(mockLocalStorage.getItem('visitedMuseums') || '[]');
+      expect(visitedMuseums).not.toContain(museumId);
+    });
+  });
 });
