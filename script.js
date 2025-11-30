@@ -3818,30 +3818,33 @@ class MuseumCheckApp {
      * Setup auto-hide functionality for age selector
      * For first-time users: keeps selector visible until they make a selection
      * For returning users: hides selector immediately (they've already chosen)
+     * For users who completed onboarding: hides selector (onboarding covered age selection)
      * 
      * Bug fix: Removed 10-second auto-hide timer for first-time users
      * Issue: 自动消失bug - Age selector should only hide after user makes a selection
      */
     setupAgeSelectorAutoHide() {
         const ageSelector = document.querySelector('.age-selector');
-        const hint = document.getElementById('ageSelectorHint');
         
-        if (!ageSelector || !hint) {
+        if (!ageSelector) {
             return;
         }
         
         // Check if user has already saved their age preference
         let hasSavedAge = null;
+        let onboardingCompleted = false;
         
         try {
             hasSavedAge = localStorage.getItem('ageGroup');
+            onboardingCompleted = localStorage.getItem('newUserOnboardingCompleted') === 'true';
         } catch (error) {
             console.error('Failed to check localStorage:', error);
             // Treat as first-time user if localStorage fails
         }
         
-        if (hasSavedAge) {
-            // Returning user - hide age selector immediately
+        // Hide age selector if user has saved age OR completed onboarding
+        // (onboarding covers age selection, so the main page selector is redundant)
+        if (hasSavedAge || onboardingCompleted) {
             ageSelector.classList.add('hidden');
             return;
         }
@@ -4131,11 +4134,24 @@ class MuseumCheckApp {
         }
 
         // Setup age selector listener for step progression
+        // Bug fix: Listen for both 'change' and 'blur' events because if user wants
+        // the default pre-selected value, 'change' won't fire when they click it
         const ageSelector = document.getElementById('ageGroupSelector');
         if (ageSelector) {
             ageSelector.addEventListener('change', () => {
                 this.markOnboardingStepCompleted(2);
                 this.showOnboardingStep(3);
+            });
+            
+            // Also listen for blur - if user clicks on the dropdown and then clicks
+            // the same option, the change event won't fire, so we use blur to detect completion
+            ageSelector.addEventListener('blur', () => {
+                // Only mark complete if we're still on step 2 (not already completed via change event)
+                const step2 = document.querySelector('.onboarding-step[data-step="2"]');
+                if (step2 && !step2.classList.contains('completed')) {
+                    this.markOnboardingStepCompleted(2);
+                    this.showOnboardingStep(3);
+                }
             });
         }
 
@@ -4242,6 +4258,12 @@ class MuseumCheckApp {
 
         // Mark onboarding as completed
         localStorage.setItem('newUserOnboardingCompleted', 'true');
+        
+        // Hide the age selector card on the main page since onboarding covered this
+        const ageSelector = document.querySelector('.age-selector');
+        if (ageSelector) {
+            ageSelector.classList.add('hidden');
+        }
 
         // Track completion
         this.trackEvent('new_user_onboarding_completed', {
