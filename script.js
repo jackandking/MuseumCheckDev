@@ -6384,7 +6384,7 @@ class MuseumCheckApp {
                 `;
 
                 // Add click event for the card (excluding checkbox, buttons)
-                // Navigate to v2 (single-museum.html) when clicking the card
+                // Navigate to v2 (museum-checkin.html) when clicking the card
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
                         !e.target.classList.contains('assessment-button') &&
@@ -6393,8 +6393,10 @@ class MuseumCheckApp {
                         !e.target.classList.contains('museum-manage-button') &&
                         !e.target.classList.contains('museum-v3-button') &&
                         !e.target.classList.contains('favorite-button')) {
-                        // Navigate to v2 single museum page
-                        window.location.href = `single-museum.html?museum=${museum.id}`;
+                        // Navigate to v2 check-in page (museum-checkin.html)
+                        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+                        const ageGroup = checkedRadio ? checkedRadio.value : (this.currentAge || APP_CONFIG.DEFAULT_AGE);
+                        window.location.href = `museum-checkin.html?museum=${museum.id}&age=${ageGroup}`;
                     }
                 });
 
