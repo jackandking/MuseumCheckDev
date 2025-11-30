@@ -5059,6 +5059,9 @@ class MuseumCheckApp {
             });
         }
 
+        // Initialize treasure check-in configuration feature
+        this.initializeTreasureCheckinConfig();
+
         // Achievement poster generation button
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
@@ -5734,6 +5737,360 @@ class MuseumCheckApp {
         } else {
             body.classList.remove('hide-guide-buttons');
         }
+    }
+
+    // =====================================================
+    // Treasure Check-in Configuration Functions
+    // 镇馆之宝打卡配置功能
+    // =====================================================
+
+    /**
+     * Initialize the treasure check-in configuration feature
+     */
+    initializeTreasureCheckinConfig() {
+        const museumSelector = document.getElementById('treasureMuseumSelector');
+        const selectionContainer = document.getElementById('treasureSelectionContainer');
+        const selectionActions = document.getElementById('treasureSelectionActions');
+        const saveBtn = document.getElementById('saveTreasureSelection');
+        const clearBtn = document.getElementById('clearTreasureSelection');
+
+        if (!museumSelector) return;
+
+        // Populate museum selector with museums that have collections
+        this.populateTreasureMuseumSelector();
+
+        // Museum selection change handler
+        museumSelector.addEventListener('change', () => {
+            const museumId = museumSelector.value;
+            if (museumId) {
+                this.showTreasureSelectionForMuseum(museumId);
+                if (selectionContainer) selectionContainer.style.display = 'block';
+                if (selectionActions) selectionActions.style.display = 'block';
+            } else {
+                if (selectionContainer) selectionContainer.style.display = 'none';
+                if (selectionActions) selectionActions.style.display = 'none';
+            }
+        });
+
+        // Save button handler
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                this.saveTreasureCheckinConfig();
+            });
+        }
+
+        // Clear button handler
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearCurrentMuseumTreasureConfig();
+            });
+        }
+
+        // Load and display current configuration
+        this.displayCurrentTreasureConfig();
+    }
+
+    /**
+     * Populate the museum selector with museums that have collections
+     */
+    populateTreasureMuseumSelector() {
+        const selector = document.getElementById('treasureMuseumSelector');
+        if (!selector) return;
+
+        // Clear existing options except the placeholder
+        selector.innerHTML = '<option value="">-- 请选择博物馆 --</option>';
+
+        // Get museums from MUSEUMS array (global constant from museums-data.js)
+        const museums = MUSEUMS || [];
+        const museumsWithCollections = museums.filter(m => 
+            m.collections && Array.isArray(m.collections) && m.collections.length > 0
+        );
+
+        // Sort by name
+        museumsWithCollections.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+
+        // Add options
+        museumsWithCollections.forEach(museum => {
+            const option = document.createElement('option');
+            option.value = museum.id;
+            option.textContent = `${museum.name} (${museum.location})`;
+            selector.appendChild(option);
+        });
+    }
+
+    /**
+     * Show treasure selection checkboxes for a specific museum
+     */
+    showTreasureSelectionForMuseum(museumId) {
+        const checkboxList = document.getElementById('treasureCheckboxList');
+        if (!checkboxList) return;
+
+        const museum = this.getMuseumById(museumId);
+        if (!museum || !museum.collections || !Array.isArray(museum.collections)) {
+            checkboxList.innerHTML = '<div class="empty-config-hint">该博物馆暂无镇馆之宝信息</div>';
+            return;
+        }
+
+        // Load current selection for this museum
+        const currentConfig = this.loadTreasureCheckinConfig();
+        const selectedTreasures = currentConfig[museumId] || [];
+
+        // Build checkbox list
+        let html = '';
+        museum.collections.forEach((treasure, index) => {
+            const isSelected = selectedTreasures.includes(treasure.name);
+            const imageHtml = treasure.imageUrl 
+                ? `<img src="${treasure.imageUrl}" alt="${treasure.name}" class="treasure-item-image" loading="lazy">`
+                : '';
+            
+            html += `
+                <label class="treasure-checkbox-item ${isSelected ? 'selected' : ''}" data-index="${index}">
+                    <input type="checkbox" 
+                           value="${treasure.name}" 
+                           ${isSelected ? 'checked' : ''}
+                           data-museum="${museumId}">
+                    <div class="treasure-item-info">
+                        <div class="treasure-item-name">🏺 ${treasure.name}</div>
+                        <div class="treasure-item-description">${treasure.description || '镇馆之宝'}</div>
+                    </div>
+                    ${imageHtml}
+                </label>
+            `;
+        });
+
+        checkboxList.innerHTML = html;
+
+        // Add click handlers for visual feedback
+        checkboxList.querySelectorAll('.treasure-checkbox-item').forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+                this.updateSelectedTreasureCount();
+            });
+        });
+
+        this.updateSelectedTreasureCount();
+    }
+
+    /**
+     * Update the selected treasure count display
+     */
+    updateSelectedTreasureCount() {
+        const countDisplay = document.getElementById('selectedTreasureCount');
+        const checkboxList = document.getElementById('treasureCheckboxList');
+        
+        if (countDisplay && checkboxList) {
+            const checkedCount = checkboxList.querySelectorAll('input[type="checkbox"]:checked').length;
+            countDisplay.textContent = checkedCount;
+        }
+    }
+
+    /**
+     * Load treasure check-in configuration from localStorage
+     * @returns {Object} Configuration object with museum ID as keys
+     */
+    loadTreasureCheckinConfig() {
+        try {
+            const saved = localStorage.getItem('treasureCheckinConfig');
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.error('Failed to load treasure check-in config:', error);
+            return {};
+        }
+    }
+
+    /**
+     * Save treasure check-in configuration to localStorage
+     */
+    saveTreasureCheckinConfig() {
+        try {
+            const museumSelector = document.getElementById('treasureMuseumSelector');
+            const checkboxList = document.getElementById('treasureCheckboxList');
+            
+            if (!museumSelector || !checkboxList) return;
+
+            const museumId = museumSelector.value;
+            if (!museumId) {
+                this.showNotification('请先选择博物馆', 2000);
+                return;
+            }
+
+            // Get selected treasures
+            const selectedTreasures = [];
+            checkboxList.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedTreasures.push(checkbox.value);
+            });
+
+            // Load current config and update
+            const config = this.loadTreasureCheckinConfig();
+            
+            if (selectedTreasures.length > 0) {
+                config[museumId] = selectedTreasures;
+            } else {
+                // Remove if no selection
+                delete config[museumId];
+            }
+
+            // Save to localStorage
+            localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+
+            // Update display
+            this.displayCurrentTreasureConfig();
+
+            // Track event - only track count to avoid excessive logging
+            this.trackEvent('treasure_checkin_config_saved', {
+                museum_id: museumId,
+                treasure_count: selectedTreasures.length
+            });
+
+            this.showNotification(`已保存 ${selectedTreasures.length} 个打卡目标`, 2000);
+        } catch (error) {
+            console.error('Failed to save treasure check-in config:', error);
+            this.showNotification('保存失败，请重试', 2000);
+        }
+    }
+
+    /**
+     * Clear treasure configuration for current selected museum
+     */
+    clearCurrentMuseumTreasureConfig() {
+        try {
+            const museumSelector = document.getElementById('treasureMuseumSelector');
+            if (!museumSelector) return;
+
+            const museumId = museumSelector.value;
+            if (!museumId) {
+                this.showNotification('请先选择博物馆', 2000);
+                return;
+            }
+
+            // Load current config and remove this museum
+            const config = this.loadTreasureCheckinConfig();
+            delete config[museumId];
+            localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+
+            // Uncheck all checkboxes
+            const checkboxList = document.getElementById('treasureCheckboxList');
+            if (checkboxList) {
+                checkboxList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('.treasure-checkbox-item')?.classList.remove('selected');
+                });
+            }
+
+            // Update displays
+            this.updateSelectedTreasureCount();
+            this.displayCurrentTreasureConfig();
+
+            this.showNotification('已清空该博物馆的打卡配置', 2000);
+        } catch (error) {
+            console.error('Failed to clear treasure config:', error);
+            this.showNotification('操作失败，请重试', 2000);
+        }
+    }
+
+    /**
+     * Display current treasure check-in configuration
+     */
+    displayCurrentTreasureConfig() {
+        const configContainer = document.getElementById('currentTreasureConfig');
+        const configList = document.getElementById('currentTreasureConfigList');
+        
+        if (!configContainer || !configList) return;
+
+        const config = this.loadTreasureCheckinConfig();
+        const museumIds = Object.keys(config);
+
+        if (museumIds.length === 0) {
+            configContainer.style.display = 'none';
+            return;
+        }
+
+        configContainer.style.display = 'block';
+        
+        let html = '';
+        museumIds.forEach(museumId => {
+            const museum = this.getMuseumById(museumId);
+            const treasures = config[museumId] || [];
+            
+            if (museum && treasures.length > 0) {
+                html += `
+                    <div class="current-config-museum" data-museum-id="${museumId}">
+                        <div class="current-config-museum-name">
+                            🏛️ ${museum.name}
+                        </div>
+                        <div class="current-config-treasures">
+                            ${treasures.map(t => `
+                                <span class="current-config-treasure-tag">
+                                    🏺 ${t}
+                                    <span class="remove-treasure" data-museum="${museumId}" data-treasure="${t}" title="移除">×</span>
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        if (!html) {
+            configContainer.style.display = 'none';
+            return;
+        }
+
+        configList.innerHTML = html;
+
+        // Add click handlers for removing individual treasures
+        configList.querySelectorAll('.remove-treasure').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const museumId = btn.dataset.museum;
+                const treasureName = btn.dataset.treasure;
+                this.removeTreasureFromConfig(museumId, treasureName);
+            });
+        });
+    }
+
+    /**
+     * Remove a single treasure from config
+     */
+    removeTreasureFromConfig(museumId, treasureName) {
+        try {
+            const config = this.loadTreasureCheckinConfig();
+            if (config[museumId]) {
+                config[museumId] = config[museumId].filter(t => t !== treasureName);
+                if (config[museumId].length === 0) {
+                    delete config[museumId];
+                }
+                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+                
+                // Update displays
+                this.displayCurrentTreasureConfig();
+                
+                // If this museum is currently selected, update the checkboxes
+                const museumSelector = document.getElementById('treasureMuseumSelector');
+                if (museumSelector && museumSelector.value === museumId) {
+                    this.showTreasureSelectionForMuseum(museumId);
+                }
+
+                this.showNotification('已移除打卡目标', 1500);
+            }
+        } catch (error) {
+            console.error('Failed to remove treasure from config:', error);
+        }
+    }
+
+    /**
+     * Get configured treasures for a museum
+     * @param {string} museumId - The museum ID
+     * @returns {Array} Array of treasure names to check in
+     */
+    getConfiguredTreasures(museumId) {
+        const config = this.loadTreasureCheckinConfig();
+        return config[museumId] || [];
     }
 
     // Child Mode Functions
@@ -7969,6 +8326,10 @@ class MuseumCheckApp {
     showSettingsModal() {
         this.renderSettingsInfo();
         this.modalManager.showModal('settingsModal');
+        
+        // Populate the treasure museum selector when settings modal is opened
+        this.populateTreasureMuseumSelector();
+        this.displayCurrentTreasureConfig();
         
         // Track settings view
         this.trackEvent('settings_viewed', {
