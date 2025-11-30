@@ -2108,6 +2108,44 @@
             background: #e5e5e5;
         }
 
+        /* Treasure selection error state */
+        .treasure-selection-error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .treasure-selection-error.show {
+            display: block;
+        }
+
+        .treasure-selection-count {
+            font-size: 13px;
+            color: #667;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .treasure-selection-count.error {
+            color: #dc2626;
+        }
+
+        .treasure-selection-count .count-number {
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        .treasure-selection-count.error .count-number {
+            color: #dc2626;
+        }
+
         /* Mobile optimization for treasure configuration */
         @media (max-width: 768px) {
             .treasure-checkbox-list {
@@ -2251,24 +2289,19 @@
                 <h3>🏺 任务打卡配置（家长模式）</h3>
                 <div class="settings-item">
                     <div class="settings-hint" style="margin-bottom: 12px;">
-                        在家长模式下，选择本次参观要打卡的镇馆之宝。孩子完成打卡任务后可以获得成就奖励！
+                        选择本次参观要打卡的镇馆之宝（至少选择3个），选择后立即生效。
                     </div>
                     <div id="v2TreasureSelectionContainer">
                         <label class="settings-label">选择要打卡的镇馆之宝：</label>
                         <div id="v2TreasureCheckboxList" class="treasure-checkbox-list">
                             <!-- Treasure checkboxes will be populated dynamically -->
                         </div>
-                        <div class="settings-hint" style="margin-top: 8px;">
-                            已选择 <span id="v2SelectedTreasureCount">0</span> 个镇馆之宝
+                        <div id="v2TreasureSelectionCount" class="treasure-selection-count">
+                            已选择 <span id="v2SelectedTreasureCount" class="count-number">0</span> 个镇馆之宝
                         </div>
-                    </div>
-                    <div class="treasure-config-buttons">
-                        <button id="v2SaveTreasureSelection" class="save-btn">
-                            💾 保存打卡配置
-                        </button>
-                        <button id="v2ClearTreasureSelection" class="clear-btn">
-                            🗑️ 清空配置
-                        </button>
+                        <div id="v2TreasureSelectionError" class="treasure-selection-error">
+                            ⚠️ 至少需要选择3个镇馆之宝
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2540,6 +2573,49 @@
         let completedTasks = new Set();
         let currentTaskIndex = null;
 
+        // =====================================================
+        // 镇馆之宝打卡配置常量和核心函数
+        // Treasure check-in configuration constants and core functions
+        // =====================================================
+        
+        // Minimum treasures required for check-in
+        const MIN_TREASURES_REQUIRED = 3;
+
+        /**
+         * Load treasure check-in configuration from localStorage
+         * @returns {Object} Configuration object with museum ID as keys
+         */
+        function loadTreasureCheckinConfig() {
+            try {
+                const saved = localStorage.getItem('treasureCheckinConfig');
+                return saved ? JSON.parse(saved) : {};
+            } catch (error) {
+                console.error('Failed to load treasure check-in config:', error);
+                return {};
+            }
+        }
+
+        /**
+         * Get the selected treasures for the current museum
+         * Returns default first 3 treasures if no configuration exists
+         * @returns {Array} Array of treasure names
+         */
+        function getSelectedTreasuresForMuseum() {
+            if (!currentMuseum || !currentMuseum.collections || !Array.isArray(currentMuseum.collections)) {
+                return [];
+            }
+            
+            const config = loadTreasureCheckinConfig();
+            const selectedTreasures = config[museumId];
+            
+            // If no configuration exists, return first 3 treasures as default
+            if (!selectedTreasures || !Array.isArray(selectedTreasures) || selectedTreasures.length === 0) {
+                return currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length)).map(t => t.name);
+            }
+            
+            return selectedTreasures;
+        }
+
         // Initialize the application
         async function init() {
             if (editMode) {
@@ -2637,9 +2713,17 @@
             
             // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 亲子合影)
             // Automatically applied to any museum that has collections data
-            // This provides a consistent, easy-to-execute photo-based experience
+            // Uses selected treasures from configuration, defaults to first 3
             if (Array.isArray(currentMuseum.collections) && currentMuseum.collections.length > 0) {
-                const colls = currentMuseum.collections;
+                // Get selected treasures from configuration (defaults to first 3)
+                const selectedTreasureNames = getSelectedTreasuresForMuseum();
+                const selectedCollections = currentMuseum.collections.filter(c => selectedTreasureNames.includes(c.name));
+                
+                // If no valid selections, fall back to first 3
+                const colls = selectedCollections.length >= MIN_TREASURES_REQUIRED 
+                    ? selectedCollections 
+                    : currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length));
+                
                 const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
                 const collTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
                 const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
@@ -3998,9 +4082,6 @@
                 clearCheckinData();
             };
 
-            // Initialize treasure check-in configuration (parent mode)
-            initializeTreasureCheckinConfig();
-
             // Puzzle game settings toggle
             const puzzleToggle = document.getElementById('puzzleGameToggle');
             if (puzzleToggle) {
@@ -4224,33 +4305,14 @@
 
         // =====================================================
         // Treasure Check-in Configuration Functions (Parent Mode)
-        // 镇馆之宝打卡配置功能
+        // 镇馆之宝打卡配置功能 - Settings Modal UI Functions
+        // Note: Core functions (MIN_TREASURES_REQUIRED, getSelectedTreasuresForMuseum, 
+        // loadTreasureCheckinConfig) are defined earlier in the file for use in loadMuseumData
         // =====================================================
 
         /**
-         * Initialize the treasure check-in configuration UI in settings modal
-         */
-        function initializeTreasureCheckinConfig() {
-            const saveBtn = document.getElementById('v2SaveTreasureSelection');
-            const clearBtn = document.getElementById('v2ClearTreasureSelection');
-
-            // Save button handler
-            if (saveBtn) {
-                saveBtn.addEventListener('click', () => {
-                    saveTreasureCheckinConfigV2();
-                });
-            }
-
-            // Clear button handler
-            if (clearBtn) {
-                clearBtn.addEventListener('click', () => {
-                    clearTreasureCheckinConfigV2();
-                });
-            }
-        }
-
-        /**
          * Show treasure selection checkboxes for the current museum
+         * Default: first 3 treasures are selected
          */
         function showTreasureSelectionForCurrentMuseum() {
             const checkboxList = document.getElementById('v2TreasureCheckboxList');
@@ -4262,9 +4324,16 @@
                 return;
             }
 
-            // Load current selection for this museum
-            const currentConfig = loadTreasureCheckinConfigV2();
-            const selectedTreasures = currentConfig[museumId] || [];
+            // Load current selection for this museum, or use default first 3
+            const currentConfig = loadTreasureCheckinConfig();
+            let selectedTreasures = currentConfig[museumId];
+            
+            // Default: select first 3 treasures if no config exists
+            if (!selectedTreasures || !Array.isArray(selectedTreasures) || selectedTreasures.length === 0) {
+                selectedTreasures = currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length)).map(t => t.name);
+                // Save the default selection
+                saveTreasureSelectionSilently(selectedTreasures);
+            }
 
             // Build checkbox list
             let html = '';
@@ -4291,7 +4360,7 @@
 
             checkboxList.innerHTML = html;
 
-            // Add click handlers for visual feedback
+            // Add click handlers for immediate save with validation
             checkboxList.querySelectorAll('.treasure-checkbox-item').forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
                 checkbox.addEventListener('change', () => {
@@ -4300,11 +4369,101 @@
                     } else {
                         item.classList.remove('selected');
                     }
-                    updateSelectedTreasureCountV2();
+                    // Validate and save immediately
+                    handleTreasureSelectionChange();
                 });
             });
 
             updateSelectedTreasureCountV2();
+        }
+
+        /**
+         * Handle treasure selection change - validate and save immediately
+         */
+        function handleTreasureSelectionChange() {
+            const checkboxList = document.getElementById('v2TreasureCheckboxList');
+            if (!checkboxList || !museumId) return;
+
+            // Get currently selected treasures
+            const selectedTreasures = [];
+            checkboxList.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedTreasures.push(checkbox.value);
+            });
+
+            const count = selectedTreasures.length;
+            const isValid = count >= MIN_TREASURES_REQUIRED;
+
+            // Update count display
+            updateSelectedTreasureCountV2();
+
+            // Show/hide error message
+            const errorEl = document.getElementById('v2TreasureSelectionError');
+            const countContainer = document.getElementById('v2TreasureSelectionCount');
+            
+            if (errorEl) {
+                if (isValid) {
+                    errorEl.classList.remove('show');
+                } else {
+                    errorEl.classList.add('show');
+                }
+            }
+            
+            if (countContainer) {
+                if (isValid) {
+                    countContainer.classList.remove('error');
+                } else {
+                    countContainer.classList.add('error');
+                }
+            }
+
+            // Only save if valid (at least 3 selected)
+            if (isValid) {
+                saveTreasureSelectionSilently(selectedTreasures);
+                // Refresh the task list to reflect the change
+                refreshTasksWithSelectedTreasures();
+            }
+        }
+
+        /**
+         * Save treasure selection silently (no notification)
+         */
+        function saveTreasureSelectionSilently(selectedTreasures) {
+            try {
+                const config = loadTreasureCheckinConfig();
+                
+                if (selectedTreasures.length > 0) {
+                    config[museumId] = selectedTreasures;
+                } else {
+                    delete config[museumId];
+                }
+
+                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+            } catch (error) {
+                console.error('Failed to save treasure selection:', error);
+            }
+        }
+
+        /**
+         * Refresh the task list based on selected treasures
+         */
+        function refreshTasksWithSelectedTreasures() {
+            // Re-load and render tasks with the new treasure selection
+            if (currentMuseum && Array.isArray(currentMuseum.collections) && currentMuseum.collections.length > 0) {
+                const selectedTreasures = getSelectedTreasuresForMuseum();
+                
+                // Filter collections to only selected ones
+                const selectedCollections = currentMuseum.collections.filter(c => selectedTreasures.includes(c.name));
+                
+                // Build new task list
+                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+                const collTasks = selectedCollections.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
+                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+                childTasks = [start].concat(collTasks, [end]);
+                
+                // Re-render tasks
+                renderTasks();
+                updateProgress();
+            }
         }
 
         /**
@@ -4321,89 +4480,19 @@
         }
 
         /**
-         * Load treasure check-in configuration from localStorage
+         * Alias for backward compatibility
          * @returns {Object} Configuration object with museum ID as keys
          */
         function loadTreasureCheckinConfigV2() {
-            try {
-                const saved = localStorage.getItem('treasureCheckinConfig');
-                return saved ? JSON.parse(saved) : {};
-            } catch (error) {
-                console.error('Failed to load treasure check-in config:', error);
-                return {};
-            }
+            return loadTreasureCheckinConfig();
         }
 
         /**
-         * Save treasure check-in configuration to localStorage
+         * Save treasure check-in configuration to localStorage (legacy function, kept for compatibility)
          */
         function saveTreasureCheckinConfigV2() {
-            try {
-                const checkboxList = document.getElementById('v2TreasureCheckboxList');
-                
-                if (!checkboxList || !museumId) {
-                    showNotification('保存失败：未找到配置', 2000);
-                    return;
-                }
-
-                // Get selected treasures
-                const selectedTreasures = [];
-                checkboxList.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                    selectedTreasures.push(checkbox.value);
-                });
-
-                // Load current config and update
-                const config = loadTreasureCheckinConfigV2();
-                
-                if (selectedTreasures.length > 0) {
-                    config[museumId] = selectedTreasures;
-                } else {
-                    // Remove if no selection
-                    delete config[museumId];
-                }
-
-                // Save to localStorage
-                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
-
-                showNotification(`已保存 ${selectedTreasures.length} 个打卡目标`, 2000);
-            } catch (error) {
-                console.error('Failed to save treasure check-in config:', error);
-                showNotification('保存失败，请重试', 2000);
-            }
-        }
-
-        /**
-         * Clear treasure configuration for current museum
-         */
-        function clearTreasureCheckinConfigV2() {
-            try {
-                if (!museumId) {
-                    showNotification('清空失败：未找到博物馆', 2000);
-                    return;
-                }
-
-                // Load current config and remove this museum
-                const config = loadTreasureCheckinConfigV2();
-                delete config[museumId];
-                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
-
-                // Uncheck all checkboxes
-                const checkboxList = document.getElementById('v2TreasureCheckboxList');
-                if (checkboxList) {
-                    checkboxList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                        checkbox.checked = false;
-                        checkbox.closest('.treasure-checkbox-item')?.classList.remove('selected');
-                    });
-                }
-
-                // Update displays
-                updateSelectedTreasureCountV2();
-
-                showNotification('已清空该博物馆的打卡配置', 2000);
-            } catch (error) {
-                console.error('Failed to clear treasure config:', error);
-                showNotification('操作失败，请重试', 2000);
-            }
+            // Now handled by handleTreasureSelectionChange
+            handleTreasureSelectionChange();
         }
 
         /**
