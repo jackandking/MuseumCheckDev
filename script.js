@@ -8308,6 +8308,11 @@ class MuseumCheckApp {
                         
                         // Award XP for checklist completion (small amount)
                         this.achievementGamification.addXP(5);
+                        
+                        // ===== VIRTUAL PET INTEGRATION =====
+                        // Notify virtual pet of task completion
+                        VirtualPet.notifyTaskCompleted();
+                        // ===== END VIRTUAL PET INTEGRATION =====
                     }
                     // ===== END GAMIFICATION HOOK =====
                     
@@ -9860,6 +9865,11 @@ class MuseumCheckApp {
                     
                     // Award XP for photo upload
                     this.achievementGamification.addXP(10);
+                    
+                    // ===== VIRTUAL PET INTEGRATION =====
+                    // Notify virtual pet of photo upload (more points than regular task)
+                    VirtualPet.notifyPhotoUploaded();
+                    // ===== END VIRTUAL PET INTEGRATION =====
                 }
                 // ===== END GAMIFICATION HOOK =====
                 
