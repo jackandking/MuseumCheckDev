@@ -3624,19 +3624,64 @@ class LeaderboardManager {
     }
 
     /**
-     * Auto-submit score if count changed
+     * Auto-submit score if count changed and return rank change information
+     * @returns {Object} Result with rank change info: { success, oldRank, newRank, rankChange, totalUsers }
      */
     async autoSubmitScore() {
-        if (this.shouldSubmitScore()) {
-            const nickname = this.app.childNickname || '小朋友';
-            const visitedCount = this.app.visitedMuseums.length;
-            
-            const result = await this.submitScore(nickname, visitedCount);
-            if (result.success) {
-                localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
-                console.log('Auto-submitted score to leaderboard');
-            }
+        if (!this.shouldSubmitScore()) {
+            return { success: false, reason: 'no_change' };
         }
+        
+        const nickname = this.app.childNickname || '小朋友';
+        const visitedCount = this.app.visitedMuseums.length;
+        const userId = this.getUserId();
+        
+        // Get old rank before submitting new score
+        let oldRank = null;
+        let totalUsers = 0;
+        try {
+            const oldLeaderboard = await this.fetchLeaderboard(false); // Use cache if available
+            if (oldLeaderboard.success && oldLeaderboard.data) {
+                oldRank = this.getUserRank(oldLeaderboard.data, userId);
+                totalUsers = oldLeaderboard.data.length;
+            }
+        } catch (err) {
+            console.warn('Failed to get old rank:', err);
+        }
+        
+        // Submit new score
+        const result = await this.submitScore(nickname, visitedCount);
+        if (!result.success) {
+            return { success: false, error: result.error };
+        }
+        
+        localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
+        console.log('Auto-submitted score to leaderboard');
+        
+        // Get new rank after submitting
+        let newRank = null;
+        try {
+            const newLeaderboard = await this.fetchLeaderboard(true); // Force refresh
+            if (newLeaderboard.success && newLeaderboard.data) {
+                newRank = this.getUserRank(newLeaderboard.data, userId);
+                totalUsers = newLeaderboard.data.length;
+            }
+        } catch (err) {
+            console.warn('Failed to get new rank:', err);
+        }
+        
+        // Calculate rank change (positive means rank improved, e.g., from #5 to #3 is +2)
+        // Note: oldRank and newRank are always >= 1 or null (never 0), since getUserRank returns index + 1
+        const rankChange = (oldRank !== null && newRank !== null) ? (oldRank - newRank) : null;
+        
+        return {
+            success: true,
+            oldRank,
+            newRank,
+            rankChange,
+            totalUsers,
+            isNewEntry: !oldRank && newRank
+        };
     }
 }
 
@@ -7098,11 +7143,16 @@ class MuseumCheckApp {
             this.saveVisitedMuseums();
             this.renderMuseums();
             
-            // Auto-submit score to leaderboard
+            // Auto-submit score to leaderboard and show rank change notification
             if (this.leaderboardManager) {
-                this.leaderboardManager.autoSubmitScore().catch(err => {
-                    console.warn('Failed to auto-submit leaderboard score:', err);
-                });
+                this.leaderboardManager.autoSubmitScore()
+                    .then(result => {
+                        // Show rank change notification after manual check-in
+                        this.showManualCheckinRankNotification(museum, result);
+                    })
+                    .catch(err => {
+                        console.warn('Failed to auto-submit leaderboard score:', err);
+                    });
             }
             
             // Show leaderboard hint for first museum visit
@@ -7207,19 +7257,30 @@ class MuseumCheckApp {
         this.saveVisitedMuseums();
         this.renderMuseums();
         
-        // Auto-submit score to leaderboard (same as manual check-in)
+        // Auto-submit score to leaderboard (same as manual check-in) and show rank change
         if (this.leaderboardManager) {
-            this.leaderboardManager.autoSubmitScore().catch(err => {
-                console.warn('Failed to auto-submit leaderboard score:', err);
-            });
+            this.leaderboardManager.autoSubmitScore()
+                .then(result => {
+                    // Show rank change notification after leaderboard update
+                    this.showAutoCheckinNotification(museum, result);
+                })
+                .catch(err => {
+                    console.warn('Failed to auto-submit leaderboard score:', err);
+                    // Still show basic notification on error
+                    UIManager.showNotification(
+                        `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`,
+                        4000,
+                        'success'
+                    );
+                });
+        } else {
+            // No leaderboard manager, show basic notification
+            UIManager.showNotification(
+                `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`,
+                4000,
+                'success'
+            );
         }
-        
-        // Show congratulation notification for auto check-in with leaderboard hint
-        UIManager.showNotification(
-            `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！🏆 排行榜已更新`,
-            4000,
-            'success'
-        );
         
         // Track auto check-in event
         this.trackEvent('museum_auto_checkin', {
@@ -7233,6 +7294,72 @@ class MuseumCheckApp {
         
         // Update stats after auto check-in
         this.updateStats();
+    }
+
+    /**
+     * Show notification for auto check-in with rank change information
+     * @param {Object} museum - The museum object
+     * @param {Object} rankResult - Result from autoSubmitScore with rank change info
+     */
+    showAutoCheckinNotification(museum, rankResult) {
+        let message = `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`;
+        
+        if (rankResult && rankResult.success) {
+            // Build rank change message
+            if (rankResult.isNewEntry && rankResult.newRank) {
+                // First time on leaderboard
+                message += ` 🏆 首次登榜第${rankResult.newRank}名！`;
+            } else if (rankResult.rankChange !== null) {
+                if (rankResult.rankChange > 0) {
+                    // Rank improved
+                    message += ` 🚀 排名上升${rankResult.rankChange}位，现在第${rankResult.newRank}名！`;
+                } else if (rankResult.rankChange === 0 && rankResult.newRank) {
+                    // Rank unchanged
+                    message += ` 🏆 保持第${rankResult.newRank}名！`;
+                } else if (rankResult.newRank) {
+                    // Rank dropped (unlikely but possible if others submitted higher scores)
+                    message += ` 🏆 当前第${rankResult.newRank}名`;
+                }
+            } else if (rankResult.newRank) {
+                // Have a rank but no change info
+                message += ` 🏆 排行榜第${rankResult.newRank}名`;
+            }
+        }
+        
+        UIManager.showNotification(message, 5000, 'success');
+    }
+
+    /**
+     * Show rank notification for manual check-in
+     * This is a subtle notification that doesn't interrupt the user too much
+     * @param {Object} museum - The museum object
+     * @param {Object} rankResult - Result from autoSubmitScore with rank change info
+     */
+    showManualCheckinRankNotification(museum, rankResult) {
+        if (!rankResult || !rankResult.success) {
+            return; // No notification if submission failed
+        }
+        
+        let message = '';
+        
+        if (rankResult.isNewEntry && rankResult.newRank) {
+            // First time on leaderboard
+            message = `🏆 首次登上排行榜！当前第${rankResult.newRank}名`;
+        } else if (rankResult.rankChange !== null && rankResult.rankChange > 0) {
+            // Rank improved
+            message = `🚀 排名上升${rankResult.rankChange}位！当前第${rankResult.newRank}名`;
+        } else if (rankResult.newRank && this.visitedMuseums.length > 1) {
+            // Have a rank but no improvement (only show occasionally to avoid spam)
+            // Only show for significant milestones (every 5 museums)
+            if (this.visitedMuseums.length % 5 === 0) {
+                message = `🏆 已打卡${this.visitedMuseums.length}个博物馆，排名第${rankResult.newRank}`;
+            }
+        }
+        
+        if (message) {
+            // Show a brief notification
+            UIManager.showNotification(message, 3000, 'success');
+        }
     }
 
     toggleFavorite(museumId) {
