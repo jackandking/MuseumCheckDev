@@ -1756,6 +1756,240 @@
                 height: 60px;
             }
         }
+
+        /* ===== Minesweeper (扫雷) Game Styles ===== */
+        .minesweeper-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2c3e50 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .minesweeper-overlay.show {
+            display: flex;
+        }
+
+        .minesweeper-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .minesweeper-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .minesweeper-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .minesweeper-stats span {
+            color: #e74c3c;
+        }
+
+        .minesweeper-container {
+            background: #c0c0c0;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 3px solid #808080;
+        }
+
+        .minesweeper-grid {
+            display: grid;
+            gap: 2px;
+            background: #808080;
+            padding: 2px;
+        }
+
+        .minesweeper-grid.size-8 {
+            grid-template-columns: repeat(8, 1fr);
+        }
+
+        .minesweeper-grid.size-9 {
+            grid-template-columns: repeat(9, 1fr);
+        }
+
+        .minesweeper-cell {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #fff 0%, #c0c0c0 50%, #808080 100%);
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: all 0.1s ease;
+        }
+
+        .minesweeper-cell:active:not(.revealed):not(.flagged) {
+            border-color: #808080;
+            background: #c0c0c0;
+        }
+
+        .minesweeper-cell.revealed {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+            cursor: default;
+        }
+
+        .minesweeper-cell.revealed.mine {
+            background: #ff4444;
+        }
+
+        .minesweeper-cell.flagged {
+            background: linear-gradient(135deg, #fff 0%, #c0c0c0 50%, #808080 100%);
+        }
+
+        .minesweeper-cell.num-1 { color: #0000ff; }
+        .minesweeper-cell.num-2 { color: #008000; }
+        .minesweeper-cell.num-3 { color: #ff0000; }
+        .minesweeper-cell.num-4 { color: #000080; }
+        .minesweeper-cell.num-5 { color: #800000; }
+        .minesweeper-cell.num-6 { color: #008080; }
+        .minesweeper-cell.num-7 { color: #000000; }
+        .minesweeper-cell.num-8 { color: #808080; }
+
+        .minesweeper-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .minesweeper-button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .minesweeper-button-continue {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .minesweeper-button-continue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.4);
+        }
+
+        .minesweeper-button-reset {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .minesweeper-button-reset:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .minesweeper-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .minesweeper-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(39, 174, 96, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .minesweeper-complete-message.show {
+            display: block;
+        }
+
+        .minesweeper-complete-message.lose {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 8px 32px rgba(231, 76, 60, 0.4);
+        }
+
+        .minesweeper-flag-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .flag-toggle-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flag-toggle-btn.active {
+            background: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .flag-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .minesweeper-cell {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .minesweeper-cell {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+            .minesweeper-title {
+                font-size: 24px;
+            }
+            .minesweeper-stats {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2036,6 +2270,30 @@
         </div>
         <div class="tank-battle-complete-message" id="tankBattleCompleteMessage">
             🎉 胜利！得分：<span id="tbFinalScore">0</span>
+        </div>
+    </div>
+
+    <!-- Minesweeper (扫雷) Game Overlay -->
+    <div class="minesweeper-overlay" id="minesweeperOverlay">
+        <div class="minesweeper-header">
+            <div class="minesweeper-title">💣 扫雷挑战 💣</div>
+            <div class="minesweeper-stats">
+                剩余地雷：<span id="msRemainingMines">10</span> | 用时：<span id="msTimer">0</span>秒
+            </div>
+        </div>
+        <div class="minesweeper-container">
+            <div class="minesweeper-grid size-8" id="minesweeperGrid"></div>
+        </div>
+        <div class="minesweeper-hint">点击揭开方块，长按或开启标记模式插旗标记地雷！</div>
+        <div class="minesweeper-flag-toggle">
+            <button class="flag-toggle-btn" id="flagModeToggle">🚩 标记模式</button>
+        </div>
+        <div class="minesweeper-buttons">
+            <button class="minesweeper-button minesweeper-button-reset" id="resetMinesweeper">🔄 重新开始</button>
+            <button class="minesweeper-button minesweeper-button-continue" id="exitMinesweeper">继续游览 ➡️</button>
+        </div>
+        <div class="minesweeper-complete-message" id="minesweeperCompleteMessage">
+            🎉 胜利！用时：<span id="msFinalTime">0</span>秒
         </div>
     </div>
 
@@ -2626,8 +2884,11 @@
                         initShootingGame(taskIndexForGame);
                     } else if (gameType === 'space-invaders') {
                         initSpaceInvadersGame(taskIndexForGame);
-                    } else {
+                    } else if (gameType === 'tank-battle') {
                         initTankBattleGame(taskIndexForGame);
+                    } else {
+                        // Default to minesweeper
+                        initMinesweeperGame(taskIndexForGame);
                     }
                 }, 800);
             }
@@ -5792,21 +6053,339 @@
             document.getElementById('tankBattleCompleteMessage').classList.remove('show');
         }
 
-        // ===== Random Game Selection =====
-        // Randomly select between puzzle, maze, shooting, space invaders, and tank battle game
-        function selectRandomGame() {
-            const rand = Math.random();
-            if (rand < 0.2) {
-                return 'puzzle';
-            } else if (rand < 0.4) {
-                return 'maze';
-            } else if (rand < 0.6) {
-                return 'shooting';
-            } else if (rand < 0.8) {
-                return 'space-invaders';
+        // ===== Minesweeper (扫雷) Game Logic =====
+        // Game state
+        let msGrid = [];
+        let msRows = 8;
+        let msCols = 8;
+        let msTotalMines = 10;
+        let msRemainingMines = 10;
+        let msRevealedCount = 0;
+        let msGameOver = false;
+        let msGameWon = false;
+        let msFlagMode = false;
+        let msTimerInterval = null;
+        let msTime = 0;
+        let msFirstClick = true;
+
+        function initMinesweeperGame(taskIndex = 0) {
+            // Adjust difficulty based on task
+            if (taskIndex === 0) {
+                // Easier: 8x8 grid with 8 mines
+                msRows = 8;
+                msCols = 8;
+                msTotalMines = 8;
             } else {
-                return 'tank-battle';
+                // Standard: 8x8 grid with 10 mines
+                msRows = 8;
+                msCols = 8;
+                msTotalMines = 10;
             }
+            
+            msRemainingMines = msTotalMines;
+            msRevealedCount = 0;
+            msGameOver = false;
+            msGameWon = false;
+            msFlagMode = false;
+            msTime = 0;
+            msFirstClick = true;
+            
+            // Clear timer
+            if (msTimerInterval) {
+                clearInterval(msTimerInterval);
+                msTimerInterval = null;
+            }
+            
+            // Initialize empty grid
+            msGrid = [];
+            for (let r = 0; r < msRows; r++) {
+                msGrid[r] = [];
+                for (let c = 0; c < msCols; c++) {
+                    msGrid[r][c] = {
+                        mine: false,
+                        revealed: false,
+                        flagged: false,
+                        adjacentMines: 0
+                    };
+                }
+            }
+            
+            // Update UI
+            document.getElementById('msRemainingMines').textContent = msRemainingMines;
+            document.getElementById('msTimer').textContent = '0';
+            document.getElementById('minesweeperCompleteMessage').classList.remove('show');
+            document.getElementById('minesweeperCompleteMessage').classList.remove('lose');
+            
+            // Update flag mode button
+            const flagBtn = document.getElementById('flagModeToggle');
+            flagBtn.classList.remove('active');
+            flagBtn.onclick = toggleFlagMode;
+            
+            // Render grid
+            renderMinesweeperGrid();
+            
+            // Show overlay
+            document.getElementById('minesweeperOverlay').classList.add('show');
+            
+            // Setup button handlers
+            document.getElementById('resetMinesweeper').onclick = () => {
+                cleanupMinesweeperGame();
+                initMinesweeperGame(taskIndex);
+            };
+            document.getElementById('exitMinesweeper').onclick = cleanupMinesweeperGame;
+        }
+
+        function placeMines(excludeRow, excludeCol) {
+            // Place mines randomly, excluding the first clicked cell and its neighbors
+            let minesPlaced = 0;
+            while (minesPlaced < msTotalMines) {
+                const r = Math.floor(Math.random() * msRows);
+                const c = Math.floor(Math.random() * msCols);
+                
+                // Skip if already a mine or near first click
+                if (msGrid[r][c].mine) continue;
+                if (Math.abs(r - excludeRow) <= 1 && Math.abs(c - excludeCol) <= 1) continue;
+                
+                msGrid[r][c].mine = true;
+                minesPlaced++;
+            }
+            
+            // Calculate adjacent mine counts
+            for (let r = 0; r < msRows; r++) {
+                for (let c = 0; c < msCols; c++) {
+                    if (!msGrid[r][c].mine) {
+                        msGrid[r][c].adjacentMines = countAdjacentMines(r, c);
+                    }
+                }
+            }
+        }
+
+        function countAdjacentMines(row, col) {
+            let count = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = row + dr;
+                    const nc = col + dc;
+                    if (nr >= 0 && nr < msRows && nc >= 0 && nc < msCols && msGrid[nr][nc].mine) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        function renderMinesweeperGrid() {
+            const gridEl = document.getElementById('minesweeperGrid');
+            gridEl.innerHTML = '';
+            gridEl.className = `minesweeper-grid size-${msCols}`;
+            
+            for (let r = 0; r < msRows; r++) {
+                for (let c = 0; c < msCols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'minesweeper-cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    // Add event listeners
+                    cell.addEventListener('click', (e) => handleCellClick(r, c, e));
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleCellRightClick(r, c);
+                    });
+                    
+                    // Long press for flag on mobile - store timer on cell element to avoid interference
+                    cell.addEventListener('touchstart', (e) => {
+                        cell._longPressTimer = setTimeout(() => {
+                            e.preventDefault();
+                            handleCellRightClick(r, c);
+                        }, 500);
+                    });
+                    cell.addEventListener('touchend', () => {
+                        if (cell._longPressTimer) {
+                            clearTimeout(cell._longPressTimer);
+                            cell._longPressTimer = null;
+                        }
+                    });
+                    cell.addEventListener('touchmove', () => {
+                        if (cell._longPressTimer) {
+                            clearTimeout(cell._longPressTimer);
+                            cell._longPressTimer = null;
+                        }
+                    });
+                    
+                    updateCellDisplay(cell, r, c);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function updateCellDisplay(cell, row, col) {
+            const cellData = msGrid[row][col];
+            cell.className = 'minesweeper-cell';
+            cell.textContent = '';
+            
+            if (cellData.revealed) {
+                cell.classList.add('revealed');
+                if (cellData.mine) {
+                    cell.classList.add('mine');
+                    cell.textContent = '💣';
+                } else if (cellData.adjacentMines > 0) {
+                    cell.textContent = cellData.adjacentMines;
+                    cell.classList.add(`num-${cellData.adjacentMines}`);
+                }
+            } else if (cellData.flagged) {
+                cell.classList.add('flagged');
+                cell.textContent = '🚩';
+            }
+        }
+
+        function handleCellClick(row, col, event) {
+            if (msGameOver) return;
+            
+            const cellData = msGrid[row][col];
+            if (cellData.revealed || cellData.flagged) return;
+            
+            // In flag mode, toggle flag instead of revealing
+            if (msFlagMode) {
+                handleCellRightClick(row, col);
+                return;
+            }
+            
+            // First click: place mines and start timer
+            if (msFirstClick) {
+                msFirstClick = false;
+                placeMines(row, col);
+                startTimer();
+            }
+            
+            revealCell(row, col);
+            checkWinCondition();
+        }
+
+        function handleCellRightClick(row, col) {
+            if (msGameOver) return;
+            
+            const cellData = msGrid[row][col];
+            if (cellData.revealed) return;
+            
+            // Toggle flag
+            cellData.flagged = !cellData.flagged;
+            msRemainingMines += cellData.flagged ? -1 : 1;
+            
+            // Update display
+            document.getElementById('msRemainingMines').textContent = msRemainingMines;
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            updateCellDisplay(cell, row, col);
+        }
+
+        function revealCell(row, col) {
+            if (row < 0 || row >= msRows || col < 0 || col >= msCols) return;
+            
+            const cellData = msGrid[row][col];
+            if (cellData.revealed || cellData.flagged) return;
+            
+            cellData.revealed = true;
+            msRevealedCount++;
+            
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            updateCellDisplay(cell, row, col);
+            
+            // Hit a mine - game over
+            if (cellData.mine) {
+                endGame(false);
+                return;
+            }
+            
+            // If no adjacent mines, reveal neighbors
+            if (cellData.adjacentMines === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr !== 0 || dc !== 0) {
+                            revealCell(row + dr, col + dc);
+                        }
+                    }
+                }
+            }
+        }
+
+        function toggleFlagMode() {
+            msFlagMode = !msFlagMode;
+            const flagBtn = document.getElementById('flagModeToggle');
+            if (msFlagMode) {
+                flagBtn.classList.add('active');
+            } else {
+                flagBtn.classList.remove('active');
+            }
+        }
+
+        function startTimer() {
+            msTimerInterval = setInterval(() => {
+                msTime++;
+                document.getElementById('msTimer').textContent = msTime;
+            }, 1000);
+        }
+
+        function checkWinCondition() {
+            // Win if all non-mine cells are revealed
+            const totalNonMines = msRows * msCols - msTotalMines;
+            if (msRevealedCount === totalNonMines) {
+                endGame(true);
+            }
+        }
+
+        function endGame(won) {
+            msGameOver = true;
+            msGameWon = won;
+            
+            // Stop timer
+            if (msTimerInterval) {
+                clearInterval(msTimerInterval);
+                msTimerInterval = null;
+            }
+            
+            // Reveal all mines
+            if (!won) {
+                for (let r = 0; r < msRows; r++) {
+                    for (let c = 0; c < msCols; c++) {
+                        if (msGrid[r][c].mine) {
+                            msGrid[r][c].revealed = true;
+                            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                            updateCellDisplay(cell, r, c);
+                        }
+                    }
+                }
+            }
+            
+            // Show completion message
+            const msgEl = document.getElementById('minesweeperCompleteMessage');
+            if (won) {
+                msgEl.innerHTML = `🎉 胜利！用时：<span id="msFinalTime">${msTime}</span>秒`;
+                msgEl.classList.remove('lose');
+            } else {
+                msgEl.innerHTML = `💥 踩雷了！用时：<span id="msFinalTime">${msTime}</span>秒`;
+                msgEl.classList.add('lose');
+            }
+            msgEl.classList.add('show');
+        }
+
+        function cleanupMinesweeperGame() {
+            msGameOver = true;
+            if (msTimerInterval) {
+                clearInterval(msTimerInterval);
+                msTimerInterval = null;
+            }
+            
+            document.getElementById('minesweeperOverlay').classList.remove('show');
+            document.getElementById('minesweeperCompleteMessage').classList.remove('show');
+        }
+
+        // ===== Random Game Selection =====
+        // Randomly select between puzzle, maze, shooting, space invaders, tank battle, and minesweeper game
+        function selectRandomGame() {
+            const games = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper'];
+            const randomIndex = Math.floor(Math.random() * games.length);
+            return games[randomIndex];
         }
 
         // Initialize on page load
