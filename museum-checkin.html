@@ -2171,8 +2171,12 @@
             }
         }
     </style>
+    <!-- Virtual Pet and Achievement Gamification Styles -->
+    <link rel="stylesheet" href="virtual-pet.css">
+    <link rel="stylesheet" href="achievement-gamification.css">
 </head>
-<body>
+<!-- child-mode class is intentionally hardcoded because this page is specifically for kids' tasks -->
+<body class="child-mode">
     <div class="edit-mode-indicator" id="editModeIndicator">
         ✏️ 编辑模式
     </div>
@@ -2550,6 +2554,10 @@
     <script src="treasure-workflow-generator.js"></script>
     <!-- Museum data loaded from museums-data.js and Tier 1 JSON files via museum-data-loader.js -->
     <script src="firework.js"></script>
+    <!-- Achievement Gamification System for XP/Points -->
+    <script src="achievement-gamification.js"></script>
+    <!-- Virtual Pet System for child mode -->
+    <script src="virtual-pet.js"></script>
     
     <script>
         // Configuration
@@ -2624,6 +2632,14 @@
 
             // Check if child mode is enabled and hide settings button
             applyChildMode();
+            
+            // Initialize achievement gamification system
+            if (typeof AchievementGamification !== 'undefined') {
+                window.achievementGamification = new AchievementGamification();
+            }
+            
+            // Initialize virtual pet system (auto-initializes when child mode toggle exists)
+            // Note: Virtual pet is automatically initialized in virtual-pet.js on DOMContentLoaded
 
             updatePageTitle();
             await loadMuseumData(); // Wait for async museum data loading
@@ -3151,6 +3167,18 @@
 
             completedTasks.add(currentTaskIndex);
             saveCompletedTasks();
+            
+            // Award XP for task completion and show notification
+            const taskXP = hasPhoto ? 10 : 5; // More XP for tasks with photos
+            if (window.achievementGamification) {
+                window.achievementGamification.addXP(taskXP);
+                window.achievementGamification.showXPGainNotification(taskXP, hasPhoto ? '任务完成 (含照片)' : '任务完成');
+            }
+            
+            // Notify virtual pet about task completion
+            if (window.virtualPet && window.virtualPet.isPetAlive()) {
+                window.virtualPet.onTaskCompleted();
+            }
             
             // Close modal
             document.getElementById('taskModal').classList.remove('show');

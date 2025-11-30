@@ -159,7 +159,7 @@ class VirtualPet {
         }
 
         if (points < VirtualPet.FEED_COST) {
-            return { success: false, message: `积分不足，喂食需要 ${VirtualPet.FEED_COST} 积分` };
+            return { success: false, message: `积分不足，当前积分: ${points}，喂食需要 ${VirtualPet.FEED_COST} 积分` };
         }
 
         const pet = this.petData.pet;
@@ -183,7 +183,7 @@ class VirtualPet {
         }
 
         if (points < VirtualPet.ATTACK_UPGRADE_COST) {
-            return { success: false, message: `积分不足，需要 ${VirtualPet.ATTACK_UPGRADE_COST} 积分` };
+            return { success: false, message: `积分不足，当前积分: ${points}，需要 ${VirtualPet.ATTACK_UPGRADE_COST} 积分` };
         }
 
         const pet = this.petData.pet;
@@ -206,7 +206,7 @@ class VirtualPet {
         }
 
         if (points < VirtualPet.DEFENSE_UPGRADE_COST) {
-            return { success: false, message: `积分不足，需要 ${VirtualPet.DEFENSE_UPGRADE_COST} 积分` };
+            return { success: false, message: `积分不足，当前积分: ${points}，需要 ${VirtualPet.DEFENSE_UPGRADE_COST} 积分` };
         }
 
         const pet = this.petData.pet;
@@ -233,7 +233,7 @@ class VirtualPet {
         }
 
         if (points < VirtualPet.REVIVE_COST) {
-            return { success: false, message: `积分不足，复活需要 ${VirtualPet.REVIVE_COST} 积分` };
+            return { success: false, message: `积分不足，当前积分: ${points}，复活需要 ${VirtualPet.REVIVE_COST} 积分` };
         }
 
         const pet = this.petData.pet;
@@ -683,9 +683,13 @@ class VirtualPet {
 
 // Initialize virtual pet when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if child mode toggle exists (meaning the feature is available)
+    // Initialize if child mode toggle exists (main page) or if child mode is enabled (checkin page)
     const childModeToggle = document.getElementById('childModeToggle');
-    if (childModeToggle) {
+    const childModeEnabled = localStorage.getItem('childModeEnabled') === 'true';
+    // Also check if we're on a checkin page (museum-checkin.html) - this page is specifically for kids
+    const isCheckinPage = window.location.pathname.endsWith('museum-checkin.html');
+    
+    if (childModeToggle || childModeEnabled || isCheckinPage) {
         window.virtualPet = new VirtualPet();
     }
 });

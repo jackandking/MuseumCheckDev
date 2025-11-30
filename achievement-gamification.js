@@ -459,6 +459,33 @@ class AchievementGamification {
         }, 5000);
     }
 
+    // Show XP gain notification
+    showXPGainNotification(xpAmount, reason = '任务完成') {
+        const xpProgress = this.getXPProgress();
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification level-micro';
+        notification.innerHTML = `
+            <div class="notification-icon">⭐</div>
+            <div class="notification-content">
+                <div class="notification-title">${reason}</div>
+                <div class="notification-achievement-name">+${xpAmount} 积分</div>
+                <div class="notification-description">当前总积分：${xpProgress.totalXP}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        const container = document.getElementById('achievement-notification-container');
+        if (container) {
+            container.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    }
+
     calculateXPGain(achievement) {
         // Calculate XP based on achievement level
         const baseXP = {
