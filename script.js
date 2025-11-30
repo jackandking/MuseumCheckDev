@@ -3688,22 +3688,8 @@ class MuseumCheckApp {
     }
 
     initAgeSelector() {
-        // Set the radio button to match the saved age group
-        const savedAgeRadio = UtilityFunctions.querySelector(`input[name="ageGroup"][value="${this.currentAge}"]`);
-        if (savedAgeRadio) {
-            savedAgeRadio.checked = true;
-        }
-        
-        // Set initial selected state for browsers that don't support :has()
-        const checkedRadio = UtilityFunctions.querySelector(DOM_SELECTORS.AGE_GROUP.CHECKED_RADIO);
-        if (checkedRadio) {
-            // Remove previous selected states
-            UtilityFunctions.querySelectorAll(DOM_SELECTORS.AGE_GROUP.OPTIONS).forEach(option => {
-                option.classList.remove('selected');
-            });
-            // Add selected state to the current radio
-            checkedRadio.closest('.age-option').classList.add('selected');
-        }
+        // Age selector removed from index.html - age selection now handled in settings page.
+        // Method kept as no-op since it's called from init() method.
     }
 
     // Google Analytics tracking helper - now using AnalyticsManager
@@ -3815,57 +3801,21 @@ class MuseumCheckApp {
     }
     
     /**
-     * Setup auto-hide functionality for age selector
-     * For first-time users: keeps selector visible until they make a selection
-     * For returning users: hides selector immediately (they've already chosen)
-     * For users who completed onboarding: hides selector (onboarding covered age selection)
-     * 
-     * Bug fix: Removed 10-second auto-hide timer for first-time users
-     * Issue: 自动消失bug - Age selector should only hide after user makes a selection
+     * Setup auto-hide functionality for age selector.
+     * @deprecated Age selector removed from index.html - functionality moved to settings page.
+     * Method kept as no-op since it's called from init() method.
      */
     setupAgeSelectorAutoHide() {
-        const ageSelector = document.querySelector('.age-selector');
-        
-        if (!ageSelector) {
-            return;
-        }
-        
-        // Check if user has already saved their age preference
-        let hasSavedAge = null;
-        let onboardingCompleted = false;
-        
-        try {
-            hasSavedAge = localStorage.getItem('ageGroup');
-            onboardingCompleted = localStorage.getItem('newUserOnboardingCompleted') === 'true';
-        } catch (error) {
-            console.error('Failed to check localStorage:', error);
-            // Treat as first-time user if localStorage fails
-        }
-        
-        // Hide age selector if user has saved age OR completed onboarding
-        // (onboarding covers age selection, so the main page selector is redundant)
-        if (hasSavedAge || onboardingCompleted) {
-            ageSelector.classList.add('hidden');
-            return;
-        }
-        
-        // First-time user - keep selector visible until they make a selection
-        // The selector will be hidden when user selects an age (see age group change handler)
+        // Age selector removed from index.html - no action needed
     }
     
     /**
-     * Hide age selector (hint notification removed - handled by onboarding system)
-     * Called after user selects an age for the first time
+     * Hide age selector after user makes a selection.
+     * @deprecated Age selector removed from index.html - functionality moved to settings page.
+     * Method kept as no-op since it may be called from other event handlers.
      */
     hideAgeSelectorAndShowHint() {
-        const ageSelector = document.querySelector('.age-selector');
-        
-        if (!ageSelector) {
-            return;
-        }
-        
-        // Hide age selector
-        ageSelector.classList.add('hidden');
+        // Age selector removed from index.html - no action needed
     }
     
     /**
@@ -4259,11 +4209,7 @@ class MuseumCheckApp {
         // Mark onboarding as completed
         localStorage.setItem('newUserOnboardingCompleted', 'true');
         
-        // Hide the age selector card on the main page since onboarding covered this
-        const ageSelector = document.querySelector('.age-selector');
-        if (ageSelector) {
-            ageSelector.classList.add('hidden');
-        }
+        // Note: Age selector has been removed from index.html - functionality moved to settings page
 
         // Track completion
         this.trackEvent('new_user_onboarding_completed', {
