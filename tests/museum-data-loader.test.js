@@ -62,7 +62,7 @@ describe('MuseumDataLoader', () => {
     describe('Priority Settings', () => {
         test('should use default priority when no settings exist', () => {
             const priority = loader.getPrioritySettings();
-            expect(priority).toEqual(['tier1', 'tier2', 'tier3']);
+            expect(priority).toEqual(['tier2', 'tier1', 'tier3']);
         });
 
         test('should load priority settings from localStorage', () => {
@@ -207,19 +207,20 @@ describe('MuseumDataLoader', () => {
     });
 
     describe('Fallback Logic', () => {
-        test('should try tiers in priority order', async () => {
+        test('should try tiers in priority order (tier2 first by default)', async () => {
             const mockData = { id: 'test', name: 'Test Museum' };
             
-            // Tier 1 fails
+            // With default priority tier2 → tier1 → tier3:
+            // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404
             });
             
-            // Tier 2 succeeds
+            // Tier 1 succeeds
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ value: JSON.stringify(mockData) })
+                json: async () => mockData
             });
 
             const result = await loader.loadMuseum('test', false);
@@ -228,14 +229,15 @@ describe('MuseumDataLoader', () => {
             expect(result).toEqual(mockData);
         });
 
-        test('should fall back to Tier 3 if 1 and 2 fail', async () => {
-            // Tier 1 fails
+        test('should fall back to Tier 3 if 2 and 1 fail', async () => {
+            // With default priority tier2 → tier1 → tier3:
+            // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404
             });
             
-            // Tier 2 fails
+            // Tier 1 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404
@@ -249,13 +251,14 @@ describe('MuseumDataLoader', () => {
         });
 
         test('should return null if all tiers fail', async () => {
-            // Tier 1 fails
+            // With default priority tier2 → tier1 → tier3:
+            // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404
             });
             
-            // Tier 2 fails
+            // Tier 1 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404
@@ -280,9 +283,10 @@ describe('MuseumDataLoader', () => {
         test('should cache loaded museum data', async () => {
             const mockData = { id: 'test', name: 'Test' };
             
+            // With tier2 first, we need to mock KV store format
             global.fetch.mockResolvedValue({
                 ok: true,
-                json: async () => mockData
+                json: async () => ({ value: JSON.stringify(mockData) })
             });
 
             // First load
@@ -291,37 +295,39 @@ describe('MuseumDataLoader', () => {
             // Second load (should use cache)
             const result = await loader.loadMuseum('test', true);
             
-            expect(fetch).toHaveBeenCalledTimes(1); // Only once
+            expect(fetch).toHaveBeenCalledTimes(1); // Only once because of cache
             expect(result).toEqual(mockData);
         });
 
         test('should bypass cache when requested', async () => {
             const mockData = { id: 'test', name: 'Test' };
             
+            // With tier2 first, we need to mock KV store format
             global.fetch.mockResolvedValue({
                 ok: true,
-                json: async () => mockData
+                json: async () => ({ value: JSON.stringify(mockData) })
             });
 
             await loader.loadMuseum('test', false);
             await loader.loadMuseum('test', false); // Don't use cache
             
-            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(fetch).toHaveBeenCalledTimes(2); // Called twice because cache is bypassed
         });
 
         test('should clear cache for specific museum', async () => {
             const mockData = { id: 'test', name: 'Test' };
             
+            // With tier2 first, we need to mock KV store format
             global.fetch.mockResolvedValue({
                 ok: true,
-                json: async () => mockData
+                json: async () => ({ value: JSON.stringify(mockData) })
             });
 
             await loader.loadMuseum('test', false);
             loader.clearCache('test');
             await loader.loadMuseum('test', true);
             
-            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(fetch).toHaveBeenCalledTimes(2); // Called twice because cache was cleared
         });
     });
 

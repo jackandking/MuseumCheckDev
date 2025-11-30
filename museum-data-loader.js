@@ -2,10 +2,12 @@
  * Museum Data Loader - 3-Tier Data Management System
  * 
  * Tier 1: Individual museum static JSON files (/museums/{museum-id}.json)
- * Tier 2: KV store dynamic data (remote storage for dev/debug)
+ * Tier 2: KV store dynamic data (remote storage for latest content)
  * Tier 3: Consolidated museums-data.js (fallback)
  * 
- * Priority: Tier 1 → Tier 2 → Tier 3 (configurable)
+ * Default Priority: Tier 2 → Tier 1 → Tier 3 (configurable)
+ * This prioritizes dynamic data for single museum pages to get latest updates.
+ * Note: Homepage uses MUSEUMS array directly, so this doesn't affect homepage loading.
  */
 
 class MuseumDataLoader {
@@ -26,14 +28,16 @@ class MuseumDataLoader {
             const settings = localStorage.getItem('museumDataTierPriority');
             if (settings) {
                 const parsed = JSON.parse(settings);
-                this.tierPriority = parsed.priority || ['tier1', 'tier2', 'tier3'];
+                this.tierPriority = parsed.priority || ['tier2', 'tier1', 'tier3'];
             } else {
-                // Default priority: Tier 1 → Tier 2 → Tier 3
-                this.tierPriority = ['tier1', 'tier2', 'tier3'];
+                // Default priority: Tier 2 (dynamic data) → Tier 1 (static files) → Tier 3 (built-in)
+                // This prioritizes dynamic data from KV store for single museum pages
+                // Note: Homepage uses MUSEUMS array directly, so this doesn't affect homepage loading
+                this.tierPriority = ['tier2', 'tier1', 'tier3'];
             }
         } catch (error) {
             console.warn('Error loading tier priority settings:', error);
-            this.tierPriority = ['tier1', 'tier2', 'tier3'];
+            this.tierPriority = ['tier2', 'tier1', 'tier3'];
         }
     }
 

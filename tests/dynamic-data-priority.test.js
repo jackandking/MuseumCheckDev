@@ -52,7 +52,7 @@ describe('Dynamic Data Priority Feature', () => {
     
     describe('Priority Settings', () => {
         test('should use default priority when no settings exist', () => {
-            expect(loader.tierPriority).toEqual(['tier1', 'tier2', 'tier3']);
+            expect(loader.tierPriority).toEqual(['tier2', 'tier1', 'tier3']);
         });
         
         test('should load custom priority from localStorage', () => {
@@ -79,7 +79,7 @@ describe('Dynamic Data Priority Feature', () => {
             localStorage.setItem('museumDataTierPriority', 'invalid json');
             
             const newLoader = new MuseumDataLoader();
-            expect(newLoader.tierPriority).toEqual(['tier1', 'tier2', 'tier3']);
+            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1', 'tier3']);
         });
     });
     
@@ -192,31 +192,37 @@ describe('Dynamic Data Priority Feature', () => {
         });
         
         test('should use cache when enabled', async () => {
+            // With tier2 first, mock KV store format
             // First load (no cache)
             global.fetch.mockImplementationOnce(() => 
                 Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve(mockTier1Data)
+                    json: () => Promise.resolve({
+                        value: JSON.stringify(mockTier2Data)
+                    })
                 })
             );
             
             const result1 = await loader.loadMuseum(mockMuseumId, true);
-            expect(result1.source).toBe('tier1');
+            expect(result1.source).toBe('tier2');
             
             // Second load (should use cache)
             const result2 = await loader.loadMuseum(mockMuseumId, true);
-            expect(result2.source).toBe('tier1');
+            expect(result2.source).toBe('tier2');
             
             // Fetch should only be called once (first load)
             expect(global.fetch).toHaveBeenCalledTimes(1);
         });
         
         test('should bypass cache when useCache is false', async () => {
+            // With tier2 first, mock KV store format
             // First load
             global.fetch.mockImplementationOnce(() => 
                 Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve(mockTier1Data)
+                    json: () => Promise.resolve({
+                        value: JSON.stringify(mockTier2Data)
+                    })
                 })
             );
             
@@ -226,7 +232,9 @@ describe('Dynamic Data Priority Feature', () => {
             global.fetch.mockImplementationOnce(() => 
                 Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve(mockTier1Data)
+                    json: () => Promise.resolve({
+                        value: JSON.stringify(mockTier2Data)
+                    })
                 })
             );
             
@@ -241,11 +249,14 @@ describe('Dynamic Data Priority Feature', () => {
         test('should clear specific museum cache', async () => {
             const museumId = 'test-museum';
             
+            // With tier2 first, mock KV store format
             // Load and cache a museum
             global.fetch.mockImplementationOnce(() => 
                 Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve({ id: museumId, name: 'Test' })
+                    json: () => Promise.resolve({
+                        value: JSON.stringify({ id: museumId, name: 'Test' })
+                    })
                 })
             );
             
@@ -262,11 +273,14 @@ describe('Dynamic Data Priority Feature', () => {
         });
         
         test('should clear all cache', async () => {
+            // With tier2 first, mock KV store format
             // Load multiple museums
             global.fetch.mockImplementation(() => 
                 Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve({ id: 'test', name: 'Test' })
+                    json: () => Promise.resolve({
+                        value: JSON.stringify({ id: 'test', name: 'Test' })
+                    })
                 })
             );
             

@@ -117,14 +117,14 @@ describe('Settings Priority Persistence Bug Fix', () => {
     test('should handle all three priority options', () => {
         const testCases = [
             {
-                name: '静态文件优先 (default)',
-                priority: ['tier1', 'tier2', 'tier3'],
-                value: 'tier1-tier2-tier3'
-            },
-            {
-                name: '远程存储优先 (dynamic)',
+                name: '远程存储优先 (dynamic, new default)',
                 priority: ['tier2', 'tier1', 'tier3'],
                 value: 'tier2-tier1-tier3'
+            },
+            {
+                name: '静态文件优先 (stable)',
+                priority: ['tier1', 'tier2', 'tier3'],
+                value: 'tier1-tier2-tier3'
             },
             {
                 name: '内置数据优先 (offline)',

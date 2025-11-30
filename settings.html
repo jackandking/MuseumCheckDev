@@ -63,13 +63,13 @@
       <div class="row">
         <label for="dataPriority">数据加载优先级</label>
         <select id="dataPriority">
-          <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（推荐）</option>
-          <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（开发调试）</option>
+          <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（推荐，获取最新数据）</option>
+          <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（稳定优先）</option>
           <option value="tier3-tier1-tier2">内置数据 → 静态文件 → 远程存储（离线优先）</option>
         </select>
         <div class="hint">
+          <strong>远程存储</strong>：动态数据，单馆页面可获取最新内容<br>
           <strong>静态文件</strong>：稳定发布的博物馆数据<br>
-          <strong>远程存储</strong>：开发调试中的最新内容<br>
           <strong>内置数据</strong>：应用默认数据
         </div>
       </div>
@@ -100,10 +100,10 @@
           
           // Load data priority setting
           const prioritySettings = localStorage.getItem('museumDataTierPriority');
-          let priorityValue = 'tier1-tier2-tier3'; // default
+          let priorityValue = 'tier2-tier1-tier3'; // default: dynamic data first for single museum pages
           if (prioritySettings) {
             const parsed = JSON.parse(prioritySettings);
-            const priority = parsed.priority || ['tier1', 'tier2', 'tier3'];
+            const priority = parsed.priority || ['tier2', 'tier1', 'tier3'];
             priorityValue = priority.join('-');
           }
           document.getElementById('dataPriority').value = priorityValue;

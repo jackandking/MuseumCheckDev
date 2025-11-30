@@ -483,15 +483,15 @@
                     <label class="settings-label" for="dataTierPrioritySelector">博物馆数据优先级：</label>
                     <div class="settings-input-group">
                         <select id="dataTierPrioritySelector" class="settings-input">
-                            <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（推荐）</option>
-                            <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（开发调试）</option>
+                            <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（推荐，获取最新数据）</option>
+                            <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（稳定优先）</option>
                             <option value="tier3-tier1-tier2">内置数据 → 静态文件 → 远程存储（离线优先）</option>
                         </select>
                     </div>
                     <div class="settings-hint">
                         选择博物馆数据加载的优先级顺序<br>
+                        • <strong>远程存储</strong>：动态数据，单馆页面可获取最新内容（云端KV存储）<br>
                         • <strong>静态文件</strong>：稳定发布的单个博物馆数据文件<br>
-                        • <strong>远程存储</strong>：开发调试中的最新内容（云端KV存储）<br>
                         • <strong>内置数据</strong>：应用默认数据（离线可用）
                     </div>
                 </div>
