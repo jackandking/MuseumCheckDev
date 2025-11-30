@@ -2111,13 +2111,43 @@
                     <div class="settings-toggle">
                         <div>
                             <label class="settings-label" style="margin-bottom: 0;">小游戏奖励</label>
-                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁拼图、迷宫或射击游戏作为奖励</div>
+                            <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁选中的小游戏作为奖励</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="puzzleGameToggle">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                </div>
+                <div class="settings-item" id="gameSelectionSection">
+                    <label class="settings-label">选择可奖励的小游戏：</label>
+                    <div class="game-selection-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameTogglePuzzle" class="game-toggle" data-game="puzzle" checked>
+                            <span>🧩 拼图</span>
+                        </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameToggleMaze" class="game-toggle" data-game="maze" checked>
+                            <span>🏃 迷宫</span>
+                        </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameToggleShooting" class="game-toggle" data-game="shooting" checked>
+                            <span>🎯 射击</span>
+                        </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameToggleSpaceInvaders" class="game-toggle" data-game="space-invaders" checked>
+                            <span>🐝 小蜜蜂</span>
+                        </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameToggleTankBattle" class="game-toggle" data-game="tank-battle" checked>
+                            <span>🎖️ 坦克大战</span>
+                        </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameToggleMinesweeper" class="game-toggle" data-game="minesweeper" checked>
+                            <span>💣 扫雷</span>
+                        </label>
+                    </div>
+                    <div class="settings-hint" style="margin-top: 8px;">选择希望奖励的游戏类型，至少选择一个</div>
                 </div>
             </div>
 
@@ -3805,8 +3835,15 @@
             if (puzzleToggle) {
                 puzzleToggle.addEventListener('change', (e) => {
                     savePuzzleGameSetting(e.target.checked);
+                    updateGameSelectionVisibility(e.target.checked);
                 });
             }
+
+            // Individual game toggles
+            const gameToggles = document.querySelectorAll('.game-toggle');
+            gameToggles.forEach(toggle => {
+                toggle.addEventListener('change', handleGameToggleChange);
+            });
 
             // Puzzle game controls
             const exitPuzzleBtn = document.getElementById('exitPuzzle');
@@ -4043,18 +4080,33 @@
                 puzzleToggle.checked = puzzleGameEnabled;
             }
 
+            // Load individual game settings
+            updateGameSelectionUI();
+            
+            // Update game selection visibility based on main toggle
+            updateGameSelectionVisibility(puzzleGameEnabled);
+
             // Show modal
             document.getElementById('settingsModal').classList.add('show');
+        }
+        
+        // Show/hide game selection section based on main toggle
+        function updateGameSelectionVisibility(enabled) {
+            const gameSelectionSection = document.getElementById('gameSelectionSection');
+            if (gameSelectionSection) {
+                gameSelectionSection.style.display = enabled ? 'block' : 'none';
+            }
         }
 
         // ===== Puzzle Game Settings =====
         function loadPuzzleGameSetting() {
             try {
                 const saved = localStorage.getItem('puzzleGameEnabled');
-                return saved === 'true';  // Default is false (disabled)
+                // Default is true (enabled) - changed to default enabled
+                return saved === null ? true : saved === 'true';
             } catch (error) {
                 console.error('Failed to load puzzle game setting:', error);
-                return false;
+                return true;  // Default to enabled
             }
         }
 
@@ -4066,6 +4118,67 @@
                 console.error('Failed to save puzzle game setting:', error);
                 return false;
             }
+        }
+
+        // ===== Individual Game Settings =====
+        // All games enabled by default
+        const ALL_GAMES = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper'];
+
+        function loadEnabledGames() {
+            try {
+                const saved = localStorage.getItem('enabledGames');
+                if (saved === null) {
+                    // Default: all games enabled
+                    return [...ALL_GAMES];
+                }
+                const parsed = JSON.parse(saved);
+                // Ensure we return at least one game
+                return Array.isArray(parsed) && parsed.length > 0 ? parsed : [...ALL_GAMES];
+            } catch (error) {
+                console.error('Failed to load enabled games:', error);
+                return [...ALL_GAMES];
+            }
+        }
+
+        function saveEnabledGames(games) {
+            try {
+                // Ensure at least one game is enabled
+                const toSave = games.length > 0 ? games : [...ALL_GAMES];
+                localStorage.setItem('enabledGames', JSON.stringify(toSave));
+                return true;
+            } catch (error) {
+                console.error('Failed to save enabled games:', error);
+                return false;
+            }
+        }
+
+        function updateGameSelectionUI() {
+            const enabledGames = loadEnabledGames();
+            const gameToggles = document.querySelectorAll('.game-toggle');
+            gameToggles.forEach(toggle => {
+                const game = toggle.dataset.game;
+                toggle.checked = enabledGames.includes(game);
+            });
+        }
+
+        function handleGameToggleChange() {
+            const gameToggles = document.querySelectorAll('.game-toggle');
+            const enabledGames = [];
+            gameToggles.forEach(toggle => {
+                if (toggle.checked) {
+                    enabledGames.push(toggle.dataset.game);
+                }
+            });
+            
+            // Ensure at least one game is enabled
+            if (enabledGames.length === 0) {
+                // Re-enable the one that was just unchecked
+                event.target.checked = true;
+                enabledGames.push(event.target.dataset.game);
+                alert('至少需要选择一个游戏！');
+            }
+            
+            saveEnabledGames(enabledGames);
         }
 
         // ===== Puzzle Game Logic =====
@@ -6399,9 +6512,11 @@
         }
 
         // ===== Random Game Selection =====
-        // Randomly select between puzzle, maze, shooting, space invaders, tank battle, and minesweeper game
+        // Randomly select from enabled games only
         function selectRandomGame() {
-            const games = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper'];
+            const enabledGames = loadEnabledGames();
+            // Fallback to all games if somehow none are enabled
+            const games = enabledGames.length > 0 ? enabledGames : ALL_GAMES;
             const randomIndex = Math.floor(Math.random() * games.length);
             return games[randomIndex];
         }
