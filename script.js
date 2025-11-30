@@ -3775,10 +3775,8 @@ class MuseumCheckApp {
         this.initGlobalFireworksWall();
         // Auto-hide age selector after 10 seconds
         this.setupAgeSelectorAutoHide();
-        // Show settings hint for new users
-        this.setupSettingsHint();
-        // Setup new user onboarding for leaderboard
-        this.setupLeaderboardOnboarding();
+        // Setup new user onboarding (replaces old hints system)
+        this.setupNewUserOnboarding();
     }
     
     /**
@@ -3853,200 +3851,137 @@ class MuseumCheckApp {
     }
     
     /**
-     * Hide age selector and show hint notification
+     * Hide age selector (hint notification removed - handled by onboarding system)
      * Called after user selects an age for the first time
      */
     hideAgeSelectorAndShowHint() {
         const ageSelector = document.querySelector('.age-selector');
-        const hint = document.getElementById('ageSelectorHint');
         
-        if (!ageSelector || !hint) {
+        if (!ageSelector) {
             return;
-        }
-        
-        // Check if hint has already been shown
-        let hasSeenHint = null;
-        try {
-            hasSeenHint = localStorage.getItem('ageSelectorHintShown');
-        } catch (error) {
-            console.error('Failed to check hint status:', error);
         }
         
         // Hide age selector
         ageSelector.classList.add('hidden');
-        
-        // Only show hint if it hasn't been shown before
-        if (!hasSeenHint) {
-            // Show hint after age selector is hidden (wait for transition)
-            setTimeout(() => {
-                hint.classList.add('show');
-                
-                // Mark hint as shown
-                try {
-                    localStorage.setItem('ageSelectorHintShown', 'true');
-                } catch (error) {
-                    console.error('Failed to save hint status:', error);
-                }
-                
-                // Hide hint after 5 seconds
-                setTimeout(() => {
-                    hint.classList.remove('show');
-                }, 5000);
-            }, 500);
-        }
     }
     
     /**
-     * Show settings hint for new users
-     * Displays a notification telling users they can modify nickname and age group in settings
-     * Only shown once for first-time users who haven't configured settings yet
+     * Setup new user onboarding flow
+     * For first-time users: auto-open settings modal with step-by-step onboarding prompts
+     * Steps: 1) Set nickname 2) Select age 3) Close settings 4) Select museum
      */
-    setupSettingsHint() {
-        const settingsHint = document.getElementById('settingsHint');
-        
-        if (!settingsHint) {
-            return;
-        }
-        
-        // Check if user is a new user (no settings configured)
-        let hasConfiguredSettings = false;
-        let hasSeenHint = false;
-        
-        try {
-            // User is considered "configured" if they have set a nickname or age group
-            const hasNickname = localStorage.getItem('childNickname');
-            const hasAgeGroup = localStorage.getItem('ageGroup');
-            hasConfiguredSettings = hasNickname || hasAgeGroup;
-            
-            // Check if hint was already shown
-            hasSeenHint = localStorage.getItem('settingsHintShown') === 'true';
-        } catch (error) {
-            console.error('Failed to check settings hint status:', error);
-            return;
-        }
-        
-        // Only show hint for new users who haven't seen it
-        if (hasConfiguredSettings || hasSeenHint) {
-            return;
-        }
-        
-        // Show hint after a short delay (2 seconds) to let user orient
-        setTimeout(() => {
-            settingsHint.classList.add('show');
-            
-            // Mark hint as shown
-            try {
-                localStorage.setItem('settingsHintShown', 'true');
-            } catch (error) {
-                console.error('Failed to save settings hint status:', error);
-            }
-            
-            // Auto-hide hint after 8 seconds
-            setTimeout(() => {
-                settingsHint.classList.remove('show');
-            }, 8000);
-        }, 2000);
-    }
-    
-    /**
-     * Setup new user onboarding for leaderboard feature
-     * Guide new users to: 1) set nickname, 2) check-in museums, 3) view leaderboard
-     */
-    setupLeaderboardOnboarding() {
+    setupNewUserOnboarding() {
         try {
             // Check if onboarding already completed
-            const onboardingCompleted = localStorage.getItem('leaderboardOnboardingCompleted') === 'true';
+            const onboardingCompleted = localStorage.getItem('newUserOnboardingCompleted') === 'true';
             if (onboardingCompleted) {
                 return;
             }
 
-            // Check if user is truly new (no visited museums and default nickname)
+            // Check if user is truly new (no nickname, no age group saved, no visited museums)
+            const hasNickname = localStorage.getItem('childNickname');
+            const hasAgeGroup = localStorage.getItem('ageGroup');
             const hasVisitedMuseums = this.visitedMuseums.length > 0;
-            const hasCustomNickname = this.childNickname !== '小淘气';
 
-            // If user already has some progress, mark onboarding as completed
-            if (hasVisitedMuseums || hasCustomNickname) {
-                localStorage.setItem('leaderboardOnboardingCompleted', 'true');
+            // If user already has some configuration, mark onboarding as completed
+            if (hasNickname || hasAgeGroup || hasVisitedMuseums) {
+                localStorage.setItem('newUserOnboardingCompleted', 'true');
                 return;
             }
 
-            // Show gentle hint about leaderboard after 5 seconds
+            // For new users: show onboarding after a short delay to let the page load
             setTimeout(() => {
-                this.showLeaderboardIntroHint();
-            }, 5000);
+                this.startNewUserOnboarding();
+            }, 500);
 
         } catch (error) {
-            console.error('Failed to setup leaderboard onboarding:', error);
+            console.error('Failed to setup new user onboarding:', error);
         }
     }
 
     /**
-     * Show intro hint about leaderboard to new users
+     * Start new user onboarding flow
+     * Opens settings modal with onboarding guide
      */
-    showLeaderboardIntroHint() {
-        // Create a notification element
-        const notification = document.createElement('div');
-        notification.className = 'leaderboard-intro-hint';
-        notification.innerHTML = `
-            <div class="hint-content">
-                <div class="hint-icon">🏅</div>
-                <div class="hint-text">
-                    <strong>欢迎来到博物馆打卡！</strong><br>
-                    设置孩子昵称，打卡参观过的博物馆，就能在全网排行榜上看到自己的排名啦！
+    startNewUserOnboarding() {
+        // Add onboarding UI to settings modal
+        this.injectOnboardingUI();
+        
+        // Open settings modal
+        this.showSettingsModal();
+        
+        // Start onboarding step 1
+        this.showOnboardingStep(1);
+        
+        // Track event
+        this.trackEvent('new_user_onboarding_started', {
+            'timestamp': new Date().toISOString()
+        });
+    }
+
+    /**
+     * Inject onboarding UI elements into settings modal
+     */
+    injectOnboardingUI() {
+        const settingsModal = document.getElementById('settingsModal');
+        if (!settingsModal) return;
+
+        // Check if already injected
+        if (document.getElementById('onboardingOverlay')) return;
+
+        // Create onboarding overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'onboardingOverlay';
+        overlay.className = 'onboarding-overlay';
+        overlay.innerHTML = `
+            <div class="onboarding-card">
+                <div class="onboarding-header">
+                    <span class="onboarding-emoji">🎉</span>
+                    <h3 class="onboarding-title">欢迎来到博物馆打卡！</h3>
                 </div>
-                <button class="hint-close-btn">知道了</button>
+                <div class="onboarding-steps">
+                    <div class="onboarding-step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-text">设置孩子昵称</span>
+                    </div>
+                    <div class="onboarding-step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-text">选择年龄段</span>
+                    </div>
+                    <div class="onboarding-step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-text">关闭设置</span>
+                    </div>
+                    <div class="onboarding-step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-text">选择博物馆</span>
+                    </div>
+                </div>
+                <div class="onboarding-hint" id="onboardingHint">
+                    👆 请先在上方输入孩子的昵称
+                </div>
+                <button class="onboarding-skip-btn" id="onboardingSkipBtn">跳过引导</button>
             </div>
         `;
 
-        // Add styles inline for the hint
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            z-index: 1001;
-            max-width: 90%;
-            width: 400px;
-            animation: slideUp 0.3s ease-out;
-        `;
-
-        document.body.appendChild(notification);
-
-        // Close button handler
-        const closeBtn = notification.querySelector('.hint-close-btn');
-        closeBtn.addEventListener('click', () => {
-            notification.style.animation = 'slideDown 0.3s ease-out';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-            
-            // Mark intro as seen
-            localStorage.setItem('leaderboardIntroSeen', 'true');
-        });
-
-        // Auto-remove after 10 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.animation = 'slideDown 0.3s ease-out';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }
-        }, 10000);
-
-        // Add CSS animations if not already present
-        if (!document.getElementById('leaderboard-hint-styles')) {
+        // Add styles
+        if (!document.getElementById('onboarding-styles')) {
             const style = document.createElement('style');
-            style.id = 'leaderboard-hint-styles';
+            style.id = 'onboarding-styles';
             style.textContent = `
-                @keyframes slideUp {
+                .onboarding-overlay {
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 10002;
+                    max-width: 90%;
+                    width: 400px;
+                    animation: onboardingSlideUp 0.4s ease-out;
+                }
+                @keyframes onboardingSlideUp {
                     from {
-                        transform: translateX(-50%) translateY(100px);
+                        transform: translateX(-50%) translateY(50px);
                         opacity: 0;
                     }
                     to {
@@ -4054,46 +3989,264 @@ class MuseumCheckApp {
                         opacity: 1;
                     }
                 }
-                @keyframes slideDown {
+                @keyframes onboardingSlideDown {
                     from {
                         transform: translateX(-50%) translateY(0);
                         opacity: 1;
                     }
                     to {
-                        transform: translateX(-50%) translateY(100px);
+                        transform: translateX(-50%) translateY(50px);
                         opacity: 0;
                     }
                 }
-                .leaderboard-intro-hint .hint-content {
+                .onboarding-card {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 20px;
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+                }
+                .onboarding-header {
                     display: flex;
                     align-items: center;
-                    gap: 15px;
+                    gap: 12px;
+                    margin-bottom: 16px;
                 }
-                .leaderboard-intro-hint .hint-icon {
-                    font-size: 32px;
-                    flex-shrink: 0;
+                .onboarding-emoji {
+                    font-size: 28px;
                 }
-                .leaderboard-intro-hint .hint-text {
-                    flex: 1;
-                    line-height: 1.5;
+                .onboarding-title {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
                 }
-                .leaderboard-intro-hint .hint-close-btn {
-                    background: rgba(255, 255, 255, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
+                .onboarding-steps {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-bottom: 16px;
+                }
+                .onboarding-step {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 6px 12px;
+                    background: rgba(255,255,255,0.15);
+                    border-radius: 20px;
+                    font-size: 13px;
+                    opacity: 0.6;
+                    transition: all 0.3s ease;
+                }
+                .onboarding-step.active {
+                    opacity: 1;
+                    background: rgba(255,255,255,0.3);
+                    transform: scale(1.05);
+                }
+                .onboarding-step.completed {
+                    opacity: 0.8;
+                    text-decoration: line-through;
+                }
+                .onboarding-step .step-number {
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                    font-weight: bold;
+                }
+                .onboarding-step.completed .step-number {
+                    background: rgba(40,167,69,0.8);
+                    font-size: 0;
+                }
+                .onboarding-step.completed .step-number::after {
+                    content: '✓';
+                    font-size: 11px;
+                }
+                .onboarding-hint {
+                    background: rgba(255,255,255,0.2);
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    margin-bottom: 12px;
+                    text-align: center;
+                    animation: hintPulse 2s ease-in-out infinite;
+                }
+                @keyframes hintPulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.02); }
+                }
+                .onboarding-skip-btn {
+                    width: 100%;
+                    padding: 10px;
+                    background: rgba(255,255,255,0.2);
+                    border: 1px solid rgba(255,255,255,0.3);
                     color: white;
-                    padding: 8px 16px;
-                    border-radius: 6px;
+                    border-radius: 8px;
                     cursor: pointer;
                     font-size: 14px;
-                    white-space: nowrap;
                     transition: all 0.2s ease;
                 }
-                .leaderboard-intro-hint .hint-close-btn:hover {
-                    background: rgba(255, 255, 255, 0.3);
+                .onboarding-skip-btn:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+                @media (max-width: 480px) {
+                    .onboarding-overlay {
+                        width: calc(100% - 20px);
+                        bottom: 10px;
+                    }
+                    .onboarding-card {
+                        padding: 16px;
+                    }
+                    .onboarding-steps {
+                        gap: 6px;
+                    }
+                    .onboarding-step {
+                        padding: 5px 10px;
+                        font-size: 12px;
+                    }
                 }
             `;
             document.head.appendChild(style);
         }
+
+        document.body.appendChild(overlay);
+
+        // Setup skip button handler
+        document.getElementById('onboardingSkipBtn').addEventListener('click', () => {
+            this.completeOnboarding();
+        });
+
+        // Setup nickname input listener for step progression
+        const nicknameInput = document.getElementById('childNicknameInput');
+        if (nicknameInput) {
+            nicknameInput.addEventListener('input', () => {
+                if (nicknameInput.value.trim().length > 0) {
+                    this.markOnboardingStepCompleted(1);
+                    this.showOnboardingStep(2);
+                }
+            });
+        }
+
+        // Setup age selector listener for step progression
+        const ageSelector = document.getElementById('ageGroupSelector');
+        if (ageSelector) {
+            ageSelector.addEventListener('change', () => {
+                this.markOnboardingStepCompleted(2);
+                this.showOnboardingStep(3);
+            });
+        }
+
+        // Setup settings modal close listener for step progression
+        const settingsModalElement = document.getElementById('settingsModal');
+        const closeBtn = settingsModalElement ? settingsModalElement.querySelector('.close') : null;
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                if (document.getElementById('onboardingOverlay')) {
+                    this.markOnboardingStepCompleted(3);
+                    this.showOnboardingStep(4);
+                    // Move overlay outside modal for step 4
+                    this.moveOnboardingToMainPage();
+                }
+            });
+        }
+    }
+
+    /**
+     * Show specific onboarding step
+     */
+    showOnboardingStep(stepNumber) {
+        const steps = document.querySelectorAll('.onboarding-step');
+        const hint = document.getElementById('onboardingHint');
+        
+        steps.forEach(step => {
+            const num = parseInt(step.getAttribute('data-step'));
+            if (num === stepNumber) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+
+        // Update hint text based on step
+        if (hint) {
+            const hints = {
+                1: '👆 请先在上方输入孩子的昵称',
+                2: '👆 请选择孩子的年龄段',
+                3: '👆 点击右上角 ✕ 关闭设置',
+                4: '👆 点击任意博物馆卡片开始探索吧！'
+            };
+            hint.textContent = hints[stepNumber] || '';
+        }
+    }
+
+    /**
+     * Mark onboarding step as completed
+     */
+    markOnboardingStepCompleted(stepNumber) {
+        const step = document.querySelector(`.onboarding-step[data-step="${stepNumber}"]`);
+        if (step) {
+            step.classList.add('completed');
+            step.classList.remove('active');
+        }
+    }
+
+    /**
+     * Move onboarding overlay to main page for step 4
+     */
+    moveOnboardingToMainPage() {
+        const overlay = document.getElementById('onboardingOverlay');
+        if (!overlay) return;
+
+        // Update for step 4 (select museum)
+        const hint = document.getElementById('onboardingHint');
+        if (hint) {
+            hint.textContent = '👆 点击任意博物馆卡片开始探索吧！';
+        }
+
+        // Setup museum card click listener to complete onboarding
+        const museumGrid = document.getElementById('museumGrid');
+        if (museumGrid) {
+            const handler = (e) => {
+                const card = e.target.closest('.museum-card');
+                if (card) {
+                    this.markOnboardingStepCompleted(4);
+                    this.completeOnboarding();
+                    museumGrid.removeEventListener('click', handler);
+                }
+            };
+            museumGrid.addEventListener('click', handler);
+        }
+
+        // Auto-complete after 15 seconds if user doesn't click
+        setTimeout(() => {
+            if (document.getElementById('onboardingOverlay')) {
+                this.completeOnboarding();
+            }
+        }, 15000);
+    }
+
+    /**
+     * Complete the onboarding flow
+     */
+    completeOnboarding() {
+        const overlay = document.getElementById('onboardingOverlay');
+        if (overlay) {
+            overlay.style.animation = 'onboardingSlideDown 0.3s ease-out';
+            setTimeout(() => {
+                overlay.remove();
+            }, 300);
+        }
+
+        // Mark onboarding as completed
+        localStorage.setItem('newUserOnboardingCompleted', 'true');
+
+        // Track completion
+        this.trackEvent('new_user_onboarding_completed', {
+            'timestamp': new Date().toISOString()
+        });
     }
     
     /**
