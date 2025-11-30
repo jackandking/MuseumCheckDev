@@ -170,6 +170,55 @@ const UtilityFunctions = {
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    },
+    
+    // ===== WeChat Environment Detection =====
+    // Detect if running in WeChat browser or Mini Program webview
+    isWeChatEnvironment: () => {
+        const ua = navigator.userAgent.toLowerCase();
+        return ua.indexOf('micromessenger') > -1;
+    },
+    
+    isWeChatMiniProgram: () => {
+        // Check if running inside WeChat Mini Program webview
+        return UtilityFunctions.isWeChatEnvironment() && (
+            window.__wxjs_environment === 'miniprogram' ||
+            (typeof wx !== 'undefined' && typeof wx.miniProgram !== 'undefined')
+        );
+    },
+    
+    // Show a hint message for WeChat users to long-press save
+    showWeChatSaveHint: (container) => {
+        if (!container) return;
+        // Remove any existing hint
+        const existingHint = container.querySelector('.wechat-save-hint');
+        if (existingHint) existingHint.remove();
+        
+        const hint = document.createElement('div');
+        hint.className = 'wechat-save-hint';
+        hint.innerHTML = '📱 <strong>长按图片</strong>可保存到相册';
+        // Using CSS class .wechat-save-hint defined in style.css
+        container.appendChild(hint);
+    },
+    
+    // Try to send image to Mini Program for saving (if in webview)
+    sendImageToMiniProgram: (dataURL, filename) => {
+        if (typeof wx !== 'undefined' && wx.miniProgram && typeof wx.miniProgram.postMessage === 'function') {
+            try {
+                wx.miniProgram.postMessage({ 
+                    data: { 
+                        action: 'saveImage',
+                        image: dataURL,
+                        filename: filename || 'poster.png'
+                    }
+                });
+                return true;
+            } catch (e) {
+                console.warn('Failed to post message to Mini Program:', e);
+                return false;
+            }
+        }
+        return false;
     }
 };
 
@@ -5015,6 +5064,22 @@ class MuseumCheckApp {
             this.generateAchievementPoster();
         });
 
+        // Achievement poster download button
+        const downloadAchievementBtn = document.getElementById('downloadAchievementPoster');
+        if (downloadAchievementBtn) {
+            downloadAchievementBtn.addEventListener('click', () => {
+                this.downloadAchievementPoster();
+            });
+        }
+
+        // Achievement poster share button
+        const shareAchievementBtn = document.getElementById('shareAchievementPoster');
+        if (shareAchievementBtn) {
+            shareAchievementBtn.addEventListener('click', () => {
+                this.shareAchievementPoster();
+            });
+        }
+
         // Fireworks button - opens fireworks wall page showing all museum achievements
         document.getElementById('fireworksButton').addEventListener('click', () => {
             window.open('fireworks-wall.html', '_blank');
@@ -9763,16 +9828,52 @@ class MuseumCheckApp {
 
     downloadPoster(museum) {
         const canvas = document.getElementById('posterCanvas');
+        const preview = document.getElementById('posterPreview');
+        if (!canvas) return;
+        
+        const dataURL = canvas.toDataURL('image/png');
+        const filename = `${museum.name}_博物馆打卡_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+        
+        // In WeChat environment, show long-press hint instead of triggering download
+        if (UtilityFunctions.isWeChatEnvironment()) {
+            // Try to send to Mini Program first (for webview scenarios)
+            if (UtilityFunctions.isWeChatMiniProgram()) {
+                UtilityFunctions.sendImageToMiniProgram(dataURL, filename);
+            }
+            // Show hint for users to long-press save the image
+            if (preview) {
+                UtilityFunctions.showWeChatSaveHint(preview);
+            }
+            // Make sure the preview image is interactive for long-press
+            if (preview) {
+                const previewCanvas = preview.querySelector('canvas');
+                if (previewCanvas) {
+                    previewCanvas.style.pointerEvents = 'auto';
+                    previewCanvas.style.webkitTouchCallout = 'default';
+                }
+            }
+            // Track download attempt in WeChat
+            this.trackEvent('poster_downloaded', {
+                'museum_id': museum.id,
+                'museum_name': museum.name,
+                'age_group': this.currentAge,
+                'method': 'wechat_longpress'
+            });
+            return;
+        }
+        
+        // Standard browser download
         const link = document.createElement('a');
-        link.download = `${museum.name}_博物馆打卡_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.download = filename;
+        link.href = dataURL;
         link.click();
         
         // Track download
         this.trackEvent('poster_downloaded', {
             'museum_id': museum.id,
             'museum_name': museum.name,
-            'age_group': this.currentAge
+            'age_group': this.currentAge,
+            'method': 'browser_download'
         });
     }
 
@@ -9912,9 +10013,13 @@ class MuseumCheckApp {
         clonedCanvas.style.display = 'block';
         preview.appendChild(clonedCanvas);
         
-        // Show poster section and download button
+        // Show poster section and buttons
         document.getElementById('achievementPosterSection').style.display = 'block';
         document.getElementById('downloadAchievementPoster').style.display = 'inline-block';
+        const shareBtn = document.getElementById('shareAchievementPoster');
+        if (shareBtn) {
+            shareBtn.style.display = 'inline-block';
+        }
         
         // Auto-scroll to the generated poster for better user experience
         const posterSection = document.getElementById('achievementPosterSection');
@@ -9930,16 +10035,113 @@ class MuseumCheckApp {
     
     downloadAchievementPoster() {
         const canvas = document.getElementById('achievementPosterCanvas');
+        const preview = document.getElementById('achievementPosterPreview');
+        if (!canvas) return;
+        
+        const dataURL = canvas.toDataURL('image/png');
+        const filename = `博物馆成就榜_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+        
+        // In WeChat environment, show long-press hint instead of triggering download
+        if (UtilityFunctions.isWeChatEnvironment()) {
+            // Try to send to Mini Program first (for webview scenarios)
+            if (UtilityFunctions.isWeChatMiniProgram()) {
+                UtilityFunctions.sendImageToMiniProgram(dataURL, filename);
+            }
+            // Show hint for users to long-press save the image
+            const posterSection = document.getElementById('achievementPosterSection');
+            if (posterSection) {
+                UtilityFunctions.showWeChatSaveHint(posterSection);
+            }
+            // Make sure the preview image is interactive for long-press
+            if (preview) {
+                const previewCanvas = preview.querySelector('canvas');
+                if (previewCanvas) {
+                    previewCanvas.style.pointerEvents = 'auto';
+                    previewCanvas.style.webkitTouchCallout = 'default';
+                }
+            }
+            // Track download attempt in WeChat
+            this.trackEvent('achievement_poster_downloaded', {
+                'visited_count': this.visitedMuseums.length,
+                'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0,
+                'method': 'wechat_longpress'
+            });
+            return;
+        }
+        
+        // Standard browser download
         const link = document.createElement('a');
-        link.download = `博物馆成就榜_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.download = filename;
+        link.href = dataURL;
         link.click();
         
         // Track download
         this.trackEvent('achievement_poster_downloaded', {
             'visited_count': this.visitedMuseums.length,
-            'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0
+            'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0,
+            'method': 'browser_download'
         });
+    }
+
+    async shareAchievementPoster() {
+        const canvas = document.getElementById('achievementPosterCanvas');
+        const preview = document.getElementById('achievementPosterPreview');
+        if (!canvas) return;
+        
+        const dataURL = canvas.toDataURL('image/png');
+        const filename = `博物馆成就榜_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+        
+        // In WeChat environment, show long-press hint
+        if (UtilityFunctions.isWeChatEnvironment()) {
+            // Try to send to Mini Program first (for webview scenarios)
+            if (UtilityFunctions.isWeChatMiniProgram()) {
+                UtilityFunctions.sendImageToMiniProgram(dataURL, filename);
+            }
+            // Show hint for users to long-press save the image
+            const posterSection = document.getElementById('achievementPosterSection');
+            if (posterSection) {
+                UtilityFunctions.showWeChatSaveHint(posterSection);
+            }
+            // Make sure the preview image is interactive for long-press
+            if (preview) {
+                const previewCanvas = preview.querySelector('canvas');
+                if (previewCanvas) {
+                    previewCanvas.style.pointerEvents = 'auto';
+                    previewCanvas.style.webkitTouchCallout = 'default';
+                }
+            }
+            // Track share attempt in WeChat
+            this.trackEvent('achievement_poster_shared', {
+                'visited_count': this.visitedMuseums.length,
+                'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0,
+                'method': 'wechat_longpress'
+            });
+            return;
+        }
+        
+        // Standard browser share/download
+        try {
+            const blob = await (await fetch(dataURL)).blob();
+            const files = [new File([blob], filename, { type: 'image/png' })];
+            if (navigator.canShare && navigator.canShare({ files })) {
+                await navigator.share({ 
+                    files, 
+                    title: '博物馆成就榜', 
+                    text: '快来看看我的博物馆参观成就！' 
+                });
+                this.trackEvent('achievement_poster_shared', {
+                    'visited_count': this.visitedMuseums.length,
+                    'achievement_count': this.currentAchievements ? this.currentAchievements.filter(a => a.achieved).length : 0,
+                    'method': 'native_share'
+                });
+            } else {
+                // Fallback to download
+                this.downloadAchievementPoster();
+            }
+        } catch (e) {
+            // Fallback to download on error
+            this.downloadAchievementPoster();
+        }
     }
 
     // Enhanced Rocket Animation Methods

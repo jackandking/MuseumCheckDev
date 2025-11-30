@@ -5,6 +5,54 @@
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+  // ===== WeChat Environment Detection =====
+  // Detect if running in WeChat browser or Mini Program webview
+  function isWeChatEnvironment() {
+    const ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf('micromessenger') > -1;
+  }
+  
+  function isWeChatMiniProgram() {
+    // Check if running inside WeChat Mini Program webview
+    return isWeChatEnvironment() && (
+      window.__wxjs_environment === 'miniprogram' ||
+      (typeof wx !== 'undefined' && typeof wx.miniProgram !== 'undefined')
+    );
+  }
+  
+  // Show a hint message for WeChat users to long-press save
+  function showWeChatSaveHint(container) {
+    // Remove any existing hint
+    const existingHint = container.querySelector('.wechat-save-hint');
+    if (existingHint) existingHint.remove();
+    
+    const hint = document.createElement('div');
+    hint.className = 'wechat-save-hint';
+    hint.innerHTML = '📱 <strong>长按图片</strong>可保存到相册';
+    // Using CSS class .wechat-save-hint defined in style.css
+    container.appendChild(hint);
+  }
+  
+  // Try to send image to Mini Program for saving (if in webview)
+  function sendImageToMiniProgram(dataURL, filename) {
+    if (typeof wx !== 'undefined' && wx.miniProgram && typeof wx.miniProgram.postMessage === 'function') {
+      try {
+        wx.miniProgram.postMessage({ 
+          data: { 
+            action: 'saveImage',
+            image: dataURL,
+            filename: filename || 'museum-poster.png'
+          }
+        });
+        return true;
+      } catch (e) {
+        console.warn('Failed to post message to Mini Program:', e);
+        return false;
+      }
+    }
+    return false;
+  }
+
   // Age reading helper (default 7-12 if not set)
   function getAgeGroup(){
     try { return localStorage.getItem('ageGroup') || '7-12'; } catch(e){ return '7-12'; }
@@ -1931,26 +1979,82 @@
 
   function onSavePoster(){
     const canvas = document.getElementById('posterCanvas');
+    const preview = document.getElementById('posterPreview');
     if(!canvas) return;
+    
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // In WeChat environment, show long-press hint instead of triggering download
+    if (isWeChatEnvironment()) {
+      // Try to send to Mini Program first (for webview scenarios)
+      if (isWeChatMiniProgram()) {
+        sendImageToMiniProgram(dataURL, 'museum-poster.png');
+      }
+      // Show hint for users to long-press save the image
+      if (preview) {
+        showWeChatSaveHint(preview);
+      }
+      // Make sure the preview image is interactive for long-press
+      const previewImg = preview ? preview.querySelector('img') : null;
+      if (previewImg) {
+        previewImg.style.pointerEvents = 'auto';
+        previewImg.style.webkitTouchCallout = 'default';
+      }
+      return;
+    }
+    
+    // Standard browser download
     const a = document.createElement('a');
     a.download = 'museum-poster.png';
-    a.href = canvas.toDataURL('image/png');
+    a.href = dataURL;
     a.click();
   }
 
   async function onSharePoster(){
-    try{
-      const canvas = document.getElementById('posterCanvas');
-      if(!canvas) return;
-      const blob = await (await fetch(canvas.toDataURL('image/png'))).blob();
+    const canvas = document.getElementById('posterCanvas');
+    const preview = document.getElementById('posterPreview');
+    if(!canvas) return;
+    
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // In WeChat environment, show long-press hint
+    if (isWeChatEnvironment()) {
+      // Try to send to Mini Program first (for webview scenarios)
+      if (isWeChatMiniProgram()) {
+        sendImageToMiniProgram(dataURL, 'museum-poster.png');
+      }
+      // Show hint for users to long-press save the image
+      if (preview) {
+        showWeChatSaveHint(preview);
+      }
+      // Make sure the preview image is interactive for long-press
+      const previewImg = preview ? preview.querySelector('img') : null;
+      if (previewImg) {
+        previewImg.style.pointerEvents = 'auto';
+        previewImg.style.webkitTouchCallout = 'default';
+      }
+      return;
+    }
+    
+    // Standard browser share/download
+    try {
+      const blob = await (await fetch(dataURL)).blob();
       const files = [new File([blob], 'museum-poster.png', {type: 'image/png'})];
       if(navigator.canShare && navigator.canShare({ files })){
         await navigator.share({ files, title: '今天的博物馆小探险', text: '和家人分享我们的参观成果' });
       } else {
-        onSavePoster();
+        // Fallback to download
+        const a = document.createElement('a');
+        a.download = 'museum-poster.png';
+        a.href = dataURL;
+        a.click();
       }
     } catch(e){
-      onSavePoster();
+      // Fallback to download on error
+      const a = document.createElement('a');
+      a.download = 'museum-poster.png';
+      a.href = dataURL;
+      a.click();
     }
   }
 

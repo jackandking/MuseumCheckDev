@@ -1917,6 +1917,33 @@ header h1 {
     border-radius: 8px; /* Slightly rounded corners for better aesthetics */
 }
 
+/* Poster Actions Container - Holds download and share buttons */
+.poster-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+/* WeChat Save Hint - Instructions for WeChat users */
+.wechat-save-hint {
+    text-align: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f0f9eb 0%, #e8f5e9 100%);
+    color: #2e7d32;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 14px;
+    border: 1px solid #c8e6c9;
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.1);
+}
+
+.wechat-save-hint strong {
+    color: #1b5e20;
+    font-weight: 600;
+}
+
 /* Enhanced Checklist Customization for Mobile UX */
 .checklist-controls {
     position: absolute;
