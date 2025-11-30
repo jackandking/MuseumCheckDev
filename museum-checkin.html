@@ -2348,6 +2348,9 @@
                 document.getElementById('editModeIndicator').classList.add('show');
             }
 
+            // Check if child mode is enabled and hide settings button
+            applyChildMode();
+
             updatePageTitle();
             await loadMuseumData(); // Wait for async museum data loading
             setupEventListeners();
@@ -2357,6 +2360,21 @@
             renderTasks();
             updateProgress();
             checkCompletion(); // Check if all tasks complete
+        }
+
+        // Apply child mode settings - hide settings button when child mode is enabled
+        function applyChildMode() {
+            try {
+                const childModeEnabled = localStorage.getItem('childModeEnabled') === 'true';
+                if (childModeEnabled) {
+                    const settingsButton = document.getElementById('settingsButton');
+                    if (settingsButton) {
+                        settingsButton.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.warn('Error checking child mode:', error);
+            }
         }
 
         // Load museum data with dynamic data priority support
