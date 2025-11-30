@@ -385,6 +385,145 @@
     }
   }
 
+  /**
+   * Auto check-in museum when all workflow tasks (especially child tasks) are completed
+   * This provides the same effects as manual check-in:
+   * - Mark museum as visited in localStorage
+   * - Show celebration notification
+   * - Track analytics event
+   * 
+   * @param {Object} museum - The museum object
+   */
+  function checkAutoCheckinOnWorkflowComplete(museum){
+    if(!museum || !museum.id) return;
+    
+    try{
+      // Load visitedMuseums from localStorage
+      let visitedMuseums = [];
+      try{
+        visitedMuseums = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+      }catch(e){
+        visitedMuseums = [];
+      }
+      
+      // Skip if museum is already visited
+      if(visitedMuseums.includes(museum.id)){
+        console.log(`Museum ${museum.name} already visited, skipping auto check-in`);
+        return;
+      }
+      
+      // Add museum to visited list
+      visitedMuseums.push(museum.id);
+      localStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
+      
+      // Show success notification
+      showAutoCheckinNotification(museum.name);
+      
+      // Track auto check-in event
+      console.log(`🎉 Auto check-in: ${museum.name} - all workflow tasks completed!`);
+      
+      // Try to track with Google Analytics if available
+      try{
+        if(typeof gtag === 'function'){
+          gtag('event', 'museum_auto_checkin', {
+            'museum_id': museum.id,
+            'museum_name': museum.name,
+            'museum_location': museum.location || '',
+            'age_group': getAgeGroup(),
+            'source': 'single_museum_workflow'
+          });
+        }
+      }catch(e){}
+      
+    }catch(e){
+      console.error('Failed to auto check-in museum:', e);
+    }
+  }
+  
+  /**
+   * Show notification for auto check-in
+   */
+  function showAutoCheckinNotification(museumName){
+    try{
+      // Create notification element with leaderboard hint
+      const notification = document.createElement('div');
+      notification.className = 'auto-checkin-notification';
+      notification.innerHTML = `
+        <div class="notification-main">
+          <span class="notification-icon">🎉</span>
+          <span class="notification-text">恭喜！完成 ${museumName} 所有任务，自动打卡成功！</span>
+        </div>
+        <div class="notification-hint">🏆 排行榜已更新，快去看看你的排名吧！</div>
+      `;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(255, 107, 107, 0.4);
+        z-index: 10001;
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        animation: slideIn 0.4s ease-out, pulse 0.5s ease-in-out 0.5s;
+        max-width: 90%;
+        text-align: center;
+      `;
+      
+      // Add animation styles
+      if(!document.getElementById('auto-checkin-animation-style')){
+        const style = document.createElement('style');
+        style.id = 'auto-checkin-animation-style';
+        style.textContent = `
+          @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+          }
+          .notification-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .notification-hint {
+            font-size: 14px;
+            opacity: 0.95;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            margin-top: 4px;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      document.body.appendChild(notification);
+      
+      // Auto remove after 4 seconds (extended to show leaderboard hint)
+      setTimeout(()=>{
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s ease-out';
+        setTimeout(()=>{
+          if(notification.parentNode){
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 4000);
+      
+    }catch(e){
+      console.warn('Failed to show auto check-in notification:', e);
+    }
+  }
+
   function normalizeTitle(text){
     try{
       const t = (text||'').replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/, '').trim();
@@ -969,6 +1108,10 @@
       updateInnerTaskVisibility();
     } else if(idx === last) {
       // All workflow tasks completed, advance to share step
+      // Auto check-in the museum since all tasks are done
+      if(state.selectedMuseum){
+        checkAutoCheckinOnWorkflowComplete(state.selectedMuseum);
+      }
       setStep('share');
     }
   }

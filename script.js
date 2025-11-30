@@ -6647,6 +6647,114 @@ class MuseumCheckApp {
         return 'no_action';
     }
 
+    /**
+     * Check if all child tasks are completed and auto-checkin the museum
+     * This provides the same celebration effects as manual check-in:
+     * - Large rocket animation
+     * - Fireworks wall display
+     * - Gamification achievements
+     * - Leaderboard update
+     * 
+     * @param {string} museumId - The museum ID to check
+     * @param {Object} museum - The museum object
+     * @param {string} ageGroup - The current age group (e.g., '7-12')
+     */
+    checkAutoCheckin(museumId, museum, ageGroup) {
+        // Skip if museum is already visited
+        if (this.visitedMuseums.includes(museumId)) {
+            return;
+        }
+        
+        // Get child tasks for this museum and age group
+        const childChecklistKey = `${museumId}-child-${ageGroup}`;
+        const completedChildTasks = this.museumChecklists[childChecklistKey] || [];
+        
+        // Get total child tasks count from museum data
+        const childTasks = museum.checklists && museum.checklists.child && museum.checklists.child[ageGroup];
+        if (!childTasks || childTasks.length === 0) {
+            return; // No child tasks defined for this museum/age
+        }
+        
+        // Check if all child tasks are completed
+        if (completedChildTasks.length < childTasks.length) {
+            return; // Not all tasks completed yet
+        }
+        
+        // All child tasks completed - auto check-in the museum!
+        console.log(`🎉 Auto check-in triggered for ${museum.name} - all ${childTasks.length} child tasks completed!`);
+        
+        // Add museum to visited list
+        this.visitedMuseums.push(museumId);
+        
+        // ===== ACHIEVEMENT GAMIFICATION HOOKS (same as manual check-in) =====
+        if (this.achievementGamification) {
+            // Update visit streak
+            this.achievementGamification.updateStreak(new Date());
+            
+            // Check for micro-achievements
+            const visitCount = this.visitedMuseums.length;
+            
+            // First visit achievement
+            if (visitCount === 1) {
+                this.achievementGamification.checkMicroAchievements('first_visit', { museumId });
+            }
+            
+            // Calculate and unlock main achievements
+            const achievements = this.calculateAchievements(visitCount);
+            const newlyUnlocked = achievements.filter(a => 
+                a.achieved && !this.achievementGamification.isAchievementUnlocked(a.id || `${a.name}_${a.level}`)
+            );
+            
+            // Show notifications for newly unlocked achievements
+            newlyUnlocked.forEach(achievement => {
+                const achievementWithId = {
+                    ...achievement,
+                    id: achievement.id || `${achievement.name}_${achievement.level}`.replace(/\s+/g, '_')
+                };
+                this.achievementGamification.unlockAchievement(achievementWithId);
+            });
+            
+            // Check for close-to-unlock achievement hints
+            const hints = this.achievementGamification.getAchievementHints(visitCount, {});
+            if (hints.length > 0 && Math.random() < 0.3) {
+                this.achievementGamification.showAchievementNotification(hints[0].achievement, 'hint');
+            }
+        }
+        // ===== END GAMIFICATION HOOKS =====
+        
+        // Trigger large rocket animation for museum visit (same as manual check-in)
+        this.triggerLargeRocket();
+        this.saveVisitedMuseums();
+        this.renderMuseums();
+        
+        // Auto-submit score to leaderboard (same as manual check-in)
+        if (this.leaderboardManager) {
+            this.leaderboardManager.autoSubmitScore().catch(err => {
+                console.warn('Failed to auto-submit leaderboard score:', err);
+            });
+        }
+        
+        // Show congratulation notification for auto check-in with leaderboard hint
+        UIManager.showNotification(
+            `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！🏆 排行榜已更新`,
+            4000,
+            'success'
+        );
+        
+        // Track auto check-in event
+        this.trackEvent('museum_auto_checkin', {
+            'museum_id': museumId,
+            'museum_name': museum.name,
+            'museum_location': museum.location,
+            'age_group': ageGroup,
+            'completed_tasks': childTasks.length,
+            'total_visited': this.visitedMuseums.length
+        });
+        
+        // Update stats after auto check-in
+        this.updateStats();
+    }
+
     toggleFavorite(museumId) {
         const index = this.favoriteMuseums.indexOf(museumId);
         const museum = MUSEUMS.find(m => m.id === museumId);
@@ -7748,6 +7856,14 @@ class MuseumCheckApp {
                         this.removePhotoUploadFromItem(item);
                     }
                 }
+                
+                // ===== AUTO CHECK-IN FEATURE =====
+                // When all child tasks are completed, automatically check-in the museum
+                // with the same celebration effects as manual check-in
+                if (e.target.checked && checklistType === 'child' && museum) {
+                    this.checkAutoCheckin(museumId, museum, fullAgeGroup);
+                }
+                // ===== END AUTO CHECK-IN FEATURE =====
             });
         });
 
