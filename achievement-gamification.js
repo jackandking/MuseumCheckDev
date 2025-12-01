@@ -423,6 +423,17 @@ class AchievementGamification {
             progress: (xpInCurrentLevel / xpNeededForLevel) * 100
         };
     }
+    
+    /**
+     * Get XP information for leaderboard submission
+     * @returns {Object} { total, level }
+     */
+    getXPInfo() {
+        return {
+            total: this.xpData.totalXP || 0,
+            level: this.xpData.level || 1
+        };
+    }
 
     onLevelUp(oldLevel, newLevel) {
         // Show level up notification

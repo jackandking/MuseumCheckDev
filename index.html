@@ -814,7 +814,24 @@
         <div class="modal-content leaderboard-content">
             <span class="close">&times;</span>
             <h2>🏅 全网排行榜</h2>
-            <div class="leaderboard-intro">
+            
+            <!-- Ranking Type Tabs -->
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" data-ranking-type="visits">
+                    <span class="tab-icon">🏛️</span>
+                    <span class="tab-text">博物馆</span>
+                </button>
+                <button class="leaderboard-tab" data-ranking-type="xp">
+                    <span class="tab-icon">⭐</span>
+                    <span class="tab-text">积分</span>
+                </button>
+                <button class="leaderboard-tab" data-ranking-type="pet">
+                    <span class="tab-icon">🐾</span>
+                    <span class="tab-text">宠物</span>
+                </button>
+            </div>
+            
+            <div class="leaderboard-intro" id="leaderboardIntro">
                 <p>看看谁的博物馆之旅最精彩！参观越多，排名越高！</p>
             </div>
             <div class="leaderboard-my-rank" id="leaderboardMyRank">
