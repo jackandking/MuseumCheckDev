@@ -690,6 +690,76 @@ if (typeof global.MuseumCheckApp === 'undefined') {
       }
       return recs.slice(0,2);
     }
+    // Nickname validation with content safety check (for China internet compliance)
+    validateNickname(nickname) {
+      if (!nickname || nickname.trim() === '') {
+        return { isValid: false, message: '昵称不能为空' };
+      }
+      const trimmed = nickname.trim();
+      // Content safety check
+      const contentCheck = this.checkNicknameContentSafety(trimmed);
+      if (!contentCheck.isValid) {
+        return contentCheck;
+      }
+      // Count Chinese characters and English letters
+      const chineseChars = trimmed.match(/[\u4e00-\u9fa5]/g) || [];
+      const englishChars = trimmed.match(/[a-zA-Z]/g) || [];
+      const otherChars = trimmed.replace(/[\u4e00-\u9fa5a-zA-Z]/g, '');
+      // Calculate length considering Chinese chars count as 2 and English as 1
+      const totalLength = chineseChars.length * 2 + englishChars.length + otherChars.length;
+      // Max 5 Chinese chars (10 units) or 10 English chars (10 units)
+      if (totalLength > 10) {
+        return { isValid: false, message: '昵称过长（最多5个中文字或10个英文字母）' };
+      }
+      return { isValid: true };
+    }
+    checkNicknameContentSafety(nickname) {
+      if (!nickname) {
+      return { isValid: true };
+      }
+      const normalizedNickname = nickname.toLowerCase().replace(/\s+/g, '');
+      // Empty string after normalization is considered safe
+      if (normalizedNickname.length === 0) {
+        return { isValid: true };
+      }
+      // Blocklist of prohibited content patterns (pre-lowercased for performance)
+      const blockedPatterns = [
+        '法轮', '轮子功', '反共', '反党', '反华', '台独', '港独', '藏独', '疆独',
+        '邪教', '传销', '六四', '64事件', '天安门事件',
+        '傻逼', '傻b', 'sb', '操你', '草你', '日你', '妈的', '他妈', '她妈',
+        '狗日', '王八', '婊子', '贱人', '贱货', '骚货', '淫', '色情', '黄色',
+        'fuck', 'shit', 'bitch', 'ass', 'dick', 'pussy', 'cock',
+        '屁眼', '鸡巴', '屌', '逼', '奶子', '胸', '裸', '性爱',
+        '蝗虫', '支那', '鬼子', '死gay', '死基', '变态',
+        '杀人', '自杀', '毒品', '赌博', '枪支', '炸弹', '恐怖',
+        '诈骗', '骗子', '黑客', 'hack', '病毒', 'virus'
+      ];
+      // Check if nickname contains any blocked patterns
+      for (const pattern of blockedPatterns) {
+        if (normalizedNickname.includes(pattern)) {
+          return { isValid: false, message: '昵称包含不适当内容，请更换一个健康的昵称' };
+        }
+      }
+      // Additional regex patterns for circumvention attempts
+      const regexPatterns = [
+        /f[u4]ck/i, /sh[i1]t/i, /b[i1]tch/i, /[a4]ss/i,
+        /傻[bB逼]/, /[操草日艹]你/, /[操草日艹]他/, /[操草日艹]她/,
+        /s\.?b\.?/i, /t\.?m\.?d/i, /n\.?m\.?b/i, /w\.?t\.?f/i
+      ];
+      for (const regex of regexPatterns) {
+        if (regex.test(normalizedNickname)) {
+          return { isValid: false, message: '昵称包含不适当内容，请更换一个健康的昵称' };
+        }
+      }
+      // Check for excessive special characters (guard against division by zero)
+      if (nickname.length > 0) {
+        const specialCharRatio = (nickname.match(/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?`~]/g) || []).length / nickname.length;
+        if (specialCharRatio > 0.5) {
+          return { isValid: false, message: '昵称包含过多特殊字符，请使用正常的昵称' };
+        }
+      }
+      return { isValid: true };
+    }
   }
   global.MuseumCheckApp = MuseumCheckAppFallback;
 }
