@@ -930,3 +930,151 @@ body:not(.child-mode) .virtual-pet-container {
         color: #ffb74d;
     }
 }
+
+/* ===== PET ADOPTION PROMPT ===== */
+.pet-adoption-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.pet-adoption-prompt.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pet-adoption-prompt-content {
+    background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(255, 154, 158, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.pet-adoption-prompt.show .pet-adoption-prompt-content {
+    transform: scale(1);
+}
+
+.pet-adoption-prompt-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.pet-adoption-prompt-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #666;
+}
+
+.pet-adoption-prompt-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    animation: pet-prompt-bounce 1s ease-in-out infinite;
+}
+
+@keyframes pet-prompt-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.pet-adoption-prompt-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.pet-adoption-prompt-message {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.pet-adoption-prompt-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.pet-adoption-prompt-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pet-adoption-prompt-btn.primary {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 154, 158, 0.4);
+}
+
+.pet-adoption-prompt-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 154, 158, 0.5);
+}
+
+.pet-adoption-prompt-btn.secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.pet-adoption-prompt-btn.secondary:hover {
+    background: #e5e5e5;
+}
+
+/* Mobile optimizations for prompt */
+@media (max-width: 480px) {
+    .pet-adoption-prompt-content {
+        padding: 25px 20px;
+        max-width: 300px;
+    }
+    
+    .pet-adoption-prompt-icon {
+        font-size: 50px;
+    }
+    
+    .pet-adoption-prompt-title {
+        font-size: 18px;
+    }
+    
+    .pet-adoption-prompt-message {
+        font-size: 13px;
+    }
+    
+    .pet-adoption-prompt-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}

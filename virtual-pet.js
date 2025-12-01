@@ -1066,6 +1066,118 @@ class VirtualPet {
         return false;
     }
 
+    // ===== PET ADOPTION PROMPT =====
+    // Show a prompt to encourage pet adoption
+    showPetAdoptionPrompt(reason = 'general') {
+        // Only show if user doesn't have a pet
+        if (this.hasPet()) return;
+        
+        // Don't show prompt too frequently - use sessionStorage to track
+        const lastPromptKey = 'virtualPetPromptShown';
+        const lastPromptTime = sessionStorage.getItem(lastPromptKey);
+        const now = Date.now();
+        const cooldownMs = 5 * 60 * 1000; // 5 minute cooldown between prompts
+        
+        if (lastPromptTime && (now - parseInt(lastPromptTime)) < cooldownMs) {
+            return; // Skip if shown recently
+        }
+        
+        // Create prompt message based on reason
+        let message = '';
+        let title = '🐾 来领养一只宠物吧！';
+        
+        switch (reason) {
+            case 'checkin':
+                message = '完成任务可以获得积分，用积分养一只可爱的小宠物陪你一起探索博物馆吧！';
+                break;
+            case 'xp_gain':
+                message = '你刚刚获得了积分！领养一只宠物，用积分喂养它，看它成长吧！';
+                break;
+            default:
+                message = '领养一只宠物，完成任务获得积分来喂养它，让它陪你一起探索博物馆！';
+        }
+        
+        // Create and show the prompt modal
+        this.showAdoptionPromptModal(title, message);
+        
+        // Record that we showed the prompt
+        sessionStorage.setItem(lastPromptKey, now.toString());
+    }
+    
+    showAdoptionPromptModal(title, message) {
+        // Remove any existing prompt
+        const existingPrompt = document.getElementById('pet-adoption-prompt');
+        if (existingPrompt) {
+            existingPrompt.remove();
+        }
+        
+        // Escape HTML to prevent XSS (even though title/message are hardcoded, this is best practice)
+        const escapeHtml = (str) => {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
+        
+        // Create the prompt element
+        const prompt = document.createElement('div');
+        prompt.id = 'pet-adoption-prompt';
+        prompt.className = 'pet-adoption-prompt';
+        prompt.innerHTML = `
+            <div class="pet-adoption-prompt-content">
+                <button class="pet-adoption-prompt-close" aria-label="关闭">×</button>
+                <div class="pet-adoption-prompt-icon">🐾</div>
+                <div class="pet-adoption-prompt-title">${escapeHtml(title)}</div>
+                <div class="pet-adoption-prompt-message">${escapeHtml(message)}</div>
+                <div class="pet-adoption-prompt-buttons">
+                    <button class="pet-adoption-prompt-btn primary" id="petAdoptNowBtn">去领养</button>
+                    <button class="pet-adoption-prompt-btn secondary" id="petAdoptLaterBtn">稍后再说</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(prompt);
+        
+        // Show with animation
+        setTimeout(() => {
+            prompt.classList.add('show');
+        }, 10);
+        
+        // Bind events - elements are guaranteed to exist since we just created them
+        const adoptNowBtn = document.getElementById('petAdoptNowBtn');
+        const adoptLaterBtn = document.getElementById('petAdoptLaterBtn');
+        const closeBtn = prompt.querySelector('.pet-adoption-prompt-close');
+        
+        const closePrompt = () => {
+            prompt.classList.remove('show');
+            setTimeout(() => {
+                prompt.remove();
+            }, 300);
+        };
+        
+        adoptNowBtn.addEventListener('click', () => {
+            closePrompt();
+            // Open the pet panel to show adoption options
+            this.showPetPanel();
+        });
+        
+        adoptLaterBtn.addEventListener('click', closePrompt);
+        closeBtn.addEventListener('click', closePrompt);
+        
+        // Click outside to close
+        prompt.addEventListener('click', (e) => {
+            if (e.target === prompt) {
+                closePrompt();
+            }
+        });
+    }
+    
+    // Static method to show pet adoption prompt (for external calls)
+    static showAdoptionPromptIfNeeded(reason = 'general') {
+        if (window.virtualPet) {
+            window.virtualPet.showPetAdoptionPrompt(reason);
+        }
+    }
+
     // ===== PUBLIC API FOR INTEGRATION =====
     // Call when task is completed (from main app)
     static notifyTaskCompleted() {

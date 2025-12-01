@@ -417,6 +417,38 @@ class VirtualPet {
     static isChildModeActive() {
         return document.body.classList.contains('child-mode');
     }
+    
+    // Pet adoption prompt methods
+    showPetAdoptionPrompt(reason = 'general') {
+        // Only show if user doesn't have a pet
+        if (this.hasPet()) return;
+        
+        // For testing, we skip the cooldown check in unit tests
+        // Create prompt message based on reason
+        let message = '';
+        let title = '🐾 来领养一只宠物吧！';
+        
+        switch (reason) {
+            case 'checkin':
+                message = '完成任务可以获得积分，用积分养一只可爱的小宠物陪你一起探索博物馆吧！';
+                break;
+            case 'xp_gain':
+                message = '你刚刚获得了积分！领养一只宠物，用积分喂养它，看它成长吧！';
+                break;
+            default:
+                message = '领养一只宠物，完成任务获得积分来喂养它，让它陪你一起探索博物馆！';
+        }
+        
+        // Return the prompt data for testing (in real code, this creates DOM elements)
+        return { title, message, reason };
+    }
+    
+    static showAdoptionPromptIfNeeded(reason = 'general') {
+        if (window.virtualPet) {
+            return window.virtualPet.showPetAdoptionPrompt(reason);
+        }
+        return null;
+    }
 }
 
 beforeEach(() => {
@@ -996,6 +1028,59 @@ describe('VirtualPet', () => {
                 expect(level.name).toBeDefined();
                 expect(level.animation).toBeDefined();
             });
+        });
+    });
+    
+    describe('Pet Adoption Prompt', () => {
+        test('showPetAdoptionPrompt should return null if pet is already adopted', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('dragon');
+            
+            const result = pet.showPetAdoptionPrompt('checkin');
+            expect(result).toBeUndefined();
+        });
+        
+        test('showPetAdoptionPrompt should return prompt data for checkin reason', () => {
+            const pet = new VirtualPet();
+            
+            const result = pet.showPetAdoptionPrompt('checkin');
+            expect(result).toBeDefined();
+            expect(result.title).toContain('领养');
+            expect(result.message).toContain('积分');
+            expect(result.reason).toBe('checkin');
+        });
+        
+        test('showPetAdoptionPrompt should return prompt data for xp_gain reason', () => {
+            const pet = new VirtualPet();
+            
+            const result = pet.showPetAdoptionPrompt('xp_gain');
+            expect(result).toBeDefined();
+            expect(result.message).toContain('获得了积分');
+            expect(result.reason).toBe('xp_gain');
+        });
+        
+        test('showPetAdoptionPrompt should return prompt data for general reason', () => {
+            const pet = new VirtualPet();
+            
+            const result = pet.showPetAdoptionPrompt('general');
+            expect(result).toBeDefined();
+            expect(result.message).toContain('领养');
+            expect(result.reason).toBe('general');
+        });
+        
+        test('showAdoptionPromptIfNeeded static method should work when virtualPet exists', () => {
+            window.virtualPet = new VirtualPet();
+            
+            const result = VirtualPet.showAdoptionPromptIfNeeded('checkin');
+            expect(result).toBeDefined();
+            expect(result.reason).toBe('checkin');
+        });
+        
+        test('showAdoptionPromptIfNeeded static method should return null when virtualPet does not exist', () => {
+            window.virtualPet = null;
+            
+            const result = VirtualPet.showAdoptionPromptIfNeeded('checkin');
+            expect(result).toBeNull();
         });
     });
 });

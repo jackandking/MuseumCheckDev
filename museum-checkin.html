@@ -2650,6 +2650,13 @@
             renderTasks();
             updateProgress();
             checkCompletion(); // Check if all tasks complete
+            
+            // Show pet adoption prompt if user hasn't adopted a pet (after a short delay)
+            setTimeout(() => {
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('checkin');
+                }
+            }, 1000); // Delay 1 second to let the page load first
         }
 
         // Apply child mode settings - hide settings button when child mode is enabled
@@ -3173,6 +3180,11 @@
             if (window.achievementGamification) {
                 window.achievementGamification.addXP(taskXP);
                 window.achievementGamification.showXPGainNotification(taskXP, hasPhoto ? '任务完成 (含照片)' : '任务完成');
+            }
+            
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
             }
             
             // Notify virtual pet about task completion
@@ -4904,6 +4916,11 @@
                     window.achievementGamification.showXPGainNotification(gameXP, '拼图游戏通关');
                 }
                 
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
                 // Notify virtual pet about game completion
                 if (typeof VirtualPet !== 'undefined') {
                     VirtualPet.notifyGameCompleted('puzzle', puzzleMoves, 0);
@@ -5296,6 +5313,11 @@
                 window.achievementGamification.showXPGainNotification(gameXP, '迷宫游戏通关');
             }
             
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+            }
+            
             // Notify virtual pet about game completion
             if (typeof VirtualPet !== 'undefined') {
                 VirtualPet.notifyGameCompleted('maze', mazeSteps, 0);
@@ -5615,6 +5637,11 @@
             if (window.achievementGamification) {
                 window.achievementGamification.addXP(gameXP);
                 window.achievementGamification.showXPGainNotification(gameXP, '射击游戏完成');
+            }
+            
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
             }
             
             // Notify virtual pet about game completion
@@ -5989,6 +6016,11 @@
             if (window.achievementGamification) {
                 window.achievementGamification.addXP(gameXP);
                 window.achievementGamification.showXPGainNotification(gameXP, '小蜜蜂游戏完成');
+            }
+            
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
             }
             
             // Notify virtual pet about game completion
@@ -6658,6 +6690,11 @@
                 window.achievementGamification.showXPGainNotification(gameXP, '坦克大战完成');
             }
             
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+            }
+            
             // Notify virtual pet about game completion
             if (typeof VirtualPet !== 'undefined') {
                 VirtualPet.notifyGameCompleted('tank-battle', tbScore, 0);
@@ -7117,6 +7154,11 @@
                 if (window.achievementGamification) {
                     window.achievementGamification.addXP(gameXP);
                     window.achievementGamification.showXPGainNotification(gameXP, '扫雷游戏胜利');
+                }
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
                 }
                 
                 // Notify virtual pet about game completion
