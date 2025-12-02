@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>网站管理后台</title>
+  <meta name="robots" content="noindex,nofollow" />
+  
+  <!-- Cache busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif; 
+      margin: 16px; 
+      color: #111; 
+      background: #f9fafb; 
+    }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .unauthorized { 
+      padding: 24px; 
+      background: #fff5f5; 
+      border: 1px solid #fecaca; 
+      color: #991b1b; 
+      border-radius: 8px; 
+    }
+    .panel { 
+      border: 1px solid #e5e7eb; 
+      border-radius: 8px; 
+      padding: 16px; 
+      margin-bottom: 16px; 
+      background: #fff; 
+    }
+    .panel-header {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .row > * { margin: 4px 0; }
+    button { 
+      padding: 8px 12px; 
+      border: 1px solid #d1d5db; 
+      background: #f9fafb; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 14px; 
+    }
+    button.primary { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    button.danger { background: #dc2626; color: #fff; border-color: #b91c1c; }
+    button.success { background: #059669; color: #fff; border-color: #047857; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    th { background: #f9fafb; position: sticky; top: 0; z-index: 1; font-weight: 600; }
+    .tag { 
+      display: inline-block; 
+      font-size: 12px; 
+      padding: 2px 8px; 
+      border-radius: 999px; 
+      background: #f3f4f6; 
+      border: 1px solid #e5e7eb; 
+      margin-right: 6px; 
+    }
+    .tag.active { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .tag.inactive { background: #f3f4f6; border-color: #e5e7eb; color: #6b7280; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 13px; }
+    .flex { display: flex; gap: 8px; align-items: center; }
+    .sticky-actions { position: sticky; top: 8px; z-index: 5; background: #f9fafb; padding-bottom: 8px; }
+    input[type="text"], select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    input[type="text"] { width: 200px; }
+    select { min-width: 150px; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group label {
+      font-size: 13px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .add-form {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .nav-links {
+      margin-bottom: 12px; 
+      font-size: 13px; 
+      color: #6b7280;
+    }
+    .nav-links a {
+      color: #2563eb; 
+      text-decoration: none;
+      margin-right: 16px;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .description {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .preview-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .preview-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ 网站管理后台</h1>
+  <div class="nav-links">
+    其他管理页面: 
+    <a href="admin-fireworks.html?admin=1">🎆 烟花管理</a>
+    <a href="admin-leaderboard.html?admin=1">🏅 排行榜管理</a>
+    <a href="museum-data-manager.html">📚 博物馆数据</a>
+  </div>
+  
+  <div id="unauthorized" class="unauthorized" style="display:none">
+    <div style="font-weight:600; margin-bottom: 6px;">未授权访问</div>
+    <div class="muted">请使用 URL 携带参数 <span class="mono">?admin=1</span> 访问此页面。例如：<span class="mono">/admin.html?admin=1</span></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="panel sticky-actions">
+      <div class="row">
+        <button id="reload" class="primary">🔄 重新加载配置</button>
+        <span id="status" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>📋 Affiliate 路由配置</span>
+      </div>
+      <div class="description">
+        配置不同 affiliate 参数时显示的页面内容。当用户访问 <span class="mono">https://museumcheck.cn?affiliate=XXX</span> 时，
+        根据此配置决定显示 index.html（完整功能）还是 simple.html（简化页面）。<br>
+        <strong>使用场景：</strong>小程序上线审核期间，可临时将某些 affiliate 配置为显示 simple 页面以避免审核问题。
+      </div>
+      
+      <div class="add-form">
+        <div class="form-group">
+          <label for="newAffiliate">Affiliate 代码</label>
+          <input type="text" id="newAffiliate" placeholder="例如: KS, DY, WX" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label for="newTarget">目标页面</label>
+          <select id="newTarget">
+            <option value="index">index.html (完整功能)</option>
+            <option value="simple">simple.html (简化页面)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="newDescription">描述（可选）</label>
+          <input type="text" id="newDescription" placeholder="例如: 快手小程序" style="width: 180px;">
+        </div>
+        <button id="addConfig" class="success">➕ 添加配置</button>
+      </div>
+
+      <div style="overflow:auto; max-height: 50vh; border:1px solid #eee; border-radius:8px;">
+        <table id="configTable">
+          <thead>
+            <tr>
+              <th style="width: 120px;">Affiliate 代码</th>
+              <th style="width: 150px;">目标页面</th>
+              <th style="width: 180px;">描述</th>
+              <th style="width: 100px;">状态</th>
+              <th style="width: 180px;">最后更新</th>
+              <th style="width: 150px;">预览</th>
+              <th style="width: 120px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="configTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px;">
+                <div class="muted">加载中...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>📖 使用说明</span>
+      </div>
+      <div class="description">
+        <strong>1. 添加配置：</strong>输入 affiliate 代码（如 KS、DY），选择目标页面，点击"添加配置"。<br>
+        <strong>2. 生效机制：</strong>配置保存后立即生效，用户访问带有对应 affiliate 参数的链接时会自动显示配置的页面。<br>
+        <strong>3. 删除配置：</strong>删除配置后，该 affiliate 将显示默认页面（index.html）。<br>
+        <strong>4. 默认行为：</strong>未配置的 affiliate 默认显示 index.html。没有 affiliate 参数时显示"网站建设中"页面。
+      </div>
+    </div>
+  </div>
+
+  <script src="./admin.js"></script>
+</body>
+</html>

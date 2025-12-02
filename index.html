@@ -143,6 +143,76 @@
         ]
     }
     </script>
+    
+    <!-- 
+      Affiliate Routing Check - must run early to redirect if needed
+      
+      IMPORTANT: Synchronous XHR is used intentionally here despite being deprecated.
+      The requirement is to check the affiliate routing configuration BEFORE any page
+      content is rendered, to prevent a flash of index.html content before redirecting
+      to simple.html. Using async fetch would require hiding all content initially and
+      showing it after the routing decision, which would add complexity and still cause
+      a delay in page rendering.
+      
+      The timeout is set to 3 seconds to ensure the check doesn't block indefinitely.
+      If the request fails or times out, the page falls back to showing index.html.
+    -->
+    <script>
+        (function() {
+            'use strict';
+            
+            // Configuration
+            var KV_API = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+            var CONFIG_KEY = 'museumcheck-affiliate-config';
+            
+            // Get affiliate from URL
+            var params = new URLSearchParams(window.location.search);
+            var affiliate = params.get('affiliate');
+            
+            // Skip check if no affiliate parameter
+            if (!affiliate) {
+                return;
+            }
+            
+            affiliate = affiliate.toUpperCase();
+            
+            // Check affiliate routing configuration from KV store
+            var sortKey = 'affiliate-' + affiliate;
+            var url = KV_API + '?key=' + encodeURIComponent(CONFIG_KEY) + '&sortKey=' + encodeURIComponent(sortKey);
+            
+            // Use synchronous XHR to block page load until we know where to go
+            // This prevents flash of content before redirect (see comment above for rationale)
+            try {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, false); // false = synchronous (intentional, see comment above)
+                xhr.timeout = 3000; // 3 second timeout to prevent indefinite blocking
+                xhr.send(null);
+                
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response && response.value) {
+                        var config = JSON.parse(response.value);
+                        // Check if this affiliate should redirect to simple.html
+                        if (config && config.target === 'simple' && config.active !== false) {
+                            // Redirect to simple.html with same query parameters
+                            var newUrl = 'simple.html' + window.location.search;
+                            window.location.replace(newUrl);
+                            // Stop script execution
+                            throw new Error('Redirecting to simple.html');
+                        }
+                    }
+                }
+            } catch (e) {
+                // If redirect was thrown, let it propagate
+                if (e.message === 'Redirecting to simple.html') {
+                    throw e;
+                }
+                // Otherwise, continue with normal page load (network error, timeout, etc.)
+                console.log('[AffiliateRouting] Config check failed, using default:', e.message);
+            }
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Under Construction Message (shown when no affiliate parameter) -->
