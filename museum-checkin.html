@@ -2623,8 +2623,6 @@
                 <button class="close-button" id="closeMenu">&times;</button>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="button button-primary" id="viewParentTasks" data-target="index.html?museum=&focus=parent">查看家长任务</button>
-                <button class="button button-primary" id="viewAssessment">亲子关系测评</button>
                 <button class="button button-secondary" id="viewMuseumFireworks">🎆 查看本馆烟花墙</button>
                 <button class="button button-secondary" id="viewFireworks">查看总烟花墙</button>
                 <button class="button button-secondary" id="backToHome">返回主页</button>
@@ -4526,14 +4524,6 @@
             }
 
             // Menu actions
-            document.getElementById('viewParentTasks').onclick = () => {
-                window.location.href = `index.html?museum=${museumId}&type=parent&age=${ageGroup}`;
-            };
-
-            document.getElementById('viewAssessment').onclick = () => {
-                window.location.href = `index.html?assessment=true`;
-            };
-
             document.getElementById('viewMuseumFireworks').onclick = () => {
                 window.location.href = `fireworks-wall.html?museum=${museumId}`;
             };
