@@ -37,10 +37,14 @@ class VirtualPet {
         this.isVisible = false;
         this.animationTimeout = null;
         this.celebrationAnimationId = null;
+        this.hungerTimerId = null;
         this.initializeUI();
         
         // Check pet status on load
         this.checkPetStatus();
+        
+        // Start hunger timer to update every minute
+        this.startHungerTimer();
     }
 
     // ===== CONSTANTS =====
@@ -51,8 +55,9 @@ class VirtualPet {
     static get ATTACK_UPGRADE_COST() { return 50; } // Points to increase attack
     static get DEFENSE_UPGRADE_COST() { return 50; } // Points to increase defense
     static get REVIVE_COST() { return 100; } // Points to revive dead pet
-    static get HUNGER_DECREASE_PER_DAY() { return 1; } // Hunger decreases by 1 per day
+    static get HUNGER_DECREASE_PER_MINUTE() { return 1; } // Hunger decreases by 1% per minute
     static get MAX_HUNGER() { return 100; }
+    static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; } // Grace period after hunger reaches 0 before death
     static get INTELLIGENCE_PER_TASK() { return 1; } // Intelligence increases by 1 per task
     
     // Game completion XP rewards
@@ -162,18 +167,20 @@ class VirtualPet {
         const pet = this.petData.pet;
         if (pet.isDead) return;
 
-        // Calculate hunger decrease since last fed
+        // Calculate hunger decrease since last fed (per minute)
         const now = Date.now();
         const lastFed = pet.lastFed || pet.adoptedAt;
-        const daysSinceLastFed = Math.floor((now - lastFed) / (1000 * 60 * 60 * 24));
+        const minutesSinceLastFed = Math.floor((now - lastFed) / (1000 * 60));
         
-        // Calculate expected hunger based on days since last fed
-        // Hunger starts at MAX_HUNGER when fed, decreases by HUNGER_DECREASE_PER_DAY per day
-        const expectedHunger = VirtualPet.MAX_HUNGER - (daysSinceLastFed * VirtualPet.HUNGER_DECREASE_PER_DAY);
+        // Calculate expected hunger based on minutes since last fed
+        // Hunger starts at MAX_HUNGER when fed, decreases by HUNGER_DECREASE_PER_MINUTE per minute
+        const expectedHunger = VirtualPet.MAX_HUNGER - (minutesSinceLastFed * VirtualPet.HUNGER_DECREASE_PER_MINUTE);
         pet.hunger = Math.max(0, expectedHunger);
         
-        // Check if pet has starved (hunger = 0 for long enough)
-        if (pet.hunger <= 0 && daysSinceLastFed >= VirtualPet.HUNGER_DEATH_DAYS) {
+        // Check if pet has starved (hunger = 0 for long enough - now checked based on minutes)
+        // Pet dies after reaching 0 hunger plus grace period
+        const deathThresholdMinutes = VirtualPet.MAX_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
+        if (pet.hunger <= 0 && minutesSinceLastFed >= deathThresholdMinutes) {
             pet.isDead = true;
             pet.deathDate = now;
             this.onPetDeath();
@@ -181,6 +188,27 @@ class VirtualPet {
 
         this.savePetData();
         this.updateUI();
+    }
+
+    // Start a timer that updates hunger every minute
+    startHungerTimer() {
+        // Clear any existing timer
+        if (this.hungerTimerId) {
+            clearInterval(this.hungerTimerId);
+        }
+        
+        // Update hunger every minute (60000 ms)
+        this.hungerTimerId = setInterval(() => {
+            this.checkPetStatus();
+        }, 60000);
+    }
+
+    // Stop the hunger timer (for cleanup)
+    stopHungerTimer() {
+        if (this.hungerTimerId) {
+            clearInterval(this.hungerTimerId);
+            this.hungerTimerId = null;
+        }
     }
 
     // ===== PET ACTIONS =====
@@ -765,9 +793,19 @@ class VirtualPet {
             ? 100 
             : Math.round(((levelInfo.xpSpent - (VirtualPet.PET_LEVELS[levelInfo.level - 1]?.xpRequired || 0)) / 
                          (levelInfo.nextLevelXP - (VirtualPet.PET_LEVELS[levelInfo.level - 1]?.xpRequired || 0))) * 100);
+        
+        // Get current points
+        const currentPoints = this.getCurrentPoints();
 
         return `
             <div class="pet-alive">
+                <!-- Points Display -->
+                <div class="pet-points-display">
+                    <span class="points-icon">⭐</span>
+                    <span class="points-value">${currentPoints}</span>
+                    <span class="points-label">积分</span>
+                </div>
+                
                 <div class="pet-display">
                     <span class="pet-main-emoji ${this.isVisible ? 'pet-bounce' : ''}">${petEmoji}</span>
                     <div class="pet-name-display">${pet.name}</div>
@@ -911,16 +949,27 @@ class VirtualPet {
         const floating = document.getElementById('petFloating');
         if (!floating) return;
 
+        const currentPoints = this.getCurrentPoints();
+
         if (this.hasPet() && this.isPetAlive()) {
-            // Use level-based emoji
+            // Use level-based emoji and show points
             const petEmoji = this.getPetEmoji();
-            floating.innerHTML = `<span class="floating-pet-emoji">${petEmoji}</span>`;
+            floating.innerHTML = `
+                <span class="floating-pet-emoji">${petEmoji}</span>
+                <span class="floating-pet-points">${currentPoints}</span>
+            `;
             floating.style.display = 'block';
         } else if (this.hasPet() && !this.isPetAlive()) {
-            floating.innerHTML = `<span class="floating-pet-emoji dead">😢</span>`;
+            floating.innerHTML = `
+                <span class="floating-pet-emoji dead">😢</span>
+                <span class="floating-pet-points">${currentPoints}</span>
+            `;
             floating.style.display = 'block';
         } else {
-            floating.innerHTML = `<span class="floating-pet-emoji">🐾</span>`;
+            floating.innerHTML = `
+                <span class="floating-pet-emoji">🐾</span>
+                <span class="floating-pet-points">${currentPoints}</span>
+            `;
             floating.style.display = 'block';
         }
     }

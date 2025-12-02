@@ -60,8 +60,9 @@ class VirtualPet {
     static get ATTACK_UPGRADE_COST() { return 50; }
     static get DEFENSE_UPGRADE_COST() { return 50; }
     static get REVIVE_COST() { return 100; }
-    static get HUNGER_DECREASE_PER_DAY() { return 1; }
+    static get HUNGER_DECREASE_PER_MINUTE() { return 1; }
     static get MAX_HUNGER() { return 100; }
+    static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; }
     static get INTELLIGENCE_PER_TASK() { return 1; }
     
     // Game completion XP rewards
@@ -134,16 +135,16 @@ class VirtualPet {
 
         const now = Date.now();
         const lastFed = pet.lastFed || pet.adoptedAt;
-        const daysSinceLastFed = Math.floor((now - lastFed) / (1000 * 60 * 60 * 24));
+        const minutesSinceLastFed = Math.floor((now - lastFed) / (1000 * 60));
         
-        const hungerDecrease = daysSinceLastFed * VirtualPet.HUNGER_DECREASE_PER_DAY;
+        const hungerDecrease = minutesSinceLastFed * VirtualPet.HUNGER_DECREASE_PER_MINUTE;
         pet.hunger = Math.max(0, VirtualPet.MAX_HUNGER - hungerDecrease);
         
-        if (pet.hunger <= 0) {
-            if (daysSinceLastFed >= VirtualPet.HUNGER_DEATH_DAYS) {
-                pet.isDead = true;
-                pet.deathDate = now;
-            }
+        // Pet dies after reaching 0 hunger plus grace period
+        const deathThresholdMinutes = VirtualPet.MAX_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
+        if (pet.hunger <= 0 && minutesSinceLastFed >= deathThresholdMinutes) {
+            pet.isDead = true;
+            pet.deathDate = now;
         }
 
         this.savePetData();
@@ -477,6 +478,78 @@ describe('VirtualPet', () => {
 
         test('should have revive cost defined', () => {
             expect(VirtualPet.REVIVE_COST).toBe(100);
+        });
+        
+        test('should have hunger decrease per minute defined as 1%', () => {
+            expect(VirtualPet.HUNGER_DECREASE_PER_MINUTE).toBe(1);
+        });
+    });
+    
+    describe('Per-Minute Hunger System', () => {
+        test('pet hunger should decrease by 1% per minute', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 10 minutes passing
+            const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+            pet.petData.pet.lastFed = tenMinutesAgo;
+            pet.checkPetStatus();
+            
+            // Hunger should be 100 - 10 = 90
+            expect(pet.petData.pet.hunger).toBe(90);
+        });
+        
+        test('pet hunger should reach 0 after 100 minutes', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 100 minutes passing
+            const hundredMinutesAgo = Date.now() - (100 * 60 * 1000);
+            pet.petData.pet.lastFed = hundredMinutesAgo;
+            pet.checkPetStatus();
+            
+            // Hunger should be 0 (100 - 100 = 0)
+            expect(pet.petData.pet.hunger).toBe(0);
+        });
+        
+        test('pet should not be dead immediately after hunger reaches 0', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 100 minutes passing (hunger at 0 but not dead yet)
+            const hundredMinutesAgo = Date.now() - (100 * 60 * 1000);
+            pet.petData.pet.lastFed = hundredMinutesAgo;
+            pet.checkPetStatus();
+            
+            // Pet should still be alive
+            expect(pet.isPetAlive()).toBe(true);
+        });
+        
+        test('pet should die after 130 minutes (100 to reach 0 + 30 grace period)', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 130 minutes passing
+            const minutesAgo = Date.now() - (130 * 60 * 1000);
+            pet.petData.pet.lastFed = minutesAgo;
+            pet.checkPetStatus();
+            
+            // Pet should be dead
+            expect(pet.isPetAlive()).toBe(false);
+            expect(pet.petData.pet.isDead).toBe(true);
+        });
+        
+        test('hunger should not go below 0', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 200 minutes passing
+            const twoHundredMinutesAgo = Date.now() - (200 * 60 * 1000);
+            pet.petData.pet.lastFed = twoHundredMinutesAgo;
+            pet.checkPetStatus();
+            
+            // Hunger should be 0, not negative
+            expect(pet.petData.pet.hunger).toBe(0);
         });
     });
 
