@@ -7090,11 +7090,15 @@ class MuseumCheckApp {
                 
                 const card = document.createElement('div');
                 card.className = `museum-card ${isVisited ? 'visited' : ''} ${isFavorite ? 'favorite' : ''}`;
+                // Manual check-in is disabled - only unchecking is allowed
+                // Museums can only be checked via auto check-in when all child tasks are completed
+                const checkboxDisabled = this.readonlyCheckboxes || !isVisited;
                 card.innerHTML = `
                     <div class="museum-header">
                         <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
-                               ${this.readonlyCheckboxes ? 'disabled' : ''}
-                               data-museum="${museum.id}">
+                               ${checkboxDisabled ? 'disabled' : ''}
+                               data-museum="${museum.id}"
+                               title="${isVisited ? '取消打卡' : '完成任务后自动打卡'}">
                         <div class="museum-info">
                             <h3>
                                 <button class="favorite-button" data-museum="${museum.id}" title="${isFavorite ? '取消收藏' : '收藏博物馆'}">${isFavorite ? '⭐' : '☆'}</button>
@@ -7265,7 +7269,6 @@ class MuseumCheckApp {
     toggleMuseumVisit(museumId) {
         const index = this.visitedMuseums.indexOf(museumId);
         const museum = MUSEUMS.find(m => m.id === museumId);
-        const isNowVisited = index === -1;
         
         // If unchecking (removing visit), allow without validation
         if (index > -1) {
@@ -7284,107 +7287,16 @@ class MuseumCheckApp {
             return 'unchecked';
         }
         
-        // If checking (adding visit), validate child task completion first
-        if (isNowVisited) {
-            const childChecklistKey = `${museumId}-child-${this.currentAge}`;
-            const completedChildTasks = this.museumChecklists[childChecklistKey] || [];
-            
-            // If no child tasks are completed, show confirmation dialog
-            if (completedChildTasks.length === 0) {
-                const museumName = museum ? museum.name : '该博物馆';
-                const confirmed = confirm(
-                    `您还没有完成任何孩子任务就要打卡${museumName}。\n\n` +
-                    `建议至少完成一个孩子任务后再打卡，这样能更好地记录参观体验。\n\n` +
-                    `点击"确定"进入参观指南页面查看任务，或点击"取消"强制打卡。`
-                );
-                
-                if (confirmed) {
-                    // User chose to enter guide page - open museum modal
-                    // Return 'cancelled' to indicate checkbox should be reverted
-                    this.openMuseumModal(museum);
-                    return 'cancelled';
-                }
-                // If user clicked "取消", continue with force check-in below
-            }
-            
-            // Proceed with checking the museum as visited
-            this.visitedMuseums.push(museumId);
-            
-            // ===== ACHIEVEMENT GAMIFICATION HOOKS =====
-            // Update streak and check for new achievements
-            if (this.achievementGamification) {
-                // Update visit streak
-                this.achievementGamification.updateStreak(new Date());
-                
-                // Check for micro-achievements (first visit, streaks, etc.)
-                const visitCount = this.visitedMuseums.length;
-                
-                // First visit achievement
-                if (visitCount === 1) {
-                    this.achievementGamification.checkMicroAchievements('first_visit', { museumId });
-                }
-                
-                // Calculate and unlock main achievements
-                const achievements = this.calculateAchievements(visitCount);
-                const newlyUnlocked = achievements.filter(a => 
-                    a.achieved && !this.achievementGamification.isAchievementUnlocked(a.id || `${a.name}_${a.level}`)
-                );
-                
-                // Show notifications for newly unlocked achievements
-                newlyUnlocked.forEach(achievement => {
-                    const achievementWithId = {
-                        ...achievement,
-                        id: achievement.id || `${achievement.name}_${achievement.level}`.replace(/\s+/g, '_')
-                    };
-                    this.achievementGamification.unlockAchievement(achievementWithId);
-                });
-                
-                // Check for close-to-unlock achievement hints
-                const hints = this.achievementGamification.getAchievementHints(visitCount, {});
-                if (hints.length > 0 && Math.random() < 0.3) {
-                    // Show hint for closest achievement (30% chance)
-                    this.achievementGamification.showAchievementNotification(hints[0].achievement, 'hint');
-                }
-            }
-            // ===== END GAMIFICATION HOOKS =====
-            
-            // Trigger large rocket animation for museum visit
-            this.triggerLargeRocket();
-            this.saveVisitedMuseums();
-            this.renderMuseums();
-            
-            // Auto-submit score to leaderboard and show rank change notification
-            if (this.leaderboardManager) {
-                this.leaderboardManager.autoSubmitScore()
-                    .then(result => {
-                        // Show rank change notification after manual check-in
-                        this.showManualCheckinRankNotification(museum, result);
-                    })
-                    .catch(err => {
-                        console.warn('Failed to auto-submit leaderboard score:', err);
-                    });
-            }
-            
-            // Show leaderboard hint for first museum visit
-            if (this.visitedMuseums.length === 1) {
-                setTimeout(() => {
-                    this.showLeaderboardHint();
-                }, 2000);
-            }
-            
-            // Track museum visit toggle
-            this.trackEvent('museum_visit_toggled', {
-                'museum_id': museumId,
-                'museum_name': museum ? museum.name : '',
-                'museum_location': museum ? museum.location : '',
-                'visited': true,
-                'age_group': this.currentAge,
-                'force_checkin': completedChildTasks.length === 0
-            });
-            return 'checked';
-        }
-        
-        return 'no_action';
+        // Manual check-in is disabled - museums can only be checked via auto check-in
+        // when all child tasks are completed. The checkbox is already disabled in UI,
+        // but this serves as a safety check.
+        const museumName = museum ? museum.name : '该博物馆';
+        UIManager.showNotification(
+            `请完成${museumName}的孩子任务后自动打卡，不支持手动打卡。`,
+            3000,
+            'info'
+        );
+        return 'cancelled';
     }
 
     /**
