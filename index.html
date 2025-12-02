@@ -145,7 +145,7 @@
     </script>
     
     <!-- 
-      Affiliate Routing Check - must run early to redirect if needed
+      Affiliate Routing Check - TEMPORARILY DISABLED to reduce latency
       
       IMPORTANT: Synchronous XHR is used intentionally here despite being deprecated.
       The requirement is to check the affiliate routing configuration BEFORE any page
@@ -156,7 +156,7 @@
       
       Browser default timeouts will prevent the check from blocking indefinitely.
       If the request fails or times out, the page falls back to showing index.html.
-    -->
+    
     <script>
         (function() {
             'use strict';
@@ -211,6 +211,7 @@
             }
         })();
     </script>
+    -->
 </head>
 <body>
     <!-- Under Construction Message (shown when no affiliate parameter) -->
