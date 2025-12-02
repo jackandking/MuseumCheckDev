@@ -2517,6 +2517,159 @@
             color: #666;
         }
 
+        /* Treasure Not Found Report Styles */
+        .treasure-report-section {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffc107;
+        }
+
+        .treasure-report-section.show {
+            display: block;
+        }
+
+        .treasure-report-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: #fff;
+            border: 2px dashed #ffc107;
+            border-radius: 8px;
+            color: #856404;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .treasure-report-btn:hover {
+            background: #fff3cd;
+            border-style: solid;
+        }
+
+        .treasure-report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .treasure-report-confirm {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        .treasure-report-confirm.show {
+            display: block;
+        }
+
+        .treasure-report-confirm-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .treasure-report-confirm-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .treasure-report-confirm-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .treasure-report-confirm-yes {
+            background: #dc3545;
+            color: white;
+        }
+
+        .treasure-report-confirm-no {
+            background: #6c757d;
+            color: white;
+        }
+
+        .treasure-report-status {
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 6px;
+            color: #155724;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .treasure-report-status.show {
+            display: block;
+        }
+
+        /* Yellow border for treasures with 3+ reports (warning) */
+        .task-card.treasure-warning {
+            border: 3px solid #ffc107 !important;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+        }
+
+        .task-card.treasure-warning::before {
+            content: '⚠️';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 4px;
+            font-size: 14px;
+        }
+
+        /* Red border for treasures with 5+ reports (unavailable) */
+        .task-card.treasure-unavailable {
+            border: 3px solid #dc3545 !important;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .task-card.treasure-unavailable::before {
+            content: '❌';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 4px;
+            font-size: 14px;
+        }
+
+        .treasure-warning-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #ffc107;
+            color: #856404;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .treasure-unavailable-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .add-treasure-input-group .input-with-action {
                 flex-direction: column;
@@ -2588,6 +2741,27 @@
                 <button class="button button-secondary" id="cancelButton">取消</button>
                 <button class="button button-primary" id="completeButton">完成任务 🎉</button>
             </div>
+            
+            <!-- Treasure Not Found Report Section (only for treasure tasks) -->
+            <div class="treasure-report-section" id="treasureReportSection">
+                <button class="treasure-report-btn" id="treasureReportBtn">
+                    ⚠️ 报告：找不到这个镇馆之宝
+                </button>
+                <div class="treasure-report-confirm" id="treasureReportConfirm">
+                    <div class="treasure-report-confirm-text">
+                        您确认与博物馆工作人员核实后，此镇馆之宝确实不在展出吗？<br>
+                        <small style="color: #666;">您的反馈将帮助其他家庭更好地规划参观行程</small>
+                    </div>
+                    <div class="treasure-report-confirm-buttons">
+                        <button class="treasure-report-confirm-btn treasure-report-confirm-no" id="treasureReportNo">取消</button>
+                        <button class="treasure-report-confirm-btn treasure-report-confirm-yes" id="treasureReportYes">确认报告</button>
+                    </div>
+                </div>
+                <div class="treasure-report-status" id="treasureReportStatus">
+                    ✅ 感谢您的反馈！
+                </div>
+            </div>
+            
             <div class="parent-hint" id="parentHint">
                 <div class="parent-hint-title">💡 给家长的提示</div>
                 <div class="parent-hint-text">
@@ -2962,7 +3136,12 @@
         const REMOTE_STORAGE_CONFIG = {
             API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
             FIREWORK_KEY: 'museumcheck-firework',
-            CHECKIN_KEY_PREFIX: 'museumcheck-checkin-'
+            CHECKIN_KEY_PREFIX: 'museumcheck-checkin-',
+            TREASURE_REPORT_KEY: 'museumcheck-treasure-report',
+            // Far future timestamp: year 2124 in Unix seconds
+            // Calculated as: new Date('2124-01-01T00:00:00Z').getTime() / 1000
+            // Used to set data that should persist indefinitely
+            TIMESTAMP_2124: 4866674732
         };
 
         // Get museum ID from URL parameter
@@ -2978,6 +3157,241 @@
         let childTasks = [];
         let completedTasks = new Set();
         let currentTaskIndex = null;
+        let treasureReports = {}; // Cache for treasure not-found reports
+
+        // =====================================================
+        // 镇馆之宝不存在报告功能
+        // Treasure Not Found Report Feature
+        // =====================================================
+        
+        // Thresholds for report counts
+        const TREASURE_WARNING_THRESHOLD = 3;  // Yellow border when 3+ reports
+        const TREASURE_UNAVAILABLE_THRESHOLD = 5;  // Red border when 5+ reports
+        
+        // Task type identifier for treasure tasks (for internationalization)
+        const TREASURE_TASK_IDENTIFIER = '镇馆之宝';
+
+        /**
+         * Generate a unique sort key for a treasure report
+         * @param {string} museumId - Museum ID
+         * @param {string} treasureName - Treasure name
+         * @returns {string} Sort key
+         */
+        function getTreasureReportSortKey(museumId, treasureName) {
+            // Use Base64 encoding to avoid special characters in sortKey
+            // encodeURIComponent handles Unicode, then we convert to Base64
+            const combined = `${museumId}:${treasureName}`;
+            // Use TextEncoder for proper Unicode to bytes conversion
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(combined);
+            // Convert bytes to a string for btoa
+            const binaryString = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+            return 'treasure-' + btoa(binaryString);
+        }
+
+        /**
+         * Load all treasure reports from KV store
+         * @returns {Promise<Object>} Object with treasure reports keyed by sortKey
+         */
+        async function loadTreasureReports() {
+            try {
+                const url = `${REMOTE_STORAGE_CONFIG.API_ENDPOINT}?key=${encodeURIComponent(REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY)}&sortKey=*`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return {};
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const reports = {};
+                
+                const itemsArray = data.items || data.Items || [];
+                for (const item of itemsArray) {
+                    const sortKey = item.sortKey || item.sk || '';
+                    if (!sortKey.startsWith('treasure-')) continue;
+                    
+                    try {
+                        const parsed = JSON.parse(item.value);
+                        reports[sortKey] = parsed;
+                    } catch (e) {
+                        console.warn('Failed to parse treasure report:', e);
+                    }
+                }
+                
+                console.log('Loaded treasure reports:', reports);
+                return reports;
+            } catch (error) {
+                console.error('Error loading treasure reports:', error);
+                return {};
+            }
+        }
+
+        /**
+         * Get the report count for a specific treasure
+         * @param {string} treasureName - Name of the treasure
+         * @returns {number} Report count
+         */
+        function getTreasureReportCount(treasureName) {
+            const sortKey = getTreasureReportSortKey(museumId, treasureName);
+            const report = treasureReports[sortKey];
+            return report ? (report.reportCount || 0) : 0;
+        }
+
+        /**
+         * Report a treasure as not found
+         * @param {string} treasureName - Name of the treasure
+         * @returns {Promise<boolean>} Success status
+         */
+        async function reportTreasureNotFound(treasureName) {
+            try {
+                const sortKey = getTreasureReportSortKey(museumId, treasureName);
+                const existingReport = treasureReports[sortKey] || {};
+                
+                // Get user ID from localStorage or generate new one
+                let userId = localStorage.getItem('treasureReportUserId');
+                if (!userId) {
+                    userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                    localStorage.setItem('treasureReportUserId', userId);
+                }
+                
+                // Check if user already reported this treasure
+                const reporters = existingReport.reporters || [];
+                if (reporters.includes(userId)) {
+                    console.log('User already reported this treasure');
+                    return false;
+                }
+                
+                // Update report
+                const newReportCount = (existingReport.reportCount || 0) + 1;
+                const newReporters = [...reporters, userId];
+                const photoCheckins = existingReport.photoCheckins || 0;
+                
+                const updatedReport = {
+                    museumId: museumId,
+                    museumName: currentMuseum ? currentMuseum.name : '',
+                    treasureName: treasureName,
+                    reportCount: newReportCount,
+                    reporters: newReporters,
+                    photoCheckins: photoCheckins,
+                    lastReportAt: Date.now()
+                };
+                
+                // Save to KV store
+                const response = await fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY,
+                        sortKey: sortKey,
+                        value: JSON.stringify(updatedReport),
+                        expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Update local cache
+                treasureReports[sortKey] = updatedReport;
+                
+                // Save to local storage for user's reported treasures
+                const localReports = JSON.parse(localStorage.getItem('myTreasureReports') || '{}');
+                localReports[sortKey] = { treasureName, reportedAt: Date.now() };
+                localStorage.setItem('myTreasureReports', JSON.stringify(localReports));
+                
+                console.log('Treasure reported as not found:', treasureName, updatedReport);
+                return true;
+            } catch (error) {
+                console.error('Error reporting treasure not found:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Decrement report count when a photo check-in is done for a treasure
+         * @param {string} treasureName - Name of the treasure
+         * @returns {Promise<boolean>} Success status
+         */
+        async function recordTreasurePhotoCheckin(treasureName) {
+            try {
+                const sortKey = getTreasureReportSortKey(museumId, treasureName);
+                const existingReport = treasureReports[sortKey];
+                
+                if (!existingReport || existingReport.reportCount <= 0) {
+                    return true; // No reports to decrement
+                }
+                
+                // Decrement report count
+                const newReportCount = Math.max(0, existingReport.reportCount - 1);
+                const newPhotoCheckins = (existingReport.photoCheckins || 0) + 1;
+                
+                const updatedReport = {
+                    ...existingReport,
+                    reportCount: newReportCount,
+                    photoCheckins: newPhotoCheckins,
+                    lastPhotoCheckinAt: Date.now()
+                };
+                
+                // Save to KV store
+                const response = await fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY,
+                        sortKey: sortKey,
+                        value: JSON.stringify(updatedReport),
+                        expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Update local cache
+                treasureReports[sortKey] = updatedReport;
+                
+                console.log('Photo check-in recorded for treasure:', treasureName, updatedReport);
+                return true;
+            } catch (error) {
+                console.error('Error recording treasure photo check-in:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Check if a treasure is a warning state (3+ reports)
+         * @param {string} treasureName - Name of the treasure
+         * @returns {boolean}
+         */
+        function isTreasureWarning(treasureName) {
+            const count = getTreasureReportCount(treasureName);
+            return count >= TREASURE_WARNING_THRESHOLD && count < TREASURE_UNAVAILABLE_THRESHOLD;
+        }
+
+        /**
+         * Check if a treasure is unavailable (5+ reports)
+         * @param {string} treasureName - Name of the treasure
+         * @returns {boolean}
+         */
+        function isTreasureUnavailable(treasureName) {
+            return getTreasureReportCount(treasureName) >= TREASURE_UNAVAILABLE_THRESHOLD;
+        }
+
+        /**
+         * Check if user has already reported this treasure
+         * @param {string} treasureName - Name of the treasure
+         * @returns {boolean}
+         */
+        function hasUserReportedTreasure(treasureName) {
+            const sortKey = getTreasureReportSortKey(museumId, treasureName);
+            const localReports = JSON.parse(localStorage.getItem('myTreasureReports') || '{}');
+            return !!localReports[sortKey];
+        }
 
         // =====================================================
         // 镇馆之宝打卡配置常量和核心函数
@@ -3004,6 +3418,7 @@
         /**
          * Get the selected treasures for the current museum
          * Returns default first 3 treasures if no configuration exists
+         * Excludes treasures with 5+ reports by default (unless manually selected)
          * @returns {Array} Array of treasure names
          */
         function getSelectedTreasuresForMuseum() {
@@ -3014,9 +3429,14 @@
             const config = loadTreasureCheckinConfig();
             const selectedTreasures = config[museumId];
             
-            // If no configuration exists, return first 3 treasures as default
+            // If no configuration exists, return first 3 available treasures as default
+            // Exclude treasures with 5+ reports (unavailable)
             if (!selectedTreasures || !Array.isArray(selectedTreasures) || selectedTreasures.length === 0) {
-                return currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length)).map(t => t.name);
+                const availableTreasures = currentMuseum.collections.filter(t => {
+                    const reportCount = getTreasureReportCount(t.name);
+                    return reportCount < TREASURE_UNAVAILABLE_THRESHOLD;
+                });
+                return availableTreasures.slice(0, Math.min(3, availableTreasures.length)).map(t => t.name);
             }
             
             return selectedTreasures;
@@ -3040,7 +3460,14 @@
             // Note: Virtual pet is automatically initialized in virtual-pet.js on DOMContentLoaded
 
             updatePageTitle();
-            await loadMuseumData(); // Wait for async museum data loading
+            
+            // Load treasure reports in parallel with museum data
+            const [_, reports] = await Promise.all([
+                loadMuseumData(),
+                loadTreasureReports()
+            ]);
+            treasureReports = reports || {};
+            
             setupEventListeners();
             loadCompletedTasks();
             loadPhotos(); // Load saved photos
@@ -3198,6 +3625,24 @@
 
             // Extract icon and title from task string
             const { icon, title, subtitle } = parseTaskString(task);
+            
+            // Check for treasure warning/unavailable status
+            let treasureName = null;
+            let reportCount = 0;
+            let isTreasureTask = false;
+            if (title && title.includes(TREASURE_TASK_IDENTIFIER) && subtitle) {
+                isTreasureTask = true;
+                const nameMatch = subtitle.match(/「([^」]+)」/);
+                treasureName = nameMatch && nameMatch[1];
+                if (treasureName) {
+                    reportCount = getTreasureReportCount(treasureName);
+                    if (reportCount >= TREASURE_UNAVAILABLE_THRESHOLD) {
+                        card.classList.add('treasure-unavailable');
+                    } else if (reportCount >= TREASURE_WARNING_THRESHOLD) {
+                        card.classList.add('treasure-warning');
+                    }
+                }
+            }
 
             // Try to get collection image URL for treasure hunt tasks
             let imageUrl = '';
@@ -3217,8 +3662,16 @@
                 }
             } catch(e) {}
 
-            // Build card HTML
+            // Build card HTML with optional report badge
+            let badgeHtml = '';
+            if (isTreasureTask && reportCount >= TREASURE_UNAVAILABLE_THRESHOLD) {
+                badgeHtml = `<div class="treasure-unavailable-badge">${reportCount}人报告不存在</div>`;
+            } else if (isTreasureTask && reportCount >= TREASURE_WARNING_THRESHOLD) {
+                badgeHtml = `<div class="treasure-warning-badge">${reportCount}人报告不存在</div>`;
+            }
+            
             card.innerHTML = `
+                ${badgeHtml}
                 <div class="completion-badge">✓</div>
                 <div class="task-visual-container">
                     ${imageUrl ? `<img src="${imageUrl}" class="task-card-image" alt="${title}" style="display:none" />` : ''}
@@ -3557,6 +4010,47 @@
             } else {
                 document.getElementById('parentHint').classList.remove('show');
             }
+            
+            // Handle treasure report section visibility
+            const reportSection = document.getElementById('treasureReportSection');
+            const reportBtn = document.getElementById('treasureReportBtn');
+            const reportConfirm = document.getElementById('treasureReportConfirm');
+            const reportStatus = document.getElementById('treasureReportStatus');
+            
+            // Reset report section state
+            reportConfirm.classList.remove('show');
+            reportStatus.classList.remove('show');
+            
+            // Check if this is a treasure task
+            const isTreasureTask = title && title.includes(TREASURE_TASK_IDENTIFIER);
+            if (isTreasureTask && subtitle) {
+                const nameMatch = subtitle.match(/「([^」]+)」/);
+                const treasureName = nameMatch && nameMatch[1];
+                
+                if (treasureName) {
+                    reportSection.classList.add('show');
+                    reportSection.dataset.treasureName = treasureName;
+                    
+                    // Check if user already reported
+                    if (hasUserReportedTreasure(treasureName)) {
+                        reportBtn.textContent = '✅ 您已报告过此问题';
+                        reportBtn.disabled = true;
+                    } else {
+                        reportBtn.textContent = '⚠️ 报告：找不到这个镇馆之宝';
+                        reportBtn.disabled = false;
+                    }
+                    
+                    // Show report count if any
+                    const reportCount = getTreasureReportCount(treasureName);
+                    if (reportCount > 0) {
+                        reportBtn.textContent += ` (${reportCount}人已报告)`;
+                    }
+                } else {
+                    reportSection.classList.remove('show');
+                }
+            } else {
+                reportSection.classList.remove('show');
+            }
 
             document.getElementById('taskModal').classList.add('show');
         }
@@ -3588,6 +4082,19 @@
             // Notify virtual pet about task completion
             if (window.virtualPet && window.virtualPet.isPetAlive()) {
                 window.virtualPet.onTaskCompleted();
+            }
+            
+            // If task has photo and is a treasure task, record photo check-in to decrement report count
+            if (hasPhoto) {
+                const task = childTasks[currentTaskIndex];
+                const { title, subtitle } = parseTaskString(task);
+                if (title && title.includes(TREASURE_TASK_IDENTIFIER) && subtitle) {
+                    const nameMatch = subtitle.match(/「([^」]+)」/);
+                    const treasureName = nameMatch && nameMatch[1];
+                    if (treasureName) {
+                        recordTreasurePhotoCheckin(treasureName);
+                    }
+                }
             }
             
             // Close modal
@@ -4575,6 +5082,61 @@
             
             // Setup self-service treasure addition listeners
             setupSelfServiceTreasureListeners();
+            
+            // Treasure not-found report listeners
+            const treasureReportBtn = document.getElementById('treasureReportBtn');
+            if (treasureReportBtn) {
+                treasureReportBtn.onclick = () => {
+                    document.getElementById('treasureReportConfirm').classList.add('show');
+                    treasureReportBtn.style.display = 'none';
+                };
+            }
+            
+            const treasureReportNo = document.getElementById('treasureReportNo');
+            if (treasureReportNo) {
+                treasureReportNo.onclick = () => {
+                    document.getElementById('treasureReportConfirm').classList.remove('show');
+                    document.getElementById('treasureReportBtn').style.display = 'block';
+                };
+            }
+            
+            const treasureReportYes = document.getElementById('treasureReportYes');
+            if (treasureReportYes) {
+                treasureReportYes.onclick = async () => {
+                    const reportSection = document.getElementById('treasureReportSection');
+                    const treasureName = reportSection.dataset.treasureName;
+                    
+                    if (!treasureName) return;
+                    
+                    // Show loading state
+                    treasureReportYes.disabled = true;
+                    treasureReportYes.textContent = '提交中...';
+                    
+                    const success = await reportTreasureNotFound(treasureName);
+                    
+                    // Hide confirm section
+                    document.getElementById('treasureReportConfirm').classList.remove('show');
+                    
+                    if (success) {
+                        // Show success status
+                        document.getElementById('treasureReportStatus').classList.add('show');
+                        document.getElementById('treasureReportBtn').style.display = 'none';
+                        
+                        // Re-render tasks to update visual state
+                        renderTasks();
+                    } else {
+                        // Show button again
+                        const btn = document.getElementById('treasureReportBtn');
+                        btn.style.display = 'block';
+                        btn.textContent = '✅ 您已报告过此问题';
+                        btn.disabled = true;
+                    }
+                    
+                    // Reset button state
+                    treasureReportYes.disabled = false;
+                    treasureReportYes.textContent = '确认报告';
+                };
+            }
         }
 
         // Add new task (edit mode)

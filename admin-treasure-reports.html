@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>镇馆之宝报告管理</title>
+  <meta name="robots" content="noindex,nofollow" />
+  
+  <!-- Cache busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif; 
+      margin: 16px; 
+      color: #111; 
+      background: #f9fafb; 
+    }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .unauthorized { 
+      padding: 24px; 
+      background: #fff5f5; 
+      border: 1px solid #fecaca; 
+      color: #991b1b; 
+      border-radius: 8px; 
+    }
+    .panel { 
+      border: 1px solid #e5e7eb; 
+      border-radius: 8px; 
+      padding: 16px; 
+      margin-bottom: 16px; 
+      background: #fff; 
+    }
+    .panel-header {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .row > * { margin: 4px 0; }
+    button { 
+      padding: 8px 12px; 
+      border: 1px solid #d1d5db; 
+      background: #f9fafb; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 14px; 
+    }
+    button.primary { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    button.danger { background: #dc2626; color: #fff; border-color: #b91c1c; }
+    button.success { background: #059669; color: #fff; border-color: #047857; }
+    button.warning { background: #ffc107; color: #000; border-color: #e0a800; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    th { background: #f9fafb; position: sticky; top: 0; z-index: 1; font-weight: 600; }
+    .tag { 
+      display: inline-block; 
+      font-size: 12px; 
+      padding: 2px 8px; 
+      border-radius: 999px; 
+      background: #f3f4f6; 
+      border: 1px solid #e5e7eb; 
+      margin-right: 6px; 
+    }
+    .tag.warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+    .tag.danger { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+    .tag.success { background: #d4edda; border-color: #28a745; color: #155724; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 13px; }
+    .flex { display: flex; gap: 8px; align-items: center; }
+    .sticky-actions { position: sticky; top: 8px; z-index: 5; background: #f9fafb; padding-bottom: 8px; }
+    .nav-links {
+      margin-bottom: 12px; 
+      font-size: 13px; 
+      color: #6b7280;
+    }
+    .nav-links a {
+      color: #2563eb; 
+      text-decoration: none;
+      margin-right: 16px;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .description {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #111;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .stat-card.warning .stat-value { color: #856404; }
+    .stat-card.danger .stat-value { color: #dc2626; }
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚠️ 镇馆之宝报告管理</h1>
+  <div class="nav-links">
+    其他管理页面: 
+    <a href="admin.html?admin=1">🛠️ 主管理后台</a>
+    <a href="admin-fireworks.html?admin=1">🎆 烟花管理</a>
+    <a href="admin-leaderboard.html?admin=1">🏅 排行榜管理</a>
+    <a href="museum-data-manager.html">📚 博物馆数据</a>
+  </div>
+  
+  <div id="unauthorized" class="unauthorized" style="display:none">
+    <div style="font-weight:600; margin-bottom: 6px;">未授权访问</div>
+    <div class="muted">请使用 URL 携带参数 <span class="mono">?admin=1</span> 访问此页面。例如：<span class="mono">/admin-treasure-reports.html?admin=1</span></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="panel sticky-actions">
+      <div class="row">
+        <button id="reload" class="primary">🔄 重新加载报告</button>
+        <span id="status" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>📊 统计概览</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalReports">0</div>
+          <div class="stat-label">总报告数</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-value" id="warningTreasures">0</div>
+          <div class="stat-label">警告状态 (3-4报告)</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-value" id="unavailableTreasures">0</div>
+          <div class="stat-label">不可用状态 (5+报告)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalPhotoCheckins">0</div>
+          <div class="stat-label">照片打卡次数</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>📋 镇馆之宝报告列表</span>
+      </div>
+      <div class="description">
+        用户报告找不到的镇馆之宝会显示在这里。报告数达到3个时显示黄色警告框，达到5个时显示红色不可用框。<br>
+        当用户上传照片打卡时，报告数会自动减1。管理员也可以手动重置报告数。
+      </div>
+      
+      <div class="filter-bar">
+        <select id="filterStatus">
+          <option value="all">全部状态</option>
+          <option value="warning">警告状态 (3-4)</option>
+          <option value="unavailable">不可用状态 (5+)</option>
+          <option value="normal">正常状态 (0-2)</option>
+        </select>
+        <select id="filterMuseum">
+          <option value="all">全部博物馆</option>
+        </select>
+      </div>
+
+      <div style="overflow:auto; max-height: 60vh; border:1px solid #eee; border-radius:8px;">
+        <table id="reportsTable">
+          <thead>
+            <tr>
+              <th style="width: 200px;">博物馆</th>
+              <th style="width: 200px;">镇馆之宝</th>
+              <th style="width: 100px;">报告数</th>
+              <th style="width: 100px;">照片打卡</th>
+              <th style="width: 120px;">状态</th>
+              <th style="width: 180px;">最后报告时间</th>
+              <th style="width: 120px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px;">
+                <div class="muted">加载中...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>📖 使用说明</span>
+      </div>
+      <div class="description">
+        <strong>1. 报告机制：</strong>用户在打卡页面可以报告镇馆之宝不存在，需要先确认与博物馆工作人员核实。<br>
+        <strong>2. 状态显示：</strong>3-4个报告显示黄色警告框，5个以上显示红色不可用框。<br>
+        <strong>3. 自动恢复：</strong>用户上传照片打卡后，报告数会自动减1，帮助验证镇馆之宝是否已恢复展出。<br>
+        <strong>4. 手动重置：</strong>管理员可以手动将报告数重置为0，用于确认镇馆之宝已恢复展出的情况。<br>
+        <strong>5. 默认选择：</strong>报告数达到5个的镇馆之宝不会被默认选择，但用户仍可手动选择。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      'use strict';
+
+      const CONFIG = {
+        API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
+        TREASURE_REPORT_KEY: 'museumcheck-treasure-report',
+        TIMESTAMP_2124: 4866674732,
+        WARNING_THRESHOLD: 3,
+        UNAVAILABLE_THRESHOLD: 5
+      };
+
+      const qs = new URLSearchParams(location.search);
+      const isAdmin = qs.get('admin') === '1';
+
+      const el = {
+        app: document.getElementById('app'),
+        unauthorized: document.getElementById('unauthorized'),
+        reload: document.getElementById('reload'),
+        status: document.getElementById('status'),
+        tableBody: document.getElementById('reportsTableBody'),
+        totalReports: document.getElementById('totalReports'),
+        warningTreasures: document.getElementById('warningTreasures'),
+        unavailableTreasures: document.getElementById('unavailableTreasures'),
+        totalPhotoCheckins: document.getElementById('totalPhotoCheckins'),
+        filterStatus: document.getElementById('filterStatus'),
+        filterMuseum: document.getElementById('filterMuseum')
+      };
+
+      if (!isAdmin) {
+        el.unauthorized.style.display = '';
+        return;
+      }
+      el.app.style.display = '';
+
+      let allReports = [];
+
+      /**
+       * Fetch all treasure reports from KV store
+       */
+      async function fetchReports() {
+        el.status.textContent = '加载中...';
+        
+        try {
+          const url = `${CONFIG.API_ENDPOINT}?key=${encodeURIComponent(CONFIG.TREASURE_REPORT_KEY)}&sortKey=*`;
+          const res = await fetch(url);
+          
+          if (!res.ok) {
+            if (res.status === 404) {
+              return [];
+            }
+            throw new Error('Failed to fetch reports: ' + res.status);
+          }
+          
+          const data = await res.json();
+          const reports = [];
+          
+          const itemsArray = data.items || data.Items || [];
+          for (const item of itemsArray) {
+            const sortKey = item.sortKey || item.sk || '';
+            if (!sortKey.startsWith('treasure-')) continue;
+            
+            try {
+              const parsed = JSON.parse(item.value);
+              parsed._sortKey = sortKey;
+              reports.push(parsed);
+            } catch (e) {
+              console.warn('Failed to parse report:', e);
+            }
+          }
+          
+          el.status.textContent = `已加载 ${reports.length} 条报告`;
+          return reports;
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+          el.status.textContent = '加载失败: ' + error.message;
+          return [];
+        }
+      }
+
+      /**
+       * Reset report count for a treasure
+       */
+      async function resetReport(sortKey) {
+        if (!confirm('确定要重置此镇馆之宝的报告数吗？这将清除所有报告记录。')) {
+          return;
+        }
+        
+        el.status.textContent = '重置中...';
+        
+        try {
+          const report = allReports.find(r => r._sortKey === sortKey);
+          if (!report) throw new Error('Report not found');
+          
+          const updatedReport = {
+            ...report,
+            reportCount: 0,
+            reporters: [],
+            resetAt: Date.now(),
+            resetBy: 'admin'
+          };
+          
+          const res = await fetch(CONFIG.API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              key: CONFIG.TREASURE_REPORT_KEY,
+              sortKey: sortKey,
+              value: JSON.stringify(updatedReport),
+              expireAt: CONFIG.TIMESTAMP_2124
+            })
+          });
+          
+          if (!res.ok) {
+            throw new Error('Failed to reset report: ' + res.status);
+          }
+          
+          el.status.textContent = '重置成功';
+          await loadReports();
+        } catch (error) {
+          console.error('Error resetting report:', error);
+          el.status.textContent = '重置失败: ' + error.message;
+        }
+      }
+
+      /**
+       * Format timestamp for display
+       */
+      function formatDate(timestamp) {
+        if (!timestamp) return '-';
+        const date = new Date(timestamp);
+        return date.toLocaleString('zh-CN', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      /**
+       * Get status tag for report count
+       */
+      function getStatusTag(reportCount) {
+        if (reportCount >= CONFIG.UNAVAILABLE_THRESHOLD) {
+          return '<span class="tag danger">不可用</span>';
+        } else if (reportCount >= CONFIG.WARNING_THRESHOLD) {
+          return '<span class="tag warning">警告</span>';
+        } else {
+          return '<span class="tag success">正常</span>';
+        }
+      }
+
+      /**
+       * Update statistics display
+       */
+      function updateStats(reports) {
+        let totalReportCount = 0;
+        let warningCount = 0;
+        let unavailableCount = 0;
+        let totalPhotoCheckins = 0;
+        const museums = new Set();
+        
+        reports.forEach(r => {
+          totalReportCount += r.reportCount || 0;
+          totalPhotoCheckins += r.photoCheckins || 0;
+          
+          if (r.reportCount >= CONFIG.UNAVAILABLE_THRESHOLD) {
+            unavailableCount++;
+          } else if (r.reportCount >= CONFIG.WARNING_THRESHOLD) {
+            warningCount++;
+          }
+          
+          if (r.museumName) {
+            museums.add(r.museumName);
+          }
+        });
+        
+        el.totalReports.textContent = totalReportCount;
+        el.warningTreasures.textContent = warningCount;
+        el.unavailableTreasures.textContent = unavailableCount;
+        el.totalPhotoCheckins.textContent = totalPhotoCheckins;
+        
+        // Update museum filter
+        el.filterMuseum.innerHTML = '<option value="all">全部博物馆</option>';
+        Array.from(museums).sort().forEach(museum => {
+          const option = document.createElement('option');
+          option.value = museum;
+          option.textContent = museum;
+          el.filterMuseum.appendChild(option);
+        });
+      }
+
+      /**
+       * Render the reports table
+       */
+      function renderTable(reports) {
+        const statusFilter = el.filterStatus.value;
+        const museumFilter = el.filterMuseum.value;
+        
+        // Apply filters
+        let filteredReports = reports.filter(r => {
+          if (museumFilter !== 'all' && r.museumName !== museumFilter) {
+            return false;
+          }
+          
+          if (statusFilter === 'warning') {
+            return r.reportCount >= CONFIG.WARNING_THRESHOLD && r.reportCount < CONFIG.UNAVAILABLE_THRESHOLD;
+          } else if (statusFilter === 'unavailable') {
+            return r.reportCount >= CONFIG.UNAVAILABLE_THRESHOLD;
+          } else if (statusFilter === 'normal') {
+            return r.reportCount < CONFIG.WARNING_THRESHOLD;
+          }
+          
+          return true;
+        });
+        
+        // Sort by report count descending
+        filteredReports.sort((a, b) => (b.reportCount || 0) - (a.reportCount || 0));
+        
+        el.tableBody.innerHTML = '';
+        
+        if (filteredReports.length === 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td colspan="7" style="text-align: center; padding: 40px;">
+              <div style="font-weight: 600; margin-bottom: 12px;">暂无报告</div>
+              <div class="muted">还没有用户报告镇馆之宝不存在</div>
+            </td>
+          `;
+          el.tableBody.appendChild(tr);
+          return;
+        }
+        
+        filteredReports.forEach(report => {
+          const tr = document.createElement('tr');
+          
+          tr.innerHTML = `
+            <td>${report.museumName || report.museumId || '-'}</td>
+            <td><strong>${report.treasureName || '-'}</strong></td>
+            <td>${report.reportCount || 0}</td>
+            <td>${report.photoCheckins || 0}</td>
+            <td>${getStatusTag(report.reportCount || 0)}</td>
+            <td class="muted">${formatDate(report.lastReportAt)}</td>
+            <td></td>
+          `;
+          
+          // Add reset button
+          const actionTd = tr.querySelector('td:last-child');
+          const resetBtn = document.createElement('button');
+          resetBtn.textContent = '🔄 重置';
+          resetBtn.className = 'warning';
+          resetBtn.onclick = () => resetReport(report._sortKey);
+          actionTd.appendChild(resetBtn);
+          
+          el.tableBody.appendChild(tr);
+        });
+      }
+
+      /**
+       * Load and display reports
+       */
+      async function loadReports() {
+        allReports = await fetchReports();
+        updateStats(allReports);
+        renderTable(allReports);
+      }
+
+      // Event listeners
+      el.reload.onclick = loadReports;
+      el.filterStatus.onchange = () => renderTable(allReports);
+      el.filterMuseum.onchange = () => renderTable(allReports);
+
+      // Initial load
+      loadReports();
+    })();
+  </script>
+</body>
+</html>
