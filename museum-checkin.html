@@ -598,11 +598,17 @@
             display: none;
         }
 
-        .share-buttons {
-            display: flex;
-            gap: 10px;
+        .poster-hint {
             max-width: 500px;
             width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
             animation: buttonsSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
         }
 
@@ -615,28 +621,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .share-button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .share-button-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .share-button-secondary {
-            background: white;
-            color: #333;
-            border: 2px solid #e9ecef;
         }
 
         /* Confetti particles */
@@ -2955,9 +2939,8 @@
             <canvas id="posterCanvas" class="poster-canvas" width="720" height="1280"></canvas>
             <div id="posterPreview" class="poster-preview"></div>
         </div>
-        <div class="share-buttons">
-            <button class="share-button share-button-primary" id="savePosterButton">保存到相册 💾</button>
-            <button class="share-button share-button-secondary" id="sharePosterButton">分享给家人 📤</button>
+        <div class="poster-hint">
+            💡 长按海报图片可以保存到相册
         </div>
     </div>
 
@@ -4364,41 +4347,6 @@
             return '小小探险家';
         }
 
-        // Save poster to device
-        function savePoster() {
-            const canvas = document.getElementById('posterCanvas');
-            if (!canvas) return;
-            
-            const link = document.createElement('a');
-            link.download = `museum-poster-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        // Share poster
-        async function sharePoster() {
-            try {
-                const canvas = document.getElementById('posterCanvas');
-                if (!canvas) return;
-                
-                const blob = await (await fetch(canvas.toDataURL('image/png'))).blob();
-                const files = [new File([blob], 'museum-poster.png', { type: 'image/png' })];
-                
-                if (navigator.canShare && navigator.canShare({ files })) {
-                    await navigator.share({
-                        files,
-                        title: '今天的博物馆小探险',
-                        text: '和家人分享我们的参观成果'
-                    });
-                } else {
-                    savePoster();
-                }
-            } catch (error) {
-                console.error('Share error:', error);
-                savePoster();
-            }
-        }
-
         // Check if all tasks are complete and update poster card
         function checkCompletion() {
             if (childTasks && childTasks.length > 0 && completedTasks && completedTasks.size === childTasks.length) {
@@ -4467,9 +4415,7 @@
 
             document.getElementById('retakeButton').onclick = clearPhotoPreview;
 
-            // Poster buttons
-            document.getElementById('savePosterButton').onclick = savePoster;
-            document.getElementById('sharePosterButton').onclick = sharePoster;
+            // Celebration close button
             document.getElementById('closeCelebration').onclick = () => {
                 document.getElementById('completionCelebration').classList.remove('show');
             };
