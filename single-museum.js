@@ -2418,6 +2418,624 @@
     }catch(e){ /* ignore */ }
   }
 
+  // ===== CUSTOM TREASURE FEATURE - Self-service adding =====
+  const DEFAULT_TREASURE_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfj7o8L3RleHQ+PC9zdmc+';
+  const KV_STORE_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+  const MUSEUM_DATA_KEY_PREFIX = 'museum-data-';
+  // Far future expiration timestamp (Unix timestamp in SECONDS - year 2124)
+  const KV_STORE_FAR_FUTURE_EXPIRATION = 4866674732;
+  
+  let wikiSearchInstance = null;
+  let selectedWikiImageUrl = null;
+
+  /**
+   * Initialize the custom treasure feature UI and event handlers
+   */
+  function initializeCustomTreasureFeature() {
+    const nameInput = $('#customTreasureName');
+    const imageUrlInput = $('#customTreasureImageUrl');
+    const wikiSearchBtn = $('#wikiSearchButton');
+    const addBtn = $('#addCustomTreasureBtn');
+    const previewContainer = $('#customTreasurePreview');
+    
+    if (!nameInput || !addBtn) return;
+    
+    // Name input change - check for duplicates
+    nameInput.addEventListener('input', () => {
+      checkTreasureNameDuplicate(nameInput.value.trim());
+      updatePreview();
+    });
+    
+    // Image URL input change - update preview
+    if (imageUrlInput) {
+      imageUrlInput.addEventListener('input', () => {
+        updatePreview();
+      });
+    }
+    
+    // Wiki search button
+    if (wikiSearchBtn) {
+      wikiSearchBtn.addEventListener('click', () => {
+        openWikiSearchModal();
+      });
+    }
+    
+    // Add button
+    addBtn.addEventListener('click', () => {
+      addCustomTreasure();
+    });
+    
+    // Initialize wiki search modal handlers
+    initializeWikiSearchModal();
+    
+    // Load and display existing user treasures
+    displayUserTreasures();
+  }
+  
+  /**
+   * Check if a treasure name already exists in the museum's collections
+   * @param {string} name - The treasure name to check
+   * @returns {boolean} - True if duplicate exists
+   */
+  function checkTreasureNameDuplicate(name) {
+    const warningEl = $('#treasureNameDuplicateWarning');
+    if (!name || !warningEl) {
+      if (warningEl) warningEl.style.display = 'none';
+      return false;
+    }
+    
+    const museumId = getCurrentMuseumId();
+    if (!museumId) {
+      warningEl.style.display = 'none';
+      return false;
+    }
+    
+    // Get existing collections from current museum
+    const museum = state.selectedMuseum || getMuseumById(museumId);
+    const existingCollections = museum?.collections || [];
+    
+    // Get user-added treasures from localStorage
+    const userTreasures = getUserTreasuresForMuseum(museumId);
+    
+    // Check if name exists in existing collections
+    const existsInCollections = existingCollections.some(c => 
+      c.name && c.name.toLowerCase() === name.toLowerCase()
+    );
+    
+    // Check if name exists in user-added treasures
+    const existsInUserTreasures = userTreasures.some(t => 
+      t.name && t.name.toLowerCase() === name.toLowerCase()
+    );
+    
+    const isDuplicate = existsInCollections || existsInUserTreasures;
+    warningEl.style.display = isDuplicate ? 'block' : 'none';
+    return isDuplicate;
+  }
+  
+  /**
+   * Get the current museum ID from state or picker
+   */
+  function getCurrentMuseumId() {
+    if (state.selectedMuseum) return state.selectedMuseum.id;
+    const picker = $('#sgMuseumPicker');
+    return picker ? picker.value : null;
+  }
+  
+  /**
+   * Get museum by ID from MUSEUMS array
+   */
+  function getMuseumById(museumId) {
+    return (Array.isArray(MUSEUMS) ? MUSEUMS : []).find(m => m && m.id === museumId);
+  }
+  
+  /**
+   * Get user-added treasures for a specific museum from localStorage
+   */
+  function getUserTreasuresForMuseum(museumId) {
+    try {
+      const allTreasures = JSON.parse(localStorage.getItem('userAddedTreasures') || '{}');
+      return allTreasures[museumId] || [];
+    } catch (e) {
+      return [];
+    }
+  }
+  
+  /**
+   * Save user-added treasures for a museum to localStorage
+   */
+  function saveUserTreasuresForMuseum(museumId, treasures) {
+    try {
+      const allTreasures = JSON.parse(localStorage.getItem('userAddedTreasures') || '{}');
+      allTreasures[museumId] = treasures;
+      localStorage.setItem('userAddedTreasures', JSON.stringify(allTreasures));
+    } catch (e) {
+      console.error('Failed to save user treasures:', e);
+    }
+  }
+  
+  /**
+   * Update the preview area with current treasure info
+   */
+  function updatePreview() {
+    const nameInput = $('#customTreasureName');
+    const imageUrlInput = $('#customTreasureImageUrl');
+    const previewContainer = $('#customTreasurePreview');
+    
+    if (!previewContainer) return;
+    
+    const name = nameInput?.value?.trim() || '';
+    const imageUrl = imageUrlInput?.value?.trim() || selectedWikiImageUrl || '';
+    
+    if (!name && !imageUrl) {
+      previewContainer.innerHTML = `
+        <div class="sg-treasure-preview-placeholder">
+          <span class="preview-icon">📷</span>
+          <span class="preview-text">图片预览区域</span>
+        </div>
+      `;
+      return;
+    }
+    
+    const displayUrl = imageUrl || DEFAULT_TREASURE_IMAGE;
+    previewContainer.innerHTML = `<img src="${escapeHtml(displayUrl)}" alt="${escapeHtml(name)}" onerror="this.src='${DEFAULT_TREASURE_IMAGE}'" />`;
+  }
+  
+  /**
+   * Escape HTML for safe display
+   */
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  
+  /**
+   * Add a custom treasure to the current museum
+   */
+  async function addCustomTreasure() {
+    const nameInput = $('#customTreasureName');
+    const imageUrlInput = $('#customTreasureImageUrl');
+    
+    const name = nameInput?.value?.trim();
+    const imageUrl = imageUrlInput?.value?.trim() || selectedWikiImageUrl || DEFAULT_TREASURE_IMAGE;
+    
+    // Validation
+    if (!name) {
+      showToast('请输入镇馆之宝名称');
+      return;
+    }
+    
+    const museumId = getCurrentMuseumId();
+    if (!museumId) {
+      showToast('请先选择博物馆');
+      return;
+    }
+    
+    // Check for duplicate
+    if (checkTreasureNameDuplicate(name)) {
+      showToast('该名称已存在，请使用其他名称');
+      return;
+    }
+    
+    // Create new treasure object
+    const newTreasure = {
+      name: name,
+      imageUrl: imageUrl,
+      description: '', // User-added treasures don't have descriptions per requirement
+      addedBy: 'user',
+      addedAt: Date.now()
+    };
+    
+    // Save to localStorage first
+    const userTreasures = getUserTreasuresForMuseum(museumId);
+    userTreasures.push(newTreasure);
+    saveUserTreasuresForMuseum(museumId, userTreasures);
+    
+    // Save to remote KV store (Tier 2)
+    try {
+      await saveUserTreasureToRemote(museumId, newTreasure);
+      showToast('镇馆之宝添加成功！已保存到云端 ✨');
+    } catch (e) {
+      console.warn('Failed to save to remote, saved locally only:', e);
+      showToast('镇馆之宝添加成功！（仅保存本地）');
+    }
+    
+    // Clear form
+    if (nameInput) nameInput.value = '';
+    if (imageUrlInput) imageUrlInput.value = '';
+    selectedWikiImageUrl = null;
+    updatePreview();
+    
+    // Refresh display
+    displayUserTreasures();
+    
+    // Update the museum's collections in state if applicable
+    updateMuseumCollectionsInState(museumId, newTreasure);
+  }
+  
+  /**
+   * Save a user-added treasure to the remote KV store (Tier 2)
+   */
+  async function saveUserTreasureToRemote(museumId, treasure) {
+    // First, load existing museum data from remote or build new structure
+    let museumData = null;
+    
+    try {
+      const key = `${MUSEUM_DATA_KEY_PREFIX}${museumId}`;
+      const sortKey = 'museum';
+      const url = `${KV_STORE_ENDPOINT}?key=${encodeURIComponent(key)}&sortKey=${encodeURIComponent(sortKey)}`;
+      
+      const response = await fetch(url, { method: 'GET' });
+      if (response.ok) {
+        const result = await response.json();
+        if (result && result.value) {
+          museumData = JSON.parse(result.value);
+        }
+      }
+    } catch (e) {
+      console.log('No existing remote museum data found, will create new');
+    }
+    
+    // If no remote data exists, get base from MUSEUMS array
+    if (!museumData) {
+      const baseMuseum = getMuseumById(museumId);
+      if (baseMuseum) {
+        museumData = { ...baseMuseum };
+      } else {
+        // Create minimal museum structure
+        museumData = {
+          id: museumId,
+          collections: []
+        };
+      }
+    }
+    
+    // Ensure collections array exists
+    if (!museumData.collections) {
+      museumData.collections = [];
+    }
+    
+    // Add the new treasure
+    museumData.collections.push(treasure);
+    
+    // Save to KV store
+    const key = `${MUSEUM_DATA_KEY_PREFIX}${museumId}`;
+    const saveResponse = await fetch(KV_STORE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: key,
+        sortKey: 'museum',
+        value: JSON.stringify(museumData),
+        expireAt: KV_STORE_FAR_FUTURE_EXPIRATION
+      })
+    });
+    
+    if (!saveResponse.ok) {
+      throw new Error(`HTTP ${saveResponse.status}: ${saveResponse.statusText}`);
+    }
+    
+    console.log(`Saved user treasure "${treasure.name}" to remote KV store for museum ${museumId}`);
+  }
+  
+  /**
+   * Update museum collections in state
+   */
+  function updateMuseumCollectionsInState(museumId, newTreasure) {
+    if (state.selectedMuseum && state.selectedMuseum.id === museumId) {
+      if (!state.selectedMuseum.collections) {
+        state.selectedMuseum.collections = [];
+      }
+      state.selectedMuseum.collections.push(newTreasure);
+      
+      // Regenerate treasure hunt workflow if available
+      if (window.TreasureWorkflowGenerator) {
+        try {
+          const newWorkflow = window.TreasureWorkflowGenerator.generateTreasureHuntWorkflow(state.selectedMuseum);
+          if (!state.selectedMuseum.workflows) state.selectedMuseum.workflows = [];
+          const treasureIdx = state.selectedMuseum.workflows.findIndex(wf => wf.id === 'treasure-discovery');
+          if (treasureIdx >= 0) {
+            state.selectedMuseum.workflows[treasureIdx] = newWorkflow;
+          } else {
+            state.selectedMuseum.workflows.push(newWorkflow);
+          }
+          console.log('Regenerated treasure workflow with new treasure');
+        } catch (e) {
+          console.warn('Failed to regenerate treasure workflow:', e);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Display user-added treasures in the settings modal
+   */
+  function displayUserTreasures() {
+    const section = $('#userTreasuresSection');
+    const list = $('#userTreasuresList');
+    
+    if (!section || !list) return;
+    
+    const museumId = getCurrentMuseumId();
+    if (!museumId) {
+      section.style.display = 'none';
+      return;
+    }
+    
+    const treasures = getUserTreasuresForMuseum(museumId);
+    
+    if (treasures.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    
+    section.style.display = 'block';
+    list.innerHTML = treasures.map((t, index) => `
+      <div class="sg-user-treasure-item" data-index="${index}">
+        <img src="${escapeHtml(t.imageUrl || DEFAULT_TREASURE_IMAGE)}" alt="${escapeHtml(t.name)}" onerror="this.src='${DEFAULT_TREASURE_IMAGE}'" />
+        <div class="treasure-info">
+          <div class="treasure-name">🏺 ${escapeHtml(t.name)}</div>
+          <div class="treasure-source">👤 用户添加</div>
+        </div>
+        <button class="delete-btn" data-index="${index}" title="删除">×</button>
+      </div>
+    `).join('');
+    
+    // Add delete handlers
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const index = parseInt(btn.dataset.index, 10);
+        deleteUserTreasure(index);
+      });
+    });
+  }
+  
+  /**
+   * Delete a user-added treasure
+   */
+  async function deleteUserTreasure(index) {
+    const museumId = getCurrentMuseumId();
+    if (!museumId) return;
+    
+    const treasures = getUserTreasuresForMuseum(museumId);
+    if (index < 0 || index >= treasures.length) return;
+    
+    const deletedTreasure = treasures[index];
+    treasures.splice(index, 1);
+    saveUserTreasuresForMuseum(museumId, treasures);
+    
+    // Also update remote - reload, remove, and save
+    try {
+      const key = `${MUSEUM_DATA_KEY_PREFIX}${museumId}`;
+      const sortKey = 'museum';
+      const url = `${KV_STORE_ENDPOINT}?key=${encodeURIComponent(key)}&sortKey=${encodeURIComponent(sortKey)}`;
+      
+      const response = await fetch(url, { method: 'GET' });
+      if (response.ok) {
+        const result = await response.json();
+        if (result && result.value) {
+          const museumData = JSON.parse(result.value);
+          if (museumData.collections && Array.isArray(museumData.collections)) {
+            // Find and remove the treasure by name
+            const idx = museumData.collections.findIndex(c => 
+              c.name === deletedTreasure.name && c.addedBy === 'user'
+            );
+            if (idx >= 0) {
+              museumData.collections.splice(idx, 1);
+              
+              // Save back
+              await fetch(KV_STORE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  key: key,
+                  sortKey: 'museum',
+                  value: JSON.stringify(museumData),
+                  expireAt: KV_STORE_FAR_FUTURE_EXPIRATION
+                })
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to remove from remote:', e);
+    }
+    
+    displayUserTreasures();
+    showToast('已删除');
+  }
+  
+  /**
+   * Initialize the Wiki image search modal
+   */
+  function initializeWikiSearchModal() {
+    const modal = $('#wikiSearchModal');
+    const closeXBtn = $('#wikiSearchCloseX');
+    const cancelBtn = $('#wikiSearchCancel');
+    const selectBtn = $('#wikiSearchSelect');
+    const searchBtn = $('#wikiSearchBtn');
+    const searchInput = $('#wikiSearchInput');
+    
+    if (!modal) return;
+    
+    // Close handlers
+    if (closeXBtn) closeXBtn.addEventListener('click', closeWikiSearchModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeWikiSearchModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeWikiSearchModal();
+    });
+    
+    // Search button
+    if (searchBtn) {
+      searchBtn.addEventListener('click', performWikiSearch);
+    }
+    
+    // Search on Enter
+    if (searchInput) {
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          performWikiSearch();
+        }
+      });
+    }
+    
+    // Select button
+    if (selectBtn) {
+      selectBtn.addEventListener('click', () => {
+        if (selectedWikiImageUrl) {
+          const imageUrlInput = $('#customTreasureImageUrl');
+          if (imageUrlInput) imageUrlInput.value = selectedWikiImageUrl;
+          updatePreview();
+          closeWikiSearchModal();
+        }
+      });
+    }
+  }
+  
+  /**
+   * Open the Wiki search modal
+   */
+  function openWikiSearchModal() {
+    const modal = $('#wikiSearchModal');
+    const searchInput = $('#wikiSearchInput');
+    const resultsContainer = $('#wikiSearchResults');
+    const selectBtn = $('#wikiSearchSelect');
+    
+    if (modal) {
+      modal.style.display = 'flex';
+      selectedWikiImageUrl = null;
+      if (selectBtn) selectBtn.disabled = true;
+      
+      // Pre-fill with treasure name if available
+      const nameInput = $('#customTreasureName');
+      if (nameInput && nameInput.value && searchInput) {
+        searchInput.value = nameInput.value.trim();
+      } else if (searchInput) {
+        searchInput.value = '';
+      }
+      
+      // Reset results
+      if (resultsContainer) {
+        resultsContainer.innerHTML = '<div class="wiki-search-empty">请输入关键词搜索图片</div>';
+      }
+      
+      // Focus search input
+      if (searchInput) {
+        setTimeout(() => searchInput.focus(), 100);
+      }
+    }
+  }
+  
+  /**
+   * Close the Wiki search modal
+   */
+  function closeWikiSearchModal() {
+    const modal = $('#wikiSearchModal');
+    if (modal) modal.style.display = 'none';
+  }
+  
+  /**
+   * Perform Wiki image search
+   */
+  async function performWikiSearch() {
+    const searchInput = $('#wikiSearchInput');
+    const resultsContainer = $('#wikiSearchResults');
+    const selectBtn = $('#wikiSearchSelect');
+    
+    if (!searchInput || !resultsContainer) return;
+    
+    const query = searchInput.value.trim();
+    if (!query) {
+      showToast('请输入搜索关键词');
+      return;
+    }
+    
+    resultsContainer.innerHTML = '<div class="wiki-search-loading">🔍 搜索中...</div>';
+    selectedWikiImageUrl = null;
+    if (selectBtn) selectBtn.disabled = true;
+    
+    try {
+      // Initialize WikimediaImageSearch if available
+      if (!wikiSearchInstance && window.WikimediaImageSearch) {
+        wikiSearchInstance = new window.WikimediaImageSearch();
+      }
+      
+      // Get museum name for better search context
+      const museumName = state.selectedMuseum?.name || '';
+      
+      let results = [];
+      if (wikiSearchInstance) {
+        results = await wikiSearchInstance.searchTreasurePhotos(museumName, query);
+      } else {
+        // Fallback: direct Wikimedia Commons API call
+        results = await searchWikimediaDirectly(query);
+      }
+      
+      if (results.length === 0) {
+        resultsContainer.innerHTML = '<div class="wiki-search-empty">未找到相关图片，请尝试其他关键词</div>';
+        return;
+      }
+      
+      resultsContainer.innerHTML = results.map((img, index) => `
+        <div class="wiki-search-item" data-url="${escapeHtml(img.url || img.thumbnailUrl)}" data-index="${index}">
+          <img src="${escapeHtml(img.thumbnailUrl || img.url)}" alt="${escapeHtml(img.name || query)}" />
+        </div>
+      `).join('');
+      
+      // Add click handlers for selection
+      resultsContainer.querySelectorAll('.wiki-search-item').forEach(item => {
+        item.addEventListener('click', () => {
+          // Remove previous selection
+          resultsContainer.querySelectorAll('.wiki-search-item').forEach(i => i.classList.remove('selected'));
+          // Add selection to clicked item
+          item.classList.add('selected');
+          selectedWikiImageUrl = item.dataset.url;
+          if (selectBtn) selectBtn.disabled = false;
+        });
+      });
+      
+    } catch (e) {
+      console.error('Wiki search error:', e);
+      resultsContainer.innerHTML = '<div class="wiki-search-empty">搜索失败，请重试</div>';
+    }
+  }
+  
+  /**
+   * Fallback: Direct Wikimedia Commons API search
+   */
+  async function searchWikimediaDirectly(query) {
+    const params = new URLSearchParams({
+      action: 'query',
+      format: 'json',
+      generator: 'search',
+      gsrnamespace: '6',
+      gsrsearch: query,
+      gsrlimit: '10',
+      prop: 'imageinfo',
+      iiprop: 'url',
+      iiurlwidth: '300',
+      origin: '*'
+    });
+    
+    const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`);
+    if (!response.ok) throw new Error('API request failed');
+    
+    const result = await response.json();
+    const pages = result.query?.pages || {};
+    
+    return Object.values(pages)
+      .filter(page => page.imageinfo && page.imageinfo.length > 0)
+      .map(page => ({
+        name: page.title?.replace('File:', '') || query,
+        url: page.imageinfo[0].url,
+        thumbnailUrl: page.imageinfo[0].thumburl || page.imageinfo[0].url
+      }));
+  }
+  // ===== END CUSTOM TREASURE FEATURE =====
+
   function saveSettingsImmediate(close){
     const ageSel = $('#sgAgeGroup');
     const roleSel = $('#sgCaregiverRole');
@@ -2534,10 +3152,13 @@
     if(roleSel) roleSel.addEventListener('change', ()=> { refreshWorkflowOptions(); saveSettingsImmediate(false); });
     if(wfSel) wfSel.addEventListener('change', ()=> saveSettingsImmediate(false));
     if(nickInp) nickInp.addEventListener('input', ()=> saveSettingsImmediate(false));
-    if(musSel) musSel.addEventListener('change', ()=> { refreshWorkflowOptions(); saveSettingsImmediate(false); });
+    if(musSel) musSel.addEventListener('change', ()=> { refreshWorkflowOptions(); saveSettingsImmediate(false); displayUserTreasures(); });
     
     const photoReqSel = $('#sgPhotoRequired');
     if(photoReqSel) photoReqSel.addEventListener('change', ()=> saveSettingsImmediate(false));
+
+    // Custom Treasure Feature - Self-service adding
+    initializeCustomTreasureFeature();
 
     // Menu button and modal
     const menuBtn = $('#sgMenuBtn');

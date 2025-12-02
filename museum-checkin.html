@@ -2170,6 +2170,382 @@
                 height: 40px;
             }
         }
+
+        /* ===== Self-service Treasure Addition Styles ===== */
+        .add-treasure-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed #e9ecef;
+        }
+
+        .add-treasure-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .add-treasure-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .add-treasure-input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .add-treasure-input-group .input-with-action {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-treasure-input-group input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .add-treasure-input-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .add-treasure-input-group input::placeholder {
+            color: #adb5bd;
+        }
+
+        .add-treasure-input-group input.error {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        .search-wiki-btn {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .search-wiki-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .image-preview-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .image-preview-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #adb5bd;
+        }
+
+        .add-treasure-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-treasure-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+
+        .add-treasure-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .add-treasure-error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .add-treasure-error.show {
+            display: block;
+        }
+
+        .add-treasure-success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .add-treasure-success.show {
+            display: block;
+        }
+
+        .add-treasure-hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .user-added-treasures-list {
+            margin-top: 16px;
+        }
+
+        .user-added-treasure-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .user-added-treasure-item .treasure-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .user-added-treasure-item .treasure-info {
+            flex: 1;
+        }
+
+        .user-added-treasure-item .treasure-name {
+            font-weight: 600;
+            color: #0369a1;
+            font-size: 14px;
+        }
+
+        .user-added-treasure-item .treasure-badge {
+            font-size: 11px;
+            color: #0284c7;
+            opacity: 0.8;
+        }
+
+        .user-added-treasure-item .remove-treasure-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .user-added-treasure-item .remove-treasure-btn:hover {
+            background: #fecaca;
+        }
+
+        /* Wiki Image Search Modal */
+        .wiki-search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wiki-search-modal.show {
+            display: flex;
+        }
+
+        .wiki-search-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 95%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wiki-search-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wiki-search-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .wiki-search-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .wiki-search-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .wiki-search-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .wiki-search-input-group input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .wiki-search-input-group button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .wiki-search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .wiki-search-result-item {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .wiki-search-result-item:hover {
+            border-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.2);
+        }
+
+        .wiki-search-result-item.selected {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .wiki-search-result-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .wiki-search-result-item .result-name {
+            padding: 8px;
+            font-size: 11px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wiki-search-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .wiki-search-loading::before {
+            content: "🔍";
+            font-size: 32px;
+            display: block;
+            margin-bottom: 10px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .wiki-search-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .add-treasure-input-group .input-with-action {
+                flex-direction: column;
+            }
+
+            .search-wiki-btn {
+                width: 100%;
+            }
+
+            .wiki-search-results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
     <!-- Virtual Pet and Achievement Gamification Styles -->
     <link rel="stylesheet" href="virtual-pet.css">
@@ -2306,6 +2682,47 @@
                         <div id="v2TreasureSelectionError" class="treasure-selection-error">
                             ⚠️ 至少需要选择3个镇馆之宝
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Self-service treasure addition -->
+                <div class="add-treasure-section">
+                    <label class="settings-label">➕ 自助添加镇馆之宝：</label>
+                    <div class="settings-hint" style="margin-bottom: 12px;">
+                        发现博物馆其他值得打卡的宝贝？在这里添加！
+                    </div>
+                    
+                    <div class="add-treasure-form" id="addTreasureForm">
+                        <div class="add-treasure-input-group">
+                            <label for="newTreasureName">名称 <span style="color: #dc2626;">*</span></label>
+                            <input type="text" id="newTreasureName" placeholder="例如：清明上河图" maxlength="50">
+                            <div class="add-treasure-error" id="treasureNameError">⚠️ 名称已存在，请使用不同的名称</div>
+                        </div>
+                        
+                        <div class="add-treasure-input-group">
+                            <label for="newTreasureImage">图片URL</label>
+                            <div class="input-with-action">
+                                <input type="text" id="newTreasureImage" placeholder="图片链接（可选）">
+                                <button type="button" class="search-wiki-btn" id="searchWikiBtn">🔍 Wiki搜索</button>
+                            </div>
+                            <div class="image-preview-container">
+                                <div id="newTreasurePreview" class="image-preview-placeholder">📷</div>
+                                <span class="add-treasure-hint">无图片时将使用默认图片</span>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="add-treasure-btn" id="addTreasureBtn" disabled>
+                            ➕ 添加镇馆之宝
+                        </button>
+                        
+                        <div class="add-treasure-success" id="addTreasureSuccess">
+                            ✅ 镇馆之宝添加成功！已自动勾选用于打卡。
+                        </div>
+                    </div>
+                    
+                    <!-- User-added treasures list -->
+                    <div class="user-added-treasures-list" id="userAddedTreasuresList">
+                        <!-- User-added treasures will be rendered here -->
                     </div>
                 </div>
             </div>
@@ -4219,6 +4636,9 @@
                     event.target.classList.remove('show');
                 }
             };
+            
+            // Setup self-service treasure addition listeners
+            setupSelfServiceTreasureListeners();
         }
 
         // Add new task (edit mode)
@@ -4375,7 +4795,22 @@
             const checkboxList = document.getElementById('v2TreasureCheckboxList');
             if (!checkboxList || !currentMuseum) return;
 
-            if (!currentMuseum.collections || !Array.isArray(currentMuseum.collections) || currentMuseum.collections.length === 0) {
+            // Merge museum collections with user-added treasures
+            const userTreasures = loadUserAddedTreasures(museumId);
+            const allCollections = [...(currentMuseum.collections || [])];
+            
+            // Add user treasures if not already in collections
+            userTreasures.forEach(ut => {
+                const exists = allCollections.some(c => c.name === ut.name);
+                if (!exists) {
+                    allCollections.push({
+                        ...ut,
+                        isUserAdded: true
+                    });
+                }
+            });
+
+            if (!allCollections || !Array.isArray(allCollections) || allCollections.length === 0) {
                 checkboxList.innerHTML = '<div class="empty-config-hint">该博物馆暂无镇馆之宝信息</div>';
                 updateSelectedTreasureCountV2();
                 return;
@@ -4387,18 +4822,19 @@
             
             // Default: select first 3 treasures if no config exists
             if (!selectedTreasures || !Array.isArray(selectedTreasures) || selectedTreasures.length === 0) {
-                selectedTreasures = currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length)).map(t => t.name);
+                selectedTreasures = allCollections.slice(0, Math.min(3, allCollections.length)).map(t => t.name);
                 // Save the default selection
                 saveTreasureSelectionSilently(selectedTreasures);
             }
 
             // Build checkbox list
             let html = '';
-            currentMuseum.collections.forEach((treasure, index) => {
+            allCollections.forEach((treasure, index) => {
                 const isSelected = selectedTreasures.includes(treasure.name);
                 const imageHtml = treasure.imageUrl 
-                    ? `<img src="${treasure.imageUrl}" alt="${treasure.name}" class="treasure-item-image" loading="lazy">`
+                    ? `<img src="${treasure.imageUrl}" alt="${treasure.name}" class="treasure-item-image" loading="lazy" onerror="this.style.display='none'">`
                     : '';
+                const userBadge = treasure.isUserAdded ? '<span style="color:#0369a1;font-size:11px;margin-left:4px;">👤</span>' : '';
                 
                 html += `
                     <label class="treasure-checkbox-item ${isSelected ? 'selected' : ''}" data-index="${index}">
@@ -4407,7 +4843,7 @@
                                ${isSelected ? 'checked' : ''}
                                data-museum="${museumId}">
                         <div class="treasure-item-info">
-                            <div class="treasure-item-name">🏺 ${treasure.name}</div>
+                            <div class="treasure-item-name">🏺 ${treasure.name}${userBadge}</div>
                             <div class="treasure-item-description">${treasure.description || '镇馆之宝'}</div>
                         </div>
                         ${imageHtml}
@@ -4505,11 +4941,26 @@
          */
         function refreshTasksWithSelectedTreasures() {
             // Re-load and render tasks with the new treasure selection
-            if (currentMuseum && Array.isArray(currentMuseum.collections) && currentMuseum.collections.length > 0) {
+            const userTreasures = loadUserAddedTreasures(museumId);
+            const baseCollections = currentMuseum ? (currentMuseum.collections || []) : [];
+            
+            // Merge base collections with user-added treasures
+            const allCollections = [...baseCollections];
+            userTreasures.forEach(ut => {
+                const exists = allCollections.some(c => c.name === ut.name);
+                if (!exists) {
+                    allCollections.push({
+                        ...ut,
+                        isUserAdded: true
+                    });
+                }
+            });
+            
+            if (allCollections.length > 0) {
                 const selectedTreasures = getSelectedTreasuresForMuseum();
                 
                 // Filter collections to only selected ones
-                const selectedCollections = currentMuseum.collections.filter(c => selectedTreasures.includes(c.name));
+                const selectedCollections = allCollections.filter(c => selectedTreasures.includes(c.name));
                 
                 // Build new task list
                 const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
@@ -4590,6 +5041,519 @@
             }
         }
 
+        // =====================================================
+        // Self-service Treasure Addition Functions
+        // 用户自助添加镇馆之宝功能
+        // =====================================================
+
+        // Default image for user-added treasures
+        const DEFAULT_TREASURE_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/COLLECTIE_TROPENMUSEUM_Wajangpop_voorstellende_Batara_Kresna_TMnr_H-683.jpg/220px-COLLECTIE_TROPENMUSEUM_Wajangpop_voorstellende_Batara_Kresna_TMnr_H-683.jpg';
+
+        /**
+         * Load user-added treasures for a specific museum
+         * @param {string} museumId - Museum identifier
+         * @returns {Array} Array of user-added treasure objects
+         */
+        function loadUserAddedTreasures(musId) {
+            try {
+                const key = `userAddedTreasures_${musId || museumId}`;
+                const saved = localStorage.getItem(key);
+                return saved ? JSON.parse(saved) : [];
+            } catch (error) {
+                console.error('Failed to load user-added treasures:', error);
+                return [];
+            }
+        }
+
+        /**
+         * Save user-added treasures for a specific museum
+         * @param {Array} treasures - Array of treasure objects
+         */
+        function saveUserAddedTreasures(treasures) {
+            try {
+                const key = `userAddedTreasures_${museumId}`;
+                localStorage.setItem(key, JSON.stringify(treasures));
+                return true;
+            } catch (error) {
+                console.error('Failed to save user-added treasures:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Check if a treasure name already exists (deduplication)
+         * @param {string} name - Treasure name to check
+         * @returns {boolean} True if name exists
+         */
+        function treasureNameExists(name) {
+            if (!name) return false;
+            const normalizedName = name.trim().toLowerCase();
+            
+            // Check existing museum collections
+            if (currentMuseum && currentMuseum.collections && Array.isArray(currentMuseum.collections)) {
+                const existsInMuseum = currentMuseum.collections.some(t => 
+                    t.name && t.name.trim().toLowerCase() === normalizedName
+                );
+                if (existsInMuseum) return true;
+            }
+            
+            // Check user-added treasures
+            const userTreasures = loadUserAddedTreasures(museumId);
+            const existsInUserAdded = userTreasures.some(t => 
+                t.name && t.name.trim().toLowerCase() === normalizedName
+            );
+            
+            return existsInUserAdded;
+        }
+
+        /**
+         * Validate treasure name and show error if duplicate
+         * @param {string} name - Treasure name to validate
+         * @returns {boolean} True if valid
+         */
+        function validateTreasureName(name) {
+            const nameInput = document.getElementById('newTreasureName');
+            const errorEl = document.getElementById('treasureNameError');
+            const addBtn = document.getElementById('addTreasureBtn');
+            
+            if (!name || !name.trim()) {
+                nameInput.classList.remove('error');
+                errorEl.classList.remove('show');
+                addBtn.disabled = true;
+                return false;
+            }
+            
+            if (treasureNameExists(name)) {
+                nameInput.classList.add('error');
+                errorEl.classList.add('show');
+                addBtn.disabled = true;
+                return false;
+            }
+            
+            nameInput.classList.remove('error');
+            errorEl.classList.remove('show');
+            addBtn.disabled = false;
+            return true;
+        }
+
+        /**
+         * Add a new user treasure
+         */
+        async function addUserTreasure() {
+            const nameInput = document.getElementById('newTreasureName');
+            const imageInput = document.getElementById('newTreasureImage');
+            const successEl = document.getElementById('addTreasureSuccess');
+            
+            const name = nameInput.value.trim();
+            const imageUrl = imageInput.value.trim() || DEFAULT_TREASURE_IMAGE;
+            
+            if (!name) {
+                showNotification('请输入镇馆之宝名称');
+                return;
+            }
+            
+            if (treasureNameExists(name)) {
+                showNotification('该名称已存在，请使用不同的名称');
+                return;
+            }
+            
+            // Create treasure object
+            const newTreasure = {
+                name: name,
+                imageUrl: imageUrl,
+                description: '用户添加的镇馆之宝',
+                isUserAdded: true,
+                addedAt: Date.now()
+            };
+            
+            // Add to user treasures list
+            const userTreasures = loadUserAddedTreasures(museumId);
+            userTreasures.push(newTreasure);
+            
+            // Save locally
+            saveUserAddedTreasures(userTreasures);
+            
+            // Also add to current museum's collections for immediate use
+            if (currentMuseum) {
+                if (!currentMuseum.collections) {
+                    currentMuseum.collections = [];
+                }
+                currentMuseum.collections.push(newTreasure);
+            }
+            
+            // Save to remote KV store (Tier 2)
+            await saveMuseumWithUserTreasuresToRemote();
+            
+            // Auto-select the new treasure
+            autoSelectNewTreasure(name);
+            
+            // Clear form
+            nameInput.value = '';
+            imageInput.value = '';
+            document.getElementById('newTreasurePreview').innerHTML = '📷';
+            document.getElementById('addTreasureBtn').disabled = true;
+            
+            // Show success message
+            successEl.classList.add('show');
+            setTimeout(() => successEl.classList.remove('show'), 3000);
+            
+            // Refresh treasure displays
+            showTreasureSelectionForCurrentMuseum();
+            renderUserAddedTreasures();
+            
+            // Refresh tasks
+            refreshTasksWithSelectedTreasures();
+            
+            console.log('Added user treasure:', name);
+        }
+
+        /**
+         * Auto-select a newly added treasure
+         */
+        function autoSelectNewTreasure(treasureName) {
+            const config = loadTreasureCheckinConfig();
+            let selectedTreasures = config[museumId] || [];
+            
+            // Add the new treasure to selection
+            if (!selectedTreasures.includes(treasureName)) {
+                selectedTreasures.push(treasureName);
+                config[museumId] = selectedTreasures;
+                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+            }
+        }
+
+        /**
+         * Save museum data with user treasures to remote KV store
+         */
+        async function saveMuseumWithUserTreasuresToRemote() {
+            if (!window.museumDataLoader || !currentMuseum) {
+                console.warn('Cannot save to remote: museumDataLoader or currentMuseum not available');
+                return false;
+            }
+            
+            try {
+                // Prepare museum data with user-added treasures
+                const museumData = { ...currentMuseum };
+                
+                // Mark user-added treasures
+                if (museumData.collections) {
+                    museumData.collections = museumData.collections.map(t => ({
+                        ...t,
+                        isUserAdded: t.isUserAdded || false
+                    }));
+                }
+                
+                // Save to KV store
+                const success = await window.museumDataLoader.saveToKVStore(museumId, museumData);
+                
+                if (success) {
+                    console.log('Saved museum with user treasures to remote storage');
+                }
+                
+                return success;
+            } catch (error) {
+                console.error('Failed to save museum with user treasures:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Remove a user-added treasure
+         */
+        async function removeUserTreasure(treasureName) {
+            if (!confirm(`确定要删除「${treasureName}」吗？`)) {
+                return;
+            }
+            
+            // Remove from user treasures
+            let userTreasures = loadUserAddedTreasures(museumId);
+            userTreasures = userTreasures.filter(t => t.name !== treasureName);
+            saveUserAddedTreasures(userTreasures);
+            
+            // Remove from current museum collections
+            if (currentMuseum && currentMuseum.collections) {
+                currentMuseum.collections = currentMuseum.collections.filter(t => t.name !== treasureName);
+            }
+            
+            // Remove from selection
+            const config = loadTreasureCheckinConfig();
+            if (config[museumId]) {
+                config[museumId] = config[museumId].filter(name => name !== treasureName);
+                localStorage.setItem('treasureCheckinConfig', JSON.stringify(config));
+            }
+            
+            // Save to remote
+            await saveMuseumWithUserTreasuresToRemote();
+            
+            // Refresh displays
+            showTreasureSelectionForCurrentMuseum();
+            renderUserAddedTreasures();
+            refreshTasksWithSelectedTreasures();
+            
+            showNotification('镇馆之宝已删除');
+        }
+
+        /**
+         * Render user-added treasures list
+         */
+        function renderUserAddedTreasures() {
+            const listEl = document.getElementById('userAddedTreasuresList');
+            if (!listEl) return;
+            
+            const userTreasures = loadUserAddedTreasures(museumId);
+            
+            if (userTreasures.length === 0) {
+                listEl.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div style="margin-top: 12px; font-size: 13px; color: #0369a1; font-weight: 600;">我添加的镇馆之宝：</div>';
+            
+            userTreasures.forEach(treasure => {
+                const imgSrc = treasure.imageUrl || DEFAULT_TREASURE_IMAGE;
+                html += `
+                    <div class="user-added-treasure-item">
+                        <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(treasure.name)}" class="treasure-thumb" onerror="this.src='${DEFAULT_TREASURE_IMAGE}'">
+                        <div class="treasure-info">
+                            <div class="treasure-name">${escapeHtml(treasure.name)}</div>
+                            <div class="treasure-badge">👤 我添加的</div>
+                        </div>
+                        <button class="remove-treasure-btn" onclick="removeUserTreasure('${escapeHtml(treasure.name)}')" title="删除">×</button>
+                    </div>
+                `;
+            });
+            
+            listEl.innerHTML = html;
+        }
+
+        /**
+         * Update image preview for new treasure
+         */
+        function updateNewTreasurePreview(imageUrl) {
+            const previewEl = document.getElementById('newTreasurePreview');
+            if (!previewEl) return;
+            
+            if (!imageUrl || !imageUrl.trim()) {
+                previewEl.innerHTML = '📷';
+                previewEl.className = 'image-preview-placeholder';
+                return;
+            }
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.className = 'image-preview-thumb';
+            img.onerror = function() {
+                previewEl.innerHTML = '❌';
+                previewEl.className = 'image-preview-placeholder';
+            };
+            img.onload = function() {
+                previewEl.innerHTML = '';
+                previewEl.className = '';
+                previewEl.appendChild(img);
+            };
+        }
+
+        /**
+         * Open Wiki image search modal
+         */
+        function openWikiSearch() {
+            const modal = document.getElementById('wikiSearchModal');
+            const searchInput = document.getElementById('wikiSearchInput');
+            const resultsEl = document.getElementById('wikiSearchResults');
+            
+            // Pre-fill with treasure name if available
+            const treasureName = document.getElementById('newTreasureName').value.trim();
+            if (treasureName) {
+                searchInput.value = treasureName;
+            }
+            
+            // Clear previous results
+            resultsEl.innerHTML = '<div class="wiki-search-empty">输入关键词开始搜索</div>';
+            
+            // Show modal
+            modal.classList.add('show');
+            
+            // Focus search input
+            setTimeout(() => searchInput.focus(), 100);
+        }
+
+        /**
+         * Close Wiki image search modal
+         */
+        function closeWikiSearch() {
+            document.getElementById('wikiSearchModal').classList.remove('show');
+        }
+
+        /**
+         * Perform Wiki image search
+         */
+        async function performWikiSearch() {
+            const searchInput = document.getElementById('wikiSearchInput');
+            const resultsEl = document.getElementById('wikiSearchResults');
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                resultsEl.innerHTML = '<div class="wiki-search-empty">请输入搜索关键词</div>';
+                return;
+            }
+            
+            // Show loading
+            resultsEl.innerHTML = '<div class="wiki-search-loading">正在搜索...</div>';
+            
+            try {
+                // Use WikimediaImageSearch if available
+                let results = [];
+                
+                if (typeof WikimediaImageSearch !== 'undefined') {
+                    const searcher = new WikimediaImageSearch();
+                    results = await searcher.searchTreasurePhotos(currentMuseum?.name || '', query);
+                } else {
+                    // Fallback: Direct API call
+                    const params = new URLSearchParams({
+                        action: 'query',
+                        format: 'json',
+                        generator: 'search',
+                        gsrnamespace: '6',
+                        gsrsearch: query,
+                        gsrlimit: '12',
+                        prop: 'imageinfo',
+                        iiprop: 'url|size',
+                        iiurlwidth: '200',
+                        origin: '*'
+                    });
+                    
+                    const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`);
+                    const data = await response.json();
+                    
+                    if (data.query && data.query.pages) {
+                        results = Object.values(data.query.pages)
+                            .filter(page => page.imageinfo && page.imageinfo.length > 0)
+                            .map(page => ({
+                                url: page.imageinfo[0].url,
+                                thumbnailUrl: page.imageinfo[0].thumburl || page.imageinfo[0].url,
+                                name: page.title.replace('File:', '')
+                            }));
+                    }
+                }
+                
+                if (results.length === 0) {
+                    resultsEl.innerHTML = '<div class="wiki-search-empty">未找到相关图片，请尝试其他关键词</div>';
+                    return;
+                }
+                
+                // Render results
+                let html = '';
+                results.forEach((img, idx) => {
+                    html += `
+                        <div class="wiki-search-result-item" data-url="${escapeHtml(img.url)}" onclick="selectWikiImage('${escapeHtml(img.url)}')">
+                            <img src="${escapeHtml(img.thumbnailUrl || img.url)}" alt="${escapeHtml(img.name)}" loading="lazy" onerror="this.style.display='none'">
+                            <div class="result-name">${escapeHtml(img.name)}</div>
+                        </div>
+                    `;
+                });
+                
+                resultsEl.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Wiki search failed:', error);
+                resultsEl.innerHTML = '<div class="wiki-search-empty">搜索失败，请重试</div>';
+            }
+        }
+
+        /**
+         * Select an image from wiki search results
+         */
+        function selectWikiImage(imageUrl) {
+            // Update input field
+            const imageInput = document.getElementById('newTreasureImage');
+            imageInput.value = imageUrl;
+            
+            // Update preview
+            updateNewTreasurePreview(imageUrl);
+            
+            // Highlight selected item
+            document.querySelectorAll('.wiki-search-result-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.url === imageUrl) {
+                    item.classList.add('selected');
+                }
+            });
+            
+            // Close modal after short delay
+            setTimeout(() => closeWikiSearch(), 300);
+        }
+
+        /**
+         * Setup self-service treasure addition event listeners
+         */
+        function setupSelfServiceTreasureListeners() {
+            // Name input validation
+            const nameInput = document.getElementById('newTreasureName');
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    validateTreasureName(this.value);
+                });
+            }
+            
+            // Image URL preview
+            const imageInput = document.getElementById('newTreasureImage');
+            if (imageInput) {
+                imageInput.addEventListener('input', function() {
+                    updateNewTreasurePreview(this.value);
+                });
+            }
+            
+            // Add button
+            const addBtn = document.getElementById('addTreasureBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', addUserTreasure);
+            }
+            
+            // Wiki search button
+            const searchWikiBtn = document.getElementById('searchWikiBtn');
+            if (searchWikiBtn) {
+                searchWikiBtn.addEventListener('click', openWikiSearch);
+            }
+            
+            // Wiki search modal
+            const closeWikiSearchBtn = document.getElementById('closeWikiSearch');
+            if (closeWikiSearchBtn) {
+                closeWikiSearchBtn.addEventListener('click', closeWikiSearch);
+            }
+            
+            const wikiSearchBtn = document.getElementById('wikiSearchBtn');
+            if (wikiSearchBtn) {
+                wikiSearchBtn.addEventListener('click', performWikiSearch);
+            }
+            
+            const wikiSearchInput = document.getElementById('wikiSearchInput');
+            if (wikiSearchInput) {
+                wikiSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performWikiSearch();
+                    }
+                });
+            }
+            
+            // Close modal on outside click
+            const wikiModal = document.getElementById('wikiSearchModal');
+            if (wikiModal) {
+                wikiModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeWikiSearch();
+                    }
+                });
+            }
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function openSettings() {
             // Load current settings
             const nickname = loadChildNickname();
@@ -4621,6 +5585,10 @@
 
             // Initialize treasure check-in configuration for parent mode
             showTreasureSelectionForCurrentMuseum();
+            
+            // Render user-added treasures list
+            renderUserAddedTreasures();
+            
             // Load individual game settings
             updateGameSelectionUI();
             
@@ -7196,6 +8164,25 @@
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', init);
     </script>
+
+    <!-- Wiki Image Search Modal -->
+    <div class="wiki-search-modal" id="wikiSearchModal">
+        <div class="wiki-search-content">
+            <div class="wiki-search-header">
+                <h3 class="wiki-search-title">🔍 搜索镇馆之宝图片</h3>
+                <button class="wiki-search-close" id="closeWikiSearch">&times;</button>
+            </div>
+            <div class="wiki-search-body">
+                <div class="wiki-search-input-group">
+                    <input type="text" id="wikiSearchInput" placeholder="输入文物名称搜索...">
+                    <button id="wikiSearchBtn">搜索</button>
+                </div>
+                <div id="wikiSearchResults" class="wiki-search-results">
+                    <!-- Search results will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer with ICP Registration Information -->
     <footer class="site-footer">
