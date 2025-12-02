@@ -3628,7 +3628,26 @@ class LeaderboardManager {
             currentXP = xpData.total || 0;
         }
         
-        return currentXP !== lastSubmittedXP;
+        if (currentXP !== lastSubmittedXP) {
+            return true;
+        }
+        
+        // Also check if pet stats changed (for Pet leaderboard tab)
+        const lastSubmittedPetPower = parseInt(localStorage.getItem('lastSubmittedPetPower') || '0', 10);
+        let currentPetPower = 0;
+        try {
+            if (typeof VirtualPet !== 'undefined') {
+                const petData = JSON.parse(localStorage.getItem('virtualPetData') || '{}');
+                if (petData.adopted && petData.pet && !petData.pet.isDead) {
+                    const pet = petData.pet;
+                    currentPetPower = (pet.attack || 10) + (pet.defense || 10);
+                }
+            }
+        } catch (e) {
+            // Ignore pet data parsing errors
+        }
+        
+        return currentPetPower !== lastSubmittedPetPower;
     }
 
     /**
@@ -3706,6 +3725,10 @@ class LeaderboardManager {
         
         localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
         localStorage.setItem('lastSubmittedXP', xp.toString());
+        // Save pet power for future comparison to detect pet stats changes
+        if (petStats && petStats.totalPower) {
+            localStorage.setItem('lastSubmittedPetPower', petStats.totalPower.toString());
+        }
         console.log('Auto-submitted score to leaderboard with XP:', xp, 'petStats:', petStats);
         
         // Get new rank after submitting
@@ -8984,20 +9007,19 @@ class MuseumCheckApp {
             // Check if there are valid entries for this ranking type
             if (entries.length === 0) {
                 const noDataMessages = {
-                    xp: { icon: '⭐', title: '暂无积分数据', subtitle: '完成任务获取积分，成为第一名！' },
+                    visits: { icon: '🏅', title: '暂无排行数据', subtitle: '完成任务后将显示排名！' },
+                    xp: { icon: '⭐', title: '暂无积分数据', subtitle: '完成任务获取积分，成为积分王！' },
                     pet: { icon: '🐾', title: '暂无宠物数据', subtitle: '领养宠物后，你的宠物会出现在这里！' }
                 };
-                const msg = noDataMessages[rankingType];
-                if (msg) {
-                    listContainer.innerHTML = `
-                        <div class="leaderboard-empty">
-                            <div class="empty-icon">${msg.icon}</div>
-                            <p>${msg.title}</p>
-                            <p>${msg.subtitle}</p>
-                        </div>
-                    `;
-                    return;
-                }
+                const msg = noDataMessages[rankingType] || noDataMessages.visits;
+                listContainer.innerHTML = `
+                    <div class="leaderboard-empty">
+                        <div class="empty-icon">${msg.icon}</div>
+                        <p>${msg.title}</p>
+                        <p>${msg.subtitle}</p>
+                    </div>
+                `;
+                return;
             }
 
             // Render leaderboard entries based on ranking type
