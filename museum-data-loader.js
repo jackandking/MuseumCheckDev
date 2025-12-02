@@ -1,13 +1,18 @@
 /**
- * Museum Data Loader - 3-Tier Data Management System
+ * Museum Data Loader - Dynamic-First Data Management System
  * 
  * Tier 1: Individual museum static JSON files (/museums/{museum-id}.json)
- * Tier 2: KV store dynamic data (remote storage for latest content)
- * Tier 3: Consolidated museums-data.js (fallback)
+ * Tier 2: KV store dynamic data (remote storage for fresh content)
  * 
- * Default Priority: Tier 2 → Tier 1 → Tier 3 (configurable)
- * This prioritizes dynamic data for single museum pages to get latest updates.
- * Note: Homepage uses MUSEUMS array directly, so this doesn't affect homepage loading.
+ * Default Priority: Tier 2 → Tier 1 (dynamic data first)
+ * When museum-specific data is needed, always try to load fresh dynamic data from remote first.
+ * Falls back to static files when remote fetch fails.
+ * 
+ * Note: Tier 3 (museums-data.js) is intentionally NOT used as fallback for museum-specific data.
+ * The quality of consolidated static data may be outdated or incorrect.
+ * It's better to inform users of network issues than to provide potentially incorrect data.
+ * 
+ * Homepage uses MUSEUMS array directly for listing, so this doesn't affect homepage loading.
  */
 
 class MuseumDataLoader {
@@ -28,16 +33,17 @@ class MuseumDataLoader {
             const settings = localStorage.getItem('museumDataTierPriority');
             if (settings) {
                 const parsed = JSON.parse(settings);
-                this.tierPriority = parsed.priority || ['tier2', 'tier1', 'tier3'];
+                // Filter out tier3 from any saved priority to enforce dynamic-first policy
+                const filteredPriority = (parsed.priority || []).filter(tier => tier !== 'tier3');
+                this.tierPriority = filteredPriority.length > 0 ? filteredPriority : ['tier2', 'tier1'];
             } else {
-                // Default priority: Tier 2 (dynamic data) → Tier 1 (static files) → Tier 3 (built-in)
-                // This prioritizes dynamic data from KV store for single museum pages
-                // Note: Homepage uses MUSEUMS array directly, so this doesn't affect homepage loading
-                this.tierPriority = ['tier2', 'tier1', 'tier3'];
+                // Default priority: Tier 2 (dynamic data) → Tier 1 (static files)
+                // Tier 3 is intentionally excluded - it's better to show network error than bad data
+                this.tierPriority = ['tier2', 'tier1'];
             }
         } catch (error) {
             console.warn('Error loading tier priority settings:', error);
-            this.tierPriority = ['tier2', 'tier1', 'tier3'];
+            this.tierPriority = ['tier2', 'tier1'];
         }
     }
 
@@ -47,9 +53,11 @@ class MuseumDataLoader {
      */
     updatePrioritySettings(priority) {
         try {
-            this.tierPriority = priority;
-            localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
-            console.log('Museum data tier priority updated:', priority);
+            // Filter out tier3 to enforce dynamic-first policy
+            const filteredPriority = (priority || []).filter(tier => tier !== 'tier3');
+            this.tierPriority = filteredPriority.length > 0 ? filteredPriority : ['tier2', 'tier1'];
+            localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority: this.tierPriority }));
+            console.log('Museum data tier priority updated:', this.tierPriority);
         } catch (error) {
             console.error('Error updating tier priority settings:', error);
         }
@@ -115,8 +123,18 @@ class MuseumDataLoader {
 
     /**
      * Load museum data from Tier 3 (consolidated MUSEUMS array)
+     * 
+     * NOTE: This method is intentionally NOT used as a fallback for loadMuseum().
+     * The consolidated static data in museums-data.js may be outdated or contain errors.
+     * It's better to inform users of network issues than to provide potentially incorrect data.
+     * 
+     * This method is kept for internal use by loadAllMuseums() for homepage listing only.
+     * 
      * @param {string} museumId - Museum identifier
      * @returns {Promise<Object|null>} Museum data or null if not found
+     * @deprecated since v2.2.0 - Do not use for individual museum data loading.
+     *             Use loadMuseum() instead which tries dynamic data first.
+     *             This method is retained only for internal use by loadAllMuseums() for homepage listing.
      */
     async loadFromTier3(museumId) {
         try {
@@ -128,7 +146,7 @@ class MuseumDataLoader {
             
             const museum = MUSEUMS.find(m => m.id === museumId);
             if (museum) {
-                console.log(`Loaded museum ${museumId} from Tier 3 (MUSEUMS array)`);
+                console.log(`Loaded museum ${museumId} from Tier 3 (MUSEUMS array) - for listing only`);
                 return museum;
             }
             return null;
@@ -151,7 +169,7 @@ class MuseumDataLoader {
             return this.cache.get(museumId);
         }
 
-        // Try loading from tiers in priority order
+        // Try loading from tiers in priority order (tier3 is excluded by design)
         for (const tier of this.tierPriority) {
             let data = null;
             
@@ -162,9 +180,7 @@ class MuseumDataLoader {
                 case 'tier2':
                     data = await this.loadFromTier2(museumId);
                     break;
-                case 'tier3':
-                    data = await this.loadFromTier3(museumId);
-                    break;
+                // tier3 case intentionally removed - we prefer network errors over bad data
             }
 
             if (data) {
@@ -174,26 +190,34 @@ class MuseumDataLoader {
             }
         }
 
-        console.warn(`Museum ${museumId} not found in any tier`);
+        // Log a more helpful error message about network issues
+        console.warn(`Museum ${museumId} not found - network issue or data not available. Please check your connection.`);
         return null;
     }
 
     /**
-     * Load all museums (returns list from Tier 3 by default for performance)
-     * Individual museums can be loaded on-demand using loadMuseum()
-     * @returns {Array<Object>} Array of museum metadata
+     * Load all museums for listing (homepage display only)
+     * 
+     * This method uses the MUSEUMS array (Tier 3) for the complete list.
+     * It provides basic metadata efficiently for homepage display.
+     * 
+     * IMPORTANT: For detailed museum data (checklists, collections, etc.),
+     * always use loadMuseum() which tries dynamic data first.
+     * 
+     * @returns {Array<Object>} Array of museum metadata (id, name, location, etc.)
      */
     async loadAllMuseums() {
         try {
-            // For listing purposes, use Tier 3 (MUSEUMS array)
-            // This provides the complete list efficiently
+            // For homepage listing purposes ONLY, use MUSEUMS array
+            // This provides the complete museum list efficiently
+            // For individual museum details, use loadMuseum() which prioritizes dynamic data
             if (typeof MUSEUMS === 'undefined') {
                 console.error('MUSEUMS array not found in global scope');
                 return [];
             }
             
-            // Return shallow copy to prevent mutations
-            // Include collections field to allow dynamic V3 navigation button check
+            // Return shallow copy with basic metadata only
+            // Detailed data should be loaded via loadMuseum() for fresh dynamic content
             return MUSEUMS.map(m => ({
                 id: m.id,
                 name: m.name,

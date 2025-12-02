@@ -2,7 +2,10 @@
  * Tests for Dynamic Data Priority Feature
  * 
  * This test suite verifies that the museum data loader correctly respects
- * the user's tier priority settings when loading museum data.
+ * the dynamic-first data loading policy:
+ * - Tier 2 (KV store/remote) is prioritized for fresh data
+ * - Tier 1 (static files) is the fallback
+ * - Tier 3 (museums-data.js) is intentionally excluded to avoid bad data
  */
 
 const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
@@ -51,35 +54,47 @@ describe('Dynamic Data Priority Feature', () => {
     });
     
     describe('Priority Settings', () => {
-        test('should use default priority when no settings exist', () => {
-            expect(loader.tierPriority).toEqual(['tier2', 'tier1', 'tier3']);
+        test('should use default priority (tier2, tier1) when no settings exist', () => {
+            // Tier 3 is intentionally excluded to prefer network errors over bad data
+            expect(loader.tierPriority).toEqual(['tier2', 'tier1']);
         });
         
-        test('should load custom priority from localStorage', () => {
+        test('should filter out tier3 from custom priority in localStorage', () => {
             const customPriority = ['tier2', 'tier1', 'tier3'];
             localStorage.setItem('museumDataTierPriority', JSON.stringify({ 
                 priority: customPriority 
             }));
             
             const newLoader = new MuseumDataLoader();
-            expect(newLoader.tierPriority).toEqual(customPriority);
+            // tier3 should be filtered out
+            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1']);
         });
         
-        test('should update priority settings', () => {
+        test('should filter out tier3 when updating priority settings', () => {
             const newPriority = ['tier3', 'tier1', 'tier2'];
             loader.updatePrioritySettings(newPriority);
             
-            expect(loader.tierPriority).toEqual(newPriority);
+            // tier3 should be filtered out
+            expect(loader.tierPriority).toEqual(['tier1', 'tier2']);
             
             const saved = JSON.parse(localStorage.getItem('museumDataTierPriority'));
-            expect(saved.priority).toEqual(newPriority);
+            expect(saved.priority).toEqual(['tier1', 'tier2']);
         });
         
         test('should handle malformed priority settings gracefully', () => {
             localStorage.setItem('museumDataTierPriority', 'invalid json');
             
             const newLoader = new MuseumDataLoader();
-            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1', 'tier3']);
+            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1']);
+        });
+        
+        test('should use default priority when saved priority only contains tier3', () => {
+            localStorage.setItem('museumDataTierPriority', JSON.stringify({ 
+                priority: ['tier3'] 
+            }));
+            
+            const newLoader = new MuseumDataLoader();
+            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1']);
         });
     });
     
@@ -105,12 +120,12 @@ describe('Dynamic Data Priority Feature', () => {
         };
         
         beforeEach(() => {
-            // Mock global MUSEUMS array for tier3
+            // Mock global MUSEUMS array for tier3 (should NOT be used)
             global.MUSEUMS = [mockTier3Data];
         });
         
-        test('should load from tier1 when priority is tier1-tier2-tier3', async () => {
-            loader.updatePrioritySettings(['tier1', 'tier2', 'tier3']);
+        test('should load from tier1 when priority is tier1-tier2', async () => {
+            loader.updatePrioritySettings(['tier1', 'tier2']);
             
             // Mock tier1 fetch success
             global.fetch.mockImplementationOnce(() => 
@@ -126,8 +141,8 @@ describe('Dynamic Data Priority Feature', () => {
             expect(result.image).toBe(mockTier1Data.image);
         });
         
-        test('should load from tier2 when tier1 fails and priority is tier1-tier2-tier3', async () => {
-            loader.updatePrioritySettings(['tier1', 'tier2', 'tier3']);
+        test('should load from tier2 when tier1 fails and priority is tier1-tier2', async () => {
+            loader.updatePrioritySettings(['tier1', 'tier2']);
             
             // Mock tier1 fetch failure
             global.fetch.mockImplementationOnce(() => 
@@ -150,8 +165,8 @@ describe('Dynamic Data Priority Feature', () => {
             expect(result.image).toBe(mockTier2Data.image);
         });
         
-        test('should load from tier2 first when priority is tier2-tier1-tier3', async () => {
-            loader.updatePrioritySettings(['tier2', 'tier1', 'tier3']);
+        test('should load from tier2 first when priority is tier2-tier1', async () => {
+            loader.updatePrioritySettings(['tier2', 'tier1']);
             
             // Mock tier2 fetch success
             global.fetch.mockImplementationOnce(() => 
@@ -172,8 +187,8 @@ describe('Dynamic Data Priority Feature', () => {
             expect(global.fetch).toHaveBeenCalledTimes(1);
         });
         
-        test('should fallback to tier3 when all other tiers fail', async () => {
-            loader.updatePrioritySettings(['tier1', 'tier2', 'tier3']);
+        test('should return null when all tiers fail (NOT fallback to tier3)', async () => {
+            loader.updatePrioritySettings(['tier1', 'tier2']);
             
             // Mock tier1 fetch failure
             global.fetch.mockImplementationOnce(() => 
@@ -187,8 +202,8 @@ describe('Dynamic Data Priority Feature', () => {
             
             const result = await loader.loadMuseum(mockMuseumId, false);
             
-            expect(result.source).toBe('tier3');
-            expect(result.image).toBe(mockTier3Data.image);
+            // Should NOT fallback to tier3 - better to show network error than bad data
+            expect(result).toBeNull();
         });
         
         test('should use cache when enabled', async () => {
@@ -297,8 +312,8 @@ describe('Dynamic Data Priority Feature', () => {
     });
     
     describe('Settings Page Integration', () => {
-        test('should save priority settings from settings page format', () => {
-            // Simulate settings page saving priority
+        test('should filter tier3 from settings page saved priority', () => {
+            // Simulate settings page saving priority (might include tier3 from old settings)
             const priorityValue = 'tier2-tier1-tier3';
             const priority = priorityValue.split('-');
             localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
@@ -306,17 +321,39 @@ describe('Dynamic Data Priority Feature', () => {
             // Create new loader (simulates page reload)
             const newLoader = new MuseumDataLoader();
             
-            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1', 'tier3']);
+            // tier3 should be filtered out
+            expect(newLoader.tierPriority).toEqual(['tier2', 'tier1']);
         });
         
-        test('should handle offline-first priority', () => {
+        test('should filter tier3 from offline-first priority', () => {
             const priorityValue = 'tier3-tier1-tier2';
             const priority = priorityValue.split('-');
             localStorage.setItem('museumDataTierPriority', JSON.stringify({ priority }));
             
             const newLoader = new MuseumDataLoader();
             
-            expect(newLoader.tierPriority).toEqual(['tier3', 'tier1', 'tier2']);
+            // tier3 should be filtered out
+            expect(newLoader.tierPriority).toEqual(['tier1', 'tier2']);
+        });
+    });
+    
+    describe('Network Error Handling', () => {
+        test('should return null with helpful message when network fails', async () => {
+            // Both tier2 and tier1 fail
+            global.fetch.mockImplementation(() => 
+                Promise.resolve({ ok: false })
+            );
+            
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+            
+            const result = await loader.loadMuseum('test-museum', false);
+            
+            expect(result).toBeNull();
+            expect(consoleSpy).toHaveBeenCalledWith(
+                expect.stringContaining('network issue or data not available')
+            );
+            
+            consoleSpy.mockRestore();
         });
     });
 });

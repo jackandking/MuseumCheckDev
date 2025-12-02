@@ -1,6 +1,7 @@
 /**
  * Unit tests for Museum Data Loader
- * Tests the 3-tier data management system
+ * Tests the dynamic-first data management system (Tier 2 → Tier 1)
+ * Note: Tier 3 is intentionally excluded to avoid potentially bad data
  */
 
 const { describe, test, expect, beforeEach } = require('@jest/globals');
@@ -60,27 +61,28 @@ describe('MuseumDataLoader', () => {
     });
 
     describe('Priority Settings', () => {
-        test('should use default priority when no settings exist', () => {
+        test('should use default priority (tier2, tier1) when no settings exist', () => {
             const priority = loader.getPrioritySettings();
-            expect(priority).toEqual(['tier2', 'tier1', 'tier3']);
+            expect(priority).toEqual(['tier2', 'tier1']);
         });
 
-        test('should load priority settings from localStorage', () => {
+        test('should filter tier3 from priority settings in localStorage', () => {
             localStorage.setItem('museumDataTierPriority', JSON.stringify({
                 priority: ['tier2', 'tier1', 'tier3']
             }));
             
             const newLoader = new MuseumDataLoader();
-            expect(newLoader.getPrioritySettings()).toEqual(['tier2', 'tier1', 'tier3']);
+            expect(newLoader.getPrioritySettings()).toEqual(['tier2', 'tier1']);
         });
 
-        test('should update priority settings', () => {
+        test('should update priority settings and filter out tier3', () => {
             loader.updatePrioritySettings(['tier3', 'tier2', 'tier1']);
             
-            expect(loader.getPrioritySettings()).toEqual(['tier3', 'tier2', 'tier1']);
+            // tier3 should be filtered out
+            expect(loader.getPrioritySettings()).toEqual(['tier2', 'tier1']);
             
             const saved = JSON.parse(localStorage.getItem('museumDataTierPriority'));
-            expect(saved.priority).toEqual(['tier3', 'tier2', 'tier1']);
+            expect(saved.priority).toEqual(['tier2', 'tier1']);
         });
     });
 
@@ -191,7 +193,7 @@ describe('MuseumDataLoader', () => {
         });
     });
 
-    describe('Tier 3 Loading (MUSEUMS Array)', () => {
+    describe('Tier 3 Loading (MUSEUMS Array) - For Homepage Listing Only', () => {
         test('should load museum from MUSEUMS array', async () => {
             const result = await loader.loadFromTier3('forbidden-city');
             
@@ -206,11 +208,11 @@ describe('MuseumDataLoader', () => {
         });
     });
 
-    describe('Fallback Logic', () => {
+    describe('Fallback Logic (Dynamic First)', () => {
         test('should try tiers in priority order (tier2 first by default)', async () => {
             const mockData = { id: 'test', name: 'Test Museum' };
             
-            // With default priority tier2 → tier1 → tier3:
+            // With default priority tier2 → tier1:
             // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
@@ -229,8 +231,8 @@ describe('MuseumDataLoader', () => {
             expect(result).toEqual(mockData);
         });
 
-        test('should fall back to Tier 3 if 2 and 1 fail', async () => {
-            // With default priority tier2 → tier1 → tier3:
+        test('should return null when tier2 and tier1 fail (no tier3 fallback)', async () => {
+            // With default priority tier2 → tier1:
             // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
@@ -243,15 +245,15 @@ describe('MuseumDataLoader', () => {
                 status: 404
             });
 
+            // Museum exists in tier3 but should NOT be returned
             const result = await loader.loadMuseum('forbidden-city', false);
             
-            expect(result).toBeDefined();
-            expect(result.id).toBe('forbidden-city');
-            expect(result.name).toBe('故宫博物院');
+            // Should return null - better to show network error than bad data
+            expect(result).toBeNull();
         });
 
-        test('should return null if all tiers fail', async () => {
-            // With default priority tier2 → tier1 → tier3:
+        test('should return null if all tiers fail for nonexistent museum', async () => {
+            // With default priority tier2 → tier1:
             // Tier 2 fails
             global.fetch.mockResolvedValueOnce({
                 ok: false,
@@ -269,13 +271,21 @@ describe('MuseumDataLoader', () => {
         });
 
         test('should respect custom priority order', async () => {
-            loader.updatePrioritySettings(['tier3', 'tier2', 'tier1']);
+            loader.updatePrioritySettings(['tier1', 'tier2']);
             
-            const result = await loader.loadMuseum('forbidden-city', false);
+            const mockData = { id: 'test', name: 'Test' };
             
-            // Should load from Tier 3 first (no fetch calls)
-            expect(fetch).not.toHaveBeenCalled();
-            expect(result.id).toBe('forbidden-city');
+            // Tier 1 succeeds
+            global.fetch.mockResolvedValueOnce({
+                ok: true,
+                json: async () => mockData
+            });
+            
+            const result = await loader.loadMuseum('test', false);
+            
+            // Should load from Tier 1 first
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(result.id).toBe('test');
         });
     });
 
@@ -376,8 +386,8 @@ describe('MuseumDataLoader', () => {
         });
     });
 
-    describe('Load All Museums', () => {
-        test('should load all museums from Tier 3', async () => {
+    describe('Load All Museums (Homepage Listing)', () => {
+        test('should load all museums from MUSEUMS array', async () => {
             const museums = await loader.loadAllMuseums();
             
             expect(museums).toHaveLength(2);
