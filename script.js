@@ -3609,11 +3609,26 @@ class LeaderboardManager {
 
     /**
      * Check if user should be prompted to update their score
+     * Now checks both visit count AND XP changes to ensure leaderboard is updated for all score changes
      */
     shouldSubmitScore() {
         const lastSubmittedCount = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
         const currentCount = this.app.visitedMuseums.length;
-        return currentCount !== lastSubmittedCount;
+        
+        // Check if visit count changed
+        if (currentCount !== lastSubmittedCount) {
+            return true;
+        }
+        
+        // Also check if XP changed (for XP leaderboard tab)
+        const lastSubmittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
+        let currentXP = 0;
+        if (this.app.achievementGamification) {
+            const xpData = this.app.achievementGamification.getXPInfo();
+            currentXP = xpData.total || 0;
+        }
+        
+        return currentXP !== lastSubmittedXP;
     }
 
     /**
@@ -3690,6 +3705,7 @@ class LeaderboardManager {
         }
         
         localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
+        localStorage.setItem('lastSubmittedXP', xp.toString());
         console.log('Auto-submitted score to leaderboard with XP:', xp, 'petStats:', petStats);
         
         // Get new rank after submitting
@@ -8575,6 +8591,16 @@ class MuseumCheckApp {
                         // Award XP for checklist completion (small amount)
                         this.achievementGamification.addXP(5);
                         
+                        // ===== AUTO-SUBMIT TO LEADERBOARD =====
+                        // Submit XP change to leaderboard so user can see their rank in XP tab
+                        if (this.leaderboardManager) {
+                            this.leaderboardManager.autoSubmitScore()
+                                .catch(err => {
+                                    console.warn('Failed to auto-submit leaderboard score after XP gain:', err);
+                                });
+                        }
+                        // ===== END AUTO-SUBMIT TO LEADERBOARD =====
+                        
                         // ===== VIRTUAL PET INTEGRATION =====
                         // Notify virtual pet of task completion
                         VirtualPet.notifyTaskCompleted();
@@ -10325,6 +10351,16 @@ class MuseumCheckApp {
                     
                     // Award XP for photo upload
                     this.achievementGamification.addXP(10);
+                    
+                    // ===== AUTO-SUBMIT TO LEADERBOARD =====
+                    // Submit XP change to leaderboard so user can see their rank in XP tab
+                    if (this.leaderboardManager) {
+                        this.leaderboardManager.autoSubmitScore()
+                            .catch(err => {
+                                console.warn('Failed to auto-submit leaderboard score after photo XP gain:', err);
+                            });
+                    }
+                    // ===== END AUTO-SUBMIT TO LEADERBOARD =====
                     
                     // ===== VIRTUAL PET INTEGRATION =====
                     // Notify virtual pet of photo upload (more points than regular task)
