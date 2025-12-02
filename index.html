@@ -154,7 +154,7 @@
       showing it after the routing decision, which would add complexity and still cause
       a delay in page rendering.
       
-      The timeout is set to 3 seconds to ensure the check doesn't block indefinitely.
+      Browser default timeouts will prevent the check from blocking indefinitely.
       If the request fails or times out, the page falls back to showing index.html.
     -->
     <script>
@@ -185,7 +185,6 @@
             try {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', url, false); // false = synchronous (intentional, see comment above)
-                xhr.timeout = 3000; // 3 second timeout to prevent indefinite blocking
                 xhr.send(null);
                 
                 if (xhr.status === 200) {
