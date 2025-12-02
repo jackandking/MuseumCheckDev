@@ -56,10 +56,10 @@ class VirtualPet {
     }
 
     static get HUNGER_DEATH_DAYS() { return 90; }
-    static get FEED_COST() { return 20; }
-    static get ATTACK_UPGRADE_COST() { return 50; }
-    static get DEFENSE_UPGRADE_COST() { return 50; }
-    static get REVIVE_COST() { return 100; }
+    static get FEED_COST() { return 10; }
+    static get ATTACK_UPGRADE_COST() { return 25; }
+    static get DEFENSE_UPGRADE_COST() { return 25; }
+    static get REVIVE_COST() { return 50; }
     static get HUNGER_DECREASE_PER_MINUTE() { return 1; }
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; }
@@ -81,10 +81,10 @@ class VirtualPet {
     static get PET_LEVELS() {
         return [
             { level: 1, xpRequired: 0, name: '新手', animation: 'bounce' },
-            { level: 2, xpRequired: 100, name: '见习', animation: 'spin' },
-            { level: 3, xpRequired: 300, name: '熟练', animation: 'glow-spin' },
-            { level: 4, xpRequired: 600, name: '专家', animation: 'rainbow-flip' },
-            { level: 5, xpRequired: 1000, name: '大师', animation: 'fireworks-dance' }
+            { level: 2, xpRequired: 50, name: '见习', animation: 'spin' },
+            { level: 3, xpRequired: 150, name: '熟练', animation: 'glow-spin' },
+            { level: 4, xpRequired: 300, name: '专家', animation: 'rainbow-flip' },
+            { level: 5, xpRequired: 500, name: '大师', animation: 'fireworks-dance' }
         ];
     }
     
@@ -464,20 +464,20 @@ describe('VirtualPet', () => {
             expect(VirtualPet.HUNGER_DEATH_DAYS).toBe(90);
         });
 
-        test('should have feed cost defined', () => {
-            expect(VirtualPet.FEED_COST).toBe(20);
+        test('should have feed cost defined (reduced for accessibility)', () => {
+            expect(VirtualPet.FEED_COST).toBe(10);
         });
 
-        test('should have attack upgrade cost defined', () => {
-            expect(VirtualPet.ATTACK_UPGRADE_COST).toBe(50);
+        test('should have attack upgrade cost defined (reduced for accessibility)', () => {
+            expect(VirtualPet.ATTACK_UPGRADE_COST).toBe(25);
         });
 
-        test('should have defense upgrade cost defined', () => {
-            expect(VirtualPet.DEFENSE_UPGRADE_COST).toBe(50);
+        test('should have defense upgrade cost defined (reduced for accessibility)', () => {
+            expect(VirtualPet.DEFENSE_UPGRADE_COST).toBe(25);
         });
 
-        test('should have revive cost defined', () => {
-            expect(VirtualPet.REVIVE_COST).toBe(100);
+        test('should have revive cost defined (reduced for accessibility)', () => {
+            expect(VirtualPet.REVIVE_COST).toBe(50);
         });
         
         test('should have hunger decrease per minute defined as 1%', () => {
@@ -666,7 +666,8 @@ describe('VirtualPet', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
-            const result = pet.feedPet(10);
+            // Test with 5 points, intentionally less than FEED_COST (10) to verify insufficient points handling
+            const result = pet.feedPet(5);
             expect(result.success).toBe(false);
             expect(result.message).toContain('积分不足');
         });
@@ -786,7 +787,8 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             pet.petData.pet.isDead = true;
             
-            const result = pet.revivePet(50);
+            // Test with 25 points, intentionally less than REVIVE_COST (50) to verify insufficient points handling
+            const result = pet.revivePet(25);
             expect(result.success).toBe(false);
             expect(result.message).toContain('积分不足');
         });
@@ -883,20 +885,20 @@ describe('VirtualPet', () => {
             const pet = new VirtualPet();
             pet.adoptPet('dragon');
             
-            // Spend 100+ XP to reach level 2
-            pet.petData.pet.totalXPSpent = 100;
+            // Spend 50+ XP to reach level 2
+            pet.petData.pet.totalXPSpent = 50;
             expect(pet.getPetLevel()).toBe(2);
             
-            // Spend 300+ XP to reach level 3
-            pet.petData.pet.totalXPSpent = 300;
+            // Spend 150+ XP to reach level 3
+            pet.petData.pet.totalXPSpent = 150;
             expect(pet.getPetLevel()).toBe(3);
             
-            // Spend 600+ XP to reach level 4
-            pet.petData.pet.totalXPSpent = 600;
+            // Spend 300+ XP to reach level 4
+            pet.petData.pet.totalXPSpent = 300;
             expect(pet.getPetLevel()).toBe(4);
             
-            // Spend 1000+ XP to reach level 5
-            pet.petData.pet.totalXPSpent = 1000;
+            // Spend 500+ XP to reach level 5
+            pet.petData.pet.totalXPSpent = 500;
             expect(pet.getPetLevel()).toBe(5);
         });
         
@@ -908,14 +910,14 @@ describe('VirtualPet', () => {
             expect(levelInfo.level).toBe(1);
             expect(levelInfo.name).toBe('新手');
             expect(levelInfo.animation).toBe('bounce');
-            expect(levelInfo.xpToNextLevel).toBe(100);
+            expect(levelInfo.xpToNextLevel).toBe(50);
             expect(levelInfo.isMaxLevel).toBe(false);
         });
         
         test('level 5 should be max level', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
-            pet.petData.pet.totalXPSpent = 1000;
+            pet.petData.pet.totalXPSpent = 500;
             
             const levelInfo = pet.getPetLevelInfo();
             expect(levelInfo.level).toBe(5);
@@ -932,19 +934,19 @@ describe('VirtualPet', () => {
             expect(pet.getPetEmoji()).toBe('🐲');
             
             // Level 2
-            pet.petData.pet.totalXPSpent = 100;
+            pet.petData.pet.totalXPSpent = 50;
             expect(pet.getPetEmoji()).toBe('🐉');
             
             // Level 3
-            pet.petData.pet.totalXPSpent = 300;
+            pet.petData.pet.totalXPSpent = 150;
             expect(pet.getPetEmoji()).toBe('🔥');
             
             // Level 4
-            pet.petData.pet.totalXPSpent = 600;
+            pet.petData.pet.totalXPSpent = 300;
             expect(pet.getPetEmoji()).toBe('⚡');
             
             // Level 5
-            pet.petData.pet.totalXPSpent = 1000;
+            pet.petData.pet.totalXPSpent = 500;
             expect(pet.getPetEmoji()).toBe('🌟');
         });
         
@@ -953,7 +955,7 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             
             pet.feedPet(100);
-            expect(pet.petData.pet.totalXPSpent).toBe(20);
+            expect(pet.petData.pet.totalXPSpent).toBe(10);
         });
         
         test('upgrading attack should increase totalXPSpent', () => {
@@ -961,7 +963,7 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             
             pet.upgradeAttack(100);
-            expect(pet.petData.pet.totalXPSpent).toBe(50);
+            expect(pet.petData.pet.totalXPSpent).toBe(25);
         });
         
         test('upgrading defense should increase totalXPSpent', () => {
@@ -969,7 +971,7 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             
             pet.upgradeDefense(100);
-            expect(pet.petData.pet.totalXPSpent).toBe(50);
+            expect(pet.petData.pet.totalXPSpent).toBe(25);
         });
     });
     

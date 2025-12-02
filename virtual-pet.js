@@ -23,12 +23,12 @@
  * - Tank Battle: score/5 XP (min 20, max 30)
  * - Minesweeper: (100-time)*0.3 XP (min 10, max 25)
  * 
- * NEW - Pet Levels:
+ * NEW - Pet Levels (reduced thresholds for better accessibility):
  * - Level 1 (新手): 0 XP spent - basic bounce animation
- * - Level 2 (见习): 100 XP spent - spin animation
- * - Level 3 (熟练): 300 XP spent - glow + spin animation
- * - Level 4 (专家): 600 XP spent - rainbow glow + flip animation
- * - Level 5 (大师): 1000 XP spent - fireworks + dance animation
+ * - Level 2 (见习): 50 XP spent - spin animation
+ * - Level 3 (熟练): 150 XP spent - glow + spin animation
+ * - Level 4 (专家): 300 XP spent - rainbow glow + flip animation
+ * - Level 5 (大师): 500 XP spent - fireworks + dance animation
  */
 
 class VirtualPet {
@@ -51,10 +51,11 @@ class VirtualPet {
     static get HUNGER_DEATH_DAYS() { return 90; } // 3 months = ~90 days
     // Note: XP rewards are configured in script.js achievement system (5 XP for tasks, 10 XP for photos)
     // Pet uses the same XP/points system for feeding and upgrades
-    static get FEED_COST() { return 20; } // Points to feed pet
-    static get ATTACK_UPGRADE_COST() { return 50; } // Points to increase attack
-    static get DEFENSE_UPGRADE_COST() { return 50; } // Points to increase defense
-    static get REVIVE_COST() { return 100; } // Points to revive dead pet
+    // Reduced costs to make pet more accessible during a typical museum visit (2-3 hours)
+    static get FEED_COST() { return 10; } // Points to feed pet (reduced from 20)
+    static get ATTACK_UPGRADE_COST() { return 25; } // Points to increase attack (reduced from 50)
+    static get DEFENSE_UPGRADE_COST() { return 25; } // Points to increase defense (reduced from 50)
+    static get REVIVE_COST() { return 50; } // Points to revive dead pet (reduced from 100)
     static get HUNGER_DECREASE_PER_MINUTE() { return 1; } // Hunger decreases by 1% per minute
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; } // Grace period after hunger reaches 0 before death
@@ -73,13 +74,14 @@ class VirtualPet {
     }
     
     // Pet level thresholds (based on total XP spent)
+    // Reduced thresholds to make progression more achievable during museum visits
     static get PET_LEVELS() {
         return [
             { level: 1, xpRequired: 0, name: '新手', animation: 'bounce' },
-            { level: 2, xpRequired: 100, name: '见习', animation: 'spin' },
-            { level: 3, xpRequired: 300, name: '熟练', animation: 'glow-spin' },
-            { level: 4, xpRequired: 600, name: '专家', animation: 'rainbow-flip' },
-            { level: 5, xpRequired: 1000, name: '大师', animation: 'fireworks-dance' }
+            { level: 2, xpRequired: 50, name: '见习', animation: 'spin' },
+            { level: 3, xpRequired: 150, name: '熟练', animation: 'glow-spin' },
+            { level: 4, xpRequired: 300, name: '专家', animation: 'rainbow-flip' },
+            { level: 5, xpRequired: 500, name: '大师', animation: 'fireworks-dance' }
         ];
     }
     
