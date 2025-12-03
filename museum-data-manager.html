@@ -286,11 +286,17 @@
             <div class="hint" id="searchHint">将在 Wikimedia Commons 中搜索免费授权的图片</div>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="performImageSearch()">🔍 开始搜索 (Wikimedia)</button>
-            <button class="btn btn-secondary" onclick="openBaiduImageSearch()">🔍 百度图片搜索</button>
+            <button class="btn btn-primary" onclick="performImageSearch()">🔍 搜索 (Wikimedia)</button>
+            <button class="btn btn-primary" onclick="performBaiduInlineSearch()" style="background:linear-gradient(135deg,#de3f4f,#f48a8a)">🔍 搜索 (百度)</button>
+            <button class="btn btn-secondary" onclick="openBaiduImageSearch()">↗️ 去百度搜索</button>
           </div>
           <div class="hint" style="margin-top: 12px; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;">
-            💡 <strong>提示：</strong>Wikimedia Commons 提供免费授权图片；百度图片搜索提供更全面的中国博物馆图片，但需手动验证版权。
+            💡 <strong>搜索策略：</strong>
+            <ul style="margin: 8px 0 0 16px; padding: 0; font-size: 12px;">
+              <li><strong>Wikimedia：</strong>免费授权图片，适合发布使用</li>
+              <li><strong>百度搜索：</strong>中国博物馆图片最全面，直接在此选择</li>
+              <li><strong>去百度搜索：</strong>在新窗口打开百度图片，手动复制URL</li>
+            </ul>
           </div>
         </div>
         <div id="searchResults"></div>
@@ -299,6 +305,7 @@
   </div>
 
   <script src="wikimedia-image-search.js"></script>
+  <script src="baidu-image-search.js"></script>
   <script src="deepseek-api.js"></script>
   <script src="museums-meta.js"></script>
   <script src="museums-data.js"></script>
@@ -1408,6 +1415,7 @@
     // Image Search Functions (Global scope for onclick handlers)
     let imageSearchContext = { type: null, collectionIndex: null };
     const wikimediaSearch = new WikimediaImageSearch();
+    const baiduSearch = new BaiduImageSearch();
 
     function openImageSearch(type, collectionIndex = null) {
       imageSearchContext = { type, collectionIndex };
@@ -1508,8 +1516,16 @@
           searchResults.innerHTML = `
             <div class="no-results">
               <div class="no-results-icon">🔍</div>
-              <div>未找到相关图片</div>
-              <div class="hint">尝试使用不同的关键词或英文名称</div>
+              <div>Wikimedia 未找到相关图片</div>
+              <div class="hint">Wikimedia 的中国博物馆图片较少，推荐使用百度搜索</div>
+              <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+                <button class="btn btn-primary" style="background:linear-gradient(135deg,#de3f4f,#f48a8a)" onclick="performBaiduInlineSearch()">
+                  🔍 搜索百度图片
+                </button>
+                <button class="btn btn-secondary" onclick="openBaiduImageSearch()">
+                  ↗️ 去百度搜索
+                </button>
+              </div>
             </div>
           `;
           return;
@@ -1535,6 +1551,82 @@
             <div class="no-results-icon">❌</div>
             <div>搜索失败</div>
             <div class="hint">${escapeHtml(error.message)}</div>
+          </div>
+        `;
+      }
+    }
+
+    async function performBaiduInlineSearch() {
+      const searchQuery = document.getElementById('searchQuery').value.trim();
+      const searchResults = document.getElementById('searchResults');
+
+      if (!searchQuery) {
+        alert('请输入搜索关键词');
+        return;
+      }
+
+      // Show loading
+      searchResults.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div style="text-align: center; margin-top: 12px; color: #667;">
+          正在从百度搜索图片...<br>
+          <small>如果加载较慢，可点击"去百度搜索"手动查找</small>
+        </div>
+      `;
+
+      try {
+        let results = [];
+        const museumName = document.getElementById('edit-name').value;
+
+        if (imageSearchContext.type === 'museum') {
+          results = await baiduSearch.searchMuseumPhotos(searchQuery);
+        } else if (imageSearchContext.type === 'treasure') {
+          results = await baiduSearch.searchTreasurePhotos(museumName, searchQuery);
+        }
+
+        if (results.length === 0) {
+          searchResults.innerHTML = `
+            <div class="no-results">
+              <div class="no-results-icon">🔍</div>
+              <div>百度未找到相关图片</div>
+              <div class="hint">
+                尝试使用不同的关键词，或点击"去百度搜索"手动查找
+              </div>
+              <button class="btn btn-secondary" style="margin-top: 16px;" onclick="openBaiduImageSearch()">
+                ↗️ 去百度搜索
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        // Display results with source indicator
+        searchResults.innerHTML = `
+          <div style="margin-bottom: 12px; padding: 8px 12px; background: #fee; border-left: 3px solid #de3f4f; border-radius: 4px; font-size: 12px;">
+            <strong>⚠️ 百度图片搜索结果</strong> - 请注意验证图片版权后再使用
+          </div>
+        ` + results.map((img, idx) => `
+          <div class="result-item" onclick="selectImage('${escapeHtml(img.url)}', ${idx})">
+            <img src="${escapeHtml(img.thumbnailUrl || img.url)}" alt="${escapeHtml(img.name)}" class="result-image" 
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'%3E%3Crect fill=\\'%23f0f0f0\\' width=\\'100\\' height=\\'100\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'%23999\\'%3E图片加载失败%3C/text%3E%3C/svg%3E'" />
+            <div class="result-info">
+              <div class="result-name">${escapeHtml(img.name || '百度图片')}</div>
+              <div class="result-meta">${img.width && img.height ? `${img.width} × ${img.height}` : '百度搜索结果'}</div>
+            </div>
+          </div>
+        `).join('');
+
+        console.log(`✅ 显示 ${results.length} 个百度搜索结果`);
+      } catch (error) {
+        console.error('百度搜索失败:', error);
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">❌</div>
+            <div>百度搜索失败</div>
+            <div class="hint">${escapeHtml(error.message)}</div>
+            <button class="btn btn-secondary" style="margin-top: 16px;" onclick="openBaiduImageSearch()">
+              ↗️ 去百度搜索
+            </button>
           </div>
         `;
       }
