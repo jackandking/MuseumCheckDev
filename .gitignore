@@ -15,6 +15,7 @@ tmp/
 # IDE
 .vscode/
 .idea/
+.windsurf/
 *.swp
 *.swo
 
