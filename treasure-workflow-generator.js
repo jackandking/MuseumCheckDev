@@ -222,8 +222,100 @@
   }
 
   /**
+   * Generate "Treasure Contributor" workflow for museums without collections
+   * This special workflow encourages children to discover and contribute treasures
+   * 
+   * Structure: 门口打卡 → [n个发现镇馆之宝任务] → 亲子合影
+   * - Default required treasures: 3
+   * - Each treasure task requires: name + photo (via wiki/search or file upload)
+   * 
+   * @param {Object} museum - Museum object
+   * @param {number} requiredTreasures - Number of treasures to discover (default: 3)
+   * @returns {Object} Workflow object
+   */
+  function generateTreasureContributorWorkflow(museum, requiredTreasures = 3) {
+    const museumName = museum.name || '博物馆';
+    
+    // Build tasks array
+    const gatePhotoTask = {
+      id: 'gate-photo',
+      role: 'parent',
+      type: 'photo',
+      title: '门口打卡',
+      subtitle: `在${museumName}门口拍一张照片`,
+      ages: ['3-6', '7-12', '13-18']
+    };
+    
+    // Add museum image if available
+    if (museum.image) {
+      gatePhotoTask.imageUrl = museum.image;
+    }
+    
+    const tasks = [gatePhotoTask];
+
+    // Add "discover treasure" tasks
+    for (let i = 0; i < requiredTreasures; i++) {
+      tasks.push({
+        id: 'add-treasure-' + (i + 1),
+        role: 'child',
+        type: 'add-treasure',  // New task type for adding treasures
+        title: '发现镇馆之宝 ' + (i + 1) + '/' + requiredTreasures,
+        subtitle: '找到一件你认为最珍贵的展品，拍照并记录名称',
+        hint: '这个博物馆还没有镇馆之宝记录，快来发现并添加第一批宝藏吧！',
+        ages: ['3-6', '7-12', '13-18'],
+        source: {
+          from: 'treasure-contributor',
+          index: i,
+          required: true
+        }
+      });
+    }
+
+    // Add completion tasks
+    tasks.push(
+      {
+        id: 'victory-photo',
+        role: 'parent',
+        type: 'photo',
+        title: '亲子合影',
+        subtitle: '和家人一起留下美好回忆！',
+        ages: ['3-6', '7-12', '13-18']
+      },
+      {
+        id: 'poster',
+        role: 'parent',
+        type: 'poster',
+        title: '成就海报',
+        subtitle: '生成专属成就海报',
+        ages: ['3-6', '7-12', '13-18']
+      }
+    );
+
+    // Return workflow object
+    return {
+      id: 'treasure-contributor',
+      name: '🌟 发现镇馆之宝',
+      description: '这个博物馆还没有镇馆之宝记录，快来成为第一批发现者！找到' + requiredTreasures + '件宝藏即可完成任务',
+      ages: ['3-6', '7-12', '13-18'],
+      tasks: tasks,
+      isContributorMode: true,
+      requiredTreasures: requiredTreasures
+    };
+  }
+
+  /**
+   * Check if museum has existing collections
+   * @param {Object} museum - Museum object
+   * @returns {boolean}
+   */
+  function hasCollections(museum) {
+    return museum.collections && Array.isArray(museum.collections) && museum.collections.length > 0;
+  }
+
+  /**
    * Generate workflows for all museums
    * Adds treasure hunt workflow to museums that don't already have one
+   * For museums without collections, also adds the contributor workflow
    */
   function generateWorkflowsForAllMuseums() {
     if (!window.MUSEUMS || !Array.isArray(window.MUSEUMS)) {
@@ -232,23 +324,12 @@
     }
 
     let generatedCount = 0;
+    let contributorCount = 0;
     let existingCount = 0;
 
     window.MUSEUMS.forEach(function(museum) {
       if (!museum || !museum.id) return;
 
-      // Check if museum already has a treasure hunt workflow
-      const hasWorkflow = museum.workflows && Array.isArray(museum.workflows) &&
-        museum.workflows.some(wf => wf.id === 'treasure-discovery');
-
-      if (hasWorkflow) {
-        existingCount++;
-        return; // Skip if already has workflow
-      }
-
-      // Generate and add workflow
-      const workflow = generateTreasureHuntWorkflow(museum);
-      
       // Initialize workflows array if needed
       if (!museum.workflows) {
         museum.workflows = [];
@@ -256,14 +337,35 @@
         museum.workflows = [];
       }
 
-      // Add workflow
-      museum.workflows.push(workflow);
-      generatedCount++;
+      // Check if museum already has a treasure discovery workflow
+      const hasTreasureWorkflow = museum.workflows.some(wf => wf.id === 'treasure-discovery');
+
+      if (!hasTreasureWorkflow) {
+        // Generate and add treasure hunt workflow
+        const workflow = generateTreasureHuntWorkflow(museum);
+        museum.workflows.push(workflow);
+        generatedCount++;
+      } else {
+        existingCount++;
+      }
+
+      // For museums WITHOUT collections, also add contributor workflow
+      // This allows children to discover and add their own treasures
+      if (!hasCollections(museum)) {
+        const hasContributorWorkflow = museum.workflows.some(wf => wf.id === 'treasure-contributor');
+        
+        if (!hasContributorWorkflow) {
+          const contributorWorkflow = generateTreasureContributorWorkflow(museum, 3);
+          museum.workflows.push(contributorWorkflow);
+          contributorCount++;
+        }
+      }
     });
 
-    console.log(`[TreasureWorkflowGenerator] Generated ${generatedCount} new treasure hunt workflows`);
-    console.log(`[TreasureWorkflowGenerator] ${existingCount} museums already had workflows`);
-    console.log(`[TreasureWorkflowGenerator] Total museums: ${window.MUSEUMS.length}`);
+    console.log('[TreasureWorkflowGenerator] Generated ' + generatedCount + ' treasure hunt workflows');
+    console.log('[TreasureWorkflowGenerator] Generated ' + contributorCount + ' contributor workflows (museums without collections)');
+    console.log('[TreasureWorkflowGenerator] ' + existingCount + ' museums already had workflows');
+    console.log('[TreasureWorkflowGenerator] Total museums: ' + window.MUSEUMS.length);
   }
 
   // Auto-generate workflows when script loads
@@ -293,7 +395,9 @@
     window.TreasureWorkflowGenerator = {
       generateTreasureItems: generateTreasureItems,
       generateTreasureHuntWorkflow: generateTreasureHuntWorkflow,
+      generateTreasureContributorWorkflow: generateTreasureContributorWorkflow,
       generateWorkflowsForAllMuseums: generateWorkflowsForAllMuseums,
+      hasCollections: hasCollections,
       getMuseumType: getMuseumType
     };
   }
@@ -303,7 +407,9 @@
     module.exports = {
       generateTreasureItems: generateTreasureItems,
       generateTreasureHuntWorkflow: generateTreasureHuntWorkflow,
+      generateTreasureContributorWorkflow: generateTreasureContributorWorkflow,
       generateWorkflowsForAllMuseums: generateWorkflowsForAllMuseums,
+      hasCollections: hasCollections,
       getMuseumType: getMuseumType
     };
   }

@@ -1310,6 +1310,286 @@
           skipActions.appendChild(skipBtn);
           section.appendChild(skipActions);
         }
+      } else if(t.type === 'add-treasure') {
+        // Special task type: Add a new treasure (name + photo)
+        // This enables children to contribute treasures to museums without collections
+        
+        const treasureSection = document.createElement('div');
+        treasureSection.className = 'sg-add-treasure-section';
+        treasureSection.style.padding = '16px';
+        treasureSection.style.backgroundColor = '#fffbeb';
+        treasureSection.style.border = '2px solid #fbbf24';
+        treasureSection.style.borderRadius = '12px';
+        treasureSection.style.marginBottom = '16px';
+        
+        // Hint text
+        if(t.hint){
+          const hintDiv = document.createElement('div');
+          hintDiv.style.fontSize = '14px';
+          hintDiv.style.color = '#b45309';
+          hintDiv.style.marginBottom = '16px';
+          hintDiv.style.padding = '12px';
+          hintDiv.style.backgroundColor = '#fef3c7';
+          hintDiv.style.borderRadius = '8px';
+          hintDiv.innerHTML = '✨ ' + t.hint;
+          treasureSection.appendChild(hintDiv);
+        }
+        
+        // Treasure name input
+        const nameLabel = document.createElement('label');
+        nameLabel.style.display = 'block';
+        nameLabel.style.fontSize = '16px';
+        nameLabel.style.fontWeight = '700';
+        nameLabel.style.marginBottom = '8px';
+        nameLabel.style.color = '#2c3e50';
+        nameLabel.textContent = '🏺 宝藏名称 *';
+        treasureSection.appendChild(nameLabel);
+        
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = 'add-treasure-name-' + idx;
+        nameInput.placeholder = '请输入您发现的宝藏名称';
+        nameInput.maxLength = 50;
+        nameInput.style.width = '100%';
+        nameInput.style.padding = '14px';
+        nameInput.style.fontSize = '16px';
+        nameInput.style.border = '2px solid #d1d5db';
+        nameInput.style.borderRadius = '10px';
+        nameInput.style.marginBottom = '16px';
+        nameInput.style.boxSizing = 'border-box';
+        treasureSection.appendChild(nameInput);
+        
+        // Photo section
+        const photoLabel = document.createElement('label');
+        photoLabel.style.display = 'block';
+        photoLabel.style.fontSize = '16px';
+        photoLabel.style.fontWeight = '700';
+        photoLabel.style.marginBottom = '8px';
+        photoLabel.style.color = '#2c3e50';
+        photoLabel.textContent = '📸 拍照或选择图片';
+        treasureSection.appendChild(photoLabel);
+        
+        const photoHint = document.createElement('div');
+        photoHint.style.fontSize = '13px';
+        photoHint.style.color = '#6b7280';
+        photoHint.style.marginBottom = '12px';
+        photoHint.textContent = '可以拍照、从Wiki搜索、或输入图片URL';
+        treasureSection.appendChild(photoHint);
+        
+        // Photo input methods wrapper
+        const photoMethods = document.createElement('div');
+        photoMethods.style.display = 'flex';
+        photoMethods.style.gap = '8px';
+        photoMethods.style.flexWrap = 'wrap';
+        photoMethods.style.marginBottom = '12px';
+        
+        // Camera/file input button
+        const cameraBtn = document.createElement('button');
+        cameraBtn.type = 'button';
+        cameraBtn.className = 'sg-btn sg-btn-primary';
+        cameraBtn.style.flex = '1';
+        cameraBtn.style.minWidth = '120px';
+        cameraBtn.innerHTML = '📷 拍照/选择';
+        
+        // Hidden file input for camera
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'add-treasure-photo-' + idx;
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        
+        cameraBtn.onclick = function() { fileInput.click(); };
+        
+        // Wiki search button
+        const wikiBtn = document.createElement('button');
+        wikiBtn.type = 'button';
+        wikiBtn.className = 'sg-btn sg-btn-secondary';
+        wikiBtn.style.flex = '1';
+        wikiBtn.style.minWidth = '120px';
+        wikiBtn.innerHTML = '🔍 Wiki搜索';
+        wikiBtn.onclick = function() {
+          // Open wiki search modal with treasure name as pre-filled query
+          var treasureName = nameInput.value.trim();
+          if(treasureName){
+            var searchInputEl = document.getElementById('wikiSearchInput');
+            if(searchInputEl) searchInputEl.value = treasureName;
+          }
+          // Store callback context for this task
+          window.__addTreasureWikiCallback = function(imageUrl) {
+            if(imageUrl){
+              hiddenUrlInput.value = imageUrl;
+              updateTreasurePreview(idx, imageUrl);
+            }
+          };
+          openWikiSearchModal();
+        };
+        
+        // File upload button (using letmetry.cloud API)
+        const uploadBtn = document.createElement('button');
+        uploadBtn.type = 'button';
+        uploadBtn.className = 'sg-btn sg-btn-secondary';
+        uploadBtn.style.flex = '1';
+        uploadBtn.style.minWidth = '120px';
+        uploadBtn.innerHTML = '⬆️ 上传图片';
+        uploadBtn.onclick = function() {
+          // Create a hidden file input for upload
+          const uploadInput = document.createElement('input');
+          uploadInput.type = 'file';
+          uploadInput.accept = 'image/*';
+          uploadInput.style.display = 'none';
+          document.body.appendChild(uploadInput);
+          
+          uploadInput.onchange = async function(e) {
+            const file = e.target.files && e.target.files[0];
+            if(!file) return;
+            
+            try {
+              showToast('⏳ 正在上传图片...');
+              const uploadedUrl = await uploadFileToLetmetry(file);
+              if(uploadedUrl) {
+                hiddenUrlInput.value = uploadedUrl;
+                updateTreasurePreview(idx, uploadedUrl);
+                showToast('✅ 图片上传成功！');
+              }
+            } catch(err) {
+              console.error('Upload failed:', err);
+              showToast('❌ 上传失败，请重试');
+            }
+            
+            document.body.removeChild(uploadInput);
+          };
+          
+          uploadInput.click();
+        };
+        
+        photoMethods.appendChild(cameraBtn);
+        photoMethods.appendChild(fileInput);
+        photoMethods.appendChild(wikiBtn);
+        photoMethods.appendChild(uploadBtn);
+        treasureSection.appendChild(photoMethods);
+        
+        // Hidden input to store image URL
+        const hiddenUrlInput = document.createElement('input');
+        hiddenUrlInput.type = 'hidden';
+        hiddenUrlInput.id = 'add-treasure-url-' + idx;
+        treasureSection.appendChild(hiddenUrlInput);
+        
+        // Preview container
+        const previewContainer = document.createElement('div');
+        previewContainer.id = 'add-treasure-preview-' + idx;
+        previewContainer.style.minHeight = '100px';
+        previewContainer.style.border = '2px dashed #d1d5db';
+        previewContainer.style.borderRadius = '10px';
+        previewContainer.style.display = 'flex';
+        previewContainer.style.alignItems = 'center';
+        previewContainer.style.justifyContent = 'center';
+        previewContainer.style.backgroundColor = '#f9fafb';
+        previewContainer.style.marginBottom = '16px';
+        previewContainer.style.overflow = 'hidden';
+        previewContainer.innerHTML = '<div style="text-align:center; color:#9ca3af;"><span style="font-size:32px;">📷</span><br><span style="font-size:14px;">图片预览区域</span></div>';
+        treasureSection.appendChild(previewContainer);
+        
+        // Handle file input change
+        fileInput.addEventListener('change', async function(e) {
+          var file = e.target.files && e.target.files[0];
+          if(!file) return;
+          
+          try {
+            // Show local preview first
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+              updateTreasurePreview(idx, ev.target.result);
+            };
+            reader.readAsDataURL(file);
+            
+            // Then upload to remote
+            showToast('⏳ 正在上传图片...');
+            var uploadedUrl = await uploadFileToLetmetry(file);
+            if(uploadedUrl) {
+              hiddenUrlInput.value = uploadedUrl;
+              showToast('✅ 图片上传成功！');
+            } else {
+              // Fall back to local preview URL
+              hiddenUrlInput.value = ''; // Will use local file
+              showToast('📸 图片已添加（本地保存）');
+            }
+          } catch(err) {
+            console.error('Photo handling error:', err);
+            showToast('📸 图片已添加（本地保存）');
+          }
+        });
+        
+        section.appendChild(treasureSection);
+        
+        // Submit button
+        const submitActions = document.createElement('div');
+        submitActions.className = 'sg-actions';
+        submitActions.style.marginTop = '16px';
+        
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'sg-btn sg-btn-primary';
+        submitBtn.style.width = '100%';
+        submitBtn.style.fontSize = '18px';
+        submitBtn.style.fontWeight = '700';
+        submitBtn.style.padding = '16px';
+        submitBtn.innerHTML = '✨ 添加这个宝藏';
+        submitBtn.onclick = async function() {
+          const treasureName = nameInput.value.trim();
+          const imageUrl = hiddenUrlInput.value || '';
+          
+          if(!treasureName){
+            showToast('请输入宝藏名称');
+            nameInput.style.border = '2px solid #ef4444';
+            nameInput.focus();
+            return;
+          }
+          
+          // Get current museum
+          const museumId = state.selectedMuseum ? state.selectedMuseum.id : null;
+          if(!museumId){
+            showToast('请先选择博物馆');
+            return;
+          }
+          
+          // Create treasure object
+          const newTreasure = {
+            name: treasureName,
+            imageUrl: imageUrl || '',
+            description: '由小探险家发现并添加',
+            addedBy: 'user',
+            addedAt: Date.now()
+          };
+          
+          try {
+            // Save to localStorage
+            const userTreasures = getUserTreasuresForMuseum(museumId);
+            userTreasures.push(newTreasure);
+            saveUserTreasuresForMuseum(museumId, userTreasures);
+            
+            // Try to save to remote
+            try {
+              await saveUserTreasureToRemote(museumId, newTreasure);
+              showToast('🎉 宝藏添加成功！已保存到云端');
+            } catch(err) {
+              console.warn('Remote save failed:', err);
+              showToast('🎉 宝藏添加成功！（本地保存）');
+            }
+            
+            // Update state
+            updateMuseumCollectionsInState(museumId, newTreasure);
+            
+            // Mark task as completed
+            completeWorkflowTask(idx, t.id);
+            
+          } catch(err) {
+            console.error('Failed to add treasure:', err);
+            showToast('❌ 添加失败，请重试');
+          }
+        };
+        
+        submitActions.appendChild(submitBtn);
+        section.appendChild(submitActions);
+        
       } else {
         const actions = document.createElement('div');
         actions.className = 'sg-actions';
@@ -2424,9 +2704,82 @@
   const MUSEUM_DATA_KEY_PREFIX = 'museum-data-';
   // Far future expiration timestamp (Unix timestamp in SECONDS - year 2124)
   const KV_STORE_FAR_FUTURE_EXPIRATION = 4866674732;
+  // Letmetry file upload API endpoint
+  const LETMETRY_UPLOAD_ENDPOINT = 'https://letmetry.cloud/file/upload';
   
   let wikiSearchInstance = null;
   let selectedWikiImageUrl = null;
+
+  /**
+   * Upload a file to letmetry.cloud and return the URL
+   * @param {File} file - The file to upload
+   * @returns {Promise<string|null>} - The URL of the uploaded file, or null if failed
+   */
+  async function uploadFileToLetmetry(file) {
+    if (!file) return null;
+    
+    try {
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Upload to letmetry.cloud
+      const response = await fetch(LETMETRY_UPLOAD_ENDPOINT, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed with status: ' + response.status);
+      }
+      
+      const result = await response.json();
+      
+      // The API should return the URL of the uploaded file
+      // Handle different possible response formats
+      if (result.url) {
+        return result.url;
+      } else if (result.data && result.data.url) {
+        return result.data.url;
+      } else if (result.fileUrl) {
+        return result.fileUrl;
+      } else if (typeof result === 'string' && result.startsWith('http')) {
+        return result;
+      }
+      
+      console.warn('Unexpected upload response format:', result);
+      return null;
+    } catch (error) {
+      console.error('File upload to letmetry failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update the treasure preview for a specific task index
+   * @param {number} idx - The task index
+   * @param {string} imageUrl - The image URL to display
+   */
+  function updateTreasurePreview(idx, imageUrl) {
+    const previewContainer = document.getElementById('add-treasure-preview-' + idx);
+    if (!previewContainer) return;
+    
+    if (imageUrl) {
+      previewContainer.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.alt = '宝藏图片预览';
+      img.style.width = '100%';
+      img.style.maxHeight = '200px';
+      img.style.objectFit = 'contain';
+      img.onerror = function() {
+        previewContainer.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;"><span style="font-size:24px;">❌</span><br>图片加载失败</div>';
+      };
+      previewContainer.appendChild(img);
+    } else {
+      previewContainer.innerHTML = '<div style="text-align:center; color:#9ca3af;"><span style="font-size:32px;">📷</span><br><span style="font-size:14px;">图片预览区域</span></div>';
+    }
+  }
 
   /**
    * Initialize the custom treasure feature UI and event handlers
@@ -2886,6 +3239,12 @@
     if (selectBtn) {
       selectBtn.addEventListener('click', () => {
         if (selectedWikiImageUrl) {
+          // Call the add-treasure callback if it exists
+          if (typeof window.__addTreasureWikiCallback === 'function') {
+            window.__addTreasureWikiCallback(selectedWikiImageUrl);
+            window.__addTreasureWikiCallback = null; // Clear after use
+          }
+          // Also update the settings modal input if exists
           const imageUrlInput = $('#customTreasureImageUrl');
           if (imageUrlInput) imageUrlInput.value = selectedWikiImageUrl;
           updatePreview();

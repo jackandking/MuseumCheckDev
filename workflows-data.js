@@ -74,7 +74,7 @@
           { id: 'poster', role: 'parent', type: 'poster', title: '成就海报', subtitle: '生成专属成就海报', ages: ['3-6','7-12','13-18'] }
         ]
       }
-    ]
+    ],
     'china-art-museum': [
       {
             "id": "treasure-discovery",
