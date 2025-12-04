@@ -2226,6 +2226,58 @@
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
 
+        .search-baidu-btn {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #de3f4f 0%, #f48a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .search-baidu-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(222, 63, 79, 0.4);
+        }
+
+        .search-baidu-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .search-baidu-btn.secondary:hover {
+            background: #e5e5e5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Baidu search buttons for inline use in JS templates */
+        .baidu-search-inline-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #de3f4f 0%, #f48a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .baidu-search-inline-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .search-buttons-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .image-preview-container {
             display: flex;
             align-items: center;
@@ -2450,6 +2502,16 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        .wiki-search-input-group button.baidu-primary {
+            background: linear-gradient(135deg, #de3f4f 0%, #f48a8a 100%);
+        }
+
+        .wiki-search-input-group button.baidu-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
         }
 
         .wiki-search-results {
@@ -2859,7 +2921,11 @@
                             <label for="newTreasureImage">图片URL</label>
                             <div class="input-with-action">
                                 <input type="text" id="newTreasureImage" placeholder="图片链接（可选）">
-                                <button type="button" class="search-wiki-btn" id="searchWikiBtn">🔍 Wiki搜索</button>
+                                <div class="search-buttons-container">
+                                    <button type="button" class="search-wiki-btn" id="searchWikiBtn">🔍 Wiki</button>
+                                    <button type="button" class="search-baidu-btn" id="searchBaiduBtn">🔍 百度</button>
+                                    <button type="button" class="search-baidu-btn secondary" id="openBaiduBtn">↗️ 去百度</button>
+                                </div>
                             </div>
                             <div class="image-preview-container">
                                 <div id="newTreasurePreview" class="image-preview-placeholder">📷</div>
@@ -3130,6 +3196,8 @@
     <script src="achievement-gamification.js"></script>
     <!-- Virtual Pet System for child mode -->
     <script src="virtual-pet.js"></script>
+    <!-- Baidu Image Search for treasure photos -->
+    <script src="baidu-image-search.js"></script>
     
     <script>
         // Configuration
@@ -5935,7 +6003,22 @@
                 }
                 
                 if (results.length === 0) {
-                    resultsEl.innerHTML = '<div class="wiki-search-empty">未找到相关图片，请尝试其他关键词</div>';
+                    resultsEl.innerHTML = `
+                        <div class="wiki-search-empty">
+                            <div>Wiki未找到相关图片</div>
+                            <div style="margin-top: 8px; font-size: 13px; color: #666;">
+                                Wiki的中国文物图片较少，推荐使用百度搜索
+                            </div>
+                            <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                <button class="baidu-search-inline-btn" onclick="performBaiduSearch()">
+                                    🔍 搜索百度图片
+                                </button>
+                                <button class="baidu-search-inline-btn secondary" onclick="openBaiduImagePage()">
+                                    ↗️ 去百度搜索
+                                </button>
+                            </div>
+                        </div>
+                    `;
                     return;
                 }
                 
@@ -5954,7 +6037,7 @@
                 
             } catch (error) {
                 console.error('Wiki search failed:', error);
-                resultsEl.innerHTML = '<div class="wiki-search-empty">搜索失败，请重试</div>';
+                resultsEl.innerHTML = '<div class="wiki-search-empty">搜索失败，请重试。您可以尝试使用百度搜索。</div>';
             }
         }
 
@@ -5979,6 +6062,141 @@
             
             // Close modal after short delay
             setTimeout(() => closeWikiSearch(), 300);
+        }
+
+        // ===== Baidu Image Search Functions =====
+        
+        /**
+         * Perform Baidu inline image search
+         * Uses the BaiduImageSearch library to fetch images directly
+         */
+        async function performBaiduSearch() {
+            const treasureNameInput = document.getElementById('newTreasureName');
+            const resultsEl = document.getElementById('wikiSearchResults');
+            const searchInput = document.getElementById('wikiSearchInput');
+            
+            // Get search query from treasure name input first, then from search modal input
+            const treasureName = treasureNameInput ? treasureNameInput.value.trim() : '';
+            const modalSearchQuery = searchInput ? searchInput.value.trim() : '';
+            const searchQuery = modalSearchQuery || treasureName;
+            
+            if (!searchQuery) {
+                alert('请先输入镇馆之宝名称');
+                return;
+            }
+            
+            // Open the wiki modal for results display
+            const modal = document.getElementById('wikiSearchModal');
+            modal.classList.add('show');
+            
+            // Set search input value to the treasure name if it's empty
+            if (searchInput && !modalSearchQuery) {
+                searchInput.value = treasureName;
+            }
+            
+            // Update modal title for Baidu search
+            const modalTitle = modal.querySelector('.wiki-search-title');
+            if (modalTitle) {
+                modalTitle.textContent = '🔍 百度图片搜索';
+            }
+            
+            // Show loading
+            resultsEl.innerHTML = `
+                <div class="wiki-search-loading">正在从百度搜索图片...</div>
+                <div style="text-align: center; margin-top: 8px; color: #666; font-size: 13px;">
+                    如果加载较慢，可点击"去百度搜索"手动查找
+                </div>
+            `;
+            
+            try {
+                // Use BaiduImageSearch library
+                if (typeof BaiduImageSearch === 'undefined') {
+                    throw new Error('百度图片搜索库未加载');
+                }
+                
+                const baiduSearcher = new BaiduImageSearch();
+                const museumNameForSearch = (currentMuseum && currentMuseum.name) || '';
+                const results = await baiduSearcher.searchTreasurePhotos(museumNameForSearch, searchQuery);
+                
+                if (!results || results.length === 0) {
+                    resultsEl.innerHTML = `
+                        <div class="wiki-search-empty">
+                            <div>百度未找到相关图片</div>
+                            <div style="margin-top: 8px; font-size: 13px; color: #666;">
+                                尝试使用不同的关键词，或点击下方按钮手动搜索
+                            </div>
+                            <button class="baidu-search-inline-btn" style="margin-top: 12px;" onclick="openBaiduImagePage()">
+                                ↗️ 去百度搜索
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Display copyright warning and results
+                let html = `
+                    <div style="margin-bottom: 12px; padding: 8px 12px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px; font-size: 12px;">
+                        ⚠️ <strong>百度图片搜索结果</strong> - 点击图片即可使用
+                    </div>
+                `;
+                
+                results.forEach(img => {
+                    html += `
+                        <div class="wiki-search-result-item" data-url="${escapeHtml(img.url)}" onclick="selectWikiImage('${escapeHtml(img.url)}')">
+                            <img src="${escapeHtml(img.thumbnailUrl || img.url)}" alt="${escapeHtml(img.name)}" loading="lazy" onerror="this.style.display='none'">
+                            <div class="result-name">${escapeHtml(img.name || '百度图片')}</div>
+                        </div>
+                    `;
+                });
+                
+                resultsEl.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Baidu search failed:', error);
+                resultsEl.innerHTML = `
+                    <div class="wiki-search-empty">
+                        <div>百度搜索失败</div>
+                        <div style="margin-top: 8px; font-size: 13px; color: #666;">
+                            ${escapeHtml(error.message)}
+                        </div>
+                        <button class="baidu-search-inline-btn" style="margin-top: 12px;" onclick="openBaiduImagePage()">
+                            ↗️ 去百度搜索
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        /**
+         * Open Baidu Image search in a new tab
+         * Allows user to manually search and copy image URLs
+         */
+        function openBaiduImagePage() {
+            const treasureNameInput = document.getElementById('newTreasureName');
+            const searchInput = document.getElementById('wikiSearchInput');
+            
+            // Get search query from treasure name input first, then from search modal input
+            const treasureName = treasureNameInput ? treasureNameInput.value.trim() : '';
+            const modalSearchQuery = searchInput ? searchInput.value.trim() : '';
+            const searchQuery = modalSearchQuery || treasureName;
+            
+            if (!searchQuery) {
+                alert('请先输入镇馆之宝名称');
+                return;
+            }
+            
+            // Build optimized search query
+            const museumName = (currentMuseum && currentMuseum.name) || '';
+            const optimizedQuery = museumName 
+                ? `${searchQuery} ${museumName} 文物 高清`
+                : `${searchQuery} 文物 高清`;
+            
+            // Generate Baidu image search URL
+            const encodedQuery = encodeURIComponent(optimizedQuery);
+            const baiduUrl = `https://image.baidu.com/search/index?tn=baiduimage&word=${encodedQuery}`;
+            
+            // Open in new tab
+            window.open(baiduUrl, '_blank');
         }
 
         /**
@@ -6013,6 +6231,18 @@
                 searchWikiBtn.addEventListener('click', openWikiSearch);
             }
             
+            // Baidu search button - performs inline search
+            const searchBaiduBtn = document.getElementById('searchBaiduBtn');
+            if (searchBaiduBtn) {
+                searchBaiduBtn.addEventListener('click', performBaiduSearch);
+            }
+            
+            // Open Baidu button - opens Baidu in new tab
+            const openBaiduBtn = document.getElementById('openBaiduBtn');
+            if (openBaiduBtn) {
+                openBaiduBtn.addEventListener('click', openBaiduImagePage);
+            }
+            
             // Wiki search modal
             const closeWikiSearchBtn = document.getElementById('closeWikiSearch');
             if (closeWikiSearchBtn) {
@@ -6022,6 +6252,18 @@
             const wikiSearchBtn = document.getElementById('wikiSearchBtn');
             if (wikiSearchBtn) {
                 wikiSearchBtn.addEventListener('click', performWikiSearch);
+            }
+            
+            // Baidu search button inside modal
+            const baiduSearchBtn = document.getElementById('baiduSearchBtn');
+            if (baiduSearchBtn) {
+                baiduSearchBtn.addEventListener('click', performBaiduSearch);
+            }
+            
+            // Open Baidu button inside modal
+            const openBaiduInModalBtn = document.getElementById('openBaiduInModalBtn');
+            if (openBaiduInModalBtn) {
+                openBaiduInModalBtn.addEventListener('click', openBaiduImagePage);
             }
             
             const wikiSearchInput = document.getElementById('wikiSearchInput');
@@ -8673,7 +8915,14 @@
             <div class="wiki-search-body">
                 <div class="wiki-search-input-group">
                     <input type="text" id="wikiSearchInput" placeholder="输入文物名称搜索...">
-                    <button id="wikiSearchBtn">搜索</button>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button id="wikiSearchBtn">Wiki</button>
+                        <button id="baiduSearchBtn" class="baidu-primary">百度</button>
+                        <button id="openBaiduInModalBtn" class="baidu-secondary">↗️ 去百度</button>
+                    </div>
+                </div>
+                <div style="margin: 8px 0 12px 0; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; font-size: 12px; color: #666;">
+                    💡 <strong>提示：</strong>Wiki图片免费授权，百度图片更丰富
                 </div>
                 <div id="wikiSearchResults" class="wiki-search-results">
                     <!-- Search results will be displayed here -->
