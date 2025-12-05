@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/icons/favicon.ico" type="image/x-icon" />
+    <!-- Baidu Analytics (百度统计) -->
+    <script>
+        // Baidu Analytics Configuration
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <title>你猜哪个博物馆最受欢迎？</title>
+    <script src="../util.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="survey-container">
+        <h1 id="pageTitle">你猜哪个博物馆最受欢迎？</h1>
+        
+        <p class="survey-intro" id="surveyIntro">以下5个博物馆中，你认为哪个最受大众欢迎？</p>
+
+        <!-- Question Section -->
+        <form id="questionnaire">
+            <div class="question" id="question1">
+                <div class="museum-options" id="optionsContainer">
+                    <p class="loading-text">正在加载博物馆信息...</p>
+                </div>
+            </div>
+        </form>
+
+        <!-- Result Section -->
+        <div class="result" id="result">
+            <p>正在获取最新统计结果...</p>
+        </div>
+        
+        <button class="show-result-btn" style="display:none;" id="showResultBtn" onclick="showAd()">看完广告显示结果</button>
+        <div class="more" id="more"><a target="_blank" onclick="jumpToIndex()">让孩子爱上博物馆</a></div>
+    </div>
+</body>
+</html>
