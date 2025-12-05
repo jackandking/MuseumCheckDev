@@ -35,12 +35,24 @@
     <!-- Bing Site Verification -->
     <meta name="msvalidate.01" content="bing-verification-museum-check">
     
+    <!-- Critical CSS - Load immediately for fast first paint -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="achievement-gamification.css">
-    <link rel="stylesheet" href="virtual-pet.css">
+    
+    <!-- Non-critical CSS - Load asynchronously to avoid render blocking -->
+    <link rel="stylesheet" href="achievement-gamification.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="virtual-pet.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="achievement-gamification.css">
+        <link rel="stylesheet" href="virtual-pet.css">
+    </noscript>
+    
     <!-- Performance: preconnect/dns-prefetch to CDN hosting images -->
     <link rel="preconnect" href="https://eb118-file.cdn.bcebos.com" crossorigin>
     <link rel="dns-prefetch" href="//eb118-file.cdn.bcebos.com">
+    <!-- Preconnect to analytics domains -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//hm.baidu.com">
     <script>window.performance && performance.mark && performance.mark('mc_head_loaded');</script>
     
     <!-- Cache busting meta tags -->
@@ -48,42 +60,62 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YHF52B1NMH"></script>
+    <!-- Deferred Analytics Loading - Load after page becomes interactive -->
     <script>
-        // Google Analytics 4 Configuration
-        window.GA_MEASUREMENT_ID = 'G-YHF52B1NMH';
-        
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', window.GA_MEASUREMENT_ID);
-    </script>
-    
-    <!-- Baidu Analytics (百度统计) -->
-    <script>
-        // Baidu Analytics Configuration
-        // Replace 'YOUR_BAIDU_TRACKING_ID' with your actual Baidu Analytics tracking ID
-        // 请将 'YOUR_BAIDU_TRACKING_ID' 替换为您的实际百度统计跟踪ID
-        var _hmt = _hmt || [];
+        // Performance optimization: Defer all analytics to after first paint
+        // This significantly improves LCP (Largest Contentful Paint) and FID (First Input Delay)
         (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
-            var s = document.getElementsByTagName("script")[0]; 
-            s.parentNode.insertBefore(hm, s);
+            'use strict';
+            
+            // Timing constants for analytics loading (in milliseconds)
+            var IDLE_CALLBACK_TIMEOUT = 3000;  // Maximum wait time for requestIdleCallback
+            var FALLBACK_LOAD_DELAY = 1500;    // Delay when requestIdleCallback not available
+            var HOTJAR_EXTRA_DELAY = 2000;     // Additional delay for Hotjar (least critical)
+            
+            // Google Analytics 4 Configuration (pre-define to prevent errors)
+            window.GA_MEASUREMENT_ID = 'G-YHF52B1NMH';
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', window.GA_MEASUREMENT_ID);
+            
+            // Baidu Analytics stub
+            var _hmt = window._hmt = window._hmt || [];
+            
+            // Load analytics after page becomes interactive (requestIdleCallback or setTimeout fallback)
+            function loadAnalytics() {
+                // Google Analytics
+                var ga = document.createElement('script');
+                ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_MEASUREMENT_ID;
+                ga.async = true;
+                document.head.appendChild(ga);
+                
+                // Baidu Analytics
+                var hm = document.createElement('script');
+                hm.src = 'https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57';
+                hm.async = true;
+                document.head.appendChild(hm);
+                
+                // Hotjar - Load last as it's least critical
+                setTimeout(function() {
+                    (function(h,o,t,j,a,r){
+                        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                        h._hjSettings={hjid:6525526,hjsv:6};
+                        r=o.createElement('script');r.async=1;
+                        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                        o.head.appendChild(r);
+                    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+                }, HOTJAR_EXTRA_DELAY);
+            }
+            
+            // Use requestIdleCallback if available, otherwise use setTimeout
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadAnalytics, { timeout: IDLE_CALLBACK_TIMEOUT });
+            } else {
+                // Fallback: load after first paint using setTimeout
+                setTimeout(loadAnalytics, FALLBACK_LOAD_DELAY);
+            }
         })();
-    </script>
-    
-    <!-- Hotjar Tracking -->
-    <script>
-        (function(h,o,t,j,a,r){
-            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-            h._hjSettings={hjid:6525526,hjsv:6};
-            a=o.getElementsByTagName('head')[0];
-            r=o.createElement('script');r.async=1;
-            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-            a.appendChild(r);
-        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
     </script>
     
     <!-- Structured Data (JSON-LD) -->
@@ -946,17 +978,19 @@
         }catch(e){}
       })();
     </script>
+    <!-- Core data loading - must be synchronous for initial render -->
     <script src="museum-data-loader.js"></script>
     <script src="museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
     <script>
       // Adopt meta as default dataset before main script executes
       (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
     </script>
-    <!-- Museum data loaded from museums-data.js and Tier 1 JSON files via museum-data-loader.js -->
-    <script src="firework.js"></script>
-    <script src="achievement-gamification.js"></script>
-    <script src="virtual-pet.js"></script>
+    <!-- Main application script - must run to render museum list -->
     <script src="script.js"></script>
+    <!-- Deferred feature scripts - non-critical, load after main app is interactive -->
+    <script src="firework.js" defer></script>
+    <script src="achievement-gamification.js" defer></script>
+    <script src="virtual-pet.js" defer></script>
     <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
     <span id="sectionMuseumCount" style="display:none"></span>
     <script>
