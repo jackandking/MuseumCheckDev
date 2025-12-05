@@ -300,6 +300,7 @@
             <button class="btn btn-primary" onclick="performImageSearch()">🔍 搜索 (Wikimedia)</button>
             <button class="btn btn-primary" onclick="performBaiduInlineSearch()" style="background:linear-gradient(135deg,#de3f4f,#f48a8a)">🔍 搜索 (百度)</button>
             <button class="btn btn-secondary" onclick="openBaiduImageSearch()">↗️ 去百度搜索</button>
+            <button class="btn btn-success" onclick="uploadLocalImage()">📤 上传照片</button>
           </div>
           <div class="hint" style="margin-top: 12px; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;">
             💡 <strong>搜索策略：</strong>
@@ -307,7 +308,18 @@
               <li><strong>Wikimedia：</strong>免费授权图片，适合发布使用</li>
               <li><strong>百度搜索：</strong>中国博物馆图片最全面，直接在此选择</li>
               <li><strong>去百度搜索：</strong>在新窗口打开百度图片，手动复制URL</li>
+              <li><strong>上传照片：</strong>自己拍摄的照片，自动压缩以适合手机体验</li>
             </ul>
+          </div>
+          <!-- Upload progress indicator -->
+          <div id="uploadProgress" style="display: none; margin-top: 12px; padding: 12px; background: #e8f5e9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="upload-spinner" style="width: 20px; height: 20px; border: 2px solid #4caf50; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <span id="uploadStatusText">正在处理...</span>
+            </div>
+            <div id="uploadProgressBar" style="margin-top: 8px; height: 4px; background: #c8e6c9; border-radius: 2px; overflow: hidden;">
+              <div id="uploadProgressFill" style="height: 100%; background: #4caf50; width: 0%; transition: width 0.3s;"></div>
+            </div>
           </div>
         </div>
         <div id="searchResults"></div>
@@ -318,6 +330,7 @@
   <script src="wikimedia-image-search.js"></script>
   <script src="baidu-image-search.js"></script>
   <script src="deepseek-api.js"></script>
+  <script src="image-upload-util.js"></script>
   <script src="museums-meta.js"></script>
   <script src="museums-data.js"></script>
   <script src="museum-data-loader.js"></script>
@@ -1695,6 +1708,104 @@
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    /**
+     * Upload a local image file to letmetry.cloud
+     * Compresses the image for mobile-optimized display
+     */
+    async function uploadLocalImage() {
+      const progressContainer = document.getElementById('uploadProgress');
+      const progressText = document.getElementById('uploadStatusText');
+      const progressFill = document.getElementById('uploadProgressFill');
+      const searchResults = document.getElementById('searchResults');
+      
+      try {
+        // Show upload progress container
+        progressContainer.style.display = 'block';
+        progressText.textContent = '请选择图片...';
+        progressFill.style.width = '0%';
+        
+        // Use the ImageUploader to pick and upload file
+        const url = await imageUploader.uploadWithUI({
+          compress: true,
+          onStart: (file) => {
+            progressText.textContent = `正在处理 ${file.name}...`;
+            progressFill.style.width = '10%';
+          },
+          onProgress: (stage, progress, file) => {
+            if (stage === 'compressing') {
+              progressText.textContent = '正在压缩图片...';
+              progressFill.style.width = `${10 + (progress * 0.4)}%`;
+            } else if (stage === 'uploading') {
+              progressText.textContent = '正在上传...';
+              progressFill.style.width = `${50 + (progress * 0.5)}%`;
+            }
+          },
+          onComplete: (url, file) => {
+            progressText.textContent = '上传完成！';
+            progressFill.style.width = '100%';
+          },
+          onError: (error, file) => {
+            progressText.textContent = `上传失败: ${error.message}`;
+            progressFill.style.backgroundColor = '#f44336';
+          }
+        });
+        
+        if (!url) {
+          // User cancelled file selection
+          progressContainer.style.display = 'none';
+          return;
+        }
+        
+        // Show success and select the uploaded image
+        showToast('✓ 图片上传成功');
+        
+        // Display uploaded image as a result
+        searchResults.innerHTML = `
+          <div style="margin-bottom: 12px; padding: 10px; background: #e8f5e9; border-left: 3px solid #4caf50; border-radius: 4px; font-size: 12px;">
+            <strong>✓ 图片上传成功！</strong> 点击下方图片选择使用
+          </div>
+          <div class="result-item selected" onclick="selectImage('${escapeHtml(url)}', 0)">
+            <img src="${escapeHtml(url)}" alt="已上传图片" class="result-image" />
+            <div class="result-info">
+              <div class="result-name">📤 已上传的照片</div>
+              <div class="result-meta">存储于 letmetry.cloud</div>
+            </div>
+          </div>
+        `;
+        
+        // Auto-select the uploaded image
+        setTimeout(() => selectImage(url, 0), 500);
+        
+        // Hide progress after a delay
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        progressText.textContent = `上传失败: ${error.message}`;
+        progressFill.style.backgroundColor = '#f44336';
+        
+        // Show error in search results
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">❌</div>
+            <div>上传失败</div>
+            <div class="hint">${escapeHtml(error.message)}</div>
+            <button class="btn btn-primary" style="margin-top: 16px;" onclick="uploadLocalImage()">
+              🔄 重试上传
+            </button>
+          </div>
+        `;
+        
+        // Reset after delay
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+          progressFill.style.backgroundColor = '#4caf50';
+        }, 3000);
+      }
     }
 
     // Close modal when clicking outside
