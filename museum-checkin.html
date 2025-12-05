@@ -3749,30 +3749,27 @@
             // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 亲子合影)
             // Automatically applied to any museum that has collections data
             // Uses selected treasures from configuration, defaults to first 3
-            if (Array.isArray(currentMuseum.collections) && currentMuseum.collections.length > 0) {
+            const totalTreasuresNeeded = 3;
+            const collections = currentMuseum.collections || [];
+            
+            if (Array.isArray(collections) && collections.length >= totalTreasuresNeeded) {
+                // Museum has 3+ treasures - use standard treasure hunt workflow
                 // Get selected treasures from configuration (defaults to first 3)
                 const selectedTreasureNames = getSelectedTreasuresForMuseum();
-                const selectedCollections = currentMuseum.collections.filter(c => selectedTreasureNames.includes(c.name));
+                const selectedCollections = collections.filter(c => selectedTreasureNames.includes(c.name));
                 
                 // If no valid selections, fall back to first 3
                 const colls = selectedCollections.length >= MIN_TREASURES_REQUIRED 
                     ? selectedCollections 
-                    : currentMuseum.collections.slice(0, Math.min(3, currentMuseum.collections.length));
+                    : collections.slice(0, Math.min(3, collections.length));
                 
-                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
-                const collTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
-                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
-                childTasks = [start].concat(collTasks, [end]);
+                // Use the shared helper with selected collections
+                childTasks = buildTreasureWorkflowTasks(colls);
             } else {
-                // For museums WITHOUT collections, show "add treasure" tasks
-                // This encourages users to discover and contribute treasures
-                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
-                const totalTreasures = 3;
-                const addTreasureTasks = Array.from({length: totalTreasures}, (_, i) => 
-                    `✨ 添加镇馆之宝 ${i + 1}/${totalTreasures}：找到你最喜欢的展品，拍照并记录名称`
-                );
-                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
-                childTasks = [start].concat(addTreasureTasks, [end]);
+                // Museum has 0-2 treasures - show mix of treasure tasks and "add treasure" tasks
+                // This allows incremental discovery: as users add treasures, tasks update
+                // Use the shared helper to build the task list
+                childTasks = buildTreasureWorkflowTasks(collections);
             }
 
             renderTasks();
@@ -4287,7 +4284,7 @@
         }
 
         // Complete a task
-        function completeTask() {
+        async function completeTask() {
             if (currentTaskIndex === null) return;
 
             // Check if this is an "添加镇馆之宝" task and validate/save data
@@ -4306,8 +4303,8 @@
                     return;
                 }
                 
-                // Save the contributed treasure data
-                saveContributedTreasure(currentTaskIndex, {
+                // Save the contributed treasure data (also saves to KV store)
+                await saveContributedTreasure(currentTaskIndex, {
                     name: treasureName,
                     imageUrl: treasureImage || '',
                     taskIndex: currentTaskIndex,
@@ -4361,9 +4358,14 @@
             // Show fireworks celebration
             celebrateWithFireworks();
             
-            // Re-render tasks
-            renderTasks();
-            updateProgress();
+            // If this was an "add treasure" task, regenerate task list to show the new treasure
+            if (isAddTreasureTask) {
+                regenerateTasksWithNewTreasures();
+            } else {
+                // Just re-render existing tasks
+                renderTasks();
+                updateProgress();
+            }
 
             // Upload firework to remote
             uploadFireworkEvent(currentTaskIndex);
@@ -4704,7 +4706,7 @@
         }
         
         // Save a contributed treasure for a specific task
-        function saveContributedTreasure(taskIndex, treasureData) {
+        async function saveContributedTreasure(taskIndex, treasureData) {
             try {
                 const key = getContributedTreasuresKey();
                 const allTreasures = JSON.parse(localStorage.getItem(key) || '{}');
@@ -4713,6 +4715,45 @@
                 
                 // Also save to the global contributed treasures list
                 saveToGlobalContributedTreasures(treasureData);
+                
+                // Add to current museum's collections and save to KV store (Tier 2)
+                // This ensures the treasure is persisted remotely like the settings page does
+                if (currentMuseum && treasureData.name) {
+                    const newTreasure = {
+                        name: treasureData.name,
+                        imageUrl: treasureData.imageUrl || '',
+                        description: '用户添加的镇馆之宝',
+                        isUserAdded: true,
+                        addedAt: treasureData.timestamp || Date.now()
+                    };
+                    
+                    // Initialize collections if not exists
+                    if (!currentMuseum.collections) {
+                        currentMuseum.collections = [];
+                    }
+                    
+                    // Check if treasure already exists in collections
+                    const existsInCollections = currentMuseum.collections.some(c => c.name === newTreasure.name);
+                    if (!existsInCollections) {
+                        currentMuseum.collections.push(newTreasure);
+                        
+                        // Also save to user treasures localStorage (for user-specific tracking)
+                        const userTreasures = loadUserAddedTreasures(museumId);
+                        const existsInUserTreasures = userTreasures.some(t => t.name === newTreasure.name);
+                        if (!existsInUserTreasures) {
+                            userTreasures.push(newTreasure);
+                            saveUserAddedTreasures(userTreasures);
+                        }
+                        
+                        // Save to KV store (remote persistence)
+                        const saveSuccess = await saveMuseumWithUserTreasuresToRemote();
+                        if (saveSuccess) {
+                            console.log(`Contributed treasure "${treasureData.name}" saved to KV store`);
+                        } else {
+                            console.warn(`Contributed treasure "${treasureData.name}" saved locally only (KV store unavailable)`);
+                        }
+                    }
+                }
             } catch (e) {
                 console.error('Error saving contributed treasure:', e);
             }
@@ -5858,6 +5899,54 @@
                 renderTasks();
                 updateProgress();
             }
+        }
+
+        /**
+         * Build treasure workflow task list based on available collections
+         * @param {Array} collections - Array of treasure/collection objects
+         * @returns {Array} Array of task strings
+         */
+        function buildTreasureWorkflowTasks(collections) {
+            const totalTreasuresNeeded = 3;
+            const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            
+            if (collections.length >= totalTreasuresNeeded) {
+                // All 3 treasures available - standard treasure hunt
+                const colls = collections.slice(0, totalTreasuresNeeded);
+                const treasureTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
+                return [start].concat(treasureTasks, [end]);
+            } else {
+                // Mix of treasure hunt and "add treasure" tasks
+                const existingTreasureCount = collections.length;
+                const addTreasuresNeeded = totalTreasuresNeeded - existingTreasureCount;
+                
+                // Create treasure hunt tasks for existing treasures
+                const treasureTasks = collections.slice(0, existingTreasureCount).map(c => 
+                    `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`
+                );
+                
+                // Create "add treasure" tasks for remaining slots
+                const addTreasureTasks = Array.from({length: addTreasuresNeeded}, (_, i) => 
+                    `✨ 添加镇馆之宝 ${existingTreasureCount + i + 1}/${totalTreasuresNeeded}：找到你最喜欢的展品，拍照并记录名称`
+                );
+                
+                return [start].concat(treasureTasks, addTreasureTasks, [end]);
+            }
+        }
+
+        /**
+         * Regenerate task list after adding a new treasure
+         * Creates a mix of treasure hunt tasks and "add treasure" tasks based on available treasures
+         */
+        function regenerateTasksWithNewTreasures() {
+            if (!currentMuseum) return;
+            
+            const collections = currentMuseum.collections || [];
+            childTasks = buildTreasureWorkflowTasks(collections);
+            
+            renderTasks();
+            updateProgress();
         }
 
         /**
