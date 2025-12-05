@@ -69,7 +69,8 @@ const APP_CONFIG = {
         SHARING_STATE: 'museumCheckSharingState',
         SORT_PREFERENCE: 'museumSortPreference',
         FAVORITE_MUSEUMS: 'favoriteMuseums',
-        CONTRIBUTED_TREASURES: 'contributedTreasures'  // User-contributed treasures
+        CONTRIBUTED_TREASURES: 'contributedTreasures',  // User-contributed treasures
+        CONTRIBUTED_MUSEUM_PHOTOS: 'contributedMuseumPhotos'  // User-contributed museum entrance photos
     },
     
     AGE_GROUPS: ['3-6', '7-12', '13-18'],   // Supported age groups
@@ -2054,6 +2055,42 @@ class ChecklistManager {
             return true;
         } catch (error) {
             console.warn('Error saving contributed treasure:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Get user-contributed museum entrance photo
+     * @param {string} museumId - Museum ID
+     * @returns {Object|null} Contributed photo object with imageUrl, or null if not found
+     */
+    getContributedMuseumPhoto(museumId) {
+        try {
+            const allContributed = JSON.parse(localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.CONTRIBUTED_MUSEUM_PHOTOS) || '{}');
+            return allContributed[museumId] || null;
+        } catch (error) {
+            console.warn('Error loading contributed museum photo:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Save a user-contributed museum entrance photo
+     * @param {string} museumId - Museum ID
+     * @param {Object} photo - Photo object with imageUrl
+     * @returns {boolean} Success status
+     */
+    saveContributedMuseumPhoto(museumId, photo) {
+        try {
+            const allContributed = JSON.parse(localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.CONTRIBUTED_MUSEUM_PHOTOS) || '{}');
+            allContributed[museumId] = {
+                ...photo,
+                contributedAt: Date.now()
+            };
+            localStorage.setItem(APP_CONFIG.LOCAL_STORAGE_KEYS.CONTRIBUTED_MUSEUM_PHOTOS, JSON.stringify(allContributed));
+            return true;
+        } catch (error) {
+            console.warn('Error saving contributed museum photo:', error);
             return false;
         }
     }
@@ -8216,6 +8253,59 @@ class MuseumCheckApp {
     }
 
     /**
+     * Generate museum image section HTML
+     * Shows existing image, contributed image, or photo contributor UI if no image exists
+     * @param {Object} museum - Museum object
+     * @param {string|null} effectiveImage - Image URL (from museum data or contributed)
+     * @param {Object|null} contributedPhoto - Contributed photo object if exists
+     * @returns {string} HTML for the museum image section
+     */
+    generateMuseumImageSection(museum, effectiveImage, contributedPhoto) {
+        // If we have an image (either from museum data or contributed), show it
+        if (effectiveImage) {
+            return `<div class="museum-image-section">
+                <img src="${effectiveImage}"
+                     alt="${museum.name}"
+                     class="museum-image"
+                     loading="lazy" decoding="async"
+                     width="360" height="200"
+                     style="aspect-ratio: 18/10; object-fit: cover;" />
+                ${contributedPhoto ? '<div class="museum-photo-contributed-badge">📸 感谢您贡献的照片</div>' : ''}
+            </div>`;
+        }
+        
+        // No image available - show photo contributor UI
+        return `<div class="museum-image-section museum-photo-contributor-section" data-museum-id="${museum.id}">
+            <div class="museum-photo-placeholder">
+                <div class="placeholder-icon">🏛️</div>
+                <div class="placeholder-text">暂无博物馆门口照片</div>
+                <div class="placeholder-hint">帮助其他家长，添加一张博物馆门口的照片吧！</div>
+            </div>
+            <div class="museum-photo-upload-section">
+                <div class="museum-photo-preview" id="museum-photo-preview-${museum.id}">
+                    <span class="preview-placeholder">📷 点击添加博物馆门口照片</span>
+                </div>
+                <div class="museum-photo-actions">
+                    <button class="museum-photo-search-btn" data-museum-id="${museum.id}" data-museum-name="${museum.name}">
+                        🔍 搜索图片
+                    </button>
+                    <label class="museum-photo-upload-btn">
+                        📤 上传照片
+                        <input type="file" class="museum-photo-file-input" 
+                               data-museum-id="${museum.id}"
+                               accept="image/*" style="display:none;">
+                    </label>
+                </div>
+                <button class="museum-photo-submit-btn" 
+                        data-museum-id="${museum.id}"
+                        style="display:none;">
+                    ✅ 确认添加照片
+                </button>
+            </div>
+        </div>`;
+    }
+
+    /**
      * Render museum modal content
      * Extracted from openMuseumModal to support async data loading
      */
@@ -8242,6 +8332,13 @@ class MuseumCheckApp {
             ? childByAge[preferredAge]
             : (Object.values(childByAge).find(arr => Array.isArray(arr) && arr.length) || []);
 
+        // Check for contributed museum entrance photo
+        const contributedPhoto = this.checklistManager ? this.checklistManager.getContributedMuseumPhoto(museum.id) : null;
+        const effectiveImage = museum.image || (contributedPhoto ? contributedPhoto.imageUrl : null);
+        
+        // Generate museum image section HTML
+        const museumImageSectionHtml = this.generateMuseumImageSection(museum, effectiveImage, contributedPhoto);
+
         content.innerHTML = `
             <div class="checklist-tabs">
                 <button class="tab-button ${activeTab === 'expert' ? 'active' : ''}" data-target="expert">👨‍👩‍👧 专家指导</button>
@@ -8249,14 +8346,7 @@ class MuseumCheckApp {
                 <button class="tab-button ${activeTab === 'child' ? 'active' : ''}" data-target="child">孩子任务</button>
                 <button class="tab-button ${activeTab === 'share' ? 'active' : ''}" data-target="share">生成海报</button>
             </div>
-            ${museum.image ? `<div class="museum-image-section">
-                <img src="${museum.image}"
-                     alt="${museum.name}"
-                     class="museum-image"
-                     loading="lazy" decoding="async"
-                     width="360" height="200"
-                     style="aspect-ratio: 18/10; object-fit: cover;" />
-            </div>` : ''}
+            ${museumImageSectionHtml}
             
             <div id="expertGuidance" class="checklist-content expert-guidance" ${activeTab !== 'expert' ? 'style="display: none;"' : ''}>
                 <div class="expert-header">
@@ -8800,6 +8890,14 @@ class MuseumCheckApp {
                     // Handle treasure contribution submission
                     e.stopPropagation();
                     this.handleTreasureSubmit(e.target);
+                } else if (e.target.classList.contains('museum-photo-search-btn')) {
+                    // Handle museum entrance photo search
+                    e.stopPropagation();
+                    this.handleMuseumPhotoSearch(e.target);
+                } else if (e.target.classList.contains('museum-photo-submit-btn')) {
+                    // Handle museum photo contribution submission
+                    e.stopPropagation();
+                    this.handleMuseumPhotoSubmit(e.target);
                 }
             };
             
@@ -8817,6 +8915,9 @@ class MuseumCheckApp {
                 } else if (e.target.classList.contains('treasure-file-input')) {
                     // Handle treasure file upload
                     this.handleTreasureFileUpload(e);
+                } else if (e.target.classList.contains('museum-photo-file-input')) {
+                    // Handle museum entrance photo file upload
+                    this.handleMuseumPhotoFileUpload(e);
                 }
             };
             
@@ -9264,6 +9365,336 @@ class MuseumCheckApp {
         }
     }
     // ===== END TREASURE CONTRIBUTOR METHODS =====
+
+    // ===== MUSEUM ENTRANCE PHOTO CONTRIBUTOR METHODS =====
+    
+    /**
+     * Handle museum entrance photo search button click
+     * Opens a search modal to find images from wiki or Baidu
+     */
+    handleMuseumPhotoSearch(button) {
+        const museumId = button.dataset.museumId;
+        const museumName = button.dataset.museumName;
+        
+        if (!museumName) {
+            console.warn('Museum name not found for photo search');
+            return;
+        }
+        
+        // Show image search modal using existing treasure search modal pattern
+        this.showMuseumPhotoSearchModal(museumName, museumId);
+    }
+    
+    /**
+     * Show museum photo search modal
+     * @param {string} museumName - Museum name to search for
+     * @param {string} museumId - Museum ID for storing the result
+     */
+    showMuseumPhotoSearchModal(museumName, museumId) {
+        // Create or get search modal
+        let modal = document.getElementById('museumPhotoSearchModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'museumPhotoSearchModal';
+            modal.className = 'modal treasure-search-modal';
+            modal.innerHTML = `
+                <div class="modal-content treasure-search-modal-content">
+                    <span class="close" onclick="document.getElementById('museumPhotoSearchModal').classList.add('hidden')">&times;</span>
+                    <h3>🔍 搜索博物馆门口照片</h3>
+                    <div class="treasure-search-query">
+                        <input type="text" id="museumPhotoSearchInput" class="treasure-search-input" 
+                               placeholder="输入搜索关键词" value="${museumName} 门口 外观">
+                        <button id="museumPhotoSearchBtn" class="treasure-search-action-btn">搜索</button>
+                    </div>
+                    <div class="treasure-search-tabs">
+                        <button class="treasure-tab active" data-source="wikimedia">维基百科</button>
+                        <button class="treasure-tab" data-source="baidu">百度图片</button>
+                    </div>
+                    <div id="museumPhotoSearchResults" class="treasure-search-results">
+                        <div class="treasure-search-empty">输入关键词并点击搜索</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Add search button handler
+            modal.querySelector('#museumPhotoSearchBtn').addEventListener('click', () => {
+                const query = modal.querySelector('#museumPhotoSearchInput').value.trim();
+                const activeTab = modal.querySelector('.treasure-tab.active');
+                const source = activeTab ? activeTab.dataset.source : 'wikimedia';
+                this.searchMuseumPhotoImages(query, source, museumId);
+            });
+            
+            // Add tab switching
+            modal.querySelectorAll('.treasure-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    modal.querySelectorAll('.treasure-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        } else {
+            // Update search input with museum name
+            modal.querySelector('#museumPhotoSearchInput').value = `${museumName} 门口 外观`;
+        }
+        
+        // Store museum ID for later use
+        modal.dataset.museumId = museumId;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+    }
+    
+    /**
+     * Search for museum entrance photos
+     * @param {string} query - Search query
+     * @param {string} source - Image source (wikimedia or baidu)
+     * @param {string} museumId - Museum ID
+     */
+    async searchMuseumPhotoImages(query, source, museumId) {
+        const resultsContainer = document.getElementById('museumPhotoSearchResults');
+        if (!resultsContainer) return;
+        
+        resultsContainer.innerHTML = '<div class="treasure-search-loading">🔍 搜索中...</div>';
+        
+        try {
+            let images = [];
+            
+            if (source === 'wikimedia') {
+                images = await this.searchWikimediaImages(query);
+            } else {
+                // For Baidu, show instruction
+                resultsContainer.innerHTML = `
+                    <div class="treasure-search-empty">
+                        <p>请访问百度图片搜索：</p>
+                        <a href="https://image.baidu.com/search/index?tn=baiduimage&word=${encodeURIComponent(query)}" 
+                           target="_blank" 
+                           style="color: var(--primary-color); text-decoration: underline;">
+                           点击打开百度图片
+                        </a>
+                        <p style="margin-top: 10px;">找到合适的图片后，右键复制图片地址，然后粘贴到下方：</p>
+                        <input type="text" id="baiduImageUrl" class="treasure-search-input" 
+                               placeholder="粘贴图片URL" style="margin-top: 10px;" data-museum-id="${museumId}">
+                        <button id="baiduUrlSubmitBtn" class="treasure-search-action-btn" style="margin-top: 10px;" data-museum-id="${museumId}">
+                            使用此图片
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener for the Baidu URL submit button
+                const baiduUrlSubmitBtn = resultsContainer.querySelector('#baiduUrlSubmitBtn');
+                if (baiduUrlSubmitBtn) {
+                    baiduUrlSubmitBtn.addEventListener('click', () => {
+                        this.selectMuseumPhotoFromUrl(baiduUrlSubmitBtn.dataset.museumId);
+                    });
+                }
+                return;
+            }
+            
+            if (images.length === 0) {
+                resultsContainer.innerHTML = '<div class="treasure-search-empty">未找到图片，请尝试其他关键词</div>';
+                return;
+            }
+            
+            // Create a safe HTML escape function
+            const escapeHtml = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+            
+            resultsContainer.innerHTML = `
+                <div class="treasure-image-grid">
+                    ${images.map(img => {
+                        const imageUrl = escapeHtml(img.url || img.imageUrl);
+                        const thumbUrl = escapeHtml(img.thumbnailUrl || img.url || img.imageUrl);
+                        return `
+                            <div class="treasure-image-item museum-photo-result" data-url="${imageUrl}" data-museum-id="${escapeHtml(museumId)}">
+                                <img src="${thumbUrl}" alt="${escapeHtml(query)}" loading="lazy">
+                                <button class="treasure-image-select museum-photo-select-btn">
+                                    选择
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            // Add event delegation for image selection
+            resultsContainer.querySelectorAll('.museum-photo-select-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const item = btn.closest('.museum-photo-result');
+                    if (item) {
+                        const url = item.dataset.url;
+                        const musId = item.dataset.museumId;
+                        this.selectMuseumPhotoImage(musId, url);
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Error searching museum photo images:', error);
+            resultsContainer.innerHTML = '<div class="treasure-search-empty">搜索出错，请重试</div>';
+        }
+    }
+    
+    /**
+     * Select a museum photo image from search results
+     * @param {string} museumId - Museum ID
+     * @param {string} imageUrl - Selected image URL
+     */
+    selectMuseumPhotoImage(museumId, imageUrl) {
+        // Update the preview in the main modal
+        const preview = document.getElementById(`museum-photo-preview-${museumId}`);
+        if (preview) {
+            preview.innerHTML = `<img src="${imageUrl}" alt="博物馆门口" class="treasure-preview-img">`;
+            preview.dataset.imageUrl = imageUrl;
+            
+            // Show submit button
+            const submitBtn = document.querySelector(`.museum-photo-submit-btn[data-museum-id="${museumId}"]`);
+            if (submitBtn) {
+                submitBtn.style.display = 'block';
+            }
+        }
+        
+        // Close search modal
+        const searchModal = document.getElementById('museumPhotoSearchModal');
+        if (searchModal) {
+            searchModal.classList.add('hidden');
+        }
+    }
+    
+    /**
+     * Select museum photo from pasted URL (for Baidu)
+     * @param {string} museumId - Museum ID
+     */
+    selectMuseumPhotoFromUrl(museumId) {
+        const input = document.getElementById('baiduImageUrl');
+        if (!input) return;
+        
+        const imageUrl = input.value.trim();
+        if (!imageUrl) {
+            alert('请粘贴图片URL');
+            return;
+        }
+        
+        this.selectMuseumPhotoImage(museumId, imageUrl);
+    }
+    
+    /**
+     * Handle museum entrance photo file upload
+     * @param {Event} e - Change event from file input
+     */
+    async handleMuseumPhotoFileUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const museumId = e.target.dataset.museumId;
+        const preview = document.getElementById(`museum-photo-preview-${museumId}`);
+        
+        if (!preview) {
+            console.warn('Preview element not found for museum:', museumId);
+            return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('请选择图片文件');
+            return;
+        }
+        
+        // Validate file size (max 10MB)
+        if (file.size > APP_CONFIG.TREASURE_CONTRIBUTOR.MAX_FILE_SIZE_MB * 1024 * 1024) {
+            alert(`文件大小不能超过${APP_CONFIG.TREASURE_CONTRIBUTOR.MAX_FILE_SIZE_MB}MB`);
+            return;
+        }
+        
+        try {
+            // Read file as data URL
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                preview.innerHTML = `<img src="${dataUrl}" alt="博物馆门口" class="treasure-preview-img">`;
+                preview.dataset.imageUrl = dataUrl;
+                
+                // Show submit button
+                const submitBtn = document.querySelector(`.museum-photo-submit-btn[data-museum-id="${museumId}"]`);
+                if (submitBtn) {
+                    submitBtn.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error uploading museum photo:', error);
+            alert('上传失败，请重试');
+        }
+    }
+    
+    /**
+     * Handle museum photo contribution submission
+     * @param {HTMLElement} button - Submit button element
+     */
+    handleMuseumPhotoSubmit(button) {
+        const museumId = button.dataset.museumId;
+        const preview = document.getElementById(`museum-photo-preview-${museumId}`);
+        
+        if (!preview) {
+            console.warn('Preview element not found');
+            return;
+        }
+        
+        const imageUrl = preview.dataset.imageUrl;
+        
+        if (!imageUrl) {
+            alert('请先添加博物馆门口照片');
+            return;
+        }
+        
+        // Save the contributed museum photo
+        const photo = {
+            imageUrl: imageUrl,
+            description: `由亲子探索者贡献于${new Date().toLocaleDateString(APP_CONFIG.LOCALE)}`
+        };
+        
+        if (this.checklistManager) {
+            this.checklistManager.saveContributedMuseumPhoto(museumId, photo);
+        }
+        
+        // Update UI - replace the entire section with the photo
+        const section = button.closest('.museum-photo-contributor-section');
+        if (section) {
+            section.innerHTML = `
+                <img src="${imageUrl}"
+                     alt="博物馆门口"
+                     class="museum-image"
+                     loading="lazy" decoding="async"
+                     width="360" height="200"
+                     style="aspect-ratio: 18/10; object-fit: cover;" />
+                <div class="museum-photo-contributed-badge">📸 感谢您贡献的照片</div>
+            `;
+            section.classList.remove('museum-photo-contributor-section');
+        }
+        
+        // Trigger celebration
+        this.triggerSmallRocket();
+        
+        // Track analytics
+        this.trackEvent('museum_photo_contributed', {
+            'museum_id': museumId
+        });
+        
+        // Gamification
+        if (this.achievementGamification) {
+            this.achievementGamification.addXP(15); // XP for contributing a museum photo
+        }
+    }
+    // ===== END MUSEUM ENTRANCE PHOTO CONTRIBUTOR METHODS =====
 
     showAchievementModal() {
         this.renderAchievements();

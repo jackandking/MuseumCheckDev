@@ -2197,6 +2197,178 @@ header h1 {
 }
 /* ===== END TREASURE CONTRIBUTOR STYLES ===== */
 
+/* ===== MUSEUM ENTRANCE PHOTO CONTRIBUTOR STYLES ===== */
+/* Styles for adding museum entrance photos when none exists in dynamic storage */
+
+.museum-photo-contributor-section {
+    margin: 16px 0 20px 0;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px dashed #dee2e6;
+}
+
+.museum-photo-placeholder {
+    margin-bottom: 16px;
+}
+
+.placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    opacity: 0.7;
+}
+
+.placeholder-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 4px;
+}
+
+.placeholder-hint {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.museum-photo-upload-section {
+    margin-top: 16px;
+}
+
+.museum-photo-preview {
+    width: 100%;
+    min-height: 120px;
+    max-height: 200px;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    overflow: hidden;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.museum-photo-preview:hover {
+    border-color: var(--primary-color);
+    background-color: #f8fbff;
+}
+
+.museum-photo-preview img {
+    max-width: 100%;
+    max-height: 196px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.museum-photo-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.museum-photo-search-btn,
+.museum-photo-upload-btn {
+    flex: 1;
+    min-width: 120px;
+    max-width: 180px;
+    padding: 10px 16px;
+    font-size: 14px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    background-color: white;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.museum-photo-search-btn:hover,
+.museum-photo-upload-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.museum-photo-submit-btn {
+    width: 100%;
+    max-width: 300px;
+    margin: 12px auto 0;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.museum-photo-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.museum-photo-contributed-badge {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+/* Mobile responsive for museum photo contributor */
+@media (max-width: 768px) {
+    .museum-photo-contributor-section {
+        padding: 16px;
+    }
+    
+    .placeholder-icon {
+        font-size: 40px;
+    }
+    
+    .museum-photo-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .museum-photo-search-btn,
+    .museum-photo-upload-btn {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .museum-photo-contributor-section {
+        padding: 12px;
+    }
+    
+    .placeholder-text {
+        font-size: 15px;
+    }
+    
+    .placeholder-hint {
+        font-size: 13px;
+    }
+    
+    .museum-photo-submit-btn {
+        font-size: 15px;
+        padding: 12px 16px;
+    }
+}
+/* ===== END MUSEUM ENTRANCE PHOTO CONTRIBUTOR STYLES ===== */
+
 /* Share Poster Styles */
 .share-poster-section {
     text-align: center;

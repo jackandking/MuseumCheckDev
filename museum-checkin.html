@@ -2438,6 +2438,147 @@
             margin-top: 16px;
         }
 
+        /* Museum Entrance Photo Contributor Section */
+        .museum-photo-contributor-modal {
+            margin: 16px 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 12px;
+            border: 1px solid #86efac;
+            text-align: center;
+        }
+
+        .museum-photo-contributor-hint {
+            margin-bottom: 16px;
+        }
+
+        .museum-photo-contributor-hint .hint-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .museum-photo-contributor-hint .hint-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 4px;
+        }
+
+        .museum-photo-contributor-hint .hint-subtext {
+            font-size: 13px;
+            color: #15803d;
+        }
+
+        .museum-photo-contributor-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .add-museum-photo-input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #166534;
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .museum-photo-contributor-form .input-with-action {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .museum-photo-contributor-form input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #86efac;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .museum-photo-contributor-form input[type="text"]:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .museum-photo-contributor-form .search-buttons-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .museum-photo-contributor-form .image-preview-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .museum-photo-contributor-form .image-preview-placeholder {
+            width: 200px;
+            height: 120px;
+            border-radius: 12px;
+            border: 2px dashed #86efac;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #22c55e;
+            cursor: pointer;
+        }
+
+        .museum-photo-contributor-form .image-preview-placeholder:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .museum-photo-contributor-form .image-preview-thumb {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #22c55e;
+        }
+
+        .museum-photo-submit-btn {
+            width: 100%;
+            max-width: 250px;
+            margin: 8px auto 0;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .museum-photo-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .museum-photo-contributed-badge {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #166534;
+            border: 1px solid #22c55e;
+        }
+
         .user-added-treasure-item {
             display: flex;
             align-items: center;
@@ -2860,6 +3001,37 @@
             </div>
             <div class="task-detail-icon" id="modalIcon"></div>
             <img id="modalImage" class="task-image" style="display: none;" />
+            
+            <!-- Museum Entrance Photo Contributor Section (when no museum image exists) -->
+            <div class="museum-photo-contributor-modal" id="museumPhotoContributorSection" style="display: none;">
+                <div class="museum-photo-contributor-hint">
+                    <div class="hint-icon">🏛️</div>
+                    <div class="hint-text">暂无博物馆门口照片</div>
+                    <div class="hint-subtext">帮助其他家长，添加一张博物馆门口的照片吧！</div>
+                </div>
+                <div class="museum-photo-contributor-form">
+                    <div class="add-museum-photo-input-group">
+                        <label>🔍 搜索图片</label>
+                        <div class="input-with-action">
+                            <input type="text" id="modalMuseumPhotoSearch" placeholder="输入博物馆名称搜索">
+                            <div class="search-buttons-container">
+                                <button type="button" class="search-wiki-btn" id="modalMuseumPhotoSearchWikiBtn">Wiki</button>
+                                <button type="button" class="search-baidu-btn" id="modalMuseumPhotoSearchBaiduBtn">百度</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="image-preview-container">
+                        <div id="modalMuseumPhotoPreview" class="image-preview-placeholder">📷 添加博物馆门口照片</div>
+                    </div>
+                    <button type="button" class="museum-photo-submit-btn" id="modalMuseumPhotoSubmitBtn" style="display: none;">
+                        ✅ 确认添加照片
+                    </button>
+                    <div class="museum-photo-contributed-badge" id="museumPhotoContributedBadge" style="display: none;">
+                        📸 感谢您贡献的照片
+                    </div>
+                </div>
+            </div>
+            
             <h3 class="task-detail-title" id="modalTaskTitle"></h3>
             <div class="task-detail-description" id="modalDescription"></div>
             
@@ -4146,6 +4318,9 @@
             document.getElementById('modalTaskTitle').textContent = title;
             document.getElementById('modalDescription').textContent = subtitle || '完成这个有趣的任务吧！';
             
+            // Get museum photo contributor section
+            const museumPhotoSection = document.getElementById('museumPhotoContributorSection');
+            
             // Try show collection image
             try {
                 const imgEl = document.getElementById('modalImage');
@@ -4153,7 +4328,9 @@
                 let matchedUrl = '';
                 
                 // Check if this is a 门口打卡 task - use museum image
-                if (title && title.includes('门口打卡') && m && m.image) {
+                const isDoorCheckinTask = title && title.includes('门口打卡');
+                
+                if (isDoorCheckinTask && m && m.image) {
                     matchedUrl = m.image;
                 }
                 // Otherwise, try to match collection images for treasure hunt tasks
@@ -4165,10 +4342,49 @@
                 }
                 
                 if (imgEl) {
-                    if (matchedUrl) { imgEl.src = matchedUrl; imgEl.style.display = 'block'; }
-                    else { imgEl.removeAttribute('src'); imgEl.style.display = 'none'; }
+                    if (matchedUrl) { 
+                        imgEl.src = matchedUrl; 
+                        imgEl.style.display = 'block'; 
+                        if (museumPhotoSection) museumPhotoSection.style.display = 'none';
+                    } else { 
+                        imgEl.removeAttribute('src'); 
+                        imgEl.style.display = 'none'; 
+                        
+                        // Show museum photo contributor section for 门口打卡 task when no image
+                        if (isDoorCheckinTask && museumPhotoSection) {
+                            // Check if user already contributed a photo
+                            const contributedPhoto = getContributedMuseumPhoto(m.id);
+                            if (contributedPhoto && contributedPhoto.imageUrl) {
+                                // Show the contributed photo instead
+                                imgEl.src = contributedPhoto.imageUrl;
+                                imgEl.style.display = 'block';
+                                museumPhotoSection.style.display = 'none';
+                            } else {
+                                // Show the contributor section
+                                museumPhotoSection.style.display = 'block';
+                                // Initialize search input with museum name
+                                const searchInput = document.getElementById('modalMuseumPhotoSearch');
+                                if (searchInput) searchInput.value = m.name + ' 门口 外观';
+                                // Reset preview
+                                const preview = document.getElementById('modalMuseumPhotoPreview');
+                                if (preview) {
+                                    preview.innerHTML = '📷 添加博物馆门口照片';
+                                    preview.classList.remove('image-preview-thumb');
+                                    preview.classList.add('image-preview-placeholder');
+                                    delete preview.dataset.imageUrl;
+                                }
+                                // Hide submit button and badge
+                                document.getElementById('modalMuseumPhotoSubmitBtn').style.display = 'none';
+                                document.getElementById('museumPhotoContributedBadge').style.display = 'none';
+                            }
+                        } else {
+                            if (museumPhotoSection) museumPhotoSection.style.display = 'none';
+                        }
+                    }
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('Error in openTaskDetail image handling:', e);
+            }
 
             // Initialize photo preview for this task
             const photoPreview = document.getElementById('photoPreview');
@@ -4792,6 +5008,159 @@
             }
         }
 
+        // ===== Museum Entrance Photo Contributor Functions =====
+        
+        // Local storage key for contributed museum photos
+        // NOTE: This key must match APP_CONFIG.LOCAL_STORAGE_KEYS.CONTRIBUTED_MUSEUM_PHOTOS in script.js
+        // Duplicated here since museum-checkin.html is a standalone page that doesn't import script.js config
+        const CONTRIBUTED_MUSEUM_PHOTOS_KEY = 'contributedMuseumPhotos';
+        
+        // Get contributed museum entrance photo
+        function getContributedMuseumPhoto(musId) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY) || '{}');
+                return all[musId] || null;
+            } catch (e) {
+                console.error('Error getting contributed museum photo:', e);
+                return null;
+            }
+        }
+        
+        // Save contributed museum entrance photo
+        function saveContributedMuseumPhoto(musId, photoData) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY) || '{}');
+                all[musId] = {
+                    ...photoData,
+                    contributedAt: Date.now()
+                };
+                localStorage.setItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY, JSON.stringify(all));
+                console.log('Museum photo contributed successfully:', musId);
+                
+                // Also update currentMuseum.image so it shows immediately
+                if (currentMuseum && currentMuseum.id === musId) {
+                    currentMuseum.image = photoData.imageUrl;
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Error saving contributed museum photo:', e);
+                return false;
+            }
+        }
+        
+        // Handle museum photo search (wiki or baidu)
+        async function handleMuseumPhotoSearch(source) {
+            const searchInput = document.getElementById('modalMuseumPhotoSearch');
+            const query = searchInput ? searchInput.value.trim() : '';
+            
+            if (!query) {
+                alert('请输入搜索关键词');
+                return;
+            }
+            
+            if (source === 'wiki') {
+                // Use existing Wiki search modal pattern
+                try {
+                    // Set callback context for wiki search
+                    window.currentImageInputId = null;  // Not using input field
+                    window.currentPreviewId = 'modalMuseumPhotoPreview';
+                    // Copy name to search input
+                    const wikiSearchInput = document.getElementById('wikiSearchInput');
+                    if (wikiSearchInput) {
+                        wikiSearchInput.value = query;
+                    }
+                    openWikiSearch();
+                } catch (e) {
+                    console.error('Wiki search error:', e);
+                    alert('搜索失败，请重试');
+                }
+            } else if (source === 'baidu') {
+                // Open Baidu image search in new tab
+                window.open(`https://image.baidu.com/search/index?tn=baiduimage&word=${encodeURIComponent(query)}`, '_blank');
+                // Show prompt to paste URL
+                const url = prompt('在百度图片中找到合适的图片后，右键复制图片地址并粘贴到此处：');
+                if (url && url.trim()) {
+                    showMuseumPhotoPreview(url.trim());
+                }
+            }
+        }
+        
+        // Show museum photo preview
+        function showMuseumPhotoPreview(imageUrl) {
+            const preview = document.getElementById('modalMuseumPhotoPreview');
+            if (!preview || !imageUrl) return;
+            
+            // Replace placeholder with image
+            preview.innerHTML = `<img src="${imageUrl}" alt="博物馆门口" class="image-preview-thumb">`;
+            preview.classList.remove('image-preview-placeholder');
+            preview.classList.add('image-preview-thumb');
+            preview.dataset.imageUrl = imageUrl;
+            
+            // Show submit button
+            document.getElementById('modalMuseumPhotoSubmitBtn').style.display = 'block';
+        }
+        
+        // Handle museum photo submit
+        function handleMuseumPhotoSubmit() {
+            const preview = document.getElementById('modalMuseumPhotoPreview');
+            if (!preview) return;
+            
+            const imageUrl = preview.dataset.imageUrl;
+            if (!imageUrl) {
+                alert('请先添加博物馆门口照片');
+                return;
+            }
+            
+            // Save the photo
+            const success = saveContributedMuseumPhoto(museumId, {
+                imageUrl: imageUrl,
+                description: `由亲子探索者贡献于${new Date().toLocaleDateString('zh-CN')}`
+            });
+            
+            if (success) {
+                // Hide contributor section, show the photo
+                document.getElementById('museumPhotoContributorSection').style.display = 'none';
+                const imgEl = document.getElementById('modalImage');
+                if (imgEl) {
+                    imgEl.src = imageUrl;
+                    imgEl.style.display = 'block';
+                }
+                
+                // Show success badge briefly
+                document.getElementById('museumPhotoContributedBadge').style.display = 'block';
+                
+                // Update the task card on the main page
+                updateTaskCardImage(0, imageUrl);
+                
+                // Play celebration sound if available
+                if (typeof playSuccessSound === 'function') playSuccessSound();
+            }
+        }
+        
+        // Update task card image after contribution
+        function updateTaskCardImage(taskIndex, imageUrl) {
+            const taskCards = document.querySelectorAll('.task-card');
+            if (taskCards[taskIndex]) {
+                const card = taskCards[taskIndex];
+                const visualContainer = card.querySelector('.task-visual-container');
+                if (visualContainer) {
+                    const iconDiv = visualContainer.querySelector('.task-icon');
+                    let imgEl = visualContainer.querySelector('.task-card-image');
+                    if (!imgEl) {
+                        imgEl = document.createElement('img');
+                        imgEl.className = 'task-card-image';
+                        visualContainer.insertBefore(imgEl, iconDiv);
+                    }
+                    imgEl.src = imageUrl;
+                    imgEl.style.display = 'block';
+                    if (iconDiv) iconDiv.style.display = 'none';
+                }
+            }
+        }
+        
+        // ===== End Museum Entrance Photo Contributor Functions =====
+
         // Helper function: Draw Minecraft-style corner decorations
         function drawMinecraftCorners(ctx, width, height) {
             const blockSize = 16;
@@ -5350,6 +5719,24 @@
                     }
                 });
             }
+
+            // ===== Museum Entrance Photo Contributor Event Listeners =====
+            const museumPhotoSearchWikiBtn = document.getElementById('modalMuseumPhotoSearchWikiBtn');
+            const museumPhotoSearchBaiduBtn = document.getElementById('modalMuseumPhotoSearchBaiduBtn');
+            const museumPhotoSubmitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
+            
+            if (museumPhotoSearchWikiBtn) {
+                museumPhotoSearchWikiBtn.onclick = () => handleMuseumPhotoSearch('wiki');
+            }
+            
+            if (museumPhotoSearchBaiduBtn) {
+                museumPhotoSearchBaiduBtn.onclick = () => handleMuseumPhotoSearch('baidu');
+            }
+            
+            if (museumPhotoSubmitBtn) {
+                museumPhotoSubmitBtn.onclick = handleMuseumPhotoSubmit;
+            }
+            // ===== End Museum Photo Contributor Event Listeners =====
 
             // Celebration close button
             document.getElementById('closeCelebration').onclick = () => {
@@ -6477,6 +6864,14 @@
                     img.alt = '预览';
                     preview.textContent = '';
                     preview.appendChild(img);
+                    // Store image URL for museum photo submission
+                    preview.dataset.imageUrl = imageUrl;
+                    
+                    // Show museum photo submit button if this is museum photo preview
+                    if (previewId === 'modalMuseumPhotoPreview') {
+                        const submitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
+                        if (submitBtn) submitBtn.style.display = 'block';
+                    }
                 }
                 // Also update settings modal preview if we're using that one
                 if (inputId === 'newTreasureImage') {
