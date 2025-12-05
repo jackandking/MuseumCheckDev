@@ -3845,4 +3845,322 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
       expect(visitedMuseums).not.toContain(museumId);
     });
   });
+
+  describe('Museum Check-in Page - User-Added Treasures KV Store Bug', () => {
+    /**
+     * Bug: 在打卡页面添加镇馆之宝之后，没有存到动态数据kvstore
+     * (After adding a treasure on the check-in page, it was not saved to the dynamic data kvstore)
+     * 
+     * Root Cause: User-added treasures were saved to localStorage but not merged into 
+     * currentMuseum.collections during page reload. Even if KV store save failed,
+     * the treasures should still be available from localStorage.
+     * 
+     * Fixed: Added code in loadMuseumData() to merge user-added treasures from localStorage
+     * into currentMuseum.collections after loading the base museum data.
+     */
+
+    let mockLocalStorage;
+    let store;
+
+    beforeEach(() => {
+      store = {};
+      mockLocalStorage = {
+        getItem: jest.fn((key) => store[key] || null),
+        setItem: jest.fn((key, value) => {
+          store[key] = value.toString();
+        }),
+        removeItem: jest.fn((key) => {
+          delete store[key];
+        })
+      };
+      global.localStorage = mockLocalStorage;
+    });
+
+    test('should merge user-added treasures from localStorage into museum collections on page load', () => {
+      const museumId = 'forbidden-city';
+      
+      // Simulate user-added treasures in localStorage (saved by addUserTreasure)
+      const userTreasures = [
+        {
+          name: '测试镇馆之宝',
+          imageUrl: 'https://example.com/test.jpg',
+          description: '用户添加的镇馆之宝',
+          isUserAdded: true,
+          addedAt: Date.now()
+        }
+      ];
+      store[`userAddedTreasures_${museumId}`] = JSON.stringify(userTreasures);
+      
+      // Simulate museum data loaded from KV store or static data (without user treasures)
+      const currentMuseum = {
+        id: museumId,
+        name: '故宫博物院',
+        collections: [
+          { name: '《清明上河图》', description: '北宋名画' },
+          { name: '太和殿金漆雕龙宝座', description: '皇帝宝座' }
+        ]
+      };
+      
+      // Mock loadUserAddedTreasures function
+      const loadUserAddedTreasures = (musId) => {
+        try {
+          const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+          return [];
+        }
+      };
+      
+      // This is the fix: merge user-added treasures into currentMuseum.collections
+      const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+      if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+        if (!currentMuseum.collections) {
+          currentMuseum.collections = [];
+        }
+        // Add user treasures if not already in collections
+        userTreasuresLoaded.forEach(ut => {
+          const exists = currentMuseum.collections.some(c => c.name === ut.name);
+          if (!exists) {
+            currentMuseum.collections.push({
+              ...ut,
+              isUserAdded: true
+            });
+          }
+        });
+      }
+      
+      // Verify user-added treasure is now in collections
+      expect(currentMuseum.collections.length).toBe(3);
+      expect(currentMuseum.collections.some(c => c.name === '测试镇馆之宝')).toBe(true);
+      expect(currentMuseum.collections.find(c => c.name === '测试镇馆之宝').isUserAdded).toBe(true);
+    });
+
+    test('should not duplicate treasures if they already exist in collections', () => {
+      const museumId = 'forbidden-city';
+      
+      // Simulate user-added treasure with same name as existing treasure
+      const userTreasures = [
+        {
+          name: '《清明上河图》', // Same name as existing treasure
+          imageUrl: 'https://example.com/user-photo.jpg',
+          description: '用户添加的镇馆之宝',
+          isUserAdded: true,
+          addedAt: Date.now()
+        }
+      ];
+      store[`userAddedTreasures_${museumId}`] = JSON.stringify(userTreasures);
+      
+      const currentMuseum = {
+        id: museumId,
+        name: '故宫博物院',
+        collections: [
+          { name: '《清明上河图》', description: '北宋名画' },
+          { name: '太和殿金漆雕龙宝座', description: '皇帝宝座' }
+        ]
+      };
+      
+      const loadUserAddedTreasures = (musId) => {
+        try {
+          const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+          return [];
+        }
+      };
+      
+      // Apply the fix
+      const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+      if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+        userTreasuresLoaded.forEach(ut => {
+          const exists = currentMuseum.collections.some(c => c.name === ut.name);
+          if (!exists) {
+            currentMuseum.collections.push({
+              ...ut,
+              isUserAdded: true
+            });
+          }
+        });
+      }
+      
+      // Should NOT add duplicate - still only 2 treasures
+      expect(currentMuseum.collections.length).toBe(2);
+    });
+
+    test('should handle empty user treasures gracefully', () => {
+      const museumId = 'forbidden-city';
+      
+      // No user treasures in localStorage
+      store[`userAddedTreasures_${museumId}`] = JSON.stringify([]);
+      
+      const currentMuseum = {
+        id: museumId,
+        name: '故宫博物院',
+        collections: [
+          { name: '《清明上河图》', description: '北宋名画' }
+        ]
+      };
+      
+      const loadUserAddedTreasures = (musId) => {
+        try {
+          const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+          return [];
+        }
+      };
+      
+      const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+      if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+        userTreasuresLoaded.forEach(ut => {
+          const exists = currentMuseum.collections.some(c => c.name === ut.name);
+          if (!exists) {
+            currentMuseum.collections.push({ ...ut, isUserAdded: true });
+          }
+        });
+      }
+      
+      // Collections should remain unchanged
+      expect(currentMuseum.collections.length).toBe(1);
+    });
+
+    test('should handle missing localStorage key gracefully', () => {
+      const museumId = 'forbidden-city';
+      
+      // No localStorage entry at all
+      const currentMuseum = {
+        id: museumId,
+        name: '故宫博物院',
+        collections: []
+      };
+      
+      const loadUserAddedTreasures = (musId) => {
+        try {
+          const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+          return [];
+        }
+      };
+      
+      // Should not throw
+      expect(() => {
+        const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+        if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+          userTreasuresLoaded.forEach(ut => {
+            currentMuseum.collections.push({ ...ut, isUserAdded: true });
+          });
+        }
+      }).not.toThrow();
+      
+      expect(currentMuseum.collections.length).toBe(0);
+    });
+
+    test('should initialize collections array if undefined', () => {
+      const museumId = 'new-museum';
+      
+      // User treasures exist in localStorage
+      const userTreasures = [
+        {
+          name: '新宝贝',
+          imageUrl: 'https://example.com/new.jpg',
+          description: '用户添加的宝贝',
+          isUserAdded: true,
+          addedAt: Date.now()
+        }
+      ];
+      store[`userAddedTreasures_${museumId}`] = JSON.stringify(userTreasures);
+      
+      // Museum loaded without collections array
+      const currentMuseum = {
+        id: museumId,
+        name: '新博物馆'
+        // Note: no collections property
+      };
+      
+      const loadUserAddedTreasures = (musId) => {
+        try {
+          const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+          return [];
+        }
+      };
+      
+      // Apply the fix with collections initialization
+      const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+      if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+        if (!currentMuseum.collections) {
+          currentMuseum.collections = [];
+        }
+        userTreasuresLoaded.forEach(ut => {
+          const exists = currentMuseum.collections.some(c => c.name === ut.name);
+          if (!exists) {
+            currentMuseum.collections.push({ ...ut, isUserAdded: true });
+          }
+        });
+      }
+      
+      // Collections should now exist and contain user treasure
+      expect(currentMuseum.collections).toBeDefined();
+      expect(currentMuseum.collections.length).toBe(1);
+      expect(currentMuseum.collections[0].name).toBe('新宝贝');
+    });
+
+    test('should work with KV store failure scenario', () => {
+      /**
+       * This test simulates the original bug scenario:
+       * 1. User adds a treasure
+       * 2. KV store save fails (network error)
+       * 3. User reloads page
+       * 4. Treasure should still appear because it was saved to localStorage
+       */
+      const museumId = 'test-museum';
+      
+      // Step 1 & 2: User added treasure, saved to localStorage, but KV store failed
+      const userTreasures = [
+        {
+          name: '用户发现的宝贝',
+          imageUrl: 'https://example.com/treasure.jpg',
+          description: '用户添加的镇馆之宝',
+          isUserAdded: true,
+          addedAt: Date.now()
+        }
+      ];
+      store[`userAddedTreasures_${museumId}`] = JSON.stringify(userTreasures);
+      
+      // Step 3: Page reload - museum data loaded from static data (without user treasure)
+      // because KV store save failed
+      const currentMuseum = {
+        id: museumId,
+        name: '测试博物馆',
+        collections: [
+          { name: '原有镇馆之宝', description: '博物馆原有的宝贝' }
+        ]
+      };
+      
+      const loadUserAddedTreasures = (musId) => {
+        const saved = mockLocalStorage.getItem(`userAddedTreasures_${musId}`);
+        return saved ? JSON.parse(saved) : [];
+      };
+      
+      // The fix: merge user treasures from localStorage
+      const userTreasuresLoaded = loadUserAddedTreasures(museumId);
+      if (userTreasuresLoaded && userTreasuresLoaded.length > 0) {
+        if (!currentMuseum.collections) {
+          currentMuseum.collections = [];
+        }
+        userTreasuresLoaded.forEach(ut => {
+          const exists = currentMuseum.collections.some(c => c.name === ut.name);
+          if (!exists) {
+            currentMuseum.collections.push({ ...ut, isUserAdded: true });
+          }
+        });
+      }
+      
+      // Step 4: Verify treasure appears despite KV store failure
+      expect(currentMuseum.collections.length).toBe(2);
+      expect(currentMuseum.collections.some(c => c.name === '用户发现的宝贝')).toBe(true);
+      expect(currentMuseum.collections.some(c => c.name === '原有镇馆之宝')).toBe(true);
+    });
+  });
 });

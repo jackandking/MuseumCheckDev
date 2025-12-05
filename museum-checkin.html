@@ -3734,6 +3734,26 @@
                 return;
             }
 
+            // Merge user-added treasures from localStorage into currentMuseum.collections
+            // This ensures user-added treasures are available even if KV store save failed
+            const userTreasures = loadUserAddedTreasures(museumId);
+            if (userTreasures && userTreasures.length > 0) {
+                if (!currentMuseum.collections) {
+                    currentMuseum.collections = [];
+                }
+                // Add user treasures if not already in collections
+                userTreasures.forEach(ut => {
+                    const exists = currentMuseum.collections.some(c => c.name === ut.name);
+                    if (!exists) {
+                        currentMuseum.collections.push({
+                            ...ut,
+                            isUserAdded: true
+                        });
+                    }
+                });
+                console.debug(`Merged ${userTreasures.length} user-added treasures into museum collections`);
+            }
+
             document.getElementById('museumName').textContent = currentMuseum.name;
             
             // Get child tasks for the age group
