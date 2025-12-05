@@ -7105,7 +7105,6 @@ class MuseumCheckApp {
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
                                 <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
-                                ${hasCollections ? `<button class="museum-v3-button" title="进入导览模式">🧭 导览</button>` : ''}
                                 <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
                                 ${isVisited && !this.assessmentHidden 
                                     ? (hasAssessment 
@@ -7128,7 +7127,6 @@ class MuseumCheckApp {
                         !e.target.classList.contains('museum-fireworks-button') &&
                         !e.target.classList.contains('museum-checkin-button') &&
                         !e.target.classList.contains('museum-manage-button') &&
-                        !e.target.classList.contains('museum-v3-button') &&
                         !e.target.classList.contains('favorite-button')) {
                         // Navigate to v2 check-in page (museum-checkin.html)
                         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
@@ -7202,14 +7200,6 @@ class MuseumCheckApp {
                             'museum_name': museum.name,
                             'age_group': ageGroup
                         });
-                    });
-                }
-                // Bind v3 single-museum button if present (rendered inline for supported museums)
-                const v3Btn = card.querySelector('.museum-v3-button');
-                if (v3Btn) {
-                    v3Btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        window.location.href = `single-museum.html?museum=${museum.id}`;
                     });
                 }
 

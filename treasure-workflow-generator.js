@@ -339,19 +339,22 @@
 
       // Check if museum already has a treasure discovery workflow
       const hasTreasureWorkflow = museum.workflows.some(wf => wf.id === 'treasure-discovery');
+      const museumHasCollections = hasCollections(museum);
 
-      if (!hasTreasureWorkflow) {
-        // Generate and add treasure hunt workflow
+      // For museums WITH collections, generate the treasure-hunt workflow (photo check-in)
+      // For museums WITHOUT collections, skip the placeholder treasure-hunt workflow
+      if (!hasTreasureWorkflow && museumHasCollections) {
+        // Generate and add treasure hunt workflow only for museums with defined collections
         const workflow = generateTreasureHuntWorkflow(museum);
         museum.workflows.push(workflow);
         generatedCount++;
-      } else {
+      } else if (hasTreasureWorkflow) {
         existingCount++;
       }
 
-      // For museums WITHOUT collections, also add contributor workflow
-      // This allows children to discover and add their own treasures
-      if (!hasCollections(museum)) {
+      // For museums WITHOUT collections, add ONLY the contributor workflow
+      // This allows children to discover and add their own treasures with name input and wiki search
+      if (!museumHasCollections) {
         const hasContributorWorkflow = museum.workflows.some(wf => wf.id === 'treasure-contributor');
         
         if (!hasContributorWorkflow) {

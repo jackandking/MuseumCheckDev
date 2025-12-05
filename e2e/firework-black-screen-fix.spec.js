@@ -5,8 +5,8 @@ const { test, expect } = require('@playwright/test');
 test.setTimeout(60000);
 
 test('Firework canvas clears after animation completes', async ({ page }) => {
-  // Navigate to single museum page with required settings
-  await page.goto('/single-museum.html', { waitUntil: 'domcontentloaded' });
+  // Navigate to museum checkin page with required settings
+  await page.goto('/museum-checkin.html?museum=forbidden-city', { waitUntil: 'domcontentloaded' });
   
   // Set up required settings to skip settings page
   await page.evaluate(() => {
@@ -93,7 +93,7 @@ test('Firework canvas clears after animation completes', async ({ page }) => {
 });
 
 test('Multiple fireworks clear properly without accumulating dark overlay', async ({ page }) => {
-  await page.goto('/single-museum.html', { waitUntil: 'domcontentloaded' });
+  await page.goto('/museum-checkin.html?museum=forbidden-city', { waitUntil: 'domcontentloaded' });
   
   await page.evaluate(() => {
     localStorage.setItem('childNickname', '小红');

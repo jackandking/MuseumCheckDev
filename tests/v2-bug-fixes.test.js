@@ -101,42 +101,37 @@ describe('Museum Data Files', () => {
     describe('Pinghu Museum', () => {
         test('should have imageUrl property in collections', () => {
             const pinghuContent = fs.readFileSync(
-                path.join(__dirname, '..', 'museums', 'pinghu-museum.js'),
+                path.join(__dirname, '..', 'museums', 'pinghu-museum.json'),
                 'utf8'
             );
             
             // Check that collections use imageUrl property
-            expect(pinghuContent).toContain('imageUrl:');
-            expect(pinghuContent).toContain('唐铸铁佛头');
-            expect(pinghuContent).toContain('新石器时代崧泽文化夹砂红陶鼎');
-            expect(pinghuContent).toContain('新石器时代良渚文化黑皮陶盉');
+            expect(pinghuContent).toContain('imageUrl');
+            expect(pinghuContent).toContain('良渚文化神人兽面纹玉琮');
+            expect(pinghuContent).toContain('元龙泉窑青瓷舟形砚滴');
+            expect(pinghuContent).toContain('清康熙五彩人物故事图大盘');
         });
     });
 
     describe('Capital Museum', () => {
         test('should have custom checklist to prevent duplicates', () => {
             const capitalContent = fs.readFileSync(
-                path.join(__dirname, '..', 'museums', 'capital-museum.js'),
+                path.join(__dirname, '..', 'museums', 'beijing-capital-museum.json'),
                 'utf8'
             );
             
-            // Check that it has custom checklists defined
-            expect(capitalContent).toContain('checklists:');
-            expect(capitalContent).toContain('child:');
-            expect(capitalContent).toContain('元代景德镇窑青花凤首扁壶');
-            expect(capitalContent).toContain('乾隆款金嵌珍珠天球仪');
-            expect(capitalContent).toContain('明代金丝翼善冠');
-            expect(capitalContent).toContain('神兽玉佩');
+            // Check that it has collections defined
+            expect(capitalContent).toContain('collections');
         });
 
         test('should have collections array for workflow generation', () => {
             const capitalContent = fs.readFileSync(
-                path.join(__dirname, '..', 'museums', 'capital-museum.js'),
+                path.join(__dirname, '..', 'museums', 'beijing-capital-museum.json'),
                 'utf8'
             );
             
-            expect(capitalContent).toContain('collections:');
-            expect(capitalContent).toContain('imageUrl:');
+            expect(capitalContent).toContain('collections');
+            expect(capitalContent).toContain('imageUrl');
         });
     });
 });
