@@ -3644,6 +3644,16 @@
                 const collTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
                 const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
                 childTasks = [start].concat(collTasks, [end]);
+            } else {
+                // For museums WITHOUT collections, show "add treasure" tasks
+                // This encourages users to discover and contribute treasures
+                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+                const totalTreasures = 3;
+                const addTreasureTasks = Array.from({length: totalTreasures}, (_, i) => 
+                    `✨ 添加镇馆之宝 ${i + 1}/${totalTreasures}：找到你最喜欢的展品，拍照并记录名称`
+                );
+                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+                childTasks = [start].concat(addTreasureTasks, [end]);
             }
 
             renderTasks();
