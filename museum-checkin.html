@@ -3168,6 +3168,20 @@
             font-weight: 600;
         }
 
+        /* Badge for tasks completed by reporting "不存在" */
+        .reported-completion-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #17a2b8;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
         @media (max-width: 768px) {
             .add-treasure-input-group .input-with-action {
                 flex-direction: column;
@@ -3775,6 +3789,7 @@
         let currentMuseum = null;
         let childTasks = [];
         let completedTasks = new Set();
+        let reportedTasks = new Set(); // Tasks completed by reporting "不存在" (treasure not found)
         let currentTaskIndex = null;
         let treasureReports = {}; // Cache for treasure not-found reports
 
@@ -4355,8 +4370,14 @@
                 badgeHtml = `<div class="treasure-warning-badge">${reportCount}人报告不存在</div>`;
             }
             
+            // Check if this task was completed by reporting
+            const wasReportedComplete = reportedTasks.has(index);
+            const reportedBadgeHtml = wasReportedComplete ? 
+                `<div class="reported-completion-badge">🙋 报告不存在</div>` : '';
+            
             card.innerHTML = `
                 ${badgeHtml}
+                ${reportedBadgeHtml}
                 <div class="completion-badge">✓</div>
                 <div class="task-visual-container">
                     ${imageUrl ? `<img src="${imageUrl}" class="task-card-image" alt="${title}" style="display:none" />` : ''}
@@ -5113,6 +5134,26 @@
             localStorage.setItem(legacyKey, JSON.stringify([...completedTasks]));
         }
 
+        // Save reported tasks (completed by reporting "不存在") to local storage
+        function saveReportedTasks() {
+            const reportedKey = `reportedTasks_${museumId}_${ageGroup}`;
+            localStorage.setItem(reportedKey, JSON.stringify([...reportedTasks]));
+        }
+
+        // Load reported tasks from local storage
+        function loadReportedTasks() {
+            try {
+                const reportedKey = `reportedTasks_${museumId}_${ageGroup}`;
+                const saved = localStorage.getItem(reportedKey);
+                if (saved) {
+                    reportedTasks = new Set(JSON.parse(saved));
+                }
+            } catch (error) {
+                console.error('Error loading reported tasks:', error);
+                reportedTasks = new Set();
+            }
+        }
+
         // Photo storage
         let taskPhotos = {}; // Store photos by task index
         
@@ -5721,9 +5762,9 @@
             const ctx = canvas.getContext('2d');
             const W = canvas.width;
             
-            // Get completed tasks text
-            const completedTasksList = Array.from(completedTasks)
-                .sort((a, b) => a - b)
+            // Get completed tasks text with index information for reported task detection
+            const completedTasksIndices = Array.from(completedTasks).sort((a, b) => a - b);
+            const completedTasksList = completedTasksIndices
                 .map(idx => childTasks[idx])
                 .filter(Boolean);
             
@@ -5776,10 +5817,14 @@
                 // Updated: Changed from 260 to 210 after removing duplicate museum name line
                 let currentY = 210;
                 
-                // Height for completed tasks section
+                // Height for completed tasks section (with extra space for reported tasks)
                 if (completedTasksList.length > 0) {
                     currentY += 35; // Section title
-                    currentY += completedTasksList.length * 28; // Task list
+                    // Count reported tasks for extra height calculation
+                    const reportedCount = completedTasksIndices.filter(idx => reportedTasks.has(idx)).length;
+                    const normalCount = completedTasksList.length - reportedCount;
+                    currentY += normalCount * 28; // Normal task list
+                    currentY += reportedCount * 40; // Reported tasks need extra height for annotation
                     currentY += 20; // Space after tasks
                 }
                 
@@ -5857,12 +5902,29 @@
                     ctx.fillStyle = 'rgba(255,255,255,0.95)';
                     
                     completedTasksList.forEach((task, idx) => {
+                        // Get original task index to check if it was reported
+                        const originalIdx = completedTasksIndices[idx];
+                        const wasReported = reportedTasks.has(originalIdx);
+                        
                         // Remove emoji from task text for cleaner display
                         const taskText = task.replace(/^[\u{1F000}-\u{1F9FF}]\s*/u, '');
                         // Truncate long tasks
                         const displayText = taskText.length > 30 ? taskText.substring(0, 28) + '...' : taskText;
-                        ctx.fillText(`${idx + 1}. ${displayText}`, 50, currentY);
-                        currentY += 28;
+                        
+                        // Add indicator for tasks completed via reporting
+                        if (wasReported) {
+                            ctx.fillText(`${idx + 1}. ${displayText} 🙋`, 50, currentY);
+                            // Draw small annotation below
+                            ctx.save();
+                            ctx.font = '14px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                            ctx.fillText('（报告不存在，为大家好）', 60, currentY + 16);
+                            ctx.restore();
+                            currentY += 40; // Extra space for annotation
+                        } else {
+                            ctx.fillText(`${idx + 1}. ${displayText}`, 50, currentY);
+                            currentY += 28;
+                        }
                     });
                     
                     currentY += 20; // Space before photos
@@ -6153,6 +6215,9 @@
                     saveCompletedTasks();
                 }
             }
+            
+            // Also load reported tasks
+            loadReportedTasks();
         }
 
         // Setup event listeners
@@ -6486,8 +6551,38 @@
                         document.getElementById('treasureReportStatus').classList.add('show');
                         document.getElementById('treasureReportBtn').style.display = 'none';
                         
+                        // AUTO-COMPLETE: Mark the task as completed via reporting
+                        if (currentTaskIndex !== null) {
+                            // Mark task as completed
+                            completedTasks.add(currentTaskIndex);
+                            saveCompletedTasks();
+                            
+                            // Mark task as completed via reporting
+                            reportedTasks.add(currentTaskIndex);
+                            saveReportedTasks();
+                            
+                            // Award XP for helping the community
+                            const reportXP = 5; // Community contribution XP
+                            if (window.achievementGamification) {
+                                window.achievementGamification.addXP(reportXP);
+                                window.achievementGamification.showXPGainNotification(reportXP, '感谢报告，帮助他人');
+                            }
+                            
+                            // Close modal
+                            document.getElementById('taskModal').classList.remove('show');
+                            
+                            // Show fireworks celebration
+                            celebrateWithFireworks();
+                            
+                            // Update progress
+                            updateProgress();
+                        }
+                        
                         // Re-render tasks to update visual state
                         renderTasks();
+                        
+                        // Check if all tasks complete
+                        checkCompletion();
                     } else {
                         // Show button again
                         const btn = document.getElementById('treasureReportBtn');
