@@ -2236,6 +2236,43 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        /* Upload button style matching the search buttons */
+        .upload-photo-btn {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .upload-photo-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+        }
+
+        .upload-photo-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-photo-btn input[type="file"] {
+            display: none;
+        }
+
+        .upload-photo-btn.uploading {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            pointer-events: none;
+        }
+
         /* Baidu search buttons for inline use in JS templates */
         .baidu-search-inline-btn {
             padding: 8px 16px;
@@ -3020,6 +3057,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="add-museum-photo-input-group">
+                        <label>📤 上传照片（可选）</label>
+                        <div class="search-buttons-container">
+                            <label class="upload-photo-btn" id="modalMuseumPhotoUploadLabel">
+                                📤 选择文件
+                                <input type="file" id="modalMuseumPhotoUpload" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
                     <div class="image-preview-container">
                         <div id="modalMuseumPhotoPreview" class="image-preview-placeholder">📷 添加博物馆门口照片</div>
                     </div>
@@ -3046,7 +3092,7 @@
                     <div class="add-treasure-input-group">
                         <label for="modalTreasureImage">🔍 搜索图片（可选）</label>
                         <div class="input-with-action">
-                            <input type="text" id="modalTreasureImage" placeholder="输入名称后点击搜索">
+                            <input type="text" id="modalTreasureImage" placeholder="点击搜索按钮查找图片">
                             <div class="search-buttons-container">
                                 <button type="button" class="search-wiki-btn" id="modalSearchWikiBtn">Wiki</button>
                                 <button type="button" class="search-baidu-btn" id="modalSearchBaiduBtn">百度</button>
@@ -3055,6 +3101,16 @@
                         <div class="image-preview-container">
                             <div id="modalTreasurePreview" class="image-preview-placeholder">📷</div>
                             <span class="add-treasure-hint">搜索或上传照片</span>
+                        </div>
+                    </div>
+                    
+                    <div class="add-treasure-input-group">
+                        <label>📤 上传照片（可选）</label>
+                        <div class="search-buttons-container">
+                            <label class="upload-photo-btn" id="modalTreasureUploadLabel">
+                                📤 选择文件
+                                <input type="file" id="modalTreasureUpload" accept="image/*">
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -3189,18 +3245,28 @@
                         </div>
                         
                         <div class="add-treasure-input-group">
-                            <label for="newTreasureImage">图片URL</label>
+                            <label for="newTreasureImage">🔍 搜索图片（可选）</label>
                             <div class="input-with-action">
-                                <input type="text" id="newTreasureImage" placeholder="图片链接（可选）">
+                                <input type="text" id="newTreasureImage" placeholder="点击搜索按钮查找图片">
                                 <div class="search-buttons-container">
-                                    <button type="button" class="search-wiki-btn" id="searchWikiBtn">🔍 Wiki</button>
-                                    <button type="button" class="search-baidu-btn" id="searchBaiduBtn">🔍 百度</button>
+                                    <button type="button" class="search-wiki-btn" id="searchWikiBtn">Wiki</button>
+                                    <button type="button" class="search-baidu-btn" id="searchBaiduBtn">百度</button>
                                     <button type="button" class="search-baidu-btn secondary" id="openBaiduBtn">↗️ 去百度</button>
                                 </div>
                             </div>
                             <div class="image-preview-container">
                                 <div id="newTreasurePreview" class="image-preview-placeholder">📷</div>
-                                <span class="add-treasure-hint">无图片时将使用默认图片</span>
+                                <span class="add-treasure-hint">搜索或上传照片</span>
+                            </div>
+                        </div>
+                        
+                        <div class="add-treasure-input-group">
+                            <label>📤 上传照片（可选）</label>
+                            <div class="search-buttons-container">
+                                <label class="upload-photo-btn" id="newTreasureUploadLabel">
+                                    📤 选择文件
+                                    <input type="file" id="newTreasureUpload" accept="image/*">
+                                </label>
                             </div>
                         </div>
                         
@@ -3469,6 +3535,8 @@
     <script src="virtual-pet.js"></script>
     <!-- Baidu Image Search for treasure photos -->
     <script src="baidu-image-search.js"></script>
+    <!-- Image Upload Utility for uploading photos to letmetry.cloud -->
+    <script src="image-upload-util.js"></script>
     
     <script>
         // Configuration
@@ -5160,6 +5228,215 @@
         }
         
         // ===== End Museum Entrance Photo Contributor Functions =====
+        
+        // ===== Photo Upload Handler Functions =====
+        // Constants for upload UI
+        const UPLOAD_BUTTON_TEXT = '📤 选择文件';
+        const MAX_FILE_SIZE_MB = 10;
+        const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+        
+        /**
+         * Validate image file for upload
+         * @param {File} file - File to validate
+         * @returns {boolean} - True if valid, false otherwise
+         */
+        function validateImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件');
+                return false;
+            }
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                alert(`图片文件太大，请选择小于${MAX_FILE_SIZE_MB}MB的图片`);
+                return false;
+            }
+            return true;
+        }
+        
+        /**
+         * Set upload button to uploading state
+         * @param {HTMLElement} uploadLabel - The upload button label element
+         */
+        function setUploadingState(uploadLabel) {
+            if (uploadLabel) {
+                const inputHtml = uploadLabel.querySelector('input') ? uploadLabel.querySelector('input').outerHTML : '';
+                uploadLabel.classList.add('uploading');
+                uploadLabel.innerHTML = '<span>⏳ 上传中...</span>' + inputHtml;
+            }
+        }
+        
+        /**
+         * Reset upload button to default state
+         * @param {HTMLElement} uploadLabel - The upload button label element
+         * @param {Function} changeHandler - Event handler for the file input change event
+         */
+        function resetUploadButton(uploadLabel, changeHandler) {
+            if (uploadLabel) {
+                const inputHtml = uploadLabel.querySelector('input') ? uploadLabel.querySelector('input').outerHTML : '';
+                uploadLabel.classList.remove('uploading');
+                uploadLabel.innerHTML = UPLOAD_BUTTON_TEXT + inputHtml;
+                // Re-attach the input event handler
+                const newInput = uploadLabel.querySelector('input');
+                if (newInput && changeHandler) {
+                    newInput.addEventListener('change', changeHandler);
+                }
+            }
+        }
+        
+        /**
+         * Update preview element with progress message
+         * @param {HTMLElement} preview - Preview element
+         * @param {string} stage - Upload stage ('compressing' or 'uploading')
+         */
+        function updateUploadProgress(preview, stage) {
+            if (preview) {
+                if (stage === 'compressing') {
+                    preview.innerHTML = '<span class="upload-progress">🗜️ 压缩中...</span>';
+                } else if (stage === 'uploading') {
+                    preview.innerHTML = '<span class="upload-progress">⬆️ 上传中...</span>';
+                }
+            }
+        }
+        
+        /**
+         * Handle photo upload and compression using ImageUploader
+         * @param {Event} e - File input change event
+         * @param {string} imageInputId - ID of the text input to store the URL
+         * @param {string} previewId - ID of the preview element
+         */
+        async function handlePhotoUpload(e, imageInputId, previewId) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            
+            const preview = document.getElementById(previewId);
+            const imageInput = document.getElementById(imageInputId);
+            const uploadLabel = e.target.parentElement;
+            
+            // Validate file
+            if (!validateImageFile(file)) return;
+            
+            // Show uploading state
+            setUploadingState(uploadLabel);
+            
+            // Show loading in preview
+            if (preview) {
+                preview.innerHTML = '<span class="upload-progress">⏳ 压缩上传中...</span>';
+                preview.className = 'image-preview-placeholder';
+            }
+            
+            try {
+                // Use ImageUploader if available
+                if (typeof imageUploader !== 'undefined') {
+                    const url = await imageUploader.uploadImage(file, {
+                        compress: true,
+                        onProgress: (stage, progress) => updateUploadProgress(preview, stage)
+                    });
+                    
+                    // Update the image input with the URL
+                    if (imageInput) {
+                        imageInput.value = url;
+                        // Trigger input event to update any dependent UI
+                        imageInput.dispatchEvent(new Event('input'));
+                    }
+                    
+                    // Update preview with the uploaded image
+                    if (preview) {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'image-preview-thumb';
+                        img.alt = '已上传';
+                        preview.innerHTML = '';
+                        preview.className = 'image-preview-container';
+                        preview.appendChild(img);
+                    }
+                    
+                    console.log('✅ 图片上传成功:', url);
+                } else {
+                    throw new Error('图片上传服务不可用');
+                }
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                alert('图片上传失败：' + (error.message || '未知错误'));
+                
+                // Reset preview
+                if (preview) {
+                    preview.innerHTML = '📷';
+                    preview.className = 'image-preview-placeholder';
+                }
+            } finally {
+                // Reset upload button state
+                resetUploadButton(uploadLabel, (ev) => handlePhotoUpload(ev, imageInputId, previewId));
+                // Reset file input to allow re-uploading the same file
+                e.target.value = '';
+            }
+        }
+        
+        /**
+         * Handle museum entrance photo upload
+         * @param {Event} e - File input change event
+         */
+        async function handleMuseumPhotoUploadChange(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            
+            const preview = document.getElementById('modalMuseumPhotoPreview');
+            const submitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
+            const uploadLabel = e.target.parentElement;
+            
+            // Validate file
+            if (!validateImageFile(file)) return;
+            
+            // Show uploading state
+            setUploadingState(uploadLabel);
+            
+            // Show loading in preview
+            if (preview) {
+                preview.innerHTML = '<span class="upload-progress">⏳ 压缩上传中...</span>';
+            }
+            
+            try {
+                // Use ImageUploader if available
+                if (typeof imageUploader !== 'undefined') {
+                    const url = await imageUploader.uploadImage(file, {
+                        compress: true,
+                        onProgress: (stage, progress) => updateUploadProgress(preview, stage)
+                    });
+                    
+                    // Update preview with the uploaded image
+                    if (preview) {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'image-preview-thumb';
+                        img.alt = '博物馆门口照片';
+                        preview.innerHTML = '';
+                        preview.appendChild(img);
+                        preview.dataset.imageUrl = url;
+                    }
+                    
+                    // Show submit button
+                    if (submitBtn) {
+                        submitBtn.style.display = 'block';
+                    }
+                    
+                    console.log('✅ 博物馆照片上传成功:', url);
+                } else {
+                    throw new Error('图片上传服务不可用');
+                }
+            } catch (error) {
+                console.error('博物馆照片上传失败:', error);
+                alert('图片上传失败：' + (error.message || '未知错误'));
+                
+                // Reset preview
+                if (preview) {
+                    preview.innerHTML = '📷 添加博物馆门口照片';
+                }
+            } finally {
+                // Reset upload button state
+                resetUploadButton(uploadLabel, handleMuseumPhotoUploadChange);
+                // Reset file input
+                e.target.value = '';
+            }
+        }
+        // ===== End Photo Upload Handler Functions =====
 
         // Helper function: Draw Minecraft-style corner decorations
         function drawMinecraftCorners(ctx, width, height) {
@@ -5737,6 +6014,26 @@
                 museumPhotoSubmitBtn.onclick = handleMuseumPhotoSubmit;
             }
             // ===== End Museum Photo Contributor Event Listeners =====
+            
+            // ===== Photo Upload Event Listeners =====
+            // Handler for modal treasure photo upload
+            const modalTreasureUpload = document.getElementById('modalTreasureUpload');
+            if (modalTreasureUpload) {
+                modalTreasureUpload.addEventListener('change', (e) => handlePhotoUpload(e, 'modalTreasureImage', 'modalTreasurePreview'));
+            }
+            
+            // Handler for new treasure photo upload (settings page)
+            const newTreasureUpload = document.getElementById('newTreasureUpload');
+            if (newTreasureUpload) {
+                newTreasureUpload.addEventListener('change', (e) => handlePhotoUpload(e, 'newTreasureImage', 'newTreasurePreview'));
+            }
+            
+            // Handler for museum entrance photo upload
+            const modalMuseumPhotoUpload = document.getElementById('modalMuseumPhotoUpload');
+            if (modalMuseumPhotoUpload) {
+                modalMuseumPhotoUpload.addEventListener('change', (e) => handleMuseumPhotoUploadChange(e));
+            }
+            // ===== End Photo Upload Event Listeners =====
 
             // Celebration close button
             document.getElementById('closeCelebration').onclick = () => {
