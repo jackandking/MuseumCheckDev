@@ -117,6 +117,129 @@ describe('Image Upload Utility', () => {
             expect(result).toBe('https://letmetry.cloud/files/test.jpg');
         });
 
+        test('should handle letmetry.cloud response format with filename', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve({ 
+                    success: true,
+                    filename: 'aaa.png',
+                    originalname: 'aaa.png',
+                    path: '/usr/share/nginx/html/aaa.png',
+                    destination: '/usr/share/nginx/html/'
+                })
+            });
+            
+            const result = await imageUploader.uploadImage(file, { compress: false });
+            expect(result).toBe('https://letmetry.cloud/images/aaa.png');
+        });
+
+        test('should sanitize malicious filenames to prevent path traversal', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            // Test various path traversal patterns
+            const testCases = [
+                { filename: '../../../malicious.png', expected: 'malicious.png' },
+                { filename: '..\\..\\..\\malicious.png', expected: 'malicious.png' },
+                { filename: '....//malicious.png', expected: 'malicious.png' },
+                { filename: '......//malicious.png', expected: '..malicious.png' },  // Safe: just a filename with .., not a path
+                { filename: '........//malicious.png', expected: '....malicious.png' }, // Safe: just a filename
+                { filename: '/etc/passwd/../malicious.png', expected: 'malicious.png' },
+                { filename: 'subdir/../../malicious.png', expected: 'malicious.png' },
+                { filename: 'test..', expected: 'test..' },  // Legitimate filename with trailing dots
+                { filename: '..', expected: '..' }           // Edge case: only '..' (safe as final component)
+            ];
+            
+            for (const { filename, expected } of testCases) {
+                global.fetch = jest.fn().mockResolvedValue({
+                    ok: true,
+                    json: () => Promise.resolve({ 
+                        success: true,
+                        filename
+                    })
+                });
+                
+                const result = await imageUploader.uploadImage(file, { compress: false });
+                expect(result).toBe(`https://letmetry.cloud/images/${expected}`);
+                
+                // Verify no path traversal is possible (no slashes in final filename)
+                const resultFilename = result.split('/').pop();
+                expect(resultFilename).not.toContain('/');
+                expect(resultFilename).not.toContain('\\');
+            }
+        });
+
+        test('should handle URL-encoded path traversal attempts', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve({ 
+                    success: true,
+                    filename: '..%2F..%2Fmalicious.png'
+                })
+            });
+            
+            const result = await imageUploader.uploadImage(file, { compress: false });
+            expect(result).toBe('https://letmetry.cloud/images/malicious.png');
+            expect(result).not.toContain('..');
+        });
+
+        test('should remove leading slashes from filenames', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve({ 
+                    success: true,
+                    filename: '///test.png'
+                })
+            });
+            
+            const result = await imageUploader.uploadImage(file, { compress: false });
+            expect(result).toBe('https://letmetry.cloud/images/test.png');
+        });
+
+        test('should handle malformed URI encoding gracefully', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve({ 
+                    success: true,
+                    filename: 'test%ZZ%invalid.png'  // Invalid URI encoding
+                })
+            });
+            
+            const result = await imageUploader.uploadImage(file, { compress: false });
+            // Should fallback to original filename and still sanitize
+            expect(result).toBe('https://letmetry.cloud/images/test%ZZ%invalid.png');
+        });
+
+        test('should preserve legitimate filenames with multiple dots', async () => {
+            const file = new Blob(['test'], { type: 'image/jpeg' });
+            
+            const testCases = [
+                { filename: 'file...ext', expected: 'file...ext' },
+                { filename: 'version2.0.0.jpg', expected: 'version2.0.0.jpg' },
+                { filename: 'archive.tar.gz', expected: 'archive.tar.gz' }
+            ];
+            
+            for (const { filename, expected } of testCases) {
+                global.fetch = jest.fn().mockResolvedValue({
+                    ok: true,
+                    json: () => Promise.resolve({ 
+                        success: true,
+                        filename
+                    })
+                });
+                
+                const result = await imageUploader.uploadImage(file, { compress: false });
+                expect(result).toBe(`https://letmetry.cloud/images/${expected}`);
+            }
+        });
+
         test('should throw error on upload failure', async () => {
             const file = new Blob(['test'], { type: 'image/jpeg' });
             
@@ -128,7 +251,7 @@ describe('Image Upload Utility', () => {
             await expect(imageUploader.uploadImage(file, { compress: false })).rejects.toThrow('上传失败: 500');
         });
 
-        test('should throw error on invalid response format', async () => {
+        test('should throw error on invalid response format without url or filename', async () => {
             const file = new Blob(['test'], { type: 'image/jpeg' });
             
             global.fetch = jest.fn().mockResolvedValue({

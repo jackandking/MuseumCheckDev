@@ -151,6 +151,37 @@ class ImageUploader {
             return data.fileUrl;
         } else if (data.data && data.data.url) {
             return data.data.url;
+        } else if (data.success && data.filename) {
+            // Handle letmetry.cloud response format: {success: true, filename: "...", path: "...", destination: "..."}
+            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/file/upload" -> "https://letmetry.cloud")
+            const url = new URL(this.config.endpoint);
+            const baseUrl = `${url.protocol}//${url.host}`;
+            
+            // Sanitize filename to prevent path traversal attacks
+            // 1. Decode URL-encoded sequences (with error handling for malformed URIs)
+            let sanitizedFilename;
+            try {
+                sanitizedFilename = decodeURIComponent(data.filename);
+            } catch (e) {
+                sanitizedFilename = data.filename;
+            }
+            // 2. Remove any path traversal patterns repeatedly to handle nested cases
+            // Loop until no more ../ or ..\ patterns remain
+            let previousValue;
+            do {
+                previousValue = sanitizedFilename;
+                sanitizedFilename = sanitizedFilename.replace(/\.\.[\/\\]/g, '');
+            } while (previousValue !== sanitizedFilename);
+            
+            // 3. Remove leading slashes and backslashes
+            sanitizedFilename = sanitizedFilename.replace(/^[\/\\]+/, '');
+            // 4. Extract only the filename (remove any remaining path components)
+            // This is the key security step - ensures no path traversal is possible
+            // Even if ../ patterns somehow remained, they cannot be executed
+            sanitizedFilename = sanitizedFilename.split(/[\/\\]/).pop() || 'unnamed';
+            
+            // Files are served from /images/ directory on the server
+            return `${baseUrl}/images/${sanitizedFilename}`;
         }
         
         throw new Error('上传响应格式无效');
