@@ -8639,8 +8639,11 @@ class MuseumCheckApp {
             let treasureInputUI = '';
             if (isAddTreasureTask) {
                 const treasureKey = `${museumId}-treasure-${treasureIndex}`;
+                // Get museum name for AI suggestions
+                const museum = MUSEUMS.find(m => m.id === museumId);
+                const museumName = museum ? museum.name : '';
                 treasureInputUI = `
-                    <div class="add-treasure-section" data-museum-id="${museumId}" data-treasure-index="${treasureIndex}">
+                    <div class="add-treasure-section" data-museum-id="${museumId}" data-treasure-index="${treasureIndex}" data-museum-name="${museumName}">
                         <div class="treasure-input-group">
                             <input type="text" class="treasure-name-input" 
                                    id="treasure-name-${treasureKey}"
@@ -8648,6 +8651,19 @@ class MuseumCheckApp {
                                    value="${contributedTreasure ? contributedTreasure.name : ''}"
                                    ${isCompleted ? 'readonly' : ''}>
                         </div>
+                        ${!isCompleted ? `
+                        <div class="treasure-ai-suggestions" data-museum-id="${museumId}" data-treasure-key="${treasureKey}">
+                            <button class="ai-suggest-btn" data-museum-id="${museumId}" data-museum-name="${museumName}" data-treasure-key="${treasureKey}">
+                                🤖 AI推荐
+                            </button>
+                            <div class="ai-suggestions-container" id="ai-suggestions-${treasureKey}" style="display: none;">
+                                <div class="ai-suggestions-loading" style="display: none;">
+                                    <span class="loading-dot">⏳</span> 正在获取AI推荐...
+                                </div>
+                                <div class="ai-suggestions-list"></div>
+                            </div>
+                        </div>
+                        ` : ''}
                         <div class="treasure-image-section">
                             <div class="treasure-image-preview" id="treasure-preview-${treasureKey}">
                                 ${contributedTreasure && contributedTreasure.imageUrl ? 
@@ -8882,6 +8898,14 @@ class MuseumCheckApp {
                     e.stopPropagation();
                     const museumId = e.target.dataset.museum;
                     this.clearChildChecklistData(museumId, this.currentAge);
+                } else if (e.target.classList.contains('ai-suggest-btn')) {
+                    // Handle AI treasure suggestions
+                    e.stopPropagation();
+                    this.handleAiTreasureSuggestions(e.target);
+                } else if (e.target.classList.contains('ai-suggestion-item')) {
+                    // Handle clicking on an AI suggestion
+                    e.stopPropagation();
+                    this.selectAiSuggestion(e.target);
                 } else if (e.target.classList.contains('treasure-search-btn')) {
                     // Handle treasure image search
                     e.stopPropagation();
@@ -8937,6 +8961,158 @@ class MuseumCheckApp {
 
     closeModal() {
         this.modalManager.closeModal('museumModal');
+    }
+
+    // ===== AI TREASURE SUGGESTIONS =====
+    
+    /**
+     * Cache for AI treasure suggestions to avoid repeated API calls
+     * Key: museumId, Value: Array of treasure suggestions
+     */
+    aiSuggestionsCache = {};
+    
+    /**
+     * Handle AI treasure suggestions button click
+     * Fetches 3 treasure suggestions from DeepSeek AI
+     */
+    async handleAiTreasureSuggestions(button) {
+        const museumId = button.dataset.museumId;
+        const museumName = button.dataset.museumName;
+        const treasureKey = button.dataset.treasureKey;
+        
+        if (!museumName) {
+            console.warn('Museum name not found for AI suggestions');
+            return;
+        }
+        
+        const suggestionsContainer = document.getElementById(`ai-suggestions-${treasureKey}`);
+        const suggestionsLoading = suggestionsContainer.querySelector('.ai-suggestions-loading');
+        const suggestionsList = suggestionsContainer.querySelector('.ai-suggestions-list');
+        
+        // Show the container and loading state
+        suggestionsContainer.style.display = 'block';
+        suggestionsLoading.style.display = 'block';
+        suggestionsList.innerHTML = '';
+        
+        // Disable the button while loading
+        button.disabled = true;
+        button.textContent = '⏳ 加载中...';
+        
+        try {
+            // Check cache first
+            let suggestions = this.aiSuggestionsCache[museumId];
+            
+            if (!suggestions) {
+                // Load DeepSeek API if not loaded
+                if (typeof DeepSeekAPI === 'undefined') {
+                    await this.loadDeepSeekAPI();
+                }
+                
+                // Check if API key is configured
+                const deepseekAPI = new DeepSeekAPI();
+                if (!deepseekAPI.hasApiKey()) {
+                    throw new Error('请先在设置中配置 DeepSeek API Key');
+                }
+                
+                // Fetch suggestions from AI
+                suggestions = await deepseekAPI.generateTreasures(museumName);
+                
+                // Cache the results
+                this.aiSuggestionsCache[museumId] = suggestions;
+            }
+            
+            // Display suggestions
+            suggestionsLoading.style.display = 'none';
+            suggestionsList.innerHTML = suggestions.map((s, i) => `
+                <button class="ai-suggestion-item" 
+                        data-treasure-name="${s.name}" 
+                        data-treasure-key="${treasureKey}"
+                        title="${s.description || ''}">
+                    ${i + 1}. ${s.name}
+                </button>
+            `).join('');
+            
+            // Re-enable the button
+            button.disabled = false;
+            button.textContent = '🤖 AI推荐';
+            
+            // Track analytics
+            this.trackEvent('ai_treasure_suggestions_loaded', {
+                'museum_id': museumId,
+                'museum_name': museumName,
+                'suggestions_count': suggestions.length
+            });
+            
+        } catch (error) {
+            console.error('Failed to fetch AI suggestions:', error);
+            suggestionsLoading.style.display = 'none';
+            suggestionsList.innerHTML = `
+                <div class="ai-suggestions-error">
+                    ❌ ${error.message || '获取推荐失败，请稍后重试'}
+                </div>
+            `;
+            
+            // Re-enable the button
+            button.disabled = false;
+            button.textContent = '🤖 重试';
+        }
+    }
+    
+    /**
+     * Handle selection of an AI suggestion
+     */
+    selectAiSuggestion(suggestionItem) {
+        const treasureName = suggestionItem.dataset.treasureName;
+        const treasureKey = suggestionItem.dataset.treasureKey;
+        
+        if (!treasureName || !treasureKey) {
+            console.warn('Missing treasure name or key for AI suggestion');
+            return;
+        }
+        
+        // Find the input field and fill in the suggestion
+        const inputField = document.getElementById(`treasure-name-${treasureKey}`);
+        if (inputField) {
+            inputField.value = treasureName;
+            inputField.focus();
+            
+            // Highlight the selected suggestion
+            const container = suggestionItem.closest('.ai-suggestions-list');
+            container.querySelectorAll('.ai-suggestion-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            suggestionItem.classList.add('selected');
+            
+            // Track analytics
+            this.trackEvent('ai_suggestion_selected', {
+                'treasure_name': treasureName,
+                'treasure_key': treasureKey
+            });
+        }
+    }
+    
+    /**
+     * Load DeepSeek API script dynamically
+     */
+    loadDeepSeekAPI() {
+        return new Promise((resolve, reject) => {
+            if (typeof DeepSeekAPI !== 'undefined') {
+                resolve();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'deepseek-api.js';
+            script.onload = () => {
+                console.log('DeepSeek API loaded successfully');
+                resolve();
+            };
+            script.onerror = () => {
+                console.error('Failed to load DeepSeek API');
+                reject(new Error('无法加载 AI 服务'));
+            };
+            document.head.appendChild(script);
+        });
     }
 
     // ===== TREASURE CONTRIBUTOR METHODS =====

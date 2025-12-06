@@ -2382,6 +2382,194 @@
             margin-top: 4px;
         }
 
+        /* AI Suggestion Styles */
+        .ai-suggestion-section {
+            margin-top: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 10px;
+            border: 1px solid #7dd3fc;
+        }
+
+        .ai-suggest-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+        }
+
+        .ai-suggest-btn:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.4);
+        }
+
+        .ai-suggest-btn:active {
+            transform: translateY(0);
+        }
+
+        .ai-suggest-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .ai-btn-icon {
+            font-size: 16px;
+        }
+
+        .ai-suggestions-container {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .ai-suggestions-container.show {
+            display: flex;
+        }
+
+        .ai-suggestion-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #bae6fd;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #0369a1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            max-width: 100%;
+        }
+
+        .ai-suggestion-item:hover {
+            background: #0ea5e9;
+            color: white;
+            border-color: #0ea5e9;
+            transform: scale(1.02);
+        }
+
+        .ai-suggestion-item .suggestion-icon {
+            font-size: 14px;
+        }
+
+        .ai-suggestion-item .suggestion-name {
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ai-suggestion-loading {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #0369a1;
+        }
+
+        .ai-suggestion-loading.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #bae6fd;
+            border-top-color: #0ea5e9;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-suggestion-error {
+            display: none;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #dc2626;
+        }
+
+        .ai-suggestion-error.show {
+            display: block;
+        }
+
+        .ai-suggestion-hint {
+            display: block;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #0284c7;
+        }
+
+        .ai-suggestion-hint.hidden {
+            display: none;
+        }
+
+        .ai-suggestion-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f3f4f6;
+        }
+
+        .ai-suggestion-item.disabled:hover {
+            background: #f3f4f6;
+            color: #6b7280;
+            transform: none;
+            border-color: #bae6fd;
+        }
+
+        .suggestion-exists {
+            font-size: 10px;
+            color: #059669;
+            margin-left: 4px;
+        }
+
+        .add-treasure-input-group input.ai-filled {
+            animation: aiFilledPulse 0.5s ease;
+        }
+
+        @keyframes aiFilledPulse {
+            0% { border-color: #0ea5e9; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+            50% { border-color: #0284c7; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2); }
+            100% { border-color: #0ea5e9; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        /* Mobile responsiveness for AI suggestions */
+        @media (max-width: 480px) {
+            .ai-suggestion-section {
+                padding: 10px;
+            }
+            
+            .ai-suggest-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .ai-suggestion-item {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
         /* Treasure Contributor Section in Task Modal */
         .treasure-contributor-section {
             margin: 20px 0;
@@ -3242,6 +3430,30 @@
                             <label for="newTreasureName">名称 <span style="color: #dc2626;">*</span></label>
                             <input type="text" id="newTreasureName" placeholder="例如：清明上河图" maxlength="50">
                             <div class="add-treasure-error" id="treasureNameError">⚠️ 名称已存在，请使用不同的名称</div>
+                            
+                            <!-- AI Treasure Name Suggestions -->
+                            <div class="ai-suggestion-section" id="aiSuggestionSection">
+                                <button type="button" class="ai-suggest-btn" id="aiSuggestBtn" 
+                                        title="让AI推荐3个镇馆之宝名称"
+                                        aria-label="AI推荐镇馆之宝名称"
+                                        aria-describedby="aiSuggestionHint">
+                                    <span class="ai-btn-icon" aria-hidden="true">🤖</span>
+                                    <span class="ai-btn-text">AI推荐</span>
+                                </button>
+                                <div class="ai-suggestions-container" id="aiSuggestionsContainer" role="listbox" aria-label="AI推荐的镇馆之宝">
+                                    <!-- Suggestions will be rendered here -->
+                                </div>
+                                <div class="ai-suggestion-loading" id="aiSuggestionLoading" aria-live="polite">
+                                    <span class="loading-spinner" aria-hidden="true"></span>
+                                    <span>AI 正在推荐...</span>
+                                </div>
+                                <div class="ai-suggestion-error" id="aiSuggestionError" role="alert" aria-live="assertive">
+                                    <!-- Error message will be shown here -->
+                                </div>
+                                <div class="ai-suggestion-hint" id="aiSuggestionHint">
+                                    💡 点击上方按钮，让AI推荐该博物馆的镇馆之宝
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="add-treasure-input-group">
@@ -7411,6 +7623,217 @@
                         closeWikiSearch();
                     }
                 });
+            }
+            
+            // AI Suggestion button
+            const aiSuggestBtn = document.getElementById('aiSuggestBtn');
+            if (aiSuggestBtn) {
+                aiSuggestBtn.addEventListener('click', fetchAISuggestions);
+            }
+        }
+
+        // =====================================================
+        // AI Treasure Name Suggestions Feature
+        // =====================================================
+        
+        // Cache for AI suggestions to avoid repeated API calls (max 20 museums)
+        const aiSuggestionsCache = {};
+        const AI_CACHE_MAX_SIZE = 20;
+        
+        /**
+         * Add item to cache with size limit (LRU-style eviction)
+         * @param {string} key - Museum name
+         * @param {Array} value - Treasure suggestions
+         */
+        function addToAICache(key, value) {
+            const keys = Object.keys(aiSuggestionsCache);
+            if (keys.length >= AI_CACHE_MAX_SIZE) {
+                // Remove oldest entry (first key)
+                delete aiSuggestionsCache[keys[0]];
+            }
+            aiSuggestionsCache[key] = value;
+        }
+        
+        /**
+         * Load DeepSeek API script dynamically
+         * @returns {Promise<void>}
+         */
+        function loadDeepSeekAPI() {
+            return new Promise((resolve, reject) => {
+                if (typeof DeepSeekAPI !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'deepseek-api.js';
+                script.onload = () => {
+                    console.log('[AI Suggestions] DeepSeek API loaded successfully');
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error('[AI Suggestions] Failed to load DeepSeek API');
+                    reject(new Error('无法加载 AI 服务'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        /**
+         * Fetch AI suggestions for treasure names
+         */
+        async function fetchAISuggestions() {
+            const suggestBtn = document.getElementById('aiSuggestBtn');
+            const suggestionsContainer = document.getElementById('aiSuggestionsContainer');
+            const loadingEl = document.getElementById('aiSuggestionLoading');
+            const errorEl = document.getElementById('aiSuggestionError');
+            const hintEl = document.getElementById('aiSuggestionHint');
+            
+            // Get current museum name
+            const museumName = currentMuseum ? currentMuseum.name : null;
+            
+            if (!museumName) {
+                showAISuggestionError('无法获取博物馆信息');
+                return;
+            }
+            
+            // Check cache first
+            if (aiSuggestionsCache[museumName]) {
+                console.log('[AI Suggestions] Using cached suggestions for:', museumName);
+                displayAISuggestions(aiSuggestionsCache[museumName]);
+                return;
+            }
+            
+            // Show loading state
+            suggestBtn.disabled = true;
+            loadingEl.classList.add('show');
+            suggestionsContainer.classList.remove('show');
+            errorEl.classList.remove('show');
+            hintEl.classList.add('hidden');
+            
+            try {
+                // Load DeepSeek API if not loaded
+                await loadDeepSeekAPI();
+                
+                // Check if API key is configured
+                const deepseekAPI = new DeepSeekAPI();
+                if (!deepseekAPI.hasApiKey()) {
+                    throw new Error('请先在主页设置中配置 DeepSeek API Key（点击主页右上角设置按钮）');
+                }
+                
+                // Validate museum name
+                if (!museumName.trim() || museumName.length > 100) {
+                    throw new Error('博物馆名称无效');
+                }
+                
+                console.log('[AI Suggestions] Fetching suggestions for:', museumName);
+                
+                // Call the API to generate treasures
+                const treasures = await deepseekAPI.generateTreasures(museumName);
+                
+                // Cache the results with size limit
+                addToAICache(museumName, treasures);
+                
+                // Display suggestions
+                displayAISuggestions(treasures);
+                
+            } catch (error) {
+                console.error('[AI Suggestions] Error:', error);
+                showAISuggestionError(error.message || 'AI 推荐失败，请稍后重试');
+            } finally {
+                // Hide loading state
+                loadingEl.classList.remove('show');
+                suggestBtn.disabled = false;
+            }
+        }
+        
+        /**
+         * Display AI suggestions as clickable buttons
+         * @param {Array<{name: string, description: string}>} treasures 
+         */
+        function displayAISuggestions(treasures) {
+            const container = document.getElementById('aiSuggestionsContainer');
+            const hintEl = document.getElementById('aiSuggestionHint');
+            
+            if (!treasures || treasures.length === 0) {
+                showAISuggestionError('AI 未能推荐镇馆之宝，请手动输入');
+                return;
+            }
+            
+            // Build suggestion buttons HTML
+            let html = '';
+            treasures.forEach((treasure, index) => {
+                const isExisting = treasureNameExists(treasure.name);
+                const disabledClass = isExisting ? 'disabled' : '';
+                const titleText = isExisting 
+                    ? '该镇馆之宝已存在' 
+                    : (treasure.description || '点击使用此名称');
+                
+                html += `
+                    <button type="button" 
+                            class="ai-suggestion-item ${disabledClass}" 
+                            data-name="${escapeHtml(treasure.name)}"
+                            data-description="${escapeHtml(treasure.description || '')}"
+                            title="${escapeHtml(titleText)}"
+                            ${isExisting ? 'disabled' : ''}>
+                        <span class="suggestion-icon">🏺</span>
+                        <span class="suggestion-name">${escapeHtml(treasure.name)}</span>
+                        ${isExisting ? '<span class="suggestion-exists">✓已有</span>' : ''}
+                    </button>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.classList.add('show');
+            hintEl.classList.add('hidden');
+            
+            // Add click handlers to suggestion buttons
+            container.querySelectorAll('.ai-suggestion-item:not(.disabled)').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectAISuggestion(this.dataset.name, this.dataset.description);
+                });
+            });
+        }
+        
+        /**
+         * Handle click on an AI suggestion
+         * @param {string} name - Treasure name
+         * @param {string} description - Treasure description
+         */
+        function selectAISuggestion(name, description) {
+            const nameInput = document.getElementById('newTreasureName');
+            if (nameInput) {
+                nameInput.value = name;
+                nameInput.focus();
+                
+                // Trigger validation
+                validateTreasureName(name);
+                
+                // Visual feedback
+                nameInput.classList.add('ai-filled');
+                setTimeout(() => {
+                    nameInput.classList.remove('ai-filled');
+                }, 500);
+            }
+            
+            console.log('[AI Suggestions] Selected:', name);
+        }
+        
+        /**
+         * Show error message in AI suggestion section
+         * @param {string} message 
+         */
+        function showAISuggestionError(message) {
+            const errorEl = document.getElementById('aiSuggestionError');
+            const hintEl = document.getElementById('aiSuggestionHint');
+            
+            if (errorEl) {
+                errorEl.textContent = '❌ ' + message;
+                errorEl.classList.add('show');
+            }
+            
+            if (hintEl) {
+                hintEl.classList.add('hidden');
             }
         }
 
