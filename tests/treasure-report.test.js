@@ -133,6 +133,51 @@ describe('Treasure Not-Found Reporting Feature', () => {
             expect(htmlContent).toContain('TREASURE_UNAVAILABLE_THRESHOLD');
         });
     });
+
+    describe('Treasure Selection UI (Issue: 标识不存在镇馆之宝)', () => {
+        test('should have CSS for red border on selected unavailable treasures', () => {
+            // Verify the CSS class for red border on manually selected unavailable treasures
+            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-unavailable.selected');
+            expect(htmlContent).toContain('border-color: #dc3545 !important');
+        });
+
+        test('should have CSS for warning style on treasures with 3-4 reports', () => {
+            // Verify the CSS class for yellow border on warning treasures
+            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-warning');
+            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-warning.selected');
+        });
+
+        test('should have report count badge CSS styles', () => {
+            // Verify the badge styles for report count
+            expect(htmlContent).toContain('.treasure-report-count-badge');
+            expect(htmlContent).toContain('.treasure-report-count-badge.unavailable');
+            expect(htmlContent).toContain('.treasure-report-count-badge.warning');
+        });
+
+        test('should show report count badge in treasure selection list', () => {
+            // Verify that renderV2TreasureConfigCheckboxes adds the report badge
+            expect(htmlContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge unavailable\">${reportCount}人报告不存在</span>`");
+            expect(htmlContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge warning\">${reportCount}人报告不存在</span>`");
+        });
+
+        test('should add treasure-unavailable class to checkbox items with 5+ reports', () => {
+            // Verify the JS logic adds the unavailable class
+            expect(htmlContent).toContain("if (isUnavailable) itemClasses += ' treasure-unavailable'");
+        });
+
+        test('should add treasure-warning class to checkbox items with 3-4 reports', () => {
+            // Verify the JS logic adds the warning class
+            expect(htmlContent).toContain("else if (isWarning) itemClasses += ' treasure-warning'");
+        });
+
+        test('should exclude unavailable treasures from default selection in checkbox list', () => {
+            // Verify that the default selection logic in renderV2TreasureConfigCheckboxes
+            // excludes treasures with 5+ reports
+            expect(htmlContent).toContain('const availableTreasures = allCollections.filter(t => {');
+            // This is inside the default selection block where we filter by report count
+            expect(htmlContent).toContain('return reportCount < TREASURE_UNAVAILABLE_THRESHOLD;');
+        });
+    });
 });
 
 describe('Admin Treasure Reports Page', () => {
