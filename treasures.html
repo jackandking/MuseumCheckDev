@@ -477,7 +477,175 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* User Photo Contribution Styles */
+        .add-photo-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border: 2px dashed #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-photo-section:hover {
+            background: linear-gradient(135deg, #ffeeba 0%, #ffd93d 100%);
+            border-color: #ffb300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
+        .add-photo-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .add-photo-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .add-photo-hint {
+            font-size: 14px;
+            color: #856404;
+            opacity: 0.9;
+        }
+        
+        .add-photo-reward {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .no-photo-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .no-photo-upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .user-contributed-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .contribution-success-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
+            z-index: 9999;
+            animation: slideUp 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                transform: translateX(-50%) translateY(50px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(-50%) translateY(0); 
+                opacity: 1; 
+            }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* XP notification styles */
+        .xp-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 10000;
+            animation: xpSlideIn 0.5s ease, xpFadeOut 0.5s ease 2.5s forwards;
+        }
+        
+        .xp-notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .xp-notification-icon {
+            font-size: 28px;
+        }
+        
+        .xp-notification-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .xp-notification-amount {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        @keyframes xpSlideIn {
+            from { 
+                transform: translateX(100px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
+        }
+        
+        @keyframes xpFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
     </style>
+    
+    <!-- Achievement Gamification CSS -->
+    <link rel="stylesheet" href="achievement-gamification.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="achievement-gamification.css">
+    </noscript>
 </head>
 <body>
     <div class="container">
@@ -564,6 +732,8 @@
     <script src="museums-data.js"></script>
     <script src="museum-data-loader.js"></script>
     <script src="image-proxy-helper.js"></script>
+    <script src="image-upload-util.js"></script>
+    <script src="achievement-gamification.js"></script>
     <script>
         // Image loading tracking
         let imageLoadFailureCount = 0;
@@ -970,7 +1140,238 @@
                 `;
             }
             
+            // Add photo contribution section
+            // Load user-contributed photos for this museum
+            const userPhotos = loadUserContributedPhotos(museum.id);
+            
+            // Show user-contributed photos if any
+            if (userPhotos && userPhotos.length > 0) {
+                content += `
+                    <div class="treasure-detail-section">
+                        <h3>📷 用户贡献的照片</h3>
+                `;
+                userPhotos.forEach((photo, index) => {
+                    const imgUrl = getImageUrl(photo.imageUrl);
+                    content += `
+                        <div class="treasure-detail-item">
+                            <img src="${imgUrl}" 
+                                 alt="${photo.name || '用户贡献照片'}"
+                                 class="treasure-detail-photo"
+                                 onclick="window.open('${imgUrl}', '_blank')"
+                                 onerror="this.style.display='none'">
+                            <h4 style="margin: 10px 0; color: #667eea;">
+                                ${photo.name || '镇馆之宝照片 ' + (index + 1)}
+                                <span class="user-contributed-badge">🙋 用户贡献</span>
+                            </h4>
+                            ${photo.description ? `<p style="line-height: 1.7;">${photo.description}</p>` : ''}
+                        </div>
+                    `;
+                });
+                content += `</div>`;
+            }
+            
+            // Always show add photo section to encourage user contributions
+            // Users can contribute more photos even if museum already has some
+            const totalPhotos = (museum.collections || []).filter(c => c.imageUrl).length + (userPhotos ? userPhotos.length : 0);
+            const hasNoCollections = !museum.collections || museum.collections.length === 0;
+            
+            // Determine the message based on current photo count
+            let photoHint;
+            if (hasNoCollections && (!userPhotos || userPhotos.length === 0)) {
+                photoHint = '这个博物馆还没有镇馆之宝照片，期待您的贡献！';
+            } else if (totalPhotos < 3) {
+                photoHint = '还需要更多照片来展示这里的精彩，快来贡献吧！';
+            } else {
+                photoHint = '分享你拍摄的珍贵文物照片，让更多人欣赏';
+            }
+            
+            content += `
+                <div class="add-photo-section" onclick="openPhotoContribution('${museum.id}', '${museum.name.replace(/'/g, "\\'")}')">
+                    <div class="add-photo-icon">📸</div>
+                    <div class="add-photo-title">帮助完善镇馆之宝照片</div>
+                    <div class="add-photo-hint">${photoHint}</div>
+                    <div class="add-photo-reward">🎁 贡献照片可获得 +20 XP</div>
+                </div>
+            `;
+            
             modalBody.innerHTML = content;
+        }
+        
+        // ===== User Photo Contribution Functions =====
+        
+        // Local storage key for user-contributed treasure photos
+        const USER_CONTRIBUTED_PHOTOS_KEY = 'userContributedTreasurePhotos';
+        
+        // XP reward for photo contribution
+        const PHOTO_CONTRIBUTION_XP = 20;
+        
+        // HTML escape function to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Initialize achievement gamification system
+        let achievementGamification = null;
+        if (typeof AchievementGamification !== 'undefined') {
+            achievementGamification = new AchievementGamification();
+        }
+        
+        // Load user-contributed photos for a museum
+        function loadUserContributedPhotos(museumId) {
+            try {
+                const allPhotos = JSON.parse(localStorage.getItem(USER_CONTRIBUTED_PHOTOS_KEY) || '{}');
+                return allPhotos[museumId] || [];
+            } catch (e) {
+                console.error('Error loading user contributed photos:', e);
+                return [];
+            }
+        }
+        
+        // Save a user-contributed photo
+        function saveUserContributedPhoto(museumId, photoData) {
+            try {
+                const allPhotos = JSON.parse(localStorage.getItem(USER_CONTRIBUTED_PHOTOS_KEY) || '{}');
+                if (!allPhotos[museumId]) {
+                    allPhotos[museumId] = [];
+                }
+                
+                // Add timestamp
+                photoData.contributedAt = Date.now();
+                
+                // Check for duplicates
+                const exists = allPhotos[museumId].some(p => p.imageUrl === photoData.imageUrl);
+                if (!exists) {
+                    allPhotos[museumId].push(photoData);
+                    localStorage.setItem(USER_CONTRIBUTED_PHOTOS_KEY, JSON.stringify(allPhotos));
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Error saving user contributed photo:', e);
+                return false;
+            }
+        }
+        
+        // Open photo contribution dialog
+        async function openPhotoContribution(museumId, museumName) {
+            // Check if imageUploader is available
+            if (typeof imageUploader === 'undefined') {
+                alert('图片上传功能暂时不可用，请稍后再试');
+                return;
+            }
+            
+            // Use the image uploader with UI feedback
+            try {
+                const imageUrl = await imageUploader.uploadWithUI({
+                    onStart: (file) => {
+                        showContributionToast('⏳ 正在上传照片...', 'uploading');
+                    },
+                    onProgress: (stage, progress, file) => {
+                        // Progress is handled by the toast
+                    },
+                    onComplete: (url, file) => {
+                        // Photo uploaded successfully
+                        console.log('Photo uploaded:', url);
+                    },
+                    onError: (error, file) => {
+                        showContributionToast('❌ 上传失败: ' + error.message, 'error');
+                    }
+                });
+                
+                if (imageUrl) {
+                    // Prompt for treasure name
+                    const treasureName = prompt('请输入这件镇馆之宝的名称（可选）:', '');
+                    
+                    // Save the contributed photo
+                    const saved = saveUserContributedPhoto(museumId, {
+                        imageUrl: imageUrl,
+                        name: treasureName || '',
+                        description: '用户贡献的镇馆之宝照片'
+                    });
+                    
+                    if (saved) {
+                        // Award XP
+                        awardPhotoContributionXP(museumName);
+                        
+                        // Show success toast
+                        showContributionToast('✅ 照片贡献成功！感谢您的分享！', 'success');
+                        
+                        // Refresh the modal to show the new photo
+                        setTimeout(() => {
+                            const museum = treasuresData.find(m => m.id === museumId);
+                            if (museum) {
+                                showTreasureDetail(museum);
+                            }
+                        }, 1500);
+                    } else {
+                        showContributionToast('⚠️ 这张照片已经添加过了', 'warning');
+                    }
+                }
+            } catch (error) {
+                console.error('Photo contribution error:', error);
+                showContributionToast('❌ 照片上传失败，请重试', 'error');
+            }
+        }
+        
+        // Award XP for photo contribution
+        function awardPhotoContributionXP(museumName) {
+            if (achievementGamification) {
+                achievementGamification.addXP(PHOTO_CONTRIBUTION_XP);
+                achievementGamification.showXPGainNotification(PHOTO_CONTRIBUTION_XP, `贡献「${museumName}」镇馆之宝照片`);
+            } else {
+                // Fallback: show custom XP notification
+                showXPNotification(PHOTO_CONTRIBUTION_XP, museumName);
+            }
+        }
+        
+        // Show custom XP notification (fallback when achievement system not loaded)
+        function showXPNotification(xp, museumName) {
+            const notification = document.createElement('div');
+            notification.className = 'xp-notification';
+            notification.innerHTML = `
+                <div class="xp-notification-content">
+                    <div class="xp-notification-icon">🎉</div>
+                    <div>
+                        <div class="xp-notification-text">贡献照片成功</div>
+                        <div class="xp-notification-amount">+${xp} XP</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Remove after animation
+            setTimeout(() => {
+                notification.remove();
+            }, 3500);
+        }
+        
+        // Show contribution toast message
+        function showContributionToast(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.contribution-success-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'contribution-success-toast';
+            if (type === 'error') {
+                toast.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+            } else if (type === 'warning') {
+                toast.style.background = 'linear-gradient(135deg, #ffc107 0%, #e0a800 100%)';
+                toast.style.color = '#333';
+            } else if (type === 'uploading') {
+                toast.style.background = 'linear-gradient(135deg, #17a2b8 0%, #117a8b 100%)';
+            }
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
         
         // Event listeners
