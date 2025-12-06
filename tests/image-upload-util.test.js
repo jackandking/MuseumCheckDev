@@ -34,7 +34,7 @@ describe('Image Upload Utility', () => {
 
     describe('Constructor', () => {
         test('should use default config values', () => {
-            expect(imageUploader.config.endpoint).toBe('https://letmetry.cloud/file/upload');
+            expect(imageUploader.config.endpoint).toBe('https://letmetry.cloud/image/upload');
             expect(imageUploader.config.maxFileSizeMB).toBe(10);
             expect(imageUploader.config.targetWidth).toBe(1200);
             expect(imageUploader.config.targetHeight).toBe(1200);
@@ -300,7 +300,7 @@ describe('Image Upload Configuration', () => {
         const uploader = new imageUploadUtil.ImageUploader();
         
         expect(uploader.config.endpoint).toContain('letmetry.cloud');
-        expect(uploader.config.endpoint).toBe('https://letmetry.cloud/file/upload');
+        expect(uploader.config.endpoint).toBe('https://letmetry.cloud/image/upload');
     });
 
     test('should have mobile-optimized compression settings', () => {

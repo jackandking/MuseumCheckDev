@@ -8,7 +8,7 @@
 class ImageUploader {
     constructor(config = {}) {
         this.config = {
-            endpoint: config.endpoint || 'https://letmetry.cloud/file/upload',
+            endpoint: config.endpoint || 'https://letmetry.cloud/image/upload',
             maxFileSizeMB: config.maxFileSizeMB || 10,
             // Compression settings optimized for mobile display
             targetWidth: config.targetWidth || 1200,   // Max width for mobile
@@ -153,7 +153,7 @@ class ImageUploader {
             return data.data.url;
         } else if (data.success && data.filename) {
             // Handle letmetry.cloud response format: {success: true, filename: "...", path: "...", destination: "..."}
-            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/file/upload" -> "https://letmetry.cloud")
+            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/image/upload" -> "https://letmetry.cloud")
             const url = new URL(this.config.endpoint);
             const baseUrl = `${url.protocol}//${url.host}`;
             

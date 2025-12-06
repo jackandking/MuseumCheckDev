@@ -84,7 +84,7 @@ const APP_CONFIG = {
     // Treasure Contributor Configuration
     TREASURE_CONTRIBUTOR: {
         REQUIRED_TREASURES: 3,              // Default number of treasures required to complete
-        FILE_UPLOAD_ENDPOINT: 'https://letmetry.cloud/file/upload',  // File upload API
+        FILE_UPLOAD_ENDPOINT: 'https://letmetry.cloud/image/upload',  // File upload API
         MAX_FILE_SIZE_MB: 10                // Maximum file size in MB
     },
     
@@ -9418,7 +9418,7 @@ class MuseumCheckApp {
             return data.data.url;
         } else if (data.success && data.filename) {
             // Handle letmetry.cloud response format: {success: true, filename: "...", path: "...", destination: "..."}
-            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/file/upload" -> "https://letmetry.cloud")
+            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/image/upload" -> "https://letmetry.cloud")
             const url = new URL(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT);
             const baseUrl = `${url.protocol}//${url.host}`;
             
