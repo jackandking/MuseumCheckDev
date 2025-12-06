@@ -5,15 +5,23 @@
  * - Pet adoption for child mode users
  * - Pet only appears when points change (task completion, photo upload, game completion)
  * - Points from check-in tasks (5 XP), photos (10 XP), games (15-30 XP)
- * - Feed pet with points
+ * - Feed pet with points (reduced cost: 5 points)
  * - Upgrade attack/defense stats with points
  * - Pet LEVEL system based on total points spent (affects animation quality)
  * - Higher level pets have cooler animations during check-in
  * - Intelligence increases with completed tasks
- * - Pet dies after 3 months without feeding
+ * - Pet dies after extended time without feeding (0.1% hunger decrease per minute)
  * - Dead pet can be revived with points
  * 
- * NEW - Points Earning:
+ * NEW - Daily Check-in System:
+ * - Daily check-in: 5 XP base reward
+ * - Daily tasks with additional XP rewards:
+ *   - Feed pet task: 3 XP
+ *   - Visit museum task: 3 XP
+ *   - Complete checklist task: 5 XP
+ * - Streak tracking for consecutive daily check-ins
+ * 
+ * Points Earning:
  * - Check-in task: 5 XP
  * - Photo upload: 10 XP  
  * - Puzzle game completion: 15 XP
@@ -23,17 +31,23 @@
  * - Tank Battle: score/5 XP (min 20, max 30)
  * - Minesweeper: (100-time)*0.3 XP (min 10, max 25)
  * 
- * NEW - Pet Levels (reduced thresholds for better accessibility):
+ * Pet Levels (reduced thresholds for better accessibility):
  * - Level 1 (新手): 0 XP spent - basic bounce animation
  * - Level 2 (见习): 50 XP spent - spin animation
  * - Level 3 (熟练): 150 XP spent - glow + spin animation
  * - Level 4 (专家): 300 XP spent - rainbow glow + flip animation
  * - Level 5 (大师): 500 XP spent - fireworks + dance animation
+ * 
+ * Hunger System (slower rate for better user experience):
+ * - Hunger decreases by 0.1% per minute (was 1% per minute)
+ * - Time to empty hunger: ~1000 minutes (~16.7 hours)
+ * - Grace period before death: 30 minutes after hunger reaches 0
  */
 
 class VirtualPet {
     constructor() {
         this.petData = this.loadPetData();
+        this.dailyCheckinData = this.loadDailyCheckinData();
         this.isVisible = false;
         this.animationTimeout = null;
         this.celebrationAnimationId = null;
@@ -45,6 +59,9 @@ class VirtualPet {
         
         // Start hunger timer to update every minute
         this.startHungerTimer();
+        
+        // Reset daily tasks if it's a new day
+        this.checkDailyReset();
     }
 
     // ===== CONSTANTS =====
@@ -52,14 +69,29 @@ class VirtualPet {
     // Note: XP rewards are configured in script.js achievement system (5 XP for tasks, 10 XP for photos)
     // Pet uses the same XP/points system for feeding and upgrades
     // Reduced costs to make pet more accessible during a typical museum visit (2-3 hours)
-    static get FEED_COST() { return 10; } // Points to feed pet (reduced from 20)
+    static get FEED_COST() { return 5; } // Points to feed pet (reduced from 10)
     static get ATTACK_UPGRADE_COST() { return 25; } // Points to increase attack (reduced from 50)
     static get DEFENSE_UPGRADE_COST() { return 25; } // Points to increase defense (reduced from 50)
     static get REVIVE_COST() { return 50; } // Points to revive dead pet (reduced from 100)
-    static get HUNGER_DECREASE_PER_MINUTE() { return 1; } // Hunger decreases by 1% per minute
+    static get HUNGER_DECREASE_PER_MINUTE() { return 0.1; } // Hunger decreases by 0.1% per minute (slower rate)
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; } // Grace period after hunger reaches 0 before death
+    // Cached calculation: minutes needed for hunger to reach 0 (MAX_HUNGER / HUNGER_DECREASE_PER_MINUTE)
+    static get MINUTES_TO_ZERO_HUNGER() { return 1000; } // 100 / 0.1 = 1000 minutes (~16.7 hours)
     static get INTELLIGENCE_PER_TASK() { return 1; } // Intelligence increases by 1 per task
+    
+    // Daily check-in task XP rewards
+    static get DAILY_CHECKIN_XP() { return 5; } // Base XP for daily check-in
+    static get DAILY_TASK_XP() { return 3; } // XP for completing each daily task
+    
+    // Daily tasks definitions - small tasks that can be completed each day
+    static get DAILY_TASKS() {
+        return [
+            { id: 'feed_pet', name: '喂养宠物', description: '给宠物喂一次食', xp: 3, emoji: '🍖' },
+            { id: 'visit_museum', name: '浏览博物馆', description: '点击查看任意一个博物馆', xp: 3, emoji: '🏛️' },
+            { id: 'complete_checklist', name: '完成清单', description: '完成一项任务清单', xp: 5, emoji: '✅' }
+        ];
+    }
     
     // Game completion XP rewards
     static get GAME_XP_REWARDS() {
@@ -153,6 +185,173 @@ class VirtualPet {
         }
     }
 
+    // ===== DAILY CHECK-IN SYSTEM =====
+    loadDailyCheckinData() {
+        try {
+            const saved = localStorage.getItem('virtualPetDailyCheckin');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Failed to load daily check-in data:', error);
+        }
+        return this.getDefaultDailyCheckinData();
+    }
+
+    getDefaultDailyCheckinData() {
+        return {
+            lastCheckinDate: null,
+            completedTasks: [],
+            streak: 0,
+            totalCheckins: 0
+        };
+    }
+
+    saveDailyCheckinData() {
+        try {
+            localStorage.setItem('virtualPetDailyCheckin', JSON.stringify(this.dailyCheckinData));
+        } catch (error) {
+            console.error('Failed to save daily check-in data:', error);
+        }
+    }
+
+    // Get today's date string (YYYY-MM-DD format in local timezone)
+    // Using toLocaleDateString('en-CA') for consistent YYYY-MM-DD format in local timezone
+    getTodayDateString() {
+        const now = new Date();
+        return now.toLocaleDateString('en-CA'); // Returns YYYY-MM-DD format
+    }
+
+    // Check if user has checked in today
+    hasCheckedInToday() {
+        const today = this.getTodayDateString();
+        return this.dailyCheckinData.lastCheckinDate === today;
+    }
+
+    // Perform daily check-in and earn base XP
+    performDailyCheckin() {
+        if (this.hasCheckedInToday()) {
+            return { success: false, message: '今天已经签到过了！' };
+        }
+
+        const today = this.getTodayDateString();
+        const lastCheckin = this.dailyCheckinData.lastCheckinDate;
+        
+        // Check if this is a consecutive day (yesterday)
+        if (lastCheckin) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            if (lastCheckin === yesterdayStr) {
+                this.dailyCheckinData.streak++;
+            } else {
+                // Streak broken, reset to 1
+                this.dailyCheckinData.streak = 1;
+            }
+        } else {
+            // First check-in
+            this.dailyCheckinData.streak = 1;
+        }
+
+        this.dailyCheckinData.lastCheckinDate = today;
+        this.dailyCheckinData.completedTasks = []; // Reset completed tasks for the new day
+        this.dailyCheckinData.totalCheckins++;
+        this.saveDailyCheckinData();
+
+        // Award base check-in XP
+        const xpEarned = VirtualPet.DAILY_CHECKIN_XP;
+        this.addPoints(xpEarned);
+
+        return { 
+            success: true, 
+            message: `签到成功！+${xpEarned}积分`, 
+            xpEarned: xpEarned,
+            streak: this.dailyCheckinData.streak
+        };
+    }
+
+    // Get available daily tasks for today
+    getDailyTasks() {
+        const allTasks = VirtualPet.DAILY_TASKS;
+        const completedToday = this.dailyCheckinData.completedTasks || [];
+        
+        return allTasks.map(task => ({
+            ...task,
+            completed: completedToday.includes(task.id)
+        }));
+    }
+
+    // Complete a daily task and earn XP
+    completeDailyTask(taskId) {
+        const tasks = VirtualPet.DAILY_TASKS;
+        const task = tasks.find(t => t.id === taskId);
+        
+        if (!task) {
+            return { success: false, message: '未知任务' };
+        }
+
+        // Initialize completed tasks array if not exists
+        if (!this.dailyCheckinData.completedTasks) {
+            this.dailyCheckinData.completedTasks = [];
+        }
+
+        // Check if already completed today
+        if (this.dailyCheckinData.completedTasks.includes(taskId)) {
+            return { success: false, message: '今天已经完成过这个任务了' };
+        }
+
+        // Mark task as completed
+        this.dailyCheckinData.completedTasks.push(taskId);
+        this.saveDailyCheckinData();
+
+        // Award task XP
+        const xpEarned = task.xp || VirtualPet.DAILY_TASK_XP;
+        this.addPoints(xpEarned);
+
+        return { 
+            success: true, 
+            message: `完成任务「${task.name}」！+${xpEarned}积分`,
+            xpEarned: xpEarned,
+            task: task
+        };
+    }
+
+    // Check if a specific daily task is completed today
+    isDailyTaskCompleted(taskId) {
+        if (!this.dailyCheckinData.completedTasks) {
+            return false;
+        }
+        return this.dailyCheckinData.completedTasks.includes(taskId);
+    }
+
+    // Get daily check-in status summary
+    getDailyCheckinStatus() {
+        const tasks = this.getDailyTasks();
+        const completedCount = tasks.filter(t => t.completed).length;
+        const totalTasks = tasks.length;
+        
+        return {
+            hasCheckedIn: this.hasCheckedInToday(),
+            streak: this.dailyCheckinData.streak || 0,
+            totalCheckins: this.dailyCheckinData.totalCheckins || 0,
+            completedTasks: completedCount,
+            totalTasks: totalTasks,
+            tasks: tasks
+        };
+    }
+
+    // Check and reset daily tasks if it's a new day
+    checkDailyReset() {
+        const today = this.getTodayDateString();
+        const lastCheckin = this.dailyCheckinData.lastCheckinDate;
+        
+        // If we have a last check-in date and it's not today, reset completed tasks
+        if (lastCheckin && lastCheckin !== today) {
+            this.dailyCheckinData.completedTasks = [];
+            this.saveDailyCheckinData();
+        }
+    }
+
     // ===== PET STATUS =====
     hasPet() {
         return this.petData.adopted && this.petData.pet !== null;
@@ -181,7 +380,8 @@ class VirtualPet {
         
         // Check if pet has starved (hunger = 0 for long enough - now checked based on minutes)
         // Pet dies after reaching 0 hunger plus grace period
-        const deathThresholdMinutes = VirtualPet.MAX_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
+        // Use cached constant for minutes to zero hunger
+        const deathThresholdMinutes = VirtualPet.MINUTES_TO_ZERO_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
         if (pet.hunger <= 0 && minutesSinceLastFed >= deathThresholdMinutes) {
             pet.isDead = true;
             pet.deathDate = now;

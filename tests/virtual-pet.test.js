@@ -50,20 +50,36 @@ const virtualPetCode = fs.readFileSync(virtualPetPath, 'utf8');
 class VirtualPet {
     constructor() {
         this.petData = this.loadPetData();
+        this.dailyCheckinData = this.loadDailyCheckinData();
         this.isVisible = false;
         this.animationTimeout = null;
         this.checkPetStatus();
     }
 
     static get HUNGER_DEATH_DAYS() { return 90; }
-    static get FEED_COST() { return 10; }
+    static get FEED_COST() { return 5; }
     static get ATTACK_UPGRADE_COST() { return 25; }
     static get DEFENSE_UPGRADE_COST() { return 25; }
     static get REVIVE_COST() { return 50; }
-    static get HUNGER_DECREASE_PER_MINUTE() { return 1; }
+    static get HUNGER_DECREASE_PER_MINUTE() { return 0.1; }
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; }
+    // Cached calculation: minutes needed for hunger to reach 0
+    static get MINUTES_TO_ZERO_HUNGER() { return 1000; } // 100 / 0.1 = 1000 minutes
     static get INTELLIGENCE_PER_TASK() { return 1; }
+    
+    // Daily check-in task XP rewards
+    static get DAILY_CHECKIN_XP() { return 5; }
+    static get DAILY_TASK_XP() { return 3; }
+    
+    // Daily tasks definitions
+    static get DAILY_TASKS() {
+        return [
+            { id: 'feed_pet', name: '喂养宠物', description: '给宠物喂一次食', xp: 3, emoji: '🍖' },
+            { id: 'visit_museum', name: '浏览博物馆', description: '点击查看任意一个博物馆', xp: 3, emoji: '🏛️' },
+            { id: 'complete_checklist', name: '完成清单', description: '完成一项任务清单', xp: 5, emoji: '✅' }
+        ];
+    }
     
     // Game completion XP rewards
     static get GAME_XP_REWARDS() {
@@ -119,6 +135,146 @@ class VirtualPet {
         }
     }
 
+    // Daily check-in methods for testing
+    loadDailyCheckinData() {
+        try {
+            const saved = localStorage.getItem('virtualPetDailyCheckin');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Failed to load daily check-in data:', error);
+        }
+        return this.getDefaultDailyCheckinData();
+    }
+
+    getDefaultDailyCheckinData() {
+        return {
+            lastCheckinDate: null,
+            completedTasks: [],
+            streak: 0,
+            totalCheckins: 0
+        };
+    }
+
+    saveDailyCheckinData() {
+        try {
+            localStorage.setItem('virtualPetDailyCheckin', JSON.stringify(this.dailyCheckinData));
+        } catch (error) {
+            console.error('Failed to save daily check-in data:', error);
+        }
+    }
+
+    getTodayDateString() {
+        const now = new Date();
+        return now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    }
+
+    hasCheckedInToday() {
+        if (!this.dailyCheckinData) return false;
+        const today = this.getTodayDateString();
+        return this.dailyCheckinData.lastCheckinDate === today;
+    }
+
+    performDailyCheckin() {
+        if (this.hasCheckedInToday()) {
+            return { success: false, message: '今天已经签到过了！' };
+        }
+
+        const today = this.getTodayDateString();
+        const lastCheckin = this.dailyCheckinData.lastCheckinDate;
+        
+        if (lastCheckin) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            if (lastCheckin === yesterdayStr) {
+                this.dailyCheckinData.streak++;
+            } else {
+                this.dailyCheckinData.streak = 1;
+            }
+        } else {
+            this.dailyCheckinData.streak = 1;
+        }
+
+        this.dailyCheckinData.lastCheckinDate = today;
+        this.dailyCheckinData.completedTasks = [];
+        this.dailyCheckinData.totalCheckins++;
+        this.saveDailyCheckinData();
+
+        const xpEarned = VirtualPet.DAILY_CHECKIN_XP;
+        this.addPoints(xpEarned);
+
+        return { 
+            success: true, 
+            message: `签到成功！+${xpEarned}积分`, 
+            xpEarned: xpEarned,
+            streak: this.dailyCheckinData.streak
+        };
+    }
+
+    getDailyTasks() {
+        const allTasks = VirtualPet.DAILY_TASKS;
+        const completedToday = this.dailyCheckinData.completedTasks || [];
+        
+        return allTasks.map(task => ({
+            ...task,
+            completed: completedToday.includes(task.id)
+        }));
+    }
+
+    completeDailyTask(taskId) {
+        const tasks = VirtualPet.DAILY_TASKS;
+        const task = tasks.find(t => t.id === taskId);
+        
+        if (!task) {
+            return { success: false, message: '未知任务' };
+        }
+
+        if (!this.dailyCheckinData.completedTasks) {
+            this.dailyCheckinData.completedTasks = [];
+        }
+
+        if (this.dailyCheckinData.completedTasks.includes(taskId)) {
+            return { success: false, message: '今天已经完成过这个任务了' };
+        }
+
+        this.dailyCheckinData.completedTasks.push(taskId);
+        this.saveDailyCheckinData();
+
+        const xpEarned = task.xp || VirtualPet.DAILY_TASK_XP;
+        this.addPoints(xpEarned);
+
+        return { 
+            success: true, 
+            message: `完成任务「${task.name}」！+${xpEarned}积分`,
+            xpEarned: xpEarned,
+            task: task
+        };
+    }
+
+    isDailyTaskCompleted(taskId) {
+        if (!this.dailyCheckinData || !this.dailyCheckinData.completedTasks) {
+            return false;
+        }
+        return this.dailyCheckinData.completedTasks.includes(taskId);
+    }
+
+    getDailyCheckinStatus() {
+        const tasks = this.getDailyTasks();
+        const completedCount = tasks.filter(t => t.completed).length;
+        const totalTasks = tasks.length;
+        
+        return {
+            hasCheckedIn: this.hasCheckedInToday(),
+            streak: this.dailyCheckinData.streak || 0,
+            totalCheckins: this.dailyCheckinData.totalCheckins || 0,
+            completedTasks: completedCount,
+            totalTasks: totalTasks,
+            tasks: tasks
+        };
+    }
+
     hasPet() {
         return this.petData.adopted && this.petData.pet !== null;
     }
@@ -141,7 +297,8 @@ class VirtualPet {
         pet.hunger = Math.max(0, VirtualPet.MAX_HUNGER - hungerDecrease);
         
         // Pet dies after reaching 0 hunger plus grace period
-        const deathThresholdMinutes = VirtualPet.MAX_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
+        // Use cached constant for minutes to zero hunger
+        const deathThresholdMinutes = VirtualPet.MINUTES_TO_ZERO_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
         if (pet.hunger <= 0 && minutesSinceLastFed >= deathThresholdMinutes) {
             pet.isDead = true;
             pet.deathDate = now;
@@ -396,6 +553,11 @@ class VirtualPet {
         return false;
     }
 
+    addPoints(amount) {
+        // Mock implementation for testing - in real code this integrates with XP system
+        return true;
+    }
+
     static notifyTaskCompleted() {
         if (window.virtualPet) {
             window.virtualPet.onTaskCompleted();
@@ -465,7 +627,7 @@ describe('VirtualPet', () => {
         });
 
         test('should have feed cost defined (reduced for accessibility)', () => {
-            expect(VirtualPet.FEED_COST).toBe(10);
+            expect(VirtualPet.FEED_COST).toBe(5);
         });
 
         test('should have attack upgrade cost defined (reduced for accessibility)', () => {
@@ -480,26 +642,13 @@ describe('VirtualPet', () => {
             expect(VirtualPet.REVIVE_COST).toBe(50);
         });
         
-        test('should have hunger decrease per minute defined as 1%', () => {
-            expect(VirtualPet.HUNGER_DECREASE_PER_MINUTE).toBe(1);
+        test('should have hunger decrease per minute defined as 0.1%', () => {
+            expect(VirtualPet.HUNGER_DECREASE_PER_MINUTE).toBe(0.1);
         });
     });
     
     describe('Per-Minute Hunger System', () => {
-        test('pet hunger should decrease by 1% per minute', () => {
-            const pet = new VirtualPet();
-            pet.adoptPet('cat');
-            
-            // Simulate 10 minutes passing
-            const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
-            pet.petData.pet.lastFed = tenMinutesAgo;
-            pet.checkPetStatus();
-            
-            // Hunger should be 100 - 10 = 90
-            expect(pet.petData.pet.hunger).toBe(90);
-        });
-        
-        test('pet hunger should reach 0 after 100 minutes', () => {
+        test('pet hunger should decrease by 0.1% per minute', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
@@ -508,7 +657,20 @@ describe('VirtualPet', () => {
             pet.petData.pet.lastFed = hundredMinutesAgo;
             pet.checkPetStatus();
             
-            // Hunger should be 0 (100 - 100 = 0)
+            // Hunger should be 100 - (100 * 0.1) = 90
+            expect(pet.petData.pet.hunger).toBe(90);
+        });
+        
+        test('pet hunger should reach 0 after 1000 minutes (with 0.1% per minute)', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            // Simulate 1000 minutes passing (100 / 0.1 = 1000 minutes to reach 0)
+            const thousandMinutesAgo = Date.now() - (1000 * 60 * 1000);
+            pet.petData.pet.lastFed = thousandMinutesAgo;
+            pet.checkPetStatus();
+            
+            // Hunger should be 0 (100 - 1000*0.1 = 0)
             expect(pet.petData.pet.hunger).toBe(0);
         });
         
@@ -516,21 +678,21 @@ describe('VirtualPet', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
-            // Simulate 100 minutes passing (hunger at 0 but not dead yet)
-            const hundredMinutesAgo = Date.now() - (100 * 60 * 1000);
-            pet.petData.pet.lastFed = hundredMinutesAgo;
+            // Simulate 1000 minutes passing (hunger at 0 but not dead yet)
+            const thousandMinutesAgo = Date.now() - (1000 * 60 * 1000);
+            pet.petData.pet.lastFed = thousandMinutesAgo;
             pet.checkPetStatus();
             
-            // Pet should still be alive
+            // Pet should still be alive (within grace period)
             expect(pet.isPetAlive()).toBe(true);
         });
         
-        test('pet should die after 130 minutes (100 to reach 0 + 30 grace period)', () => {
+        test('pet should die after 1030 minutes (1000 to reach 0 + 30 grace period)', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
-            // Simulate 130 minutes passing
-            const minutesAgo = Date.now() - (130 * 60 * 1000);
+            // Simulate 1030 minutes passing
+            const minutesAgo = Date.now() - (1030 * 60 * 1000);
             pet.petData.pet.lastFed = minutesAgo;
             pet.checkPetStatus();
             
@@ -543,9 +705,9 @@ describe('VirtualPet', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
-            // Simulate 200 minutes passing
-            const twoHundredMinutesAgo = Date.now() - (200 * 60 * 1000);
-            pet.petData.pet.lastFed = twoHundredMinutesAgo;
+            // Simulate 2000 minutes passing (far beyond hunger depletion)
+            const twoThousandMinutesAgo = Date.now() - (2000 * 60 * 1000);
+            pet.petData.pet.lastFed = twoThousandMinutesAgo;
             pet.checkPetStatus();
             
             // Hunger should be 0, not negative
@@ -666,8 +828,8 @@ describe('VirtualPet', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
             
-            // Test with 5 points, intentionally less than FEED_COST (10) to verify insufficient points handling
-            const result = pet.feedPet(5);
+            // Test with 4 points, intentionally less than FEED_COST (5) to verify insufficient points handling
+            const result = pet.feedPet(4);
             expect(result.success).toBe(false);
             expect(result.message).toContain('积分不足');
         });
@@ -955,7 +1117,7 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             
             pet.feedPet(100);
-            expect(pet.petData.pet.totalXPSpent).toBe(10);
+            expect(pet.petData.pet.totalXPSpent).toBe(5);
         });
         
         test('upgrading attack should increase totalXPSpent', () => {
@@ -1156,6 +1318,137 @@ describe('VirtualPet', () => {
             
             const result = VirtualPet.showAdoptionPromptIfNeeded('checkin');
             expect(result).toBeNull();
+        });
+    });
+    
+    describe('Daily Check-in System', () => {
+        test('should have DAILY_CHECKIN_XP constant defined', () => {
+            expect(VirtualPet.DAILY_CHECKIN_XP).toBe(5);
+        });
+        
+        test('should have DAILY_TASK_XP constant defined', () => {
+            expect(VirtualPet.DAILY_TASK_XP).toBe(3);
+        });
+        
+        test('should have DAILY_TASKS defined with correct structure', () => {
+            const tasks = VirtualPet.DAILY_TASKS;
+            expect(tasks).toBeDefined();
+            expect(tasks.length).toBeGreaterThan(0);
+            
+            tasks.forEach(task => {
+                expect(task.id).toBeDefined();
+                expect(task.name).toBeDefined();
+                expect(task.description).toBeDefined();
+                expect(task.xp).toBeDefined();
+                expect(task.emoji).toBeDefined();
+            });
+        });
+        
+        test('should have default daily check-in data', () => {
+            const pet = new VirtualPet();
+            expect(pet.dailyCheckinData).toBeDefined();
+            expect(pet.dailyCheckinData.lastCheckinDate).toBeNull();
+            expect(pet.dailyCheckinData.completedTasks).toEqual([]);
+            expect(pet.dailyCheckinData.streak).toBe(0);
+            expect(pet.dailyCheckinData.totalCheckins).toBe(0);
+        });
+        
+        test('hasCheckedInToday should return false initially', () => {
+            const pet = new VirtualPet();
+            expect(pet.hasCheckedInToday()).toBe(false);
+        });
+        
+        test('performDailyCheckin should succeed on first check-in', () => {
+            const pet = new VirtualPet();
+            const result = pet.performDailyCheckin();
+            
+            expect(result.success).toBe(true);
+            expect(result.xpEarned).toBe(VirtualPet.DAILY_CHECKIN_XP);
+            expect(result.streak).toBe(1);
+        });
+        
+        test('performDailyCheckin should fail on second check-in same day', () => {
+            const pet = new VirtualPet();
+            pet.performDailyCheckin();
+            
+            const secondResult = pet.performDailyCheckin();
+            expect(secondResult.success).toBe(false);
+            expect(secondResult.message).toContain('已经签到');
+        });
+        
+        test('hasCheckedInToday should return true after check-in', () => {
+            const pet = new VirtualPet();
+            pet.performDailyCheckin();
+            
+            expect(pet.hasCheckedInToday()).toBe(true);
+        });
+        
+        test('getDailyTasks should return all tasks with completion status', () => {
+            const pet = new VirtualPet();
+            const tasks = pet.getDailyTasks();
+            
+            expect(tasks.length).toBe(VirtualPet.DAILY_TASKS.length);
+            tasks.forEach(task => {
+                expect(task.completed).toBe(false);
+            });
+        });
+        
+        test('completeDailyTask should mark task as completed', () => {
+            const pet = new VirtualPet();
+            const taskId = VirtualPet.DAILY_TASKS[0].id;
+            
+            const result = pet.completeDailyTask(taskId);
+            expect(result.success).toBe(true);
+            expect(result.xpEarned).toBeDefined();
+            
+            expect(pet.isDailyTaskCompleted(taskId)).toBe(true);
+        });
+        
+        test('completeDailyTask should fail for already completed task', () => {
+            const pet = new VirtualPet();
+            const taskId = VirtualPet.DAILY_TASKS[0].id;
+            
+            pet.completeDailyTask(taskId);
+            const secondResult = pet.completeDailyTask(taskId);
+            
+            expect(secondResult.success).toBe(false);
+            expect(secondResult.message).toContain('已经完成');
+        });
+        
+        test('completeDailyTask should fail for unknown task', () => {
+            const pet = new VirtualPet();
+            
+            const result = pet.completeDailyTask('unknown_task');
+            expect(result.success).toBe(false);
+            expect(result.message).toContain('未知');
+        });
+        
+        test('getDailyCheckinStatus should return correct summary', () => {
+            const pet = new VirtualPet();
+            
+            let status = pet.getDailyCheckinStatus();
+            expect(status.hasCheckedIn).toBe(false);
+            expect(status.streak).toBe(0);
+            expect(status.completedTasks).toBe(0);
+            expect(status.totalTasks).toBe(VirtualPet.DAILY_TASKS.length);
+            
+            pet.performDailyCheckin();
+            const taskId = VirtualPet.DAILY_TASKS[0].id;
+            pet.completeDailyTask(taskId);
+            
+            status = pet.getDailyCheckinStatus();
+            expect(status.hasCheckedIn).toBe(true);
+            expect(status.streak).toBe(1);
+            expect(status.completedTasks).toBe(1);
+            expect(status.totalCheckins).toBe(1);
+        });
+        
+        test('daily check-in should increase totalCheckins counter', () => {
+            const pet = new VirtualPet();
+            expect(pet.dailyCheckinData.totalCheckins).toBe(0);
+            
+            pet.performDailyCheckin();
+            expect(pet.dailyCheckinData.totalCheckins).toBe(1);
         });
     });
 });
