@@ -273,3 +273,60 @@ describe('Admin Navigation Updates', () => {
         expect(content).toContain('admin-treasure-reports.html?admin=1');
     });
 });
+
+describe('Treasure Report Race Condition Fix', () => {
+    let htmlContent;
+    
+    beforeAll(() => {
+        htmlContent = fs.readFileSync(
+            path.join(__dirname, '..', 'museum-checkin.html'),
+            'utf8'
+        );
+    });
+
+    describe('Fix: Fetch latest data from KV store before incrementing (Issue #735)', () => {
+        test('should have fetchTreasureReportFromKV helper function', () => {
+            // The fix adds a new function to fetch fresh data from KV store
+            expect(htmlContent).toContain('async function fetchTreasureReportFromKV(sortKey)');
+        });
+
+        test('fetchTreasureReportFromKV should use correct API endpoint', () => {
+            // Verify the function uses the correct URL pattern with key and sortKey
+            // Check for endpoint usage
+            expect(htmlContent).toContain('REMOTE_STORAGE_CONFIG.API_ENDPOINT');
+            // Check that key parameter is encoded
+            expect(htmlContent).toContain('encodeURIComponent(REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY)');
+            // Check that sortKey parameter is encoded
+            expect(htmlContent).toContain('encodeURIComponent(sortKey)');
+        });
+
+        test('fetchTreasureReportFromKV should handle 404 gracefully', () => {
+            // Should return null for non-existent reports
+            expect(htmlContent).toMatch(/if\s*\(\s*response\.status\s*===\s*404\s*\)/);
+        });
+
+        test('reportTreasureNotFound should fetch latest data before incrementing', () => {
+            // The fix calls fetchTreasureReportFromKV before incrementing the count
+            // This prevents race conditions when multiple users report simultaneously
+            expect(htmlContent).toContain('const latestReport = await fetchTreasureReportFromKV(sortKey);');
+            expect(htmlContent).toContain('const existingReport = latestReport || treasureReports[sortKey] || {};');
+        });
+
+        test('reportTreasureNotFound should have comment explaining the fix', () => {
+            // Verify there's a comment explaining why we fetch fresh data
+            expect(htmlContent).toContain('CRITICAL FIX: Fetch latest report from KV store to avoid race conditions');
+        });
+
+        test('recordTreasurePhotoCheckin should also fetch latest data', () => {
+            // The fix should also apply to the photo check-in function
+            // to prevent race conditions when decrementing the count
+            // Verify that recordTreasurePhotoCheckin calls fetchTreasureReportFromKV
+            expect(htmlContent).toContain('async function recordTreasurePhotoCheckin(treasureName)');
+            // Check that it fetches latest report (appears after the function definition)
+            const funcStart = htmlContent.indexOf('async function recordTreasurePhotoCheckin');
+            const funcEnd = htmlContent.indexOf('async function', funcStart + 1);
+            const funcBody = htmlContent.substring(funcStart, funcEnd);
+            expect(funcBody).toContain('fetchTreasureReportFromKV(sortKey)');
+        });
+    });
+});

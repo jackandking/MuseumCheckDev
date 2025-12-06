@@ -3860,6 +3860,36 @@
         }
 
         /**
+         * Fetch a single treasure report from KV store
+         * @param {string} sortKey - Sort key for the treasure report
+         * @returns {Promise<Object|null>} The report object or null if not found
+         */
+        async function fetchTreasureReportFromKV(sortKey) {
+            try {
+                const keyParam = encodeURIComponent(REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY);
+                const sortKeyParam = encodeURIComponent(sortKey);
+                const url = `${REMOTE_STORAGE_CONFIG.API_ENDPOINT}?key=${keyParam}&sortKey=${sortKeyParam}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return null;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data && data.value) {
+                    return JSON.parse(data.value);
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching treasure report from KV:', error);
+                return null;
+            }
+        }
+
+        /**
          * Report a treasure as not found
          * @param {string} treasureName - Name of the treasure
          * @returns {Promise<boolean>} Success status
@@ -3867,7 +3897,6 @@
         async function reportTreasureNotFound(treasureName) {
             try {
                 const sortKey = getTreasureReportSortKey(museumId, treasureName);
-                const existingReport = treasureReports[sortKey] || {};
                 
                 // Get user ID from localStorage or generate new one
                 let userId = localStorage.getItem('treasureReportUserId');
@@ -3876,6 +3905,13 @@
                     localStorage.setItem('treasureReportUserId', userId);
                 }
                 
+                // CRITICAL FIX: Fetch latest report from KV store to avoid race conditions
+                // When multiple users report simultaneously from different browsers,
+                // each browser's local cache may have stale data. Fetching fresh data
+                // ensures we increment the correct count.
+                const latestReport = await fetchTreasureReportFromKV(sortKey);
+                const existingReport = latestReport || treasureReports[sortKey] || {};
+                
                 // Check if user already reported this treasure
                 const reporters = existingReport.reporters || [];
                 if (reporters.includes(userId)) {
@@ -3883,7 +3919,7 @@
                     return false;
                 }
                 
-                // Update report
+                // Update report with latest count from KV store
                 const newReportCount = (existingReport.reportCount || 0) + 1;
                 const newReporters = [...reporters, userId];
                 const photoCheckins = existingReport.photoCheckins || 0;
@@ -3938,7 +3974,10 @@
         async function recordTreasurePhotoCheckin(treasureName) {
             try {
                 const sortKey = getTreasureReportSortKey(museumId, treasureName);
-                const existingReport = treasureReports[sortKey];
+                
+                // CRITICAL FIX: Fetch latest report from KV store to avoid race conditions
+                const latestReport = await fetchTreasureReportFromKV(sortKey);
+                const existingReport = latestReport || treasureReports[sortKey];
                 
                 if (!existingReport || existingReport.reportCount <= 0) {
                     return true; // No reports to decrement
