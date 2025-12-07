@@ -1723,6 +1723,182 @@
         }
 
         /* ===== Minesweeper (扫雷) Game Styles ===== */
+        /* ===== Pet Adventure Game Styles ===== */
+        .pet-adventure-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pet-adventure-overlay.show {
+            display: flex;
+        }
+
+        .pet-adventure-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .pet-adventure-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .pet-adventure-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .pet-adventure-stats span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .pet-adventure-container {
+            background: #87CEEB;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 4px solid #fff;
+            overflow: hidden;
+        }
+
+        #petAdventureCanvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .pet-adventure-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pet-adventure-jump-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .pet-adventure-jump-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
+        }
+
+        .pet-adventure-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .pet-adventure-button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pet-adventure-button-continue {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .pet-adventure-button-continue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(245, 87, 108, 0.4);
+        }
+
+        .pet-adventure-button-restart {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .pet-adventure-button-restart:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .pet-adventure-hint {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .pet-adventure-complete-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(245, 87, 108, 0.4);
+            z-index: 3001;
+            animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pet-adventure-complete-message.show {
+            display: block;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .pet-adventure-title {
+                font-size: 22px;
+            }
+            
+            .pet-adventure-stats {
+                font-size: 16px;
+                gap: 15px;
+            }
+
+            .pet-adventure-jump-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 18px;
+            }
+
+            #petAdventureCanvas {
+                width: 100%;
+                height: auto;
+            }
+        }
+
         .minesweeper-overlay {
             display: none;
             position: fixed;
@@ -4005,6 +4181,10 @@
                             <input type="checkbox" id="gameToggleMinesweeper" class="game-toggle" data-game="minesweeper" checked>
                             <span>💣 扫雷</span>
                         </label>
+                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
+                            <input type="checkbox" id="gameTogglePetAdventure" class="game-toggle" data-game="pet-adventure" checked>
+                            <span>🐾 宠物冒险</span>
+                        </label>
                     </div>
                     <div class="settings-hint" style="margin-top: 8px;">选择希望奖励的游戏类型，至少选择一个</div>
                 </div>
@@ -4163,6 +4343,30 @@
     </div>
 
     <!-- Minesweeper (扫雷) Game Overlay -->
+    <!-- Pet Adventure Game Overlay -->
+    <div class="pet-adventure-overlay" id="petAdventureOverlay">
+        <div class="pet-adventure-header">
+            <div class="pet-adventure-title">🐾 宠物大冒险 🐾</div>
+            <div class="pet-adventure-stats">
+                得分：<span id="paScore">0</span> | 生命：<span id="paLives">❤️❤️❤️</span>
+            </div>
+        </div>
+        <div class="pet-adventure-container">
+            <canvas id="petAdventureCanvas" width="600" height="400"></canvas>
+        </div>
+        <div class="pet-adventure-hint">按 ↑ 或 空格键跳跃，收集文物，避开障碍！</div>
+        <div class="pet-adventure-controls">
+            <button class="pet-adventure-button pet-adventure-jump-btn" id="paJumpBtn">⬆️ 跳跃</button>
+        </div>
+        <div class="pet-adventure-buttons">
+            <button class="pet-adventure-button pet-adventure-button-restart" id="restartPetAdventure">🔄 重新开始</button>
+            <button class="pet-adventure-button pet-adventure-button-continue" id="exitPetAdventure">继续游览 ➡️</button>
+        </div>
+        <div class="pet-adventure-complete-message" id="petAdventureCompleteMessage">
+            🎉 游戏结束！得分：<span id="paFinalScore">0</span>
+        </div>
+    </div>
+
     <div class="minesweeper-overlay" id="minesweeperOverlay">
         <div class="minesweeper-header">
             <div class="minesweeper-title">💣 扫雷挑战 💣</div>
@@ -5812,6 +6016,8 @@
                         initSpaceInvadersGame(taskIndexForGame);
                     } else if (gameType === 'tank-battle') {
                         initTankBattleGame(taskIndexForGame);
+                    } else if (gameType === 'pet-adventure') {
+                        initPetAdventureGame(taskIndexForGame);
                     } else {
                         // Default to minesweeper
                         initMinesweeperGame(taskIndexForGame);
@@ -9272,7 +9478,7 @@
 
         // ===== Individual Game Settings =====
         // All games enabled by default
-        const ALL_GAMES = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper'];
+        const ALL_GAMES = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper', 'pet-adventure'];
 
         function loadEnabledGames() {
             try {
@@ -11790,6 +11996,329 @@
             
             document.getElementById('minesweeperOverlay').classList.remove('show');
             document.getElementById('minesweeperCompleteMessage').classList.remove('show');
+        }
+
+        // ===== Pet Adventure Game Logic =====
+        let paCanvas, paCtx;
+        let paPlayer, paObstacles, paCollectibles, paGameRunning, paScore, paLives;
+        let paAnimationId, paGameSpeed, paSpawnTimer, paDistance;
+        
+        // Game constants
+        const PA_GRAVITY = 0.8;
+        const PA_JUMP_FORCE = -15;
+        const PA_GROUND_Y = 320;
+        const PA_PLAYER_SIZE = 40;
+        const PA_OBSTACLE_WIDTH = 30;
+        const PA_OBSTACLE_MIN_HEIGHT = 40;
+        const PA_OBSTACLE_MAX_HEIGHT = 80;
+        const PA_COLLECTIBLE_SIZE = 25;
+        const PA_OBSTACLE_EMOJIS = ['🌵', '🪨', '🗿'];
+        const PA_COLLECTIBLE_EMOJIS = ['🏺', '⚱️', '📜', '👑', '💎'];
+        const PA_DIFFICULTY_DISTANCE_THRESHOLD = 1000;
+        const PA_MAX_SPEED = 6;
+        const PA_BASE_SPEED = 3;
+        const PA_SPEED_INCREASE_RATE = 0.3;
+        const PA_DEFAULT_CANVAS_WIDTH = 600;
+        const PA_CANVAS_ASPECT_RATIO = 2 / 3;
+        
+        function initPetAdventureGame(taskIndex = 0) {
+            // Show overlay
+            document.getElementById('petAdventureOverlay').classList.add('show');
+            
+            // Get canvas - with null check
+            paCanvas = document.getElementById('petAdventureCanvas');
+            if (!paCanvas) {
+                console.error('Pet adventure canvas not found');
+                return;
+            }
+            paCtx = paCanvas.getContext('2d');
+            
+            // Set canvas size for mobile responsiveness - with null check
+            if (paCanvas.parentElement) {
+                const containerWidth = paCanvas.parentElement.offsetWidth;
+                if (containerWidth < PA_DEFAULT_CANVAS_WIDTH) {
+                    paCanvas.width = containerWidth;
+                    paCanvas.height = Math.floor(containerWidth * PA_CANVAS_ASPECT_RATIO);
+                }
+            }
+            
+            // Initialize game state
+            resetPetAdventureGame();
+            
+            // Bind controls
+            bindPetAdventureControls();
+            
+            // Start game loop
+            paGameRunning = true;
+            paGameLoop();
+        }
+        
+        function resetPetAdventureGame() {
+            // Get pet emoji from virtual pet if available
+            let petEmoji = '🐱';
+            if (window.virtualPet && window.virtualPet.hasPet()) {
+                petEmoji = window.virtualPet.getPetEmoji();
+            }
+            
+            paPlayer = {
+                x: 100,
+                y: PA_GROUND_Y - PA_PLAYER_SIZE,
+                width: PA_PLAYER_SIZE,
+                height: PA_PLAYER_SIZE,
+                velocityY: 0,
+                isJumping: false,
+                emoji: petEmoji
+            };
+            
+            paObstacles = [];
+            paCollectibles = [];
+            paScore = 0;
+            paLives = 3;
+            paGameSpeed = PA_BASE_SPEED;
+            paSpawnTimer = 0;
+            paDistance = 0;
+            
+            updatePetAdventureUI();
+        }
+        
+        function bindPetAdventureControls() {
+            // Remove existing keyboard listener first to prevent duplicates
+            document.removeEventListener('keydown', handlePetAdventureKeyPress);
+            
+            // Remove existing listeners to avoid duplicates
+            const jumpBtn = document.getElementById('paJumpBtn');
+            const restartBtn = document.getElementById('restartPetAdventure');
+            const exitBtn = document.getElementById('exitPetAdventure');
+            
+            // Create new button instances to clear all listeners
+            const newJumpBtn = jumpBtn.cloneNode(true);
+            const newRestartBtn = restartBtn.cloneNode(true);
+            const newExitBtn = exitBtn.cloneNode(true);
+            
+            jumpBtn.parentNode.replaceChild(newJumpBtn, jumpBtn);
+            restartBtn.parentNode.replaceChild(newRestartBtn, restartBtn);
+            exitBtn.parentNode.replaceChild(newExitBtn, exitBtn);
+            
+            // Add new listeners
+            newJumpBtn.addEventListener('click', paJump);
+            newRestartBtn.addEventListener('click', () => {
+                resetPetAdventureGame();
+                if (!paGameRunning) {
+                    paGameRunning = true;
+                    paGameLoop();
+                }
+            });
+            newExitBtn.addEventListener('click', cleanupPetAdventureGame);
+            
+            // Keyboard controls - add fresh listener after removing old one
+            document.addEventListener('keydown', handlePetAdventureKeyPress);
+        }
+        
+        function handlePetAdventureKeyPress(e) {
+            if (!paGameRunning) return;
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                paJump();
+            }
+        }
+        
+        function paJump() {
+            if (!paPlayer.isJumping) {
+                paPlayer.velocityY = PA_JUMP_FORCE;
+                paPlayer.isJumping = true;
+            }
+        }
+        
+        function paGameLoop() {
+            if (!paGameRunning) return;
+            
+            // Update game state
+            paUpdate();
+            
+            // Render
+            paRender();
+            
+            // Continue loop
+            paAnimationId = requestAnimationFrame(paGameLoop);
+        }
+        
+        function paUpdate() {
+            // Update player physics
+            paPlayer.velocityY += PA_GRAVITY;
+            paPlayer.y += paPlayer.velocityY;
+            
+            // Ground collision
+            if (paPlayer.y >= PA_GROUND_Y - PA_PLAYER_SIZE) {
+                paPlayer.y = PA_GROUND_Y - PA_PLAYER_SIZE;
+                paPlayer.velocityY = 0;
+                paPlayer.isJumping = false;
+            }
+            
+            // Spawn obstacles and collectibles
+            paSpawnTimer++;
+            paDistance += paGameSpeed;
+            
+            if (paSpawnTimer > 80) {
+                paSpawnTimer = 0;
+                
+                // Randomly spawn obstacle or collectible
+                if (Math.random() < 0.7) {
+                    // Spawn obstacle
+                    const height = PA_OBSTACLE_MIN_HEIGHT + Math.random() * (PA_OBSTACLE_MAX_HEIGHT - PA_OBSTACLE_MIN_HEIGHT);
+                    paObstacles.push({
+                        x: paCanvas.width,
+                        y: PA_GROUND_Y - height,
+                        width: PA_OBSTACLE_WIDTH,
+                        height: height,
+                        emoji: PA_OBSTACLE_EMOJIS[Math.floor(Math.random() * PA_OBSTACLE_EMOJIS.length)]
+                    });
+                } else {
+                    // Spawn collectible (museum artifact)
+                    const y = PA_GROUND_Y - 100 - Math.random() * 100;
+                    paCollectibles.push({
+                        x: paCanvas.width,
+                        y: y,
+                        size: PA_COLLECTIBLE_SIZE,
+                        emoji: PA_COLLECTIBLE_EMOJIS[Math.floor(Math.random() * PA_COLLECTIBLE_EMOJIS.length)]
+                    });
+                }
+            }
+            
+            // Update obstacles
+            paObstacles = paObstacles.filter(obs => {
+                obs.x -= paGameSpeed;
+                
+                // Check collision
+                if (paCheckCollision(paPlayer, obs)) {
+                    paLives--;
+                    updatePetAdventureUI();
+                    
+                    if (paLives <= 0) {
+                        paGameOver();
+                    }
+                    return false; // Remove obstacle
+                }
+                
+                return obs.x + obs.width > 0;
+            });
+            
+            // Update collectibles
+            paCollectibles = paCollectibles.filter(col => {
+                col.x -= paGameSpeed;
+                
+                // Check collection
+                const colBox = { x: col.x, y: col.y, width: col.size, height: col.size };
+                if (paCheckCollision(paPlayer, colBox)) {
+                    paScore += 10;
+                    updatePetAdventureUI();
+                    return false; // Remove collectible
+                }
+                
+                return col.x + col.size > 0;
+            });
+            
+            // Increase difficulty over time
+            if (paDistance > PA_DIFFICULTY_DISTANCE_THRESHOLD) {
+                paGameSpeed = Math.min(PA_MAX_SPEED, PA_BASE_SPEED + Math.floor(paDistance / PA_DIFFICULTY_DISTANCE_THRESHOLD) * PA_SPEED_INCREASE_RATE);
+            }
+        }
+        
+        function paCheckCollision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
+        }
+        
+        function paRender() {
+            // Clear canvas
+            paCtx.fillStyle = '#87CEEB'; // Sky blue
+            paCtx.fillRect(0, 0, paCanvas.width, paCanvas.height);
+            
+            // Draw ground
+            paCtx.fillStyle = '#8B4513'; // Brown
+            paCtx.fillRect(0, PA_GROUND_Y, paCanvas.width, paCanvas.height - PA_GROUND_Y);
+            
+            // Draw grass on top of ground
+            paCtx.fillStyle = '#228B22'; // Green
+            paCtx.fillRect(0, PA_GROUND_Y, paCanvas.width, 5);
+            
+            // Draw player (pet emoji)
+            paCtx.font = `${PA_PLAYER_SIZE}px Arial`;
+            paCtx.fillText(paPlayer.emoji, paPlayer.x, paPlayer.y + PA_PLAYER_SIZE);
+            
+            // Draw obstacles
+            paObstacles.forEach(obs => {
+                paCtx.font = `${obs.height}px Arial`;
+                paCtx.fillText(obs.emoji, obs.x, obs.y + obs.height);
+            });
+            
+            // Draw collectibles
+            paCollectibles.forEach(col => {
+                paCtx.font = `${col.size}px Arial`;
+                paCtx.fillText(col.emoji, col.x, col.y + col.size);
+            });
+        }
+        
+        function updatePetAdventureUI() {
+            document.getElementById('paScore').textContent = paScore;
+            const hearts = '❤️'.repeat(paLives);
+            document.getElementById('paLives').textContent = hearts || '💔';
+        }
+        
+        function paGameOver() {
+            paGameRunning = false;
+            
+            // Cancel animation frame
+            if (paAnimationId) {
+                cancelAnimationFrame(paAnimationId);
+                paAnimationId = null;
+            }
+            
+            // Show game over message
+            document.getElementById('paFinalScore').textContent = paScore;
+            document.getElementById('petAdventureCompleteMessage').classList.add('show');
+            
+            // Award XP for game completion - use VirtualPet constants if available
+            let gameXP = 10;
+            if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['pet-adventure']) {
+                const reward = VirtualPet.GAME_XP_REWARDS['pet-adventure'];
+                gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(paScore / reward.divisor)));
+            } else {
+                gameXP = Math.max(10, Math.min(25, Math.floor(paScore / 10)));
+            }
+            
+            // Add XP to achievement system
+            if (window.achievementGamification) {
+                window.achievementGamification.addXP(gameXP);
+                setTimeout(() => {
+                    window.achievementGamification.showXPGainNotification(gameXP, '宠物冒险完成');
+                }, 500);
+            }
+            
+            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+            }
+            
+            // Notify virtual pet about game completion
+            if (typeof VirtualPet !== 'undefined') {
+                VirtualPet.notifyGameCompleted('pet-adventure', paScore, 0);
+            }
+        }
+        
+        function cleanupPetAdventureGame() {
+            paGameRunning = false;
+            if (paAnimationId) {
+                cancelAnimationFrame(paAnimationId);
+                paAnimationId = null;
+            }
+            
+            // Remove keyboard listener
+            document.removeEventListener('keydown', handlePetAdventureKeyPress);
+            
+            document.getElementById('petAdventureOverlay').classList.remove('show');
+            document.getElementById('petAdventureCompleteMessage').classList.remove('show');
         }
 
         // ===== Random Game Selection =====
