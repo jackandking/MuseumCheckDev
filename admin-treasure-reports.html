@@ -239,14 +239,44 @@
 
     <div class="panel">
       <div class="panel-header">
+        <span>🗑️ 自动删除记录</span>
+      </div>
+      <div class="description">
+        当镇馆之宝报告数达到5个或以上时，系统会自动从博物馆数据中删除该镇馆之宝。删除记录显示在下方。
+      </div>
+      
+      <div style="overflow:auto; max-height: 40vh; border:1px solid #eee; border-radius:8px;">
+        <table id="deletionLogsTable">
+          <thead>
+            <tr>
+              <th style="width: 200px;">博物馆</th>
+              <th style="width: 200px;">已删除的镇馆之宝</th>
+              <th style="width: 180px;">删除时间</th>
+              <th style="width: 150px;">删除原因</th>
+            </tr>
+          </thead>
+          <tbody id="deletionLogsTableBody">
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 40px;">
+                <div class="muted">暂无自动删除记录</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
         <span>📖 使用说明</span>
       </div>
       <div class="description">
         <strong>1. 报告机制：</strong>用户在打卡页面可以报告镇馆之宝不存在，需要先确认与博物馆工作人员核实。<br>
-        <strong>2. 状态显示：</strong>3-4个报告显示黄色警告框，5个以上显示红色不可用框。<br>
-        <strong>3. 自动恢复：</strong>用户上传照片打卡后，报告数会自动减1，帮助验证镇馆之宝是否已恢复展出。<br>
-        <strong>4. 手动重置：</strong>管理员可以手动将报告数重置为0，用于确认镇馆之宝已恢复展出的情况。<br>
-        <strong>5. 默认选择：</strong>报告数达到5个的镇馆之宝不会被默认选择，但用户仍可手动选择。
+        <strong>2. 状态显示：</strong>3-4个报告显示黄色警告框，5个或以上显示红色不可用框。<br>
+        <strong>3. 自动删除：</strong>报告数达到5个或以上时，系统自动从博物馆数据中删除该镇馆之宝。<br>
+        <strong>4. 自动恢复：</strong>用户上传照片打卡后，报告数会自动减1，帮助验证镇馆之宝是否已恢复展出。<br>
+        <strong>5. 手动重置：</strong>管理员可以手动将报告数重置为0，用于确认镇馆之宝已恢复展出的情况。<br>
+        <strong>6. 默认选择：</strong>报告数达到5个或以上的镇馆之宝不会被默认选择，但用户仍可手动选择。
       </div>
     </div>
   </div>
@@ -517,6 +547,61 @@
         allReports = await fetchReports();
         updateStats(allReports);
         renderTable(allReports);
+        renderDeletionLogs();
+      }
+
+      /**
+       * Render deletion logs table
+       */
+      function renderDeletionLogs() {
+        const deletionLogsTableBody = document.getElementById('deletionLogsTableBody');
+        if (!deletionLogsTableBody) return;
+
+        try {
+          const deletionLogs = JSON.parse(localStorage.getItem('treasureDeletionLogs') || '[]');
+          
+          deletionLogsTableBody.innerHTML = '';
+          
+          if (deletionLogs.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td colspan="4" style="text-align: center; padding: 40px;">
+                <div class="muted">暂无自动删除记录</div>
+              </td>
+            `;
+            deletionLogsTableBody.appendChild(tr);
+            return;
+          }
+          
+          // Sort by deletion time, newest first
+          deletionLogs.sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
+          
+          deletionLogs.forEach(log => {
+            const tr = document.createElement('tr');
+            
+            const reasonText = log.reason === 'auto-delete-5plus-reports' 
+              ? '报告数达到5+自动删除' 
+              : log.reason || '-';
+            
+            tr.innerHTML = `
+              <td>${log.museumName || log.museumId || '-'}</td>
+              <td><strong>${log.treasureName || '-'}</strong></td>
+              <td class="muted">${formatDate(log.deletedAt)}</td>
+              <td><span class="tag danger">${reasonText}</span></td>
+            `;
+            
+            deletionLogsTableBody.appendChild(tr);
+          });
+        } catch (error) {
+          console.error('Error rendering deletion logs:', error);
+          deletionLogsTableBody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 40px;">
+                <div class="muted">加载删除记录时出错</div>
+              </td>
+            </tr>
+          `;
+        }
       }
 
       // Event listeners

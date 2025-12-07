@@ -375,3 +375,114 @@ describe('Treasure Report Race Condition Fix', () => {
         });
     });
 });
+
+describe('Auto-Delete Treasures with 5+ Reports (Issue: 纠错)', () => {
+    let htmlContent;
+    let adminHtmlContent;
+    
+    beforeAll(() => {
+        htmlContent = fs.readFileSync(
+            path.join(__dirname, '..', 'museum-checkin.html'),
+            'utf8'
+        );
+        adminHtmlContent = fs.readFileSync(
+            path.join(__dirname, '..', 'admin-treasure-reports.html'),
+            'utf8'
+        );
+    });
+
+    describe('Auto-Delete Function in museum-checkin.html', () => {
+        test('should have autoDeleteTreasure function', () => {
+            expect(htmlContent).toContain('async function autoDeleteTreasure(treasureName)');
+        });
+
+        test('autoDeleteTreasure should load fresh museum data', () => {
+            expect(htmlContent).toContain('await window.museumDataLoader.loadMuseum(museumId, false)');
+        });
+
+        test('autoDeleteTreasure should filter out the treasure from collections', () => {
+            // Check for filter operation to remove treasure
+            expect(htmlContent).toContain('museumData.collections.filter(t => t.name !== treasureName)');
+        });
+
+        test('autoDeleteTreasure should save updated museum data to KV store', () => {
+            expect(htmlContent).toContain('await window.museumDataLoader.saveToKVStore(museumId, museumData)');
+        });
+
+        test('autoDeleteTreasure should log deletion for admin tracking', () => {
+            // Check for deletion log creation
+            expect(htmlContent).toContain('treasureDeletionLogs');
+            expect(htmlContent).toContain('deletedAt: Date.now()');
+            expect(htmlContent).toContain("reason: 'auto-delete-5plus-reports'");
+        });
+
+        test('autoDeleteTreasure should store deletion logs in localStorage', () => {
+            expect(htmlContent).toContain("localStorage.setItem('treasureDeletionLogs'");
+            expect(htmlContent).toContain("localStorage.getItem('treasureDeletionLogs'");
+        });
+
+        test('autoDeleteTreasure should limit deletion logs to 100 entries', () => {
+            // Check for log size limit
+            expect(htmlContent).toContain('deletionLogs.length > 100');
+            expect(htmlContent).toContain('deletionLogs.shift()');
+        });
+    });
+
+    describe('Integration with reportTreasureNotFound', () => {
+        test('should call autoDeleteTreasure when report count reaches threshold', () => {
+            expect(htmlContent).toContain('await autoDeleteTreasure(treasureName)');
+        });
+
+        test('should check if report count >= TREASURE_UNAVAILABLE_THRESHOLD before auto-delete', () => {
+            // Verify condition check before auto-delete
+            expect(htmlContent).toContain('newReportCount >= TREASURE_UNAVAILABLE_THRESHOLD');
+        });
+
+        test('should have comment explaining auto-delete feature', () => {
+            expect(htmlContent).toContain('AUTO-DELETE');
+            expect(htmlContent).toContain('automatically delete treasure');
+        });
+    });
+
+    describe('Admin Page Deletion Logs Display', () => {
+        test('should have deletion logs panel in admin page', () => {
+            expect(adminHtmlContent).toContain('自动删除记录');
+        });
+
+        test('should have deletion logs table', () => {
+            expect(adminHtmlContent).toContain('id="deletionLogsTable"');
+            expect(adminHtmlContent).toContain('id="deletionLogsTableBody"');
+        });
+
+        test('should have renderDeletionLogs function', () => {
+            expect(adminHtmlContent).toContain('function renderDeletionLogs()');
+        });
+
+        test('renderDeletionLogs should load from localStorage', () => {
+            expect(adminHtmlContent).toContain("localStorage.getItem('treasureDeletionLogs'");
+        });
+
+        test('renderDeletionLogs should sort by deletion time', () => {
+            expect(adminHtmlContent).toContain('deletionLogs.sort');
+            expect(adminHtmlContent).toContain('deletedAt');
+        });
+
+        test('should display deletion reason', () => {
+            expect(adminHtmlContent).toContain('auto-delete-5plus-reports');
+            expect(adminHtmlContent).toContain('报告数达到5+自动删除');
+        });
+
+        test('should call renderDeletionLogs in loadReports', () => {
+            expect(adminHtmlContent).toContain('renderDeletionLogs()');
+        });
+    });
+
+    describe('Usage Documentation Updates', () => {
+        test('admin page should document auto-delete in usage instructions', () => {
+            expect(adminHtmlContent).toContain('自动删除');
+            expect(adminHtmlContent).toContain('报告数达到5个或以上时');
+            expect(adminHtmlContent).toContain('自动从博物馆数据中删除');
+        });
+    });
+});
+

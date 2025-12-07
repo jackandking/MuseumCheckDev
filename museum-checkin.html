@@ -4210,6 +4210,73 @@
         }
 
         /**
+         * Automatically delete a treasure from museum data when it reaches 5+ reports
+         * @param {string} treasureName - Name of the treasure to delete
+         * @returns {Promise<boolean>} Success status
+         */
+        async function autoDeleteTreasure(treasureName) {
+            try {
+                if (!window.museumDataLoader || !currentMuseum) {
+                    console.error('Museum data loader or current museum not available');
+                    return false;
+                }
+
+                // Load fresh museum data
+                const museumData = await window.museumDataLoader.loadMuseum(museumId, false);
+                if (!museumData || !museumData.collections) {
+                    console.error('Failed to load museum data for auto-deletion');
+                    return false;
+                }
+
+                // Find and remove the treasure from collections
+                const originalCount = museumData.collections.length;
+                museumData.collections = museumData.collections.filter(t => t.name !== treasureName);
+                const newCount = museumData.collections.length;
+
+                if (originalCount === newCount) {
+                    console.log(`Treasure "${treasureName}" not found in museum collections, skipping deletion`);
+                    return false;
+                }
+
+                // Save updated museum data to KV store
+                const success = await window.museumDataLoader.saveToKVStore(museumId, museumData);
+                
+                if (success) {
+                    console.log(`Successfully auto-deleted treasure "${treasureName}" from museum ${museumId}`);
+                    
+                    // Log deletion for admin tracking
+                    const deletionLog = {
+                        museumId: museumId,
+                        museumName: currentMuseum.name,
+                        treasureName: treasureName,
+                        deletedAt: Date.now(),
+                        reason: 'auto-delete-5plus-reports'
+                    };
+                    
+                    // Store deletion log in localStorage for admin review
+                    const deletionLogs = JSON.parse(localStorage.getItem('treasureDeletionLogs') || '[]');
+                    deletionLogs.push(deletionLog);
+                    // Keep only last 100 deletion logs
+                    if (deletionLogs.length > 100) {
+                        deletionLogs.shift();
+                    }
+                    localStorage.setItem('treasureDeletionLogs', JSON.stringify(deletionLogs));
+                    
+                    // Update current museum data in memory
+                    currentMuseum.collections = museumData.collections;
+                    
+                    return true;
+                } else {
+                    console.error('Failed to save updated museum data after treasure deletion');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error auto-deleting treasure:', error);
+                return false;
+            }
+        }
+
+        /**
          * Report a treasure as not found
          * @param {string} treasureName - Name of the treasure
          * @returns {Promise<boolean>} Success status
@@ -4277,6 +4344,17 @@
                 const localReports = JSON.parse(localStorage.getItem('myTreasureReports') || '{}');
                 localReports[sortKey] = { treasureName, reportedAt: Date.now() };
                 localStorage.setItem('myTreasureReports', JSON.stringify(localReports));
+                
+                // AUTO-DELETE: If report count reaches threshold (5+), automatically delete treasure
+                // Note: If deletion fails, the report count is still saved (correct behavior).
+                // The treasure will be attempted for deletion again on the next report.
+                if (newReportCount >= TREASURE_UNAVAILABLE_THRESHOLD) {
+                    console.log(`Auto-deleting treasure "${treasureName}" - report count: ${newReportCount}`);
+                    const deletionSuccess = await autoDeleteTreasure(treasureName);
+                    if (!deletionSuccess) {
+                        console.warn(`Auto-delete failed for "${treasureName}", but report was saved. Will retry on next report.`);
+                    }
+                }
                 
                 console.log('Treasure reported as not found:', treasureName, updatedReport);
                 return true;
