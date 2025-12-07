@@ -2842,6 +2842,125 @@
             border: 1px solid #22c55e;
         }
 
+        /* ===== Treasure Photo Contributor Styles ===== */
+        .treasure-photo-contributor-modal {
+            margin: 16px 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            border: 1px solid #fbbf24;
+            text-align: center;
+        }
+
+        .treasure-photo-contributor-hint {
+            margin-bottom: 16px;
+        }
+
+        .treasure-photo-contributor-hint .hint-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .treasure-photo-contributor-hint .hint-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .treasure-photo-contributor-hint .hint-subtext {
+            font-size: 13px;
+            color: #b45309;
+        }
+
+        .treasure-photo-contributor-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .add-treasure-photo-input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .treasure-photo-contributor-form .search-buttons-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .treasure-photo-contributor-form .image-preview-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .treasure-photo-contributor-form .image-preview-placeholder {
+            width: 200px;
+            height: 120px;
+            border-radius: 12px;
+            border: 2px dashed #fbbf24;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #f59e0b;
+            cursor: pointer;
+        }
+
+        .treasure-photo-contributor-form .image-preview-placeholder:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .treasure-photo-contributor-form .image-preview-thumb {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #f59e0b;
+        }
+
+        .treasure-photo-submit-btn {
+            width: 100%;
+            max-width: 300px;
+            margin: 8px auto 0;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .treasure-photo-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .treasure-photo-contributed-badge {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
         .user-added-treasure-item {
             display: flex;
             align-items: center;
@@ -3544,6 +3663,35 @@
             
             <h3 class="task-detail-title" id="modalTaskTitle"></h3>
             <div class="task-detail-description" id="modalDescription"></div>
+            
+            <!-- Treasure Photo Contributor Section (when treasure has no image) -->
+            <div class="treasure-photo-contributor-modal" id="treasurePhotoContributorSection" style="display: none;">
+                <div class="treasure-photo-contributor-hint">
+                    <div class="hint-icon">🏺</div>
+                    <div class="hint-text">这件镇馆之宝还没有照片</div>
+                    <div class="hint-subtext">帮助其他家庭，添加一张照片吧！（完成后获得 +20 XP）</div>
+                </div>
+                <div class="treasure-photo-contributor-form">
+                    <div class="add-treasure-photo-input-group">
+                        <label>📤 上传照片（可选）</label>
+                        <div class="search-buttons-container">
+                            <label class="upload-photo-btn" id="modalTreasurePhotoUploadLabel">
+                                📤 选择文件
+                                <input type="file" id="modalTreasurePhotoUpload" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="image-preview-container">
+                        <div id="modalTreasurePhotoPreview" class="image-preview-placeholder">📷 添加镇馆之宝照片</div>
+                    </div>
+                    <button type="button" class="treasure-photo-submit-btn" id="modalTreasurePhotoSubmitBtn" style="display: none;">
+                        ✅ 确认添加照片（+20 XP）
+                    </button>
+                    <div class="treasure-photo-contributed-badge" id="treasurePhotoContributedBadge" style="display: none;">
+                        📸 感谢您的贡献！已获得 +20 XP
+                    </div>
+                </div>
+            </div>
             
             <!-- Treasure Contributor Section (only for add-treasure tasks) -->
             <div class="treasure-contributor-section" id="treasureContributorSection" style="display: none;">
@@ -5317,9 +5465,17 @@
                         imgEl.src = matchedUrl; 
                         imgEl.style.display = 'block'; 
                         if (museumPhotoSection) museumPhotoSection.style.display = 'none';
+                        // Also hide treasure photo section if visible
+                        const treasurePhotoSection = document.getElementById('treasurePhotoContributorSection');
+                        if (treasurePhotoSection) treasurePhotoSection.style.display = 'none';
                     } else { 
                         imgEl.removeAttribute('src'); 
                         imgEl.style.display = 'none'; 
+                        
+                        // Check if this is a treasure task
+                        const isTreasureTask = title && title.includes(TREASURE_TASK_IDENTIFIER);
+                        const nameMatch = subtitle && subtitle.match(/「([^」]+)」/);
+                        const treasureName = nameMatch && nameMatch[1];
                         
                         // Show museum photo contributor section for 门口打卡 task when no image
                         if (isDoorCheckinTask && museumPhotoSection) {
@@ -5348,8 +5504,41 @@
                                 document.getElementById('modalMuseumPhotoSubmitBtn').style.display = 'none';
                                 document.getElementById('museumPhotoContributedBadge').style.display = 'none';
                             }
-                        } else {
+                        }
+                        else if (isTreasureTask && treasureName) {
+                            // Show treasure photo contributor section for treasure tasks when no image
+                            const treasurePhotoSection = document.getElementById('treasurePhotoContributorSection');
+                            if (treasurePhotoSection) {
+                                // Check if user already contributed a photo for this treasure
+                                const contributedPhoto = getContributedTreasurePhoto(m.id, treasureName);
+                                if (contributedPhoto && contributedPhoto.imageUrl) {
+                                    // Show the contributed photo instead
+                                    imgEl.src = contributedPhoto.imageUrl;
+                                    imgEl.style.display = 'block';
+                                    treasurePhotoSection.style.display = 'none';
+                                } else {
+                                    // Show the contributor section
+                                    treasurePhotoSection.style.display = 'block';
+                                    treasurePhotoSection.dataset.treasureName = treasureName;
+                                    
+                                    // Reset preview
+                                    const preview = document.getElementById('modalTreasurePhotoPreview');
+                                    if (preview) {
+                                        preview.innerHTML = '📷 添加镇馆之宝照片';
+                                        preview.classList.remove('image-preview-thumb');
+                                        preview.classList.add('image-preview-placeholder');
+                                        delete preview.dataset.imageUrl;
+                                    }
+                                    // Hide submit button and badge
+                                    document.getElementById('modalTreasurePhotoSubmitBtn').style.display = 'none';
+                                    document.getElementById('treasurePhotoContributedBadge').style.display = 'none';
+                                }
+                            }
+                        }
+                        else {
                             if (museumPhotoSection) museumPhotoSection.style.display = 'none';
+                            const treasurePhotoSection = document.getElementById('treasurePhotoContributorSection');
+                            if (treasurePhotoSection) treasurePhotoSection.style.display = 'none';
                         }
                     }
                 }
@@ -6197,6 +6386,194 @@
         
         // ===== End Museum Entrance Photo Contributor Functions =====
         
+        // ===== Treasure Photo Contributor Functions =====
+        const CONTRIBUTED_TREASURE_PHOTOS_KEY = 'contributedTreasurePhotos';
+        
+        // Get contributed treasure photo for a specific museum and treasure name
+        function getContributedTreasurePhoto(musId, treasureName) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CONTRIBUTED_TREASURE_PHOTOS_KEY) || '{}');
+                const museumPhotos = all[musId] || {};
+                return museumPhotos[treasureName] || null;
+            } catch (e) {
+                console.error('Error getting contributed treasure photo:', e);
+                return null;
+            }
+        }
+        
+        // Save contributed treasure photo
+        // NOTE: This function has a side effect - it updates currentMuseum.collections
+        // to ensure the newly contributed photo is immediately visible in the UI
+        function saveContributedTreasurePhoto(musId, treasureName, photoData) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CONTRIBUTED_TREASURE_PHOTOS_KEY) || '{}');
+                if (!all[musId]) {
+                    all[musId] = {};
+                }
+                all[musId][treasureName] = {
+                    ...photoData,
+                    contributedAt: Date.now()
+                };
+                localStorage.setItem(CONTRIBUTED_TREASURE_PHOTOS_KEY, JSON.stringify(all));
+                console.log('Treasure photo contributed successfully:', musId, treasureName);
+                
+                // Side effect: Update currentMuseum.collections for immediate UI update
+                // This allows the photo to be displayed without page reload
+                if (currentMuseum && currentMuseum.id === musId) {
+                    if (!currentMuseum.collections) {
+                        currentMuseum.collections = [];
+                    }
+                    // Find existing collection or add new one
+                    const existing = currentMuseum.collections.find(c => c.name === treasureName);
+                    if (existing) {
+                        existing.imageUrl = photoData.imageUrl;
+                    } else {
+                        currentMuseum.collections.push({
+                            name: treasureName,
+                            imageUrl: photoData.imageUrl,
+                            description: photoData.description || '由亲子探索者贡献'
+                        });
+                    }
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Error saving contributed treasure photo:', e);
+                return false;
+            }
+        }
+        
+        // Show treasure photo preview
+        function showTreasurePhotoPreview(imageUrl) {
+            const preview = document.getElementById('modalTreasurePhotoPreview');
+            if (!preview || !imageUrl) return;
+            
+            // Replace placeholder with image
+            preview.innerHTML = `<img src="${imageUrl}" alt="镇馆之宝" class="image-preview-thumb">`;
+            preview.classList.remove('image-preview-placeholder');
+            preview.classList.add('image-preview-thumb');
+            preview.dataset.imageUrl = imageUrl;
+            
+            // Show submit button
+            document.getElementById('modalTreasurePhotoSubmitBtn').style.display = 'block';
+        }
+        
+        // Handle treasure photo submit
+        async function handleTreasurePhotoSubmit() {
+            const preview = document.getElementById('modalTreasurePhotoPreview');
+            if (!preview) return;
+            
+            const imageUrl = preview.dataset.imageUrl;
+            if (!imageUrl) {
+                alert('请先添加镇馆之宝照片');
+                return;
+            }
+            
+            // Get treasure name from current task
+            const treasurePhotoSection = document.getElementById('treasurePhotoContributorSection');
+            const treasureName = treasurePhotoSection.dataset.treasureName;
+            if (!treasureName) {
+                alert('无法获取镇馆之宝名称');
+                return;
+            }
+            
+            // Get museum ID (use currentMuseum.id if available, fallback to global museumId)
+            const musId = (currentMuseum && currentMuseum.id) || museumId;
+            if (!musId) {
+                alert('无法获取博物馆信息');
+                return;
+            }
+            
+            // Save the photo
+            const success = saveContributedTreasurePhoto(musId, treasureName, {
+                imageUrl: imageUrl,
+                description: `由亲子探索者贡献于${new Date().toLocaleDateString('zh-CN')}`
+            });
+            
+            if (success) {
+                // Hide contributor section, show the photo
+                treasurePhotoSection.style.display = 'none';
+                const imgEl = document.getElementById('modalImage');
+                if (imgEl) {
+                    imgEl.src = imageUrl;
+                    imgEl.style.display = 'block';
+                }
+                
+                // Show success badge
+                document.getElementById('treasurePhotoContributedBadge').style.display = 'block';
+                
+                // Update the task card on the main page
+                if (currentTaskIndex !== null) {
+                    updateTaskCardImage(currentTaskIndex, imageUrl);
+                }
+                
+                // Award XP using achievement gamification system
+                if (typeof window.achievementGamification !== 'undefined' && window.achievementGamification) {
+                    window.achievementGamification.addXP(20);
+                    window.achievementGamification.showXPGainNotification(20, `贡献「${treasureName}」照片`);
+                } else {
+                    // Fallback: show simple notification
+                    showNotification('✅ 照片贡献成功！获得 +20 XP', 3000);
+                }
+                
+                // Play celebration sound if available
+                if (typeof playSuccessSound === 'function') playSuccessSound();
+            }
+        }
+        
+        // Handle treasure photo upload
+        async function handleTreasurePhotoUploadChange(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file
+            if (!validateImageFile(file)) {
+                return;
+            }
+            
+            // Check if imageUploader is available
+            if (typeof imageUploader === 'undefined') {
+                alert('图片上传功能暂时不可用');
+                return;
+            }
+            
+            try {
+                // Show uploading indicator
+                const uploadLabel = document.getElementById('modalTreasurePhotoUploadLabel');
+                if (uploadLabel) {
+                    setUploadingState(uploadLabel);
+                }
+                
+                // Upload image
+                const imageUrl = await imageUploader.uploadImage(file, {
+                    compress: true,
+                    onProgress: (stage, progress) => {
+                        console.log(`Upload ${stage}: ${progress}%`);
+                    }
+                });
+                
+                if (imageUrl) {
+                    showTreasurePhotoPreview(imageUrl);
+                }
+                
+                // Reset upload button
+                if (uploadLabel) {
+                    resetUploadButton(uploadLabel, (e) => handleTreasurePhotoUploadChange(e));
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('上传失败: ' + error.message);
+                
+                // Reset upload button
+                const uploadLabel = document.getElementById('modalTreasurePhotoUploadLabel');
+                if (uploadLabel) {
+                    resetUploadButton(uploadLabel, (e) => handleTreasurePhotoUploadChange(e));
+                }
+            }
+        }
+        
+        // ===== End Treasure Photo Contributor Functions =====
+        
         // ===== Photo Upload Handler Functions =====
         // Constants for upload UI
         const UPLOAD_BUTTON_TEXT = '📤 选择文件';
@@ -7006,6 +7383,19 @@
                 museumPhotoSubmitBtn.onclick = handleMuseumPhotoSubmit;
             }
             // ===== End Museum Photo Contributor Event Listeners =====
+            
+            // ===== Treasure Photo Contributor Event Listeners =====
+            const treasurePhotoUploadBtn = document.getElementById('modalTreasurePhotoUpload');
+            const treasurePhotoSubmitBtn = document.getElementById('modalTreasurePhotoSubmitBtn');
+            
+            if (treasurePhotoUploadBtn) {
+                treasurePhotoUploadBtn.addEventListener('change', (e) => handleTreasurePhotoUploadChange(e));
+            }
+            
+            if (treasurePhotoSubmitBtn) {
+                treasurePhotoSubmitBtn.onclick = handleTreasurePhotoSubmit;
+            }
+            // ===== End Treasure Photo Contributor Event Listeners =====
             
             // ===== Photo Upload Event Listeners =====
             // Handler for modal treasure photo upload
