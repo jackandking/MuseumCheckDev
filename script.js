@@ -2717,6 +2717,9 @@ class EventWallService {
      */
     async sendEventToKVStore(event) {
         try {
+            // Calculate expiration time: current time + 1 day (in seconds)
+            const expireAt = Math.floor(Date.now() / 1000) + this.eventTTL;
+            
             const response = await fetch(this.kvStoreEndpoint, {
                 method: 'POST',
                 headers: {
@@ -2726,7 +2729,7 @@ class EventWallService {
                     key: this.eventKey,
                     sortKey: event.id,
                     value: JSON.stringify(event),
-                    ttl: this.eventTTL  // 1 day TTL - events auto-delete after 24 hours
+                    expireAt: expireAt  // Absolute expiration timestamp in seconds (not TTL)
                 })
             });
             
@@ -2782,6 +2785,24 @@ class EventWallService {
                 museumName: museumName,
                 checklistType: checklistType,
                 itemCount: itemCount
+            }
+        );
+    }
+    
+    /**
+     * Track individual task completion event
+     */
+    trackTaskComplete(museumId, museumName, checklistType, taskDescription, ageGroup) {
+        this.recordEvent(
+            'task',
+            '完成任务',
+            `完成 ${museumName} 的${checklistType === 'parent' ? '家长准备' : '孩子任务'}: ${taskDescription}`,
+            {
+                museumId: museumId,
+                museumName: museumName,
+                checklistType: checklistType,
+                taskDescription: taskDescription,
+                ageGroup: ageGroup
             }
         );
     }
@@ -9092,6 +9113,39 @@ class MuseumCheckApp {
                     'item_text': itemText,
                     'completed': e.target.checked
                 });
+                
+                // ===== EVENT WALL TRACKING: Task & Checklist Completion =====
+                // Track individual task completion and full checklist completion to event wall
+                if (e.target.checked && museum) {
+                    // Track individual task completion
+                    if (this.eventWallService && itemText) {
+                        this.eventWallService.trackTaskComplete(
+                            museumId,
+                            museum.name,
+                            checklistType,
+                            itemText,
+                            fullAgeGroup
+                        );
+                    }
+                    
+                    // Also track when a full checklist is completed
+                    const fullChecklist = this.getMuseumChecklist(museumId, checklistType, fullAgeGroup);
+                    const completedCount = completed.length;
+                    const totalCount = fullChecklist.length;
+                    
+                    // If all items are now completed, track full checklist completion
+                    if (completedCount === totalCount && totalCount > 0) {
+                        if (this.eventWallService) {
+                            this.eventWallService.trackChecklistComplete(
+                                museumId, 
+                                museum.name, 
+                                checklistType, 
+                                totalCount
+                            );
+                        }
+                    }
+                }
+                // ===== END EVENT WALL TRACKING =====
                 
                 // Update visual state and add/remove photo upload section
                 const item = e.target.closest('.checklist-item');
