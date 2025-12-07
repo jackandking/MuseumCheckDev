@@ -6787,11 +6787,11 @@ class MuseumCheckApp {
     loadShowOnlyMuseumsWithCollections() {
         try {
             const saved = localStorage.getItem('showOnlyMuseumsWithCollections');
-            // Default to true (only show museums with collections) if not saved
-            return saved === null ? true : saved === 'true';
+            // Default to false (show all museums) if not saved
+            return saved === null ? false : saved === 'true';
         } catch (error) {
             console.error('Failed to load show only museums with collections setting:', error);
-            return true; // Default to showing only museums with collections
+            return false; // Default to showing all museums
         }
     }
 
