@@ -3233,6 +3233,230 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* ===== Image Error Reporting Styles ===== */
+        .image-error-report-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffc107;
+        }
+
+        .image-error-report-section.show {
+            display: block;
+        }
+
+        .image-error-report-btn {
+            width: 100%;
+            padding: 10px 15px;
+            background: #fff;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            color: #856404;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .image-error-report-btn:hover {
+            background: #ffc107;
+            color: #fff;
+        }
+
+        .image-error-report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .image-error-confirm {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+        }
+
+        .image-error-confirm.show {
+            display: block;
+        }
+
+        .image-error-confirm-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .image-error-confirm-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .image-error-confirm-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-error-confirm-yes {
+            background: #dc3545;
+            color: white;
+        }
+
+        .image-error-confirm-no {
+            background: #6c757d;
+            color: white;
+        }
+
+        .image-error-status {
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 6px;
+            color: #155724;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .image-error-status.show {
+            display: block;
+        }
+
+        /* Image replacement upload section (shown when 3+ reports) */
+        .image-replacement-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 8px;
+            border: 2px solid #2196f3;
+        }
+
+        .image-replacement-section.show {
+            display: block;
+        }
+
+        .image-replacement-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .image-replacement-hint {
+            font-size: 13px;
+            color: #37474f;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .image-replacement-upload {
+            margin-bottom: 12px;
+        }
+
+        .image-replacement-upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196f3;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .image-replacement-upload-label:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .image-replacement-upload input[type="file"] {
+            display: none;
+        }
+
+        .image-replacement-preview {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .image-replacement-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid #2196f3;
+        }
+
+        .image-replacement-submit {
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-replacement-submit:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .image-replacement-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Badge for images with reported errors */
+        .image-error-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff9800;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .image-error-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
     <link rel="stylesheet" href="virtual-pet.css" media="print" onload="this.media='all'">
@@ -3389,6 +3613,48 @@
                 <div class="treasure-report-status" id="treasureReportStatus">
                     ✅ 感谢您的反馈！
                 </div>
+            </div>
+
+            <!-- Image Error Report Section (only for tasks with images) -->
+            <div class="image-error-report-section" id="imageErrorReportSection">
+                <button class="image-error-report-btn" id="imageErrorReportBtn">
+                    📷 报告图片错误
+                </button>
+                <div class="image-error-confirm" id="imageErrorConfirm">
+                    <div class="image-error-confirm-text">
+                        您确认此图片与实际展品不符或无法显示吗？<br>
+                        <small style="color: #666;">您的反馈将帮助我们改进图片质量</small>
+                    </div>
+                    <div class="image-error-confirm-buttons">
+                        <button class="image-error-confirm-btn image-error-confirm-no" id="imageErrorNo">取消</button>
+                        <button class="image-error-confirm-btn image-error-confirm-yes" id="imageErrorYes">确认报告</button>
+                    </div>
+                </div>
+                <div class="image-error-status" id="imageErrorStatus">
+                    ✅ 感谢您的反馈！
+                </div>
+            </div>
+
+            <!-- Image Replacement Upload Section (shown when 3+ reports) -->
+            <div class="image-replacement-section" id="imageReplacementSection">
+                <div class="image-replacement-title">
+                    📸 帮助上传正确的图片
+                </div>
+                <div class="image-replacement-hint">
+                    已有 <span id="imageErrorCount">3</span> 人报告此图片有误。如果您有正确的照片，欢迎上传帮助其他家庭！
+                </div>
+                <div class="image-replacement-upload">
+                    <label class="image-replacement-upload-label" for="imageReplacementInput">
+                        📤 选择图片
+                    </label>
+                    <input type="file" id="imageReplacementInput" accept="image/*">
+                </div>
+                <div class="image-replacement-preview" id="imageReplacementPreview" style="display: none;">
+                    <!-- Preview image will be inserted here -->
+                </div>
+                <button class="image-replacement-submit" id="imageReplacementSubmit" style="display: none;" disabled>
+                    ✅ 提交新图片
+                </button>
             </div>
             
             <div class="parent-hint" id="parentHint">
@@ -3809,6 +4075,7 @@
             FIREWORK_KEY: 'museumcheck-firework',
             CHECKIN_KEY_PREFIX: 'museumcheck-checkin-',
             TREASURE_REPORT_KEY: 'museumcheck-treasure-report',
+            IMAGE_ERROR_REPORT_KEY: 'museumcheck-image-error-report',
             // Far future timestamp: year 2124 in Unix seconds
             // Calculated as: new Date('2124-01-01T00:00:00Z').getTime() / 1000
             // Used to set data that should persist indefinitely
@@ -4105,6 +4372,252 @@
         }
 
         // =====================================================
+        // 图片错误报告功能
+        // Image Error Report Feature
+        // =====================================================
+        
+        // Thresholds for image error report counts
+        const IMAGE_ERROR_THRESHOLD = 3;  // Allow upload when 3+ reports
+        
+        // Cache for image error reports
+        let imageErrorReports = {};
+
+        /**
+         * Generate a unique sort key for an image error report
+         * @param {string} museumId - Museum ID
+         * @param {string} taskTitle - Task title
+         * @returns {string} Sort key
+         */
+        function getImageErrorReportSortKey(museumId, taskTitle) {
+            const combined = `${museumId}:${taskTitle}`;
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(combined);
+            const binaryString = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+            return 'image-error-' + btoa(binaryString);
+        }
+
+        /**
+         * Load all image error reports from KV store
+         * @returns {Promise<Object>} Image error reports
+         */
+        async function loadImageErrorReports() {
+            try {
+                const response = await fetch(
+                    `${REMOTE_STORAGE_CONFIG.API_ENDPOINT}?key=${encodeURIComponent(REMOTE_STORAGE_CONFIG.IMAGE_ERROR_REPORT_KEY)}&sortKey=*`,
+                    { method: 'GET' }
+                );
+                
+                if (!response.ok) {
+                    console.error('Failed to load image error reports');
+                    return {};
+                }
+                
+                const data = await response.json();
+                const reports = {};
+                
+                if (data.items && Array.isArray(data.items)) {
+                    for (const item of data.items) {
+                        if (item.value) {
+                            const reportData = JSON.parse(item.value);
+                            reports[item.sortKey] = reportData;
+                        }
+                    }
+                }
+                
+                imageErrorReports = reports;
+                return reports;
+            } catch (error) {
+                console.error('Error loading image error reports:', error);
+                return {};
+            }
+        }
+
+        /**
+         * Fetch a specific image error report from KV store
+         * @param {string} sortKey - Sort key
+         * @returns {Promise<Object|null>} Report data or null
+         */
+        async function fetchImageErrorReportFromKV(sortKey) {
+            try {
+                const response = await fetch(
+                    `${REMOTE_STORAGE_CONFIG.API_ENDPOINT}?key=${encodeURIComponent(REMOTE_STORAGE_CONFIG.IMAGE_ERROR_REPORT_KEY)}&sortKey=${encodeURIComponent(sortKey)}`,
+                    { method: 'GET' }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.items && data.items.length > 0 && data.items[0].value) {
+                        return JSON.parse(data.items[0].value);
+                    }
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching image error report from KV:', error);
+                return null;
+            }
+        }
+
+        /**
+         * Get image error report count for a task
+         * @param {string} taskTitle - Task title
+         * @returns {number} Report count
+         */
+        function getImageErrorCount(taskTitle) {
+            const sortKey = getImageErrorReportSortKey(museumId, taskTitle);
+            const report = imageErrorReports[sortKey];
+            return report ? (report.reportCount || 0) : 0;
+        }
+
+        /**
+         * Report an image error for a task
+         * @param {string} taskTitle - Task title
+         * @param {string} imageUrl - Image URL
+         * @returns {Promise<boolean>} Success status
+         */
+        async function reportImageError(taskTitle, imageUrl) {
+            try {
+                const sortKey = getImageErrorReportSortKey(museumId, taskTitle);
+                
+                // Get user ID from localStorage or generate new one
+                let userId = localStorage.getItem('imageErrorReportUserId');
+                if (!userId) {
+                    userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                    localStorage.setItem('imageErrorReportUserId', userId);
+                }
+                
+                // Fetch latest report from KV store to avoid race conditions
+                const latestReport = await fetchImageErrorReportFromKV(sortKey);
+                const existingReport = latestReport || imageErrorReports[sortKey] || {};
+                
+                // Check if user already reported this image
+                const reporters = existingReport.reporters || [];
+                if (reporters.includes(userId)) {
+                    console.log('User already reported this image error');
+                    return false;
+                }
+                
+                // Update report with latest count from KV store
+                const newReportCount = (existingReport.reportCount || 0) + 1;
+                const newReporters = [...reporters, userId];
+                
+                const updatedReport = {
+                    museumId: museumId,
+                    museumName: currentMuseum ? currentMuseum.name : '',
+                    taskTitle: taskTitle,
+                    imageUrl: imageUrl,
+                    reportCount: newReportCount,
+                    reporters: newReporters,
+                    replacementImages: existingReport.replacementImages || [],
+                    lastReportAt: Date.now()
+                };
+                
+                // Save to KV store
+                const response = await fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: REMOTE_STORAGE_CONFIG.IMAGE_ERROR_REPORT_KEY,
+                        sortKey: sortKey,
+                        value: JSON.stringify(updatedReport),
+                        expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Update local cache
+                imageErrorReports[sortKey] = updatedReport;
+                
+                // Save to local storage for user's reported images
+                const localReports = JSON.parse(localStorage.getItem('myImageErrorReports') || '{}');
+                localReports[sortKey] = { taskTitle, imageUrl, reportedAt: Date.now() };
+                localStorage.setItem('myImageErrorReports', JSON.stringify(localReports));
+                
+                console.log('Image error reported:', taskTitle, updatedReport);
+                return true;
+            } catch (error) {
+                console.error('Error reporting image error:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Check if user has already reported this image error
+         * @param {string} taskTitle - Task title
+         * @returns {boolean}
+         */
+        function hasUserReportedImageError(taskTitle) {
+            const sortKey = getImageErrorReportSortKey(museumId, taskTitle);
+            const localReports = JSON.parse(localStorage.getItem('myImageErrorReports') || '{}');
+            return !!localReports[sortKey];
+        }
+
+        /**
+         * Upload replacement image for a task
+         * @param {string} taskTitle - Task title
+         * @param {string} imageDataUrl - Image data URL (base64)
+         * @returns {Promise<boolean>} Success status
+         */
+        async function uploadReplacementImage(taskTitle, imageDataUrl) {
+            try {
+                const sortKey = getImageErrorReportSortKey(museumId, taskTitle);
+                
+                // Get user ID
+                let userId = localStorage.getItem('imageErrorReportUserId');
+                if (!userId) {
+                    userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                    localStorage.setItem('imageErrorReportUserId', userId);
+                }
+                
+                // Fetch latest report
+                const latestReport = await fetchImageErrorReportFromKV(sortKey);
+                const existingReport = latestReport || imageErrorReports[sortKey] || {};
+                
+                // Add replacement image
+                const replacementImages = existingReport.replacementImages || [];
+                replacementImages.push({
+                    imageUrl: imageDataUrl,
+                    uploadedBy: userId,
+                    uploadedAt: Date.now(),
+                    approved: false
+                });
+                
+                const updatedReport = {
+                    ...existingReport,
+                    replacementImages: replacementImages,
+                    lastReplacementAt: Date.now()
+                };
+                
+                // Save to KV store
+                const response = await fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: REMOTE_STORAGE_CONFIG.IMAGE_ERROR_REPORT_KEY,
+                        sortKey: sortKey,
+                        value: JSON.stringify(updatedReport),
+                        expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Update local cache
+                imageErrorReports[sortKey] = updatedReport;
+                
+                console.log('Replacement image uploaded:', taskTitle);
+                return true;
+            } catch (error) {
+                console.error('Error uploading replacement image:', error);
+                return false;
+            }
+        }
+
+        // =====================================================
         // 镇馆之宝打卡配置常量和核心函数
         // Treasure check-in configuration constants and core functions
         // =====================================================
@@ -4172,12 +4685,14 @@
 
             updatePageTitle();
             
-            // Load treasure reports in parallel with museum data
-            const [_, reports] = await Promise.all([
+            // Load treasure reports and image error reports in parallel with museum data
+            const [_, treasureReportsData, imageErrorReportsData] = await Promise.all([
                 loadMuseumData(),
-                loadTreasureReports()
+                loadTreasureReports(),
+                loadImageErrorReports()
             ]);
-            treasureReports = reports || {};
+            treasureReports = treasureReportsData || {};
+            imageErrorReports = imageErrorReportsData || {};
             
             setupEventListeners();
             loadCompletedTasks();
@@ -4838,6 +5353,51 @@
                 }
             } else {
                 reportSection.classList.remove('show');
+            }
+
+            // Handle image error report section visibility (for tasks with images)
+            const imageErrorSection = document.getElementById('imageErrorReportSection');
+            const imageErrorBtn = document.getElementById('imageErrorReportBtn');
+            const imageErrorConfirm = document.getElementById('imageErrorConfirm');
+            const imageErrorStatus = document.getElementById('imageErrorStatus');
+            const imageReplacementSection = document.getElementById('imageReplacementSection');
+            
+            // Reset image error section state
+            imageErrorConfirm.classList.remove('show');
+            imageErrorStatus.classList.remove('show');
+            imageReplacementSection.classList.remove('show');
+            
+            // Check if task has an image
+            const modalImage = document.getElementById('modalImage');
+            const hasImage = modalImage && modalImage.src && modalImage.style.display !== 'none';
+            
+            if (hasImage) {
+                const taskTitle = title || ''; 
+                const imageUrl = modalImage.src;
+                
+                imageErrorSection.classList.add('show');
+                imageErrorSection.dataset.taskTitle = taskTitle;
+                imageErrorSection.dataset.imageUrl = imageUrl;
+                
+                // Check if user already reported this image error
+                if (hasUserReportedImageError(taskTitle)) {
+                    imageErrorBtn.textContent = '✅ 您已报告过此问题';
+                    imageErrorBtn.disabled = true;
+                } else {
+                    imageErrorBtn.textContent = '📷 报告图片错误';
+                    imageErrorBtn.disabled = false;
+                }
+                
+                // Check if threshold reached for replacement upload
+                const errorCount = getImageErrorCount(taskTitle);
+                if (errorCount >= IMAGE_ERROR_THRESHOLD) {
+                    imageReplacementSection.classList.add('show');
+                    document.getElementById('imageErrorCount').textContent = errorCount;
+                } else if (errorCount > 0) {
+                    imageErrorBtn.textContent += ` (${errorCount}人已报告)`;
+                }
+            } else {
+                imageErrorSection.classList.remove('show');
             }
 
             // Handle treasure contributor section visibility (for "添加镇馆之宝" tasks)
@@ -6632,6 +7192,132 @@
                     // Reset button state
                     treasureReportYes.disabled = false;
                     treasureReportYes.textContent = '确认报告';
+                };
+            }
+
+            // Image Error Report Event Listeners
+            const imageErrorReportBtn = document.getElementById('imageErrorReportBtn');
+            if (imageErrorReportBtn) {
+                imageErrorReportBtn.onclick = () => {
+                    document.getElementById('imageErrorConfirm').classList.add('show');
+                    imageErrorReportBtn.style.display = 'none';
+                };
+            }
+            
+            const imageErrorNo = document.getElementById('imageErrorNo');
+            if (imageErrorNo) {
+                imageErrorNo.onclick = () => {
+                    document.getElementById('imageErrorConfirm').classList.remove('show');
+                    document.getElementById('imageErrorReportBtn').style.display = 'block';
+                };
+            }
+            
+            const imageErrorYes = document.getElementById('imageErrorYes');
+            if (imageErrorYes) {
+                imageErrorYes.onclick = async () => {
+                    const errorSection = document.getElementById('imageErrorReportSection');
+                    const taskTitle = errorSection.dataset.taskTitle;
+                    const imageUrl = errorSection.dataset.imageUrl;
+                    
+                    if (!taskTitle || !imageUrl) return;
+                    
+                    // Show loading state
+                    imageErrorYes.disabled = true;
+                    imageErrorYes.textContent = '提交中...';
+                    
+                    const success = await reportImageError(taskTitle, imageUrl);
+                    
+                    // Hide confirm section
+                    document.getElementById('imageErrorConfirm').classList.remove('show');
+                    
+                    if (success) {
+                        // Show success status
+                        document.getElementById('imageErrorStatus').classList.add('show');
+                        document.getElementById('imageErrorReportBtn').style.display = 'none';
+                        
+                        // Check if threshold reached for replacement upload
+                        const errorCount = getImageErrorCount(taskTitle);
+                        if (errorCount >= IMAGE_ERROR_THRESHOLD) {
+                            // Show replacement upload section
+                            document.getElementById('imageReplacementSection').classList.add('show');
+                            document.getElementById('imageErrorCount').textContent = errorCount;
+                        }
+                        
+                        // Award XP for helping improve quality
+                        const reportXP = 3;
+                        if (window.achievementGamification) {
+                            window.achievementGamification.addXP(reportXP);
+                            window.achievementGamification.showXPGainNotification(reportXP, '感谢反馈图片问题');
+                        }
+                    } else {
+                        // Show button again
+                        const btn = document.getElementById('imageErrorReportBtn');
+                        btn.style.display = 'block';
+                        btn.textContent = '✅ 您已报告过此问题';
+                        btn.disabled = true;
+                    }
+                    
+                    // Reset button state
+                    imageErrorYes.disabled = false;
+                    imageErrorYes.textContent = '确认报告';
+                };
+            }
+
+            // Image Replacement Upload Event Listeners
+            const imageReplacementInput = document.getElementById('imageReplacementInput');
+            const imageReplacementPreview = document.getElementById('imageReplacementPreview');
+            const imageReplacementSubmit = document.getElementById('imageReplacementSubmit');
+            
+            if (imageReplacementInput) {
+                imageReplacementInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            // Show preview
+                            imageReplacementPreview.innerHTML = `<img src="${event.target.result}" alt="替换图片预览">`;
+                            imageReplacementPreview.style.display = 'block';
+                            imageReplacementSubmit.style.display = 'block';
+                            imageReplacementSubmit.disabled = false;
+                            imageReplacementSubmit.dataset.imageData = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+            }
+            
+            if (imageReplacementSubmit) {
+                imageReplacementSubmit.onclick = async () => {
+                    const imageData = imageReplacementSubmit.dataset.imageData;
+                    const errorSection = document.getElementById('imageErrorReportSection');
+                    const taskTitle = errorSection.dataset.taskTitle;
+                    
+                    if (!imageData || !taskTitle) return;
+                    
+                    // Show loading state
+                    imageReplacementSubmit.disabled = true;
+                    imageReplacementSubmit.textContent = '上传中...';
+                    
+                    const success = await uploadReplacementImage(taskTitle, imageData);
+                    
+                    if (success) {
+                        imageReplacementSubmit.textContent = '✅ 上传成功！';
+                        
+                        // Award XP for contributing
+                        const uploadXP = 10;
+                        if (window.achievementGamification) {
+                            window.achievementGamification.addXP(uploadXP);
+                            window.achievementGamification.showXPGainNotification(uploadXP, '感谢上传正确图片！');
+                        }
+                        
+                        // Hide replacement section after 2 seconds
+                        setTimeout(() => {
+                            document.getElementById('imageReplacementSection').classList.remove('show');
+                        }, 2000);
+                    } else {
+                        imageReplacementSubmit.textContent = '❌ 上传失败';
+                        imageReplacementSubmit.disabled = false;
+                    }
                 };
             }
         }
