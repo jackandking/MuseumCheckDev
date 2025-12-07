@@ -1005,6 +1005,7 @@ header h1 {
 .assessment-history-button-icon,
 .settings-button-icon,
 .fireworks-button-icon,
+.event-wall-button-icon,
 .treasures-button-icon {
     /* Extends .btn-icon base styles */
     width: var(--btn-icon-size);
@@ -1044,6 +1045,12 @@ header h1 {
 }
 
 .fireworks-button-icon:hover:not(:disabled) {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: scale(1.1);
+}
+
+.event-wall-button-icon:hover:not(:disabled) {
     background-color: rgba(102, 126, 234, 0.1);
     border-color: #667eea;
     transform: scale(1.1);

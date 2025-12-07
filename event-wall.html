@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件墙 - 博物馆打卡</title>
+    
+    <!-- Baidu Analytics (百度统计) -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .filter-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .events-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 15px;
+        }
+
+        .event-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .event-type.visit {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .event-type.checklist {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .event-type.achievement {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .event-type.assessment {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .event-time {
+            font-size: 13px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        .event-content {
+            margin-bottom: 10px;
+        }
+
+        .event-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .event-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .event-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: white;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .empty-state-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .empty-state-description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 20px;
+            }
+
+            .stats-bar {
+                gap: 10px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            .event-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .filter-bar {
+                padding: 12px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 0 15px;
+                margin: 20px auto;
+            }
+
+            .event-card {
+                padding: 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <span>🎯</span>
+                <span>事件墙</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                    返回首页
+                </button>
+                <button class="btn btn-primary" id="refreshBtn">
+                    🔄 刷新
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="totalEvents">0</span>
+                <span class="stat-label">总事件数</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="todayEvents">0</span>
+                <span class="stat-label">今日事件</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="uniqueUsers">0</span>
+                <span class="stat-label">活跃用户</span>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <span class="filter-label">筛选：</span>
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="visit">博物馆参观</button>
+            <button class="filter-btn" data-filter="checklist">清单完成</button>
+            <button class="filter-btn" data-filter="achievement">成就解锁</button>
+            <button class="filter-btn" data-filter="assessment">亲子测评</button>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <div class="loading-spinner"></div>
+            <div>加载事件中...</div>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-title">暂无事件</div>
+            <div class="empty-state-description">开始探索博物馆，您的活动将在这里展示</div>
+        </div>
+
+        <div id="eventsGrid" class="events-grid" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            KV_STORE_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
+            EVENT_KEY: 'museumcheck-events',
+            EVENT_TYPE_ICONS: {
+                'visit': '🏛️',
+                'checklist': '✅',
+                'achievement': '🏆',
+                'assessment': '📊',
+                'other': '📌'
+            },
+            EVENT_TYPE_LABELS: {
+                'visit': '博物馆参观',
+                'checklist': '清单完成',
+                'achievement': '成就解锁',
+                'assessment': '亲子测评',
+                'other': '其他活动'
+            }
+        };
+
+        // State
+        let allEvents = [];
+        let currentFilter = 'all';
+
+        // Fetch events from KV store
+        async function fetchEvents() {
+            try {
+                const url = `${CONFIG.KV_STORE_ENDPOINT}?key=${encodeURIComponent(CONFIG.EVENT_KEY)}&sortKey=*`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    console.error('Failed to fetch events:', response.status);
+                    return [];
+                }
+                
+                const data = await response.json();
+                
+                if (!data.value) {
+                    return [];
+                }
+                
+                const parsed = JSON.parse(data.value);
+                let events = [];
+                
+                if (Array.isArray(parsed)) {
+                    events = parsed.map(item => {
+                        try {
+                            return typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+                        } catch (e) {
+                            console.error('Error parsing event:', e);
+                            return null;
+                        }
+                    }).filter(item => item !== null);
+                } else {
+                    const eventData = typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+                    events = [eventData];
+                }
+                
+                // Sort by timestamp (newest first)
+                events.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                console.log(`Loaded ${events.length} events from KV store`);
+                return events;
+                
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                return [];
+            }
+        }
+
+        // Format timestamp
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '未知时间';
+            
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            // Less than 1 minute
+            if (diff < 60000) {
+                return '刚刚';
+            }
+            
+            // Less than 1 hour
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return `${minutes}分钟前`;
+            }
+            
+            // Less than 24 hours
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return `${hours}小时前`;
+            }
+            
+            // Format as date
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hour = date.getHours().toString().padStart(2, '0');
+            const minute = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${month}月${day}日 ${hour}:${minute}`;
+        }
+
+        // Get event type from event data
+        function getEventType(event) {
+            if (event.eventType) return event.eventType;
+            if (event.type) return event.type;
+            
+            // Infer from event name or data
+            if (event.eventName) {
+                if (event.eventName.includes('visit') || event.eventName.includes('museum')) return 'visit';
+                if (event.eventName.includes('checklist')) return 'checklist';
+                if (event.eventName.includes('achievement')) return 'achievement';
+                if (event.eventName.includes('assessment')) return 'assessment';
+            }
+            
+            return 'other';
+        }
+
+        // Create event card HTML
+        function createEventCard(event) {
+            const eventType = getEventType(event);
+            const icon = CONFIG.EVENT_TYPE_ICONS[eventType] || CONFIG.EVENT_TYPE_ICONS.other;
+            const typeLabel = CONFIG.EVENT_TYPE_LABELS[eventType] || CONFIG.EVENT_TYPE_LABELS.other;
+            const timestamp = formatTimestamp(event.timestamp);
+            
+            // Build event title and description
+            let title = event.title || event.eventName || '用户活动';
+            let description = event.description || '';
+            
+            // Generate description from event data if not provided
+            if (!description && event.parameters) {
+                const params = event.parameters;
+                if (params.museumName) {
+                    description = `博物馆：${params.museumName}`;
+                } else if (params.museum_id) {
+                    description = `博物馆ID：${params.museum_id}`;
+                }
+            }
+            
+            // Build metadata
+            const metadata = [];
+            if (event.userId) {
+                metadata.push(`<div class="event-meta-item">👤 用户 ${event.userId.substring(0, 8)}</div>`);
+            }
+            if (event.parameters && event.parameters.museumName) {
+                metadata.push(`<div class="event-meta-item">🏛️ ${event.parameters.museumName}</div>`);
+            }
+            
+            return `
+                <div class="event-card" data-type="${eventType}">
+                    <div class="event-header">
+                        <span class="event-type ${eventType}">
+                            ${icon} ${typeLabel}
+                        </span>
+                        <span class="event-time">${timestamp}</span>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-title">${title}</div>
+                        ${description ? `<div class="event-description">${description}</div>` : ''}
+                    </div>
+                    ${metadata.length > 0 ? `<div class="event-meta">${metadata.join('')}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Render events
+        function renderEvents() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const eventsGrid = document.getElementById('eventsGrid');
+            
+            loadingState.style.display = 'none';
+            
+            // Filter events
+            const filteredEvents = currentFilter === 'all' 
+                ? allEvents 
+                : allEvents.filter(event => getEventType(event) === currentFilter);
+            
+            if (filteredEvents.length === 0) {
+                emptyState.style.display = 'block';
+                eventsGrid.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            eventsGrid.style.display = 'grid';
+            
+            // Render event cards
+            eventsGrid.innerHTML = filteredEvents.map(event => createEventCard(event)).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalEvents = allEvents.length;
+            document.getElementById('totalEvents').textContent = totalEvents;
+            
+            // Count today's events
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayTimestamp = today.getTime();
+            const todayEvents = allEvents.filter(event => event.timestamp >= todayTimestamp).length;
+            document.getElementById('todayEvents').textContent = todayEvents;
+            
+            // Count unique users
+            const uniqueUsers = new Set(allEvents.map(event => event.userId).filter(Boolean)).size;
+            document.getElementById('uniqueUsers').textContent = uniqueUsers;
+        }
+
+        // Load and display events
+        async function loadEvents() {
+            allEvents = await fetchEvents();
+            updateStats();
+            renderEvents();
+        }
+
+        // Setup filter buttons
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update filter and re-render
+                    currentFilter = btn.dataset.filter;
+                    renderEvents();
+                });
+            });
+        }
+
+        // Setup refresh button
+        function setupRefresh() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = '⏳ 刷新中...';
+                
+                await loadEvents();
+                
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄 刷新';
+            });
+        }
+
+        // Initialize
+        async function init() {
+            console.log('Initializing Event Wall...');
+            
+            setupFilters();
+            setupRefresh();
+            
+            await loadEvents();
+        }
+
+        // Start when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
