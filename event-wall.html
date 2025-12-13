@@ -585,7 +585,10 @@
             
             // Build metadata
             const metadata = [];
-            if (event.userId) {
+            // Display child nickname if available, otherwise show userId
+            if (event.childNickname) {
+                metadata.push(`<div class="event-meta-item">👤 ${event.childNickname}</div>`);
+            } else if (event.userId) {
                 metadata.push(`<div class="event-meta-item">👤 用户 ${event.userId.substring(0, 8)}</div>`);
             }
             if (event.parameters && event.parameters.museumName) {
