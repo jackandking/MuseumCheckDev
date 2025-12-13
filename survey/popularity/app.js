@@ -135,21 +135,42 @@ function getDefaultMuseums() {
 
 /**
  * Selects random museums for the current voting round
+ * Prioritizes museums with images so users can vote based on appearance
  */
 function selectRandomMuseums() {
     if (allMuseums.length <= surveyConfig.museumsPerRound) {
         selectedMuseums = [...allMuseums];
     } else {
-        // Fisher-Yates shuffle and take first N
-        const shuffled = [...allMuseums];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        selectedMuseums = shuffled.slice(0, surveyConfig.museumsPerRound);
+        // Separate museums with and without images
+        const museumsWithImages = allMuseums.filter(m => m.image && m.image.trim() !== '');
+        const museumsWithoutImages = allMuseums.filter(m => !m.image || m.image.trim() === '');
+        
+        // Fisher-Yates shuffle both groups
+        const shuffleArray = (array) => {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        };
+        
+        const shuffledWithImages = shuffleArray(museumsWithImages);
+        const shuffledWithoutImages = shuffleArray(museumsWithoutImages);
+        
+        // Prioritize museums with images: take as many as possible from museumsWithImages first
+        const withImagesCount = Math.min(shuffledWithImages.length, surveyConfig.museumsPerRound);
+        const withoutImagesCount = surveyConfig.museumsPerRound - withImagesCount;
+        
+        selectedMuseums = [
+            ...shuffledWithImages.slice(0, withImagesCount),
+            ...shuffledWithoutImages.slice(0, withoutImagesCount)
+        ];
     }
     
     console.log('Selected museums for voting:', selectedMuseums.map(m => m.name));
+    const withImagesCount = selectedMuseums.filter(m => m.image && m.image.trim() !== '').length;
+    console.log(`Museums with images: ${withImagesCount}/${selectedMuseums.length}`);
 }
 
 /**
