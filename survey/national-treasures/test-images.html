@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Treasures Image Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .treasure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .treasure-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .treasure-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .treasure-card h3 {
+            margin: 10px 0 5px;
+            font-size: 16px;
+        }
+        .treasure-card p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+        .status.success {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>National Treasures Image Test</h1>
+    <p>Testing image URLs for China's top 10 national treasures</p>
+    
+    <div class="treasure-grid" id="treasureGrid"></div>
+
+    <script>
+        const NATIONAL_TREASURES = [
+            {
+                id: 'qingming-scroll',
+                name: '《清明上河图》',
+                museum: '故宫博物院',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/43/Along_the_River_During_the_Qingming_Festival_%28detail_of_original%29.jpg'
+            },
+            {
+                id: 'houmuwu-ding',
+                name: '后母戊鼎',
+                museum: '中国国家博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Houmuwu_Ding.jpg/600px-Houmuwu_Ding.jpg'
+            },
+            {
+                id: 'terracotta-warriors',
+                name: '兵马俑',
+                museum: '秦始皇帝陵博物院',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Terracotta_Army_Pit_1.jpg/800px-Terracotta_Army_Pit_1.jpg'
+            },
+            {
+                id: 'zenghouyi-bells',
+                name: '曾侯乙编钟',
+                museum: '湖北省博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Bianzhong.jpg/800px-Bianzhong.jpg'
+            },
+            {
+                id: 'goujian-sword',
+                name: '越王勾践剑',
+                museum: '湖北省博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Sword_of_Goujian.jpg/600px-Sword_of_Goujian.jpg'
+            },
+            {
+                id: 'jadeite-cabbage',
+                name: '翠玉白菜',
+                museum: '故宫博物院',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Jadeite_Cabbage_-_Qing_dynasty.jpg/400px-Jadeite_Cabbage_-_Qing_dynasty.jpg'
+            },
+            {
+                id: 'dake-ding',
+                name: '大克鼎',
+                museum: '上海博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Da_Ke_ding.jpg'
+            },
+            {
+                id: 'agate-cup',
+                name: '镶金兽首玛瑙杯',
+                museum: '陕西历史博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Agate_Cup_with_Beast_Head.jpg/600px-Agate_Cup_with_Beast_Head.jpg'
+            },
+            {
+                id: 'tri-color-camel',
+                name: '唐三彩骆驼载乐俑',
+                museum: '中国国家博物馆',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Tang_Sancai_Camel.jpg/600px-Tang_Sancai_Camel.jpg'
+            },
+            {
+                id: 'jade-burial-suit',
+                name: '金缕玉衣',
+                museum: '河北博物院',
+                imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Jade_burial_suit.jpg/600px-Jade_burial_suit.jpg'
+            }
+        ];
+
+        const grid = document.getElementById('treasureGrid');
+        
+        NATIONAL_TREASURES.forEach(treasure => {
+            const card = document.createElement('div');
+            card.className = 'treasure-card';
+            
+            const img = document.createElement('img');
+            img.src = treasure.imageUrl;
+            img.alt = treasure.name;
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'status';
+            statusSpan.textContent = 'Loading...';
+            
+            img.onload = function() {
+                statusSpan.className = 'status success';
+                statusSpan.textContent = '✓ Loaded';
+            };
+            
+            img.onerror = function() {
+                statusSpan.className = 'status error';
+                statusSpan.textContent = '✗ Failed';
+                this.style.display = 'none';
+            };
+            
+            const name = document.createElement('h3');
+            name.textContent = treasure.name;
+            
+            const museum = document.createElement('p');
+            museum.textContent = treasure.museum;
+            
+            card.appendChild(img);
+            card.appendChild(name);
+            card.appendChild(museum);
+            card.appendChild(statusSpan);
+            
+            grid.appendChild(card);
+        });
+    </script>
+</body>
+</html>

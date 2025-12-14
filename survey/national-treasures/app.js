@@ -21,7 +21,7 @@ const NATIONAL_TREASURES = [
         name: '《清明上河图》',
         museum: '故宫博物院',
         museumId: 'forbidden-city',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alongtheriver_QingMing.jpg/600px-Alongtheriver_QingMing.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/43/Along_the_River_During_the_Qingming_Festival_%28detail_of_original%29.jpg',
         description: '北宋画家张择端作品，全长528厘米，画了814个人物。是中国十大传世名画之一'
     },
     {
@@ -29,7 +29,7 @@ const NATIONAL_TREASURES = [
         name: '后母戊鼎',
         museum: '中国国家博物馆',
         museumId: 'national-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Houmuwu_Ding.jpg/600px-Houmuwu_Ding.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c2/HouMuWuDingFullView.jpg',
         description: '世界上现存最大最重的青铜器，重832.84公斤，是商朝青铜器的巅峰之作'
     },
     {
@@ -37,7 +37,7 @@ const NATIONAL_TREASURES = [
         name: '兵马俑',
         museum: '秦始皇帝陵博物院',
         museumId: 'terracotta-army',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Terrakotta-Armee_1.jpg/600px-Terrakotta-Armee_1.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Terracotta_army_xian_embedded_warrior.jpg',
         description: '秦始皇陵的地下军队，约有8000件陶俑，被誉为"世界第八大奇迹"'
     },
     {
@@ -45,7 +45,7 @@ const NATIONAL_TREASURES = [
         name: '曾侯乙编钟',
         museum: '湖北省博物馆',
         museumId: 'hubei-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Bianzhong.jpg/800px-Bianzhong.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Bianzhong_of_Marquis_Yi_of_Zeng_Wuhan.jpg',
         description: '战国早期大型礼乐重器，共65件编钟，距今2400多年仍能演奏乐曲'
     },
     {
@@ -53,7 +53,7 @@ const NATIONAL_TREASURES = [
         name: '越王勾践剑',
         museum: '湖北省博物馆',
         museumId: 'hubei-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Sword_of_Goujian.jpg/600px-Sword_of_Goujian.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Sword_of_Goujian%2C_2019-06-15_02.jpg',
         description: '春秋晚期越国青铜宝剑，出土时锋利如新，千年不锈'
     },
     {
@@ -61,7 +61,7 @@ const NATIONAL_TREASURES = [
         name: '翠玉白菜',
         museum: '故宫博物院',
         museumId: 'forbidden-city',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Jadeite_Cabbage_-_Qing_dynasty.jpg/400px-Jadeite_Cabbage_-_Qing_dynasty.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Jade_cabbage_closeup.jpg',
         description: '光绪皇帝瑾妃的嫁妆，运用巧雕技法，形态逼真，是清代玉雕的代表作'
     },
     {
@@ -77,7 +77,7 @@ const NATIONAL_TREASURES = [
         name: '镶金兽首玛瑙杯',
         museum: '陕西历史博物馆',
         museumId: 'shaanxi-history-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Agate_Cup_with_Beast_Head.jpg/600px-Agate_Cup_with_Beast_Head.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/%E5%94%90-%E7%8E%9B%E7%91%99%E5%85%BD%E9%A6%96%E6%9D%AF.jpg',
         description: '唐代酒器，用一整块红色玛瑙雕琢而成，是中外文化交流的见证'
     },
     {
@@ -85,7 +85,7 @@ const NATIONAL_TREASURES = [
         name: '唐三彩骆驼载乐俑',
         museum: '中国国家博物馆',
         museumId: 'national-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Tang_Sancai_camel.jpg/600px-Tang_Sancai_camel.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tang_Sancai_Camel_%26_Rider.jpg',
         description: '唐代陶器精品，展现了丝绸之路上的胡人乐队形象'
     },
     {
@@ -93,7 +93,7 @@ const NATIONAL_TREASURES = [
         name: '金缕玉衣',
         museum: '河北博物院',
         museumId: 'hebei-museum',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Jade_burial_suit.jpg/600px-Jade_burial_suit.jpg',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Jade_burial_suit_in_Henan_Provincial_Museum.jpg',
         description: '汉代最高等级的丧葬殓服，由2498片玉片和约1100克金丝编缀而成'
     }
 ];
