@@ -5282,6 +5282,11 @@ class MuseumCheckApp {
             this.showLeaderboardModal();
         });
 
+        // National Treasures Survey button
+        document.getElementById('nationalTreasuresButton').addEventListener('click', () => {
+            window.open('survey/national-treasures/index.html', '_blank');
+        });
+
         // Event Wall button
         document.getElementById('eventWallButton').addEventListener('click', () => {
             window.open('event-wall.html', '_blank');

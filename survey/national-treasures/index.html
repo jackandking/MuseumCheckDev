@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/icons/favicon.ico" type="image/x-icon" />
+    <!-- Baidu Analytics (百度统计) -->
+    <script>
+        // Baidu Analytics Configuration
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <title>中国十大国宝，你见过几件？</title>
+    <script src="../util.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="survey-container">
+        <h1 id="pageTitle">中国十大国宝，你见过几件？</h1>
+        <p class="subtitle">选择你亲眼见过的国宝文物（可多选）</p>
+        
+        <!-- Question Section -->
+        <form id="questionnaire">
+            <div class="treasures-grid" id="treasuresGrid">
+                <p class="loading-text">正在加载国宝信息...</p>
+            </div>
+            <button type="button" class="submit-btn" id="submitBtn" style="display:none;">提交我的选择</button>
+        </form>
+
+        <!-- Result Section -->
+        <div class="result" id="result" style="display:none;">
+            <p>正在获取最新统计结果...</p>
+        </div>
+        
+        <button class="show-result-btn" style="display:none;" id="showResultBtn" onclick="showAd()">看完广告显示结果</button>
+        <div class="more" id="more"><a target="_blank" onclick="jumpToIndex()">让孩子爱上博物馆</a></div>
+    </div>
+</body>
+</html>
