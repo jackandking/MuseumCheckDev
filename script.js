@@ -9060,8 +9060,9 @@ class MuseumCheckApp {
                             this.achievementGamification.checkMicroAchievements('checklist_complete_10');
                         }
                         
-                        // Award XP for checklist completion (small amount)
+                        // Award XP for checklist completion (small amount) with enhanced notification
                         this.achievementGamification.addXP(5);
+                        this.achievementGamification.showXPGainNotification(5, '完成任务');
                         
                         // ===== AUTO-SUBMIT TO LEADERBOARD =====
                         // Submit XP change to leaderboard so user can see their rank in XP tab
@@ -9848,6 +9849,7 @@ class MuseumCheckApp {
         // Gamification
         if (this.achievementGamification) {
             this.achievementGamification.addXP(20); // More XP for contributing a treasure
+            this.achievementGamification.showXPGainNotification(20, '贡献镇馆之宝信息');
         }
         
         // Check auto check-in
@@ -10209,6 +10211,7 @@ class MuseumCheckApp {
         // Gamification
         if (this.achievementGamification) {
             this.achievementGamification.addXP(15); // XP for contributing a museum photo
+            this.achievementGamification.showXPGainNotification(15, '上传博物馆照片');
         }
     }
     // ===== END MUSEUM ENTRANCE PHOTO CONTRIBUTOR METHODS =====

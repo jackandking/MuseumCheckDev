@@ -189,6 +189,95 @@
     transform: scale(1.1);
 }
 
+/* ===== ENHANCED XP GAIN NOTIFICATIONS ===== */
+.xp-gain-notification {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%) !important;
+    border: 2px solid #fff;
+    box-shadow: 0 10px 30px rgba(253, 160, 133, 0.4);
+}
+
+.xp-icon-animated {
+    font-size: 2.5em !important;
+    animation: pulse-icon 1s ease-in-out infinite;
+}
+
+.xp-amount-large {
+    font-size: 1.3em !important;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* ===== MILESTONE CELEBRATION ===== */
+.milestone-celebration {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%, #ff9a9e 100%) !important;
+    border: 3px solid #fff;
+    box-shadow: 0 15px 40px rgba(255, 154, 158, 0.6);
+    animation: shake 0.5s ease-in-out;
+}
+
+.milestone-icon-animated {
+    font-size: 3em !important;
+    animation: rotate-scale 2s ease-in-out infinite;
+}
+
+.milestone-xp-large {
+    font-size: 1.5em !important;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff6b6b);
+    background-size: 200% auto;
+    animation: gradient-flow 3s linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@keyframes rotate-scale {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(-10deg) scale(1.2);
+    }
+    50% {
+        transform: rotate(0deg) scale(1);
+    }
+    75% {
+        transform: rotate(10deg) scale(1.2);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes gradient-flow {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
 /* ===== CONFETTI ANIMATION ===== */
 .confetti {
     position: fixed;

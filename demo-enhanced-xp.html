@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分系统增强演示 - Enhanced XP System Demo</title>
+    <link rel="stylesheet" href="achievement-gamification.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .demo-button {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .demo-button:active {
+            transform: translateY(0);
+        }
+        
+        .stats-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-list li:before {
+            content: "✨";
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎊 积分系统增强演示</h1>
+        <p class="subtitle">Enhanced XP System with Emotional Feedback</p>
+        
+        <div class="stats-display">
+            <div class="stat-item">
+                <div class="stat-value" id="totalXP">0</div>
+                <div class="stat-label">总积分 (Total XP)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="currentLevel">1</div>
+                <div class="stat-label">当前等级 (Level)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="nextLevelProgress">0%</div>
+                <div class="stat-label">升级进度 (Progress)</div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎯 1. 获得积分 (Earn XP)</h2>
+            <div class="button-grid">
+                <button class="demo-button" onclick="gainXP(5, '完成任务')">+5 XP<br>完成任务</button>
+                <button class="demo-button" onclick="gainXP(10, '上传照片')">+10 XP<br>上传照片</button>
+                <button class="demo-button" onclick="gainXP(15, '纠错贡献')">+15 XP<br>纠错贡献</button>
+                <button class="demo-button" onclick="gainXP(20, '贡献宝物')">+20 XP<br>贡献宝物</button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🏆 2. 里程碑测试 (Milestone Test)</h2>
+            <div class="button-grid">
+                <button class="demo-button" onclick="setXPAndGain(90, 10)">达到100分里程碑</button>
+                <button class="demo-button" onclick="setXPAndGain(490, 10)">达到500分里程碑</button>
+                <button class="demo-button" onclick="setXPAndGain(990, 10)">达到1000分里程碑</button>
+                <button class="demo-button" onclick="setXPAndGain(4990, 10)">达到5000分里程碑</button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>✨ 3. 新增特性 (New Features)</h2>
+            <ul class="feature-list">
+                <li><strong>智能鼓励语：</strong>根据积分数量显示不同鼓励（很好！真不错！太棒了！）</li>
+                <li><strong>升级提示：</strong>接近升级时显示"快要升级了！""离下一级不远了"</li>
+                <li><strong>里程碑庆祝：</strong>100、500、1000、5000、10000分触发特殊庆祝动画</li>
+                <li><strong>动态音效：</strong>不同积分数量播放不同音效</li>
+                <li><strong>纠错成就：</strong>新增3个纠错相关成就（15-80 XP）</li>
+                <li><strong>视觉增强：</strong>更大更明显的通知，特殊动画效果</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔄 4. 控制 (Controls)</h2>
+            <div class="button-grid">
+                <button class="demo-button" onclick="resetDemo()" style="background: #e74c3c;">重置演示<br>Reset Demo</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="achievement-gamification.js"></script>
+    <script>
+        // Initialize gamification system
+        let gamification;
+        
+        function initDemo() {
+            gamification = new AchievementGamification();
+            updateStats();
+        }
+        
+        function gainXP(amount, reason) {
+            gamification.addXP(amount);
+            gamification.showXPGainNotification(amount, reason);
+            updateStats();
+        }
+        
+        function setXPAndGain(baseXP, gainXP) {
+            gamification.xpData.totalXP = baseXP;
+            gamification.saveXPData();
+            gainXP(gainXP, '里程碑测试');
+        }
+        
+        function updateStats() {
+            const xpInfo = gamification.getXPProgress();
+            document.getElementById('totalXP').textContent = xpInfo.totalXP;
+            document.getElementById('currentLevel').textContent = xpInfo.level;
+            document.getElementById('nextLevelProgress').textContent = Math.round(xpInfo.progress) + '%';
+        }
+        
+        function resetDemo() {
+            localStorage.removeItem('museumcheck_xp_data');
+            localStorage.removeItem('museumcheck_streak_data');
+            localStorage.removeItem('museumcheck_unlocked_achievements');
+            location.reload();
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', initDemo);
+    </script>
+</body>
+</html>

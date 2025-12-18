@@ -157,6 +157,14 @@ class AchievementGamification {
                 level: 'micro',
                 xp: 15
             }],
+            'first_error_report': [{
+                id: 'micro_first_error_report',
+                name: '纠错先锋',
+                emoji: '🔍',
+                description: '第一次报告数据错误',
+                level: 'micro',
+                xp: 15
+            }],
             
             // Streak achievements
             'visit_streak_3': [{
@@ -238,6 +246,24 @@ class AchievementGamification {
                 description: '周末参观博物馆',
                 level: 'micro',
                 xp: 15
+            }],
+            
+            // Error reporting achievements (content building)
+            'error_report_5': [{
+                id: 'error_reporter_5',
+                name: '质量监督员',
+                emoji: '🔎',
+                description: '报告5个数据错误',
+                level: 'basic',
+                xp: 30
+            }],
+            'error_report_20': [{
+                id: 'error_reporter_20',
+                name: '数据守护者',
+                emoji: '🛡️',
+                description: '报告20个数据错误',
+                level: 'intermediate',
+                xp: 80
             }]
         };
     }
@@ -377,11 +403,15 @@ class AchievementGamification {
     }
 
     addXP(amount) {
+        const oldTotalXP = this.xpData.totalXP;
         this.xpData.totalXP += amount;
         this.xpData.xpHistory.push({
             amount,
             timestamp: new Date().toISOString()
         });
+
+        // Check for milestone celebrations (100, 500, 1000, 2000, 5000, etc.)
+        this.checkXPMilestones(oldTotalXP, this.xpData.totalXP);
 
         // Check for level up
         const newLevel = this.calculateLevel(this.xpData.totalXP);
@@ -392,6 +422,87 @@ class AchievementGamification {
         }
 
         this.saveXPData();
+    }
+    
+    // Check and celebrate XP milestones
+    checkXPMilestones(oldXP, newXP) {
+        const milestones = [100, 500, 1000, 2000, 5000, 10000, 20000, 50000];
+        
+        for (const milestone of milestones) {
+            if (oldXP < milestone && newXP >= milestone) {
+                this.celebrateMilestone(milestone);
+                break; // Only celebrate one milestone at a time
+            }
+        }
+    }
+    
+    // Celebrate reaching XP milestone
+    celebrateMilestone(milestone) {
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification milestone-celebration';
+        
+        let emoji = '🎊';
+        let title = '里程碑达成！';
+        let description = '继续保持！';
+        
+        if (milestone >= 10000) {
+            emoji = '🏆';
+            title = '传奇成就！';
+            description = '你是真正的博物馆探索大师！';
+        } else if (milestone >= 5000) {
+            emoji = '👑';
+            title = '大师级成就！';
+            description = '令人惊叹的成就！';
+        } else if (milestone >= 1000) {
+            emoji = '🌟';
+            title = '重要里程碑！';
+            description = '你的博物馆之旅越来越精彩！';
+        }
+        
+        notification.innerHTML = `
+            <div class="notification-icon milestone-icon-animated">${emoji}</div>
+            <div class="notification-content">
+                <div class="notification-title">${title}</div>
+                <div class="notification-achievement-name milestone-xp-large">${milestone} 积分达成！</div>
+                <div class="notification-description">${description}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        const container = document.getElementById('achievement-notification-container');
+        if (container) {
+            container.appendChild(notification);
+
+            // Play special milestone sound
+            if (this.soundEnabled) {
+                this.playMilestoneSound(milestone);
+            }
+
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 6000); // Longer duration for milestones
+        }
+    }
+    
+    // Play special sound for milestones
+    playMilestoneSound(milestone) {
+        if (!this.audioContext) return;
+        
+        // Play ascending arpeggio based on milestone size
+        let notes;
+        if (milestone >= 10000) {
+            notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // Full octave
+        } else if (milestone >= 5000) {
+            notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // 6 notes
+        } else if (milestone >= 1000) {
+            notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // 5 notes
+        } else {
+            notes = [261.63, 329.63, 392.00, 523.25]; // 4 notes
+        }
+        
+        this.playNoteSequence(notes, 120);
     }
 
     calculateLevel(totalXP) {
@@ -470,17 +581,36 @@ class AchievementGamification {
         }, 5000);
     }
 
-    // Show XP gain notification
+    // Show XP gain notification - Enhanced with more emotional feedback
     showXPGainNotification(xpAmount, reason = '任务完成') {
         const xpProgress = this.getXPProgress();
         const notification = document.createElement('div');
-        notification.className = 'achievement-notification level-micro';
+        notification.className = 'achievement-notification level-micro xp-gain-notification';
+        
+        // Determine encouragement message based on XP amount
+        let encouragement = '继续加油！';
+        if (xpAmount >= 20) encouragement = '太棒了！🎉';
+        else if (xpAmount >= 10) encouragement = '真不错！👍';
+        else if (xpAmount >= 5) encouragement = '很好！✨';
+        
+        // Check for milestone progress
+        const progressToNextLevel = xpProgress.progress;
+        let milestoneText = '';
+        if (progressToNextLevel >= 90) {
+            milestoneText = '⚡ 快要升级了！';
+        } else if (progressToNextLevel >= 75) {
+            milestoneText = '🔥 离下一级不远了';
+        }
+        
         notification.innerHTML = `
-            <div class="notification-icon">⭐</div>
+            <div class="notification-icon xp-icon-animated">⭐</div>
             <div class="notification-content">
                 <div class="notification-title">${reason}</div>
-                <div class="notification-achievement-name">+${xpAmount} 积分</div>
-                <div class="notification-description">当前总积分：${xpProgress.totalXP}</div>
+                <div class="notification-achievement-name xp-amount-large">+${xpAmount} 积分 ${encouragement}</div>
+                <div class="notification-description">
+                    总积分：${xpProgress.totalXP} | 等级${xpProgress.level}
+                    ${milestoneText ? '<br>' + milestoneText : ''}
+                </div>
             </div>
             <button class="notification-close" onclick="this.parentElement.remove()">×</button>
         `;
@@ -489,12 +619,36 @@ class AchievementGamification {
         if (container) {
             container.appendChild(notification);
 
+            // Play sound for XP gain
+            if (this.soundEnabled) {
+                this.playXPSound(xpAmount);
+            }
+
             setTimeout(() => notification.classList.add('show'), 10);
+            
+            // Keep notification longer for better emotional impact
+            const duration = xpAmount >= 20 ? 5000 : 4000;
             setTimeout(() => {
                 notification.classList.remove('show');
                 setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            }, duration);
         }
+    }
+    
+    // Play sound for XP gain (different pitch based on amount)
+    playXPSound(xpAmount) {
+        if (!this.audioContext) return;
+        
+        let notes;
+        if (xpAmount >= 20) {
+            notes = [523.25, 659.25, 783.99]; // C5, E5, G5 - high reward
+        } else if (xpAmount >= 10) {
+            notes = [523.25, 659.25]; // C5, E5 - medium reward
+        } else {
+            notes = [523.25]; // C5 - small reward
+        }
+        
+        this.playNoteSequence(notes, 60);
     }
 
     calculateXPGain(achievement) {
