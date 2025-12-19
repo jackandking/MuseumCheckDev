@@ -16,6 +16,7 @@
     "export:kvstore": "node tools/export-kvstore-to-static.js --all",
     "export:kvstore:dry-run": "node tools/export-kvstore-to-static.js --all --dry-run",
     "export:kvstore:force": "node tools/export-kvstore-to-static.js --all --force",
+    "mcp:start": "node museum-mcp-server.js",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui"
   },
@@ -28,6 +29,9 @@
   ],
   "author": "jackandking",
   "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@playwright/test": "^1.56.1",

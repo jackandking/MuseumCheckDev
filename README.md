@@ -364,6 +364,27 @@ npm test
 # http://localhost:8000
 ```
 
+### 🤖 MCP (Model Context Protocol) 集成
+项目提供了 MCP 服务器，使 GitHub Copilot 能够在开发时访问中国官方博物馆数据库：
+
+```bash
+# 安装依赖
+npm install
+
+# 启动 MCP 服务器
+npm run mcp:start
+
+# 测试博物馆搜索 API
+node tools/test-mcp-museum-search.js
+```
+
+**功能特性：**
+- 搜索中国官方博物馆数据库（`search_official_museums` 工具）
+- 获取真实的博物馆统计数据（藏品数量、参观人数、质量等级等）
+- 与 GitHub Copilot 无缝集成，辅助开发过程
+
+**详细文档：** 参见 **[MCP_SETUP.md](MCP_SETUP.md)** 了解配置和使用方法
+
 ## 🔧 开发者指南 - 三级数据管理系统
 
 ### 数据导出工具

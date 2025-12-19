@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "museum-search": {
+      "command": "node",
+      "args": [
+        "museum-mcp-server.js"
+      ],
+      "env": {
+        "KV_STORE_ENDPOINT": "https://letmetry.cloud/kv"
+      },
+      "description": "Museum search and data management MCP server for accessing official Chinese museum information"
+    }
+  }
+}

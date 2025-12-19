@@ -1,4 +1,3 @@
-```javascript
 #!/usr/bin/env node
 
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
@@ -6,7 +5,7 @@ const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio
 const {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-} = require('@modelcontextprotocol/sdk/types. js');
+} = require('@modelcontextprotocol/sdk/types.js');
 
 const KV_STORE_ENDPOINT = process.env.KV_STORE_ENDPOINT;
 
@@ -54,7 +53,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             surveyType: {
               type: 'string',
-              enum: ['museumPopularity. data', 'capitalMuseumTreasure.data', 'museumCount.data'],
+              enum: ['museumPopularity.data', 'capitalMuseumTreasure.data', 'museumCount.data'],
               description: '调查类型：博物馆人气调查、镇馆之宝猜测、博物馆数量猜测',
             },
           },
@@ -84,13 +83,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['surveyType', 'itemKey'],
         },
       },
+      {
+        name: 'search_official_museums',
+        description: '搜索中国官方博物馆数据库，获取真实的博物馆信息（藏品数量、参观人数、质量等级等）',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            museumName: {
+              type: 'string',
+              description: '博物馆名称或关键词，例如：故宫、国家博物馆、上海博物馆',
+            },
+          },
+          required: ['museumName'],
+        },
+      },
     ],
   };
 });
 
 // 处理工具调用
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request. params;
+  const { name, arguments: args } = request.params;
 
   try {
     switch (name) {
@@ -103,7 +116,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         );
         
         const data = await response.json();
-        const museumData = data. value ?  JSON.parse(data.value) : null;
+        const museumData = data.value ? JSON.parse(data.value) : null;
         
         return {
           content: [
@@ -153,7 +166,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           `${KV_STORE_ENDPOINT}?key=${encodeURIComponent(surveyType)}&sortKey=None`
         );
         const readData = await readResponse.json();
-        const currentData = readData.value ? JSON. parse(readData.value) : {};
+        const currentData = readData.value ? JSON.parse(readData.value) : {};
         
         // 更新投票数
         currentData[itemKey] = (currentData[itemKey] || 0) + increment;
@@ -175,6 +188,54 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: `Successfully updated vote for ${itemKey}.  New count: ${currentData[itemKey]}`,
+            },
+          ],
+        };
+      }
+
+      case 'search_official_museums': {
+        const { museumName } = args;
+        
+        // 调用 letmetry.cloud 的博物馆搜索 API
+        const response = await fetch('https://letmetry.cloud/museum/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ museumName }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Museum search failed');
+        }
+        
+        // 格式化返回结果，提供更友好的展示
+        const formattedResults = {
+          searchTerm: data.museumName,
+          totalResults: data.count,
+          museums: data.museums.map(museum => ({
+            名称: museum.name,
+            省份: museum.province,
+            性质: museum.nature,
+            质量等级: museum.qualityGrade,
+            免费开放: museum.freeAdmission === '是' ? '是' : '否',
+            藏品数量: museum.collectionCount,
+            珍贵文物数量: museum.preciousArtifactsCount,
+            年度展览次数: museum.exhibitionsCount,
+            年度教育活动次数: museum.educationalActivitiesCount,
+            年度参观人数_万人: museum.visitorCount,
+          })),
+        };
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(formattedResults, null, 2),
             },
           ],
         };
@@ -207,4 +268,3 @@ main().catch((error) => {
   console.error('Server error:', error);
   process.exit(1);
 });
-```

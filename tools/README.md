@@ -352,3 +352,36 @@ npm test  # Includes data quality tests
 - **Exit 1**: Data quality issues detected (see output for details)
 
 The tools are designed to fail fast and provide actionable feedback for systematic data quality issues.
+
+## MCP Integration Testing
+
+### test-mcp-museum-search.js
+
+Tests the museum search MCP (Model Context Protocol) integration with the official Chinese museum database.
+
+**Purpose:**
+- Verify MCP museum search tool connectivity
+- Test API response format and data quality
+- Validate integration with letmetry.cloud museum database
+
+**Usage:**
+```bash
+# Test museum search API
+node tools/test-mcp-museum-search.js
+```
+
+**What it tests:**
+- Search for "故宫" (Forbidden City museums) - expects 4 results
+- Search for "国家博物馆" (National Museum) - expects 1 result  
+- Search for "上海博物馆" (Shanghai Museum) - expects 1 result
+
+**Output includes:**
+- Museum name and province
+- Quality grade (一级/二级/三级/未定级)
+- Collection count
+- Annual visitor count
+
+**Related Documentation:**
+- See `MCP_SETUP.md` for MCP server configuration
+- See `museum-mcp-server.js` for tool implementation
+- See `.copilot-mcp.json` for GitHub Copilot integration
