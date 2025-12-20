@@ -12336,6 +12336,9 @@
         }
         
         function resetPetAdventureGame() {
+            // Hide the complete message if it's showing
+            document.getElementById('petAdventureCompleteMessage').classList.remove('show');
+            
             // Get pet emoji from virtual pet if available
             let petEmoji = '🐱';
             if (window.virtualPet && window.virtualPet.hasPet()) {
