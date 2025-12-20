@@ -94,15 +94,40 @@ class VirtualPet {
         };
     }
     
-    // Pet level thresholds (based on total XP spent)
+    // Pet level thresholds (based on total XP spent) - Extended to 100 levels
     static get PET_LEVELS() {
-        return [
-            { level: 1, xpRequired: 0, name: '新手', animation: 'bounce' },
-            { level: 2, xpRequired: 50, name: '见习', animation: 'spin' },
-            { level: 3, xpRequired: 150, name: '熟练', animation: 'glow-spin' },
-            { level: 4, xpRequired: 300, name: '专家', animation: 'rainbow-flip' },
-            { level: 5, xpRequired: 500, name: '大师', animation: 'fireworks-dance' }
-        ];
+        // Generate 100 levels programmatically for testing
+        const levels = [];
+        for (let i = 1; i <= 100; i++) {
+            let xpRequired, name, animation;
+            
+            if (i <= 5) {
+                const original = [
+                    { level: 1, xpRequired: 0, name: '新手' },
+                    { level: 2, xpRequired: 50, name: '见习' },
+                    { level: 3, xpRequired: 150, name: '熟练' },
+                    { level: 4, xpRequired: 300, name: '专家' },
+                    { level: 5, xpRequired: 500, name: '大师' }
+                ];
+                const o = original.find(l => l.level === i);
+                xpRequired = o.xpRequired;
+                name = o.name;
+            } else if (i <= 20) {
+                xpRequired = 500 + (i - 5) * 100;
+                name = i <= 10 ? '资深' : i <= 15 ? '精英' : '卓越';
+            } else if (i <= 50) {
+                xpRequired = 2000 + (i - 20) * 200;
+                name = i <= 25 ? '超凡' : i <= 30 ? '传说' : i <= 40 ? '史诗' : '神话';
+            } else {
+                xpRequired = 8000 + (i - 50) * 300;
+                name = i <= 60 ? '不朽' : i <= 70 ? '永恒' : i <= 80 ? '至尊' : i <= 90 ? '无敌' : '传奇';
+            }
+            
+            animation = i <= 10 ? 'bounce' : i <= 25 ? 'spin' : i <= 45 ? 'glow-spin' : i <= 70 ? 'rainbow-flip' : 'fireworks-dance';
+            
+            levels.push({ level: i, xpRequired, name, animation });
+        }
+        return levels;
     }
     
     static get PET_TYPES() {
@@ -1167,6 +1192,18 @@ describe('VirtualPet', () => {
             // Spend 500+ XP to reach level 5
             pet.petData.pet.totalXPSpent = 500;
             expect(pet.getPetLevel()).toBe(5);
+            
+            // Spend 1000+ XP to reach level 10
+            pet.petData.pet.totalXPSpent = 1000;
+            expect(pet.getPetLevel()).toBe(10);
+            
+            // Spend 5000+ XP to reach level 35
+            pet.petData.pet.totalXPSpent = 5000;
+            expect(pet.getPetLevel()).toBe(35);
+            
+            // Spend 23000+ XP to reach level 100
+            pet.petData.pet.totalXPSpent = 23000;
+            expect(pet.getPetLevel()).toBe(100);
         });
         
         test('getPetLevelInfo should return correct level data', () => {
@@ -1181,14 +1218,14 @@ describe('VirtualPet', () => {
             expect(levelInfo.isMaxLevel).toBe(false);
         });
         
-        test('level 5 should be max level', () => {
+        test('level 100 should be max level', () => {
             const pet = new VirtualPet();
             pet.adoptPet('cat');
-            pet.petData.pet.totalXPSpent = 500;
+            pet.petData.pet.totalXPSpent = 23000;
             
             const levelInfo = pet.getPetLevelInfo();
-            expect(levelInfo.level).toBe(5);
-            expect(levelInfo.name).toBe('大师');
+            expect(levelInfo.level).toBe(100);
+            expect(levelInfo.name).toBe('传奇');
             expect(levelInfo.isMaxLevel).toBe(true);
             expect(levelInfo.xpToNextLevel).toBe(0);
         });
@@ -1352,9 +1389,9 @@ describe('VirtualPet', () => {
     });
     
     describe('Pet Levels Constants', () => {
-        test('should have 5 levels defined', () => {
+        test('should have 100 levels defined', () => {
             const levels = VirtualPet.PET_LEVELS;
-            expect(levels.length).toBe(5);
+            expect(levels.length).toBe(100);
         });
         
         test('levels should have increasing XP requirements', () => {

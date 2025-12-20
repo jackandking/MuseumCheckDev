@@ -32,12 +32,18 @@
  * - Tank Battle: score/5 XP (min 20, max 30)
  * - Minesweeper: (100-time)*0.3 XP (min 10, max 25)
  * 
- * Pet Levels (reduced thresholds for better accessibility):
- * - Level 1 (新手): 0 XP spent - basic bounce animation
- * - Level 2 (见习): 50 XP spent - spin animation
- * - Level 3 (熟练): 150 XP spent - glow + spin animation
- * - Level 4 (专家): 300 XP spent - rainbow glow + flip animation
- * - Level 5 (大师): 500 XP spent - fireworks + dance animation
+ * Pet Levels (100 levels total with progressive tier system):
+ * - Levels 1-10 (新手-资深): 0-1000 XP - bounce animation
+ * - Levels 11-25 (精英-超凡): 1100-3000 XP - spin animation
+ * - Levels 26-45 (传说-神话): 3200-7000 XP - glow-spin animation
+ * - Levels 46-70 (神话-永恒): 7200-14000 XP - rainbow-flip animation
+ * - Levels 71-100 (至尊-传奇): 17000-23000 XP - fireworks-dance animation
+ * 
+ * Level progression formula:
+ * - Levels 1-5: Original thresholds (backward compatible)
+ * - Levels 6-20: Linear +100 XP per level
+ * - Levels 21-50: Moderate +200 XP per level
+ * - Levels 51-100: Steeper +300 XP per level
  * 
  * Hunger System (slower rate for better user experience):
  * - Hunger decreases by 0.1% per minute (was 1% per minute)
@@ -110,14 +116,110 @@ class VirtualPet {
     }
     
     // Pet level thresholds (based on total XP spent)
-    // Reduced thresholds to make progression more achievable during museum visits
+    // Extended to 100 levels with progressive tier system
+    // Levels 1-5 maintain backward compatibility with original thresholds
     static get PET_LEVELS() {
         return [
             { level: 1, xpRequired: 0, name: '新手', animation: 'bounce' },
-            { level: 2, xpRequired: 50, name: '见习', animation: 'spin' },
-            { level: 3, xpRequired: 150, name: '熟练', animation: 'glow-spin' },
-            { level: 4, xpRequired: 300, name: '专家', animation: 'rainbow-flip' },
-            { level: 5, xpRequired: 500, name: '大师', animation: 'fireworks-dance' }
+            { level: 2, xpRequired: 50, name: '见习', animation: 'bounce' },
+            { level: 3, xpRequired: 150, name: '熟练', animation: 'bounce' },
+            { level: 4, xpRequired: 300, name: '专家', animation: 'bounce' },
+            { level: 5, xpRequired: 500, name: '大师', animation: 'bounce' },
+            { level: 6, xpRequired: 600, name: '资深', animation: 'bounce' },
+            { level: 7, xpRequired: 700, name: '资深', animation: 'bounce' },
+            { level: 8, xpRequired: 800, name: '资深', animation: 'bounce' },
+            { level: 9, xpRequired: 900, name: '资深', animation: 'bounce' },
+            { level: 10, xpRequired: 1000, name: '资深', animation: 'bounce' },
+            { level: 11, xpRequired: 1100, name: '精英', animation: 'spin' },
+            { level: 12, xpRequired: 1200, name: '精英', animation: 'spin' },
+            { level: 13, xpRequired: 1300, name: '精英', animation: 'spin' },
+            { level: 14, xpRequired: 1400, name: '精英', animation: 'spin' },
+            { level: 15, xpRequired: 1500, name: '精英', animation: 'spin' },
+            { level: 16, xpRequired: 1600, name: '卓越', animation: 'spin' },
+            { level: 17, xpRequired: 1700, name: '卓越', animation: 'spin' },
+            { level: 18, xpRequired: 1800, name: '卓越', animation: 'spin' },
+            { level: 19, xpRequired: 1900, name: '卓越', animation: 'spin' },
+            { level: 20, xpRequired: 2000, name: '卓越', animation: 'spin' },
+            { level: 21, xpRequired: 2200, name: '超凡', animation: 'spin' },
+            { level: 22, xpRequired: 2400, name: '超凡', animation: 'spin' },
+            { level: 23, xpRequired: 2600, name: '超凡', animation: 'spin' },
+            { level: 24, xpRequired: 2800, name: '超凡', animation: 'spin' },
+            { level: 25, xpRequired: 3000, name: '超凡', animation: 'spin' },
+            { level: 26, xpRequired: 3200, name: '传说', animation: 'glow-spin' },
+            { level: 27, xpRequired: 3400, name: '传说', animation: 'glow-spin' },
+            { level: 28, xpRequired: 3600, name: '传说', animation: 'glow-spin' },
+            { level: 29, xpRequired: 3800, name: '传说', animation: 'glow-spin' },
+            { level: 30, xpRequired: 4000, name: '传说', animation: 'glow-spin' },
+            { level: 31, xpRequired: 4200, name: '史诗', animation: 'glow-spin' },
+            { level: 32, xpRequired: 4400, name: '史诗', animation: 'glow-spin' },
+            { level: 33, xpRequired: 4600, name: '史诗', animation: 'glow-spin' },
+            { level: 34, xpRequired: 4800, name: '史诗', animation: 'glow-spin' },
+            { level: 35, xpRequired: 5000, name: '史诗', animation: 'glow-spin' },
+            { level: 36, xpRequired: 5200, name: '史诗', animation: 'glow-spin' },
+            { level: 37, xpRequired: 5400, name: '史诗', animation: 'glow-spin' },
+            { level: 38, xpRequired: 5600, name: '史诗', animation: 'glow-spin' },
+            { level: 39, xpRequired: 5800, name: '史诗', animation: 'glow-spin' },
+            { level: 40, xpRequired: 6000, name: '史诗', animation: 'glow-spin' },
+            { level: 41, xpRequired: 6200, name: '神话', animation: 'glow-spin' },
+            { level: 42, xpRequired: 6400, name: '神话', animation: 'glow-spin' },
+            { level: 43, xpRequired: 6600, name: '神话', animation: 'glow-spin' },
+            { level: 44, xpRequired: 6800, name: '神话', animation: 'glow-spin' },
+            { level: 45, xpRequired: 7000, name: '神话', animation: 'glow-spin' },
+            { level: 46, xpRequired: 7200, name: '神话', animation: 'rainbow-flip' },
+            { level: 47, xpRequired: 7400, name: '神话', animation: 'rainbow-flip' },
+            { level: 48, xpRequired: 7600, name: '神话', animation: 'rainbow-flip' },
+            { level: 49, xpRequired: 7800, name: '神话', animation: 'rainbow-flip' },
+            { level: 50, xpRequired: 8000, name: '神话', animation: 'rainbow-flip' },
+            { level: 51, xpRequired: 8300, name: '不朽', animation: 'rainbow-flip' },
+            { level: 52, xpRequired: 8600, name: '不朽', animation: 'rainbow-flip' },
+            { level: 53, xpRequired: 8900, name: '不朽', animation: 'rainbow-flip' },
+            { level: 54, xpRequired: 9200, name: '不朽', animation: 'rainbow-flip' },
+            { level: 55, xpRequired: 9500, name: '不朽', animation: 'rainbow-flip' },
+            { level: 56, xpRequired: 9800, name: '不朽', animation: 'rainbow-flip' },
+            { level: 57, xpRequired: 10100, name: '不朽', animation: 'rainbow-flip' },
+            { level: 58, xpRequired: 10400, name: '不朽', animation: 'rainbow-flip' },
+            { level: 59, xpRequired: 10700, name: '不朽', animation: 'rainbow-flip' },
+            { level: 60, xpRequired: 11000, name: '不朽', animation: 'rainbow-flip' },
+            { level: 61, xpRequired: 11300, name: '永恒', animation: 'rainbow-flip' },
+            { level: 62, xpRequired: 11600, name: '永恒', animation: 'rainbow-flip' },
+            { level: 63, xpRequired: 11900, name: '永恒', animation: 'rainbow-flip' },
+            { level: 64, xpRequired: 12200, name: '永恒', animation: 'rainbow-flip' },
+            { level: 65, xpRequired: 12500, name: '永恒', animation: 'rainbow-flip' },
+            { level: 66, xpRequired: 12800, name: '永恒', animation: 'rainbow-flip' },
+            { level: 67, xpRequired: 13100, name: '永恒', animation: 'rainbow-flip' },
+            { level: 68, xpRequired: 13400, name: '永恒', animation: 'rainbow-flip' },
+            { level: 69, xpRequired: 13700, name: '永恒', animation: 'rainbow-flip' },
+            { level: 70, xpRequired: 14000, name: '永恒', animation: 'rainbow-flip' },
+            { level: 71, xpRequired: 14300, name: '至尊', animation: 'fireworks-dance' },
+            { level: 72, xpRequired: 14600, name: '至尊', animation: 'fireworks-dance' },
+            { level: 73, xpRequired: 14900, name: '至尊', animation: 'fireworks-dance' },
+            { level: 74, xpRequired: 15200, name: '至尊', animation: 'fireworks-dance' },
+            { level: 75, xpRequired: 15500, name: '至尊', animation: 'fireworks-dance' },
+            { level: 76, xpRequired: 15800, name: '至尊', animation: 'fireworks-dance' },
+            { level: 77, xpRequired: 16100, name: '至尊', animation: 'fireworks-dance' },
+            { level: 78, xpRequired: 16400, name: '至尊', animation: 'fireworks-dance' },
+            { level: 79, xpRequired: 16700, name: '至尊', animation: 'fireworks-dance' },
+            { level: 80, xpRequired: 17000, name: '至尊', animation: 'fireworks-dance' },
+            { level: 81, xpRequired: 17300, name: '无敌', animation: 'fireworks-dance' },
+            { level: 82, xpRequired: 17600, name: '无敌', animation: 'fireworks-dance' },
+            { level: 83, xpRequired: 17900, name: '无敌', animation: 'fireworks-dance' },
+            { level: 84, xpRequired: 18200, name: '无敌', animation: 'fireworks-dance' },
+            { level: 85, xpRequired: 18500, name: '无敌', animation: 'fireworks-dance' },
+            { level: 86, xpRequired: 18800, name: '无敌', animation: 'fireworks-dance' },
+            { level: 87, xpRequired: 19100, name: '无敌', animation: 'fireworks-dance' },
+            { level: 88, xpRequired: 19400, name: '无敌', animation: 'fireworks-dance' },
+            { level: 89, xpRequired: 19700, name: '无敌', animation: 'fireworks-dance' },
+            { level: 90, xpRequired: 20000, name: '无敌', animation: 'fireworks-dance' },
+            { level: 91, xpRequired: 20300, name: '传奇', animation: 'fireworks-dance' },
+            { level: 92, xpRequired: 20600, name: '传奇', animation: 'fireworks-dance' },
+            { level: 93, xpRequired: 20900, name: '传奇', animation: 'fireworks-dance' },
+            { level: 94, xpRequired: 21200, name: '传奇', animation: 'fireworks-dance' },
+            { level: 95, xpRequired: 21500, name: '传奇', animation: 'fireworks-dance' },
+            { level: 96, xpRequired: 21800, name: '传奇', animation: 'fireworks-dance' },
+            { level: 97, xpRequired: 22100, name: '传奇', animation: 'fireworks-dance' },
+            { level: 98, xpRequired: 22400, name: '传奇', animation: 'fireworks-dance' },
+            { level: 99, xpRequired: 22700, name: '传奇', animation: 'fireworks-dance' },
+            { level: 100, xpRequired: 23000, name: '传奇', animation: 'fireworks-dance' }
         ];
     }
     

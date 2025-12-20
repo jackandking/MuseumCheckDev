@@ -502,6 +502,60 @@ body:not(.child-mode) .virtual-pet-container {
     box-shadow: 0 0 10px rgba(171, 71, 188, 0.5);
 }
 
+/* Extended level styles for 100-level system */
+/* Levels 6-10: 资深 (Bronze tier) */
+.pet-level-badge[class*="level-"]:is(.level-6, .level-7, .level-8, .level-9, .level-10) {
+    background: linear-gradient(135deg, #d4a574 0%, #c39463 100%);
+    color: #5d4a37;
+}
+
+/* Levels 11-25: 精英-超凡 (Silver tier) */
+.pet-level-badge[class*="level-"]:is(.level-11, .level-12, .level-13, .level-14, .level-15,
+    .level-16, .level-17, .level-18, .level-19, .level-20,
+    .level-21, .level-22, .level-23, .level-24, .level-25) {
+    background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+    color: #2c2c2c;
+}
+
+/* Levels 26-45: 传说-神话 (Gold tier) */
+.pet-level-badge[class*="level-"]:is(.level-26, .level-27, .level-28, .level-29, .level-30,
+    .level-31, .level-32, .level-33, .level-34, .level-35,
+    .level-36, .level-37, .level-38, .level-39, .level-40,
+    .level-41, .level-42, .level-43, .level-44, .level-45) {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
+    color: #8b6914;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* Levels 46-70: 神话-永恒 (Diamond tier) */
+.pet-level-badge[class*="level-"]:is(.level-46, .level-47, .level-48, .level-49, .level-50,
+    .level-51, .level-52, .level-53, .level-54, .level-55,
+    .level-56, .level-57, .level-58, .level-59, .level-60,
+    .level-61, .level-62, .level-63, .level-64, .level-65,
+    .level-66, .level-67, .level-68, .level-69, .level-70) {
+    background: linear-gradient(135deg, #b9f2ff 0%, #8dd4e6 100%);
+    color: #004d6b;
+    box-shadow: 0 0 12px rgba(185, 242, 255, 0.5);
+}
+
+/* Levels 71-100: 至尊-传奇 (Master tier) */
+.pet-level-badge[class*="level-"]:is(.level-71, .level-72, .level-73, .level-74, .level-75,
+    .level-76, .level-77, .level-78, .level-79, .level-80,
+    .level-81, .level-82, .level-83, .level-84, .level-85,
+    .level-86, .level-87, .level-88, .level-89, .level-90,
+    .level-91, .level-92, .level-93, .level-94, .level-95,
+    .level-96, .level-97, .level-98, .level-99, .level-100) {
+    background: linear-gradient(135deg, #ff6ec7 0%, #c71585 100%);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 110, 199, 0.6);
+    animation: level-master-glow 2s ease-in-out infinite;
+}
+
+@keyframes level-master-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 110, 199, 0.6); }
+    50% { box-shadow: 0 0 25px rgba(255, 110, 199, 0.9); }
+}
+
 /* ===== LEVEL PROGRESS BAR ===== */
 .pet-level-progress {
     margin: 12px 0;
@@ -549,6 +603,66 @@ body:not(.child-mode) .virtual-pet-container {
 
 .level-progress-fill.level-5 {
     background: linear-gradient(90deg, #ce93d8 0%, #ab47bc 100%);
+}
+
+/* Extended level progress styles for tier system */
+/* Use tier-based matching instead of individual levels */
+.level-progress-fill[class*="level-"] {
+    /* Bronze tier (6-10) */
+    background: linear-gradient(90deg, #d4a574 0%, #c39463 100%);
+}
+
+.level-progress-fill.level-1, .level-progress-fill.level-2, .level-progress-fill.level-3,
+.level-progress-fill.level-4, .level-progress-fill.level-5 {
+    /* Original levels keep their colors (defined above) */
+}
+
+.level-progress-fill.level-6, .level-progress-fill.level-7, .level-progress-fill.level-8,
+.level-progress-fill.level-9, .level-progress-fill.level-10 {
+    background: linear-gradient(90deg, #d4a574 0%, #c39463 100%);
+}
+
+/* Silver tier (11-25) */
+.level-progress-fill[class*="level-1"], .level-progress-fill[class*="level-2"]:not(.level-2):not(.level-3):not(.level-4):not(.level-5):not(.level-6):not(.level-7):not(.level-8):not(.level-9) {
+    background: linear-gradient(90deg, #c0c0c0 0%, #a8a8a8 100%);
+}
+
+/* Gold tier (26-45) */
+.level-progress-fill.level-26, .level-progress-fill.level-27, .level-progress-fill.level-28,
+.level-progress-fill.level-29, .level-progress-fill.level-30, .level-progress-fill.level-31,
+.level-progress-fill.level-32, .level-progress-fill.level-33, .level-progress-fill.level-34,
+.level-progress-fill.level-35, .level-progress-fill.level-36, .level-progress-fill.level-37,
+.level-progress-fill.level-38, .level-progress-fill.level-39, .level-progress-fill.level-40,
+.level-progress-fill.level-41, .level-progress-fill.level-42, .level-progress-fill.level-43,
+.level-progress-fill.level-44, .level-progress-fill.level-45 {
+    background: linear-gradient(90deg, #ffd700 0%, #ffb800 100%);
+}
+
+/* Diamond tier (46-70) */
+.level-progress-fill.level-46, .level-progress-fill.level-47, .level-progress-fill.level-48,
+.level-progress-fill.level-49, .level-progress-fill.level-50, .level-progress-fill.level-51,
+.level-progress-fill.level-52, .level-progress-fill.level-53, .level-progress-fill.level-54,
+.level-progress-fill.level-55, .level-progress-fill.level-56, .level-progress-fill.level-57,
+.level-progress-fill.level-58, .level-progress-fill.level-59, .level-progress-fill.level-60,
+.level-progress-fill.level-61, .level-progress-fill.level-62, .level-progress-fill.level-63,
+.level-progress-fill.level-64, .level-progress-fill.level-65, .level-progress-fill.level-66,
+.level-progress-fill.level-67, .level-progress-fill.level-68, .level-progress-fill.level-69,
+.level-progress-fill.level-70 {
+    background: linear-gradient(90deg, #b9f2ff 0%, #8dd4e6 100%);
+}
+
+/* Master tier (71-100) */
+.level-progress-fill.level-71, .level-progress-fill.level-72, .level-progress-fill.level-73,
+.level-progress-fill.level-74, .level-progress-fill.level-75, .level-progress-fill.level-76,
+.level-progress-fill.level-77, .level-progress-fill.level-78, .level-progress-fill.level-79,
+.level-progress-fill.level-80, .level-progress-fill.level-81, .level-progress-fill.level-82,
+.level-progress-fill.level-83, .level-progress-fill.level-84, .level-progress-fill.level-85,
+.level-progress-fill.level-86, .level-progress-fill.level-87, .level-progress-fill.level-88,
+.level-progress-fill.level-89, .level-progress-fill.level-90, .level-progress-fill.level-91,
+.level-progress-fill.level-92, .level-progress-fill.level-93, .level-progress-fill.level-94,
+.level-progress-fill.level-95, .level-progress-fill.level-96, .level-progress-fill.level-97,
+.level-progress-fill.level-98, .level-progress-fill.level-99, .level-progress-fill.level-100 {
+    background: linear-gradient(90deg, #ff6ec7 0%, #c71585 100%);
 }
 
 /* ===== CELEBRATION OVERLAY ===== */

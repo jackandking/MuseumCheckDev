@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Level System Test - 宠物等级系统测试</title>
+    <link rel="stylesheet" href="virtual-pet.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .child-mode { /* Enable pet container */ }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .level-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .level-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .level-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .level-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .level-badge-demo {
+            margin: 10px 0;
+        }
+        .xp-required {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+        }
+        .tier-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .tier-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .current-level-display {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #ffc107;
+        }
+        .current-level-display h2 {
+            margin: 0 0 10px 0;
+            color: #f57c00;
+        }
+        .current-level-display .level-info {
+            font-size: 18px;
+            color: #ef6c00;
+        }
+    </style>
+</head>
+<body class="child-mode">
+    <div class="test-container">
+        <h1>🐾 宠物等级系统测试 (Pet Level System Test)</h1>
+        
+        <div class="current-level-display">
+            <h2>当前宠物等级 / Current Pet Level</h2>
+            <div class="level-info" id="currentLevelInfo">
+                请先领养宠物 / Please adopt a pet first
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="adoptPet()">领养宠物 / Adopt Pet</button>
+            <button class="btn btn-primary" onclick="addXP(100)">+100 XP</button>
+            <button class="btn btn-primary" onclick="addXP(500)">+500 XP</button>
+            <button class="btn btn-primary" onclick="addXP(1000)">+1,000 XP</button>
+            <button class="btn btn-primary" onclick="setLevel(50)">跳到50级</button>
+            <button class="btn btn-primary" onclick="setLevel(100)">跳到100级</button>
+        </div>
+
+        <div class="tier-section">
+            <div class="tier-title">🥉 初级层 (Beginner Tier) - Levels 1-10</div>
+            <div class="level-showcase" id="tier1"></div>
+        </div>
+
+        <div class="tier-section">
+            <div class="tier-title">🥈 中级层 (Intermediate Tier) - Levels 11-25</div>
+            <div class="level-showcase" id="tier2"></div>
+        </div>
+
+        <div class="tier-section">
+            <div class="tier-title">🥇 高级层 (Advanced Tier) - Levels 26-50</div>
+            <div class="level-showcase" id="tier3"></div>
+        </div>
+
+        <div class="tier-section">
+            <div class="tier-title">💎 精英层 (Elite Tier) - Levels 51-80</div>
+            <div class="level-showcase" id="tier4"></div>
+        </div>
+
+        <div class="tier-section">
+            <div class="tier-title">👑 传奇层 (Master Tier) - Levels 81-100</div>
+            <div class="level-showcase" id="tier5"></div>
+        </div>
+    </div>
+
+    <script src="virtual-pet.js"></script>
+    <script>
+        // Initialize virtual pet
+        let virtualPet = null;
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize pet
+            virtualPet = new VirtualPet();
+            
+            // Display all levels
+            displayAllLevels();
+            
+            // Update current level display
+            updateCurrentLevelDisplay();
+        });
+
+        function displayAllLevels() {
+            const levels = VirtualPet.PET_LEVELS;
+            
+            // Tier 1: 1-10
+            renderLevelCards(levels.slice(0, 10), 'tier1');
+            
+            // Tier 2: 11-25
+            renderLevelCards(levels.slice(10, 25), 'tier2');
+            
+            // Tier 3: 26-50
+            renderLevelCards(levels.slice(25, 50), 'tier3');
+            
+            // Tier 4: 51-80
+            renderLevelCards(levels.slice(50, 80), 'tier4');
+            
+            // Tier 5: 81-100
+            renderLevelCards(levels.slice(80, 100), 'tier5');
+        }
+
+        function renderLevelCards(levels, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = levels.map(level => `
+                <div class="level-card">
+                    <div class="level-number">Level ${level.level}</div>
+                    <div class="level-badge-demo">
+                        <span class="pet-level-badge level-${level.level}">${level.name}</span>
+                    </div>
+                    <div class="xp-required">${level.xpRequired.toLocaleString()} XP</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">${level.animation}</div>
+                </div>
+            `).join('');
+        }
+
+        function adoptPet() {
+            if (!virtualPet.hasPet()) {
+                const result = virtualPet.adoptPet('dragon');
+                alert(result.message);
+                virtualPet.showPetPanel();
+                updateCurrentLevelDisplay();
+            } else {
+                alert('你已经有宠物了！');
+            }
+        }
+
+        function addXP(amount) {
+            if (!virtualPet.hasPet()) {
+                alert('请先领养宠物！');
+                return;
+            }
+            
+            const oldLevel = virtualPet.getPetLevel();
+            virtualPet.petData.pet.totalXPSpent = (virtualPet.petData.pet.totalXPSpent || 0) + amount;
+            virtualPet.savePetData();
+            virtualPet.updateUI();
+            const newLevel = virtualPet.getPetLevel();
+            
+            if (newLevel > oldLevel) {
+                alert(`🎉 升级了！从 Level ${oldLevel} 升到 Level ${newLevel}！`);
+            }
+            
+            updateCurrentLevelDisplay();
+        }
+
+        function setLevel(targetLevel) {
+            if (!virtualPet.hasPet()) {
+                alert('请先领养宠物！');
+                return;
+            }
+            
+            const levels = VirtualPet.PET_LEVELS;
+            const levelData = levels.find(l => l.level === targetLevel);
+            
+            if (levelData) {
+                virtualPet.petData.pet.totalXPSpent = levelData.xpRequired;
+                virtualPet.savePetData();
+                virtualPet.updateUI();
+                alert(`跳到 Level ${targetLevel}！`);
+                updateCurrentLevelDisplay();
+            }
+        }
+
+        function updateCurrentLevelDisplay() {
+            const display = document.getElementById('currentLevelInfo');
+            
+            if (!virtualPet.hasPet()) {
+                display.innerHTML = '请先领养宠物 / Please adopt a pet first';
+                return;
+            }
+            
+            const levelInfo = virtualPet.getPetLevelInfo();
+            const pet = virtualPet.petData.pet;
+            const emoji = virtualPet.getPetEmoji();
+            
+            display.innerHTML = `
+                <div style="font-size: 48px; margin: 10px 0;">${emoji}</div>
+                <div style="font-size: 24px; margin: 10px 0;">
+                    <span class="pet-level-badge level-${levelInfo.level}">
+                        Lv.${levelInfo.level} ${levelInfo.name}
+                    </span>
+                </div>
+                <div style="font-size: 16px; margin: 5px 0;">
+                    当前 XP: ${pet.totalXPSpent.toLocaleString()} / ${levelInfo.nextLevelXP ? levelInfo.nextLevelXP.toLocaleString() : '最大'} XP
+                </div>
+                <div style="font-size: 14px; color: #999;">
+                    ${levelInfo.isMaxLevel ? '已达最高等级！' : `还需 ${levelInfo.xpToNextLevel.toLocaleString()} XP 升级`}
+                </div>
+                <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                    动画类型: ${levelInfo.animation}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
