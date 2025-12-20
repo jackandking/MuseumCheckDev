@@ -104,7 +104,8 @@ class VirtualPet {
             'space-invaders': { min: 15, max: 30, divisor: 10, name: '小蜜蜂' },
             'tank-battle': { min: 20, max: 30, divisor: 5, name: '坦克大战' },
             minesweeper: { min: 10, max: 25, timeBonus: true, name: '扫雷' },
-            'pet-adventure': { min: 10, max: 25, divisor: 10, name: '宠物冒险' }
+            'pet-adventure': { min: 10, max: 25, divisor: 10, name: '宠物冒险' },
+            'snake': { min: 10, max: 30, divisor: 10, name: '宠物贪食蛇', levelBonus: true }
         };
     }
     
