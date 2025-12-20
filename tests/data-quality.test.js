@@ -195,11 +195,13 @@ describe('Museum Data Quality', () => {
         // - Final count: 258 high-quality unique museums (including Huzhou Science and Technology Museum)
         // - After adding Li Shutong Memorial Hall (Pinghu): 259 museums
         // - After adding Zhaoyuan Hengli Clock Museum: 260 museums
+        // - After adding Pinghu Museum: 261 museums
+        // - After adding China Archaeology Museum (中国考古博物馆): 262 museums
         
         console.log(`Current museum count: ${museums.length}`);
         
         // Exact count after systematic deduplication
-        expect(museums.length).toBe(261);
+        expect(museums.length).toBe(262);
         
         // Validate that this is within reasonable operational range
         expect(museums.length).toBeGreaterThan(200);

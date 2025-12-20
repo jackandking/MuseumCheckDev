@@ -3132,5 +3132,17 @@ window.MUSEUMS_META = [
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG",
     "hasCollections": true
+  },
+  {
+    "id": "china-archaeology-museum",
+    "name": "中国考古博物馆",
+    "location": "北京",
+    "tags": [
+      "考古发现",
+      "文明探源",
+      "科学研究"
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg/800px-%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg",
+    "hasCollections": true
   }
 ];
