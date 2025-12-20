@@ -11,7 +11,8 @@
  * - Higher level pets have cooler animations during check-in
  * - Intelligence increases with completed tasks
  * - Pet dies after extended time without feeding (0.1% hunger decrease per minute)
- * - Dead pet can be revived with points
+ * - Dead pet can be revived with 5 points (reduced cost)
+ * - Reset and adopt a new pet for 50 points (new feature)
  * 
  * NEW - Daily Check-in System:
  * - Daily check-in: 5 XP base reward
@@ -72,7 +73,8 @@ class VirtualPet {
     static get FEED_COST() { return 5; } // Points to feed pet (reduced from 10)
     static get ATTACK_UPGRADE_COST() { return 25; } // Points to increase attack (reduced from 50)
     static get DEFENSE_UPGRADE_COST() { return 25; } // Points to increase defense (reduced from 50)
-    static get REVIVE_COST() { return 50; } // Points to revive dead pet (reduced from 100)
+    static get REVIVE_COST() { return 5; } // Points to revive dead pet (changed from 50 to 5)
+    static get RESET_COST() { return 50; } // Points to reset and adopt a new pet
     static get HUNGER_DECREASE_PER_MINUTE() { return 0.1; } // Hunger decreases by 0.1% per minute (slower rate)
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; } // Grace period after hunger reaches 0 before death
@@ -595,6 +597,32 @@ class VirtualPet {
         };
     }
 
+    resetPet(points) {
+        if (!this.hasPet()) {
+            return { success: false, message: '你还没有宠物' };
+        }
+
+        if (points < VirtualPet.RESET_COST) {
+            return { success: false, message: `积分不足，当前积分: ${points}，换宠物需要 ${VirtualPet.RESET_COST} 积分` };
+        }
+
+        // Clear current pet data to allow adopting a new one
+        const oldPetName = this.petData.pet.name;
+        this.petData = {
+            adopted: false,
+            pet: null
+        };
+
+        this.savePetData();
+        this.updateUI();
+
+        return { 
+            success: true, 
+            message: `已与${oldPetName}告别，现在可以领养新宠物了！`,
+            pointsUsed: VirtualPet.RESET_COST
+        };
+    }
+
     // Called when a task is completed
     onTaskCompleted() {
         if (!this.isPetAlive()) return;
@@ -976,9 +1004,15 @@ class VirtualPet {
                 <div class="pet-dead-emoji">😢</div>
                 <div class="pet-dead-name">${pet.name}</div>
                 <div class="pet-dead-message">你的宠物因为太久没有喂食离开了...</div>
-                <button class="pet-action-btn revive-btn" id="revivePetBtn">
-                    💫 复活 (${VirtualPet.REVIVE_COST}积分)
-                </button>
+                <div class="pet-dead-actions">
+                    <button class="pet-action-btn revive-btn" id="revivePetBtn">
+                        💫 复活 (${VirtualPet.REVIVE_COST}积分)
+                    </button>
+                    <button class="pet-action-btn reset-btn" id="resetPetBtnDead">
+                        🔄 换宠物 (${VirtualPet.RESET_COST}积分)
+                    </button>
+                </div>
+                <div class="pet-dead-note">复活当前宠物或换一只新宠物</div>
             </div>
         `;
     }
@@ -1068,6 +1102,13 @@ class VirtualPet {
                     </button>
                 </div>
                 
+                <div class="pet-reset-section">
+                    <button class="pet-action-btn reset-btn" id="resetPetBtn">
+                        🔄 换宠物 (${VirtualPet.RESET_COST})
+                    </button>
+                    <div class="pet-reset-note">换一只新宠物重新开始</div>
+                </div>
+                
                 <div class="pet-message" id="petMessage"></div>
             </div>
         `;
@@ -1098,6 +1139,22 @@ class VirtualPet {
                     this.showPetMessage(result.message);
                 } else {
                     alert(result.message);
+                }
+            });
+        }
+
+        const resetBtn = document.getElementById('resetPetBtnDead');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if (confirm('确定要换一只新宠物吗？当前宠物将永久消失。')) {
+                    const points = this.getCurrentPoints();
+                    const result = this.resetPet(points);
+                    if (result.success) {
+                        this.deductPoints(result.pointsUsed);
+                        this.showPetMessage(result.message);
+                    } else {
+                        alert(result.message);
+                    }
                 }
             });
         }
@@ -1143,6 +1200,22 @@ class VirtualPet {
                     this.showPetMessage(result.message);
                 } else {
                     alert(result.message);
+                }
+            });
+        }
+
+        const resetBtn = document.getElementById('resetPetBtn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if (confirm('确定要换一只新宠物吗？当前宠物将永久消失。')) {
+                    const points = this.getCurrentPoints();
+                    const result = this.resetPet(points);
+                    if (result.success) {
+                        this.deductPoints(result.pointsUsed);
+                        this.showPetMessage(result.message);
+                    } else {
+                        alert(result.message);
+                    }
                 }
             });
         }

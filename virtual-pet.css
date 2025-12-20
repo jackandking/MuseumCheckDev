@@ -350,6 +350,11 @@ body:not(.child-mode) .virtual-pet-container {
     width: 100%;
 }
 
+.pet-action-btn.reset-btn {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+}
+
 .pet-action-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -357,6 +362,39 @@ body:not(.child-mode) .virtual-pet-container {
 
 .pet-action-btn:active {
     transform: translateY(0);
+}
+
+/* Pet Reset Section */
+.pet-reset-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pet-reset-note {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Pet Dead Actions */
+.pet-dead-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.pet-dead-note {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    margin-top: 8px;
+    line-height: 1.3;
 }
 
 /* Pet Message */

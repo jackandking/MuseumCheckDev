@@ -60,7 +60,8 @@ class VirtualPet {
     static get FEED_COST() { return 5; }
     static get ATTACK_UPGRADE_COST() { return 25; }
     static get DEFENSE_UPGRADE_COST() { return 25; }
-    static get REVIVE_COST() { return 50; }
+    static get REVIVE_COST() { return 5; }
+    static get RESET_COST() { return 50; }
     static get HUNGER_DECREASE_PER_MINUTE() { return 0.1; }
     static get MAX_HUNGER() { return 100; }
     static get HUNGER_GRACE_PERIOD_MINUTES() { return 30; }
@@ -442,6 +443,30 @@ class VirtualPet {
         };
     }
 
+    resetPet(points) {
+        if (!this.hasPet()) {
+            return { success: false, message: '你还没有宠物' };
+        }
+
+        if (points < VirtualPet.RESET_COST) {
+            return { success: false, message: `积分不足，换宠物需要 ${VirtualPet.RESET_COST} 积分` };
+        }
+
+        const oldPetName = this.petData.pet.name;
+        this.petData = {
+            adopted: false,
+            pet: null
+        };
+
+        this.savePetData();
+
+        return { 
+            success: true, 
+            message: `已与${oldPetName}告别，现在可以领养新宠物了！`,
+            pointsUsed: VirtualPet.RESET_COST
+        };
+    }
+
     onTaskCompleted() {
         if (!this.isPetAlive()) return;
 
@@ -638,8 +663,12 @@ describe('VirtualPet', () => {
             expect(VirtualPet.DEFENSE_UPGRADE_COST).toBe(25);
         });
 
-        test('should have revive cost defined (reduced for accessibility)', () => {
-            expect(VirtualPet.REVIVE_COST).toBe(50);
+        test('should have revive cost defined (reduced for better accessibility)', () => {
+            expect(VirtualPet.REVIVE_COST).toBe(5);
+        });
+
+        test('should have reset cost defined', () => {
+            expect(VirtualPet.RESET_COST).toBe(50);
         });
         
         test('should have hunger decrease per minute defined as 0.1%', () => {
@@ -949,8 +978,8 @@ describe('VirtualPet', () => {
             pet.adoptPet('cat');
             pet.petData.pet.isDead = true;
             
-            // Test with 25 points, intentionally less than REVIVE_COST (50) to verify insufficient points handling
-            const result = pet.revivePet(25);
+            // Test with 4 points, intentionally less than REVIVE_COST (5) to verify insufficient points handling
+            const result = pet.revivePet(4);
             expect(result.success).toBe(false);
             expect(result.message).toContain('积分不足');
         });
@@ -976,6 +1005,82 @@ describe('VirtualPet', () => {
             
             pet.revivePet(200);
             expect(pet.petData.pet.hunger).toBe(VirtualPet.MAX_HUNGER / 2);
+        });
+    });
+
+    describe('Pet Reset', () => {
+        test('should reset pet with enough points for alive pet', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('cat');
+            
+            pet.getCurrentPoints = () => 100;
+            pet.deductPoints = jest.fn(() => true);
+            
+            const result = pet.resetPet(100);
+            expect(result.success).toBe(true);
+            expect(result.pointsUsed).toBe(VirtualPet.RESET_COST);
+            expect(pet.hasPet()).toBe(false);
+        });
+
+        test('should reset pet with enough points for dead pet', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('dog');
+            pet.petData.pet.isDead = true;
+            
+            pet.getCurrentPoints = () => 100;
+            pet.deductPoints = jest.fn(() => true);
+            
+            const result = pet.resetPet(100);
+            expect(result.success).toBe(true);
+            expect(result.pointsUsed).toBe(VirtualPet.RESET_COST);
+            expect(pet.hasPet()).toBe(false);
+        });
+
+        test('should not reset without enough points', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('panda');
+            
+            const result = pet.resetPet(40);
+            expect(result.success).toBe(false);
+            expect(result.message).toContain('积分不足');
+        });
+
+        test('should not reset when no pet exists', () => {
+            const pet = new VirtualPet();
+            
+            const result = pet.resetPet(100);
+            expect(result.success).toBe(false);
+            expect(result.message).toContain('还没有宠物');
+        });
+
+        test('reset should allow adopting a new pet', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('rabbit');
+            const firstPetName = pet.petData.pet.name;
+            
+            pet.getCurrentPoints = () => 100;
+            pet.deductPoints = jest.fn(() => true);
+            
+            pet.resetPet(100);
+            expect(pet.hasPet()).toBe(false);
+            
+            // Should be able to adopt a different pet
+            pet.adoptPet('fox');
+            expect(pet.hasPet()).toBe(true);
+            expect(pet.petData.pet.name).not.toBe(firstPetName);
+        });
+
+        test('reset message should include old pet name', () => {
+            const pet = new VirtualPet();
+            pet.adoptPet('dragon');
+            const petName = pet.petData.pet.name;
+            
+            pet.getCurrentPoints = () => 100;
+            pet.deductPoints = jest.fn(() => true);
+            
+            const result = pet.resetPet(100);
+            expect(result.success).toBe(true);
+            expect(result.message).toContain(petName);
         });
     });
 
