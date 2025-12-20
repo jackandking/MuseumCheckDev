@@ -9784,10 +9784,12 @@
                 }
             }
             
-            // Update title based on difficulty
+            // Load pet data and update title with pet
+            const petData = loadPuzzlePetData();
             const titleEl = document.querySelector('.puzzle-title');
             if (titleEl) {
-                titleEl.textContent = currentPuzzleSize === 2 ? '🧩 四宫格挑战' : '🧩 九宫格挑战';
+                const baseTitle = currentPuzzleSize === 2 ? '四宫格挑战' : '九宫格挑战';
+                titleEl.textContent = `${petData.emoji} 🧩 ${baseTitle}`;
             }
             
             // Set reference image
@@ -9812,6 +9814,34 @@
             
             // Show the puzzle overlay
             document.getElementById('puzzleGameOverlay').classList.add('show');
+        }
+
+        // Load pet data for puzzle game
+        function loadPuzzlePetData() {
+            try {
+                const saved = localStorage.getItem('virtualPetData');
+                if (saved) {
+                    const petData = JSON.parse(saved);
+                    if (petData.adopted && petData.pet) {
+                        return {
+                            emoji: petData.pet.emoji,
+                            level: calculatePetLevel(petData.pet.totalXPSpent || 0)
+                        };
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load pet data:', error);
+            }
+            return { emoji: '🐾', level: 1 };
+        }
+
+        // Calculate pet level from XP spent
+        function calculatePetLevel(xpSpent) {
+            if (xpSpent >= 500) return 5;
+            if (xpSpent >= 300) return 4;
+            if (xpSpent >= 150) return 3;
+            if (xpSpent >= 50) return 2;
+            return 1;
         }
 
         // Shuffle puzzle ensuring it's solvable
@@ -9923,8 +9953,13 @@
             const isComplete = puzzleState.every((value, index) => value === index);
             
             if (isComplete) {
-                // Show completion message
-                document.getElementById('puzzleCompleteMessage').classList.add('show');
+                // Load pet data for celebration
+                const petData = loadPuzzlePetData();
+                
+                // Show completion message with pet celebration
+                const completeMsg = document.getElementById('puzzleCompleteMessage');
+                completeMsg.innerHTML = `${petData.emoji} 🎉 恭喜完成！<br><small style="font-size: 14px;">宠物等级 ${petData.level} 为你庆祝</small>`;
+                completeMsg.classList.add('show');
                 
                 // Play sound if available
                 if (typeof playFireworkSound === 'function') {
@@ -10081,14 +10116,12 @@
             fogOfWarEnabled = difficulty.fogEnabled;  // Enable fog for harder difficulty
             visibleRadius = difficulty.fogRadius;      // Set visible radius
             
-            // Update title to reflect difficulty
+            // Load pet data and update title
+            const petData = loadMazePetData();
             const titleEl = document.querySelector('.maze-title');
             if (titleEl) {
-                if (fogOfWarEnabled) {
-                    titleEl.textContent = '🏃 迷宫冒险（迷雾模式）';
-                } else {
-                    titleEl.textContent = '🏃 迷宫冒险（简单）';
-                }
+                const baseTitle = fogOfWarEnabled ? '迷宫冒险（迷雾模式）' : '迷宫冒险（简单）';
+                titleEl.textContent = `${petData.emoji} 🏃 ${baseTitle}`;
             }
             
             generateMaze();
@@ -10105,6 +10138,25 @@
             
             // Setup touch controls for mobile
             setupMazeTouchControls();
+        }
+
+        // Load pet data for maze game
+        function loadMazePetData() {
+            try {
+                const saved = localStorage.getItem('virtualPetData');
+                if (saved) {
+                    const petData = JSON.parse(saved);
+                    if (petData.adopted && petData.pet) {
+                        return {
+                            emoji: petData.pet.emoji,
+                            level: calculatePetLevel(petData.pet.totalXPSpent || 0)
+                        };
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load pet data:', error);
+            }
+            return { emoji: '🐾', level: 1 };
         }
 
         // Render the maze on canvas
@@ -10186,8 +10238,14 @@
                 ctx.globalAlpha = 1;
             }
             
-            // Draw player (always fully visible)
-            ctx.fillStyle = '#667eea';
+            // Draw player (always fully visible) - now using pet emoji
+            const petData = loadMazePetData();
+            
+            // Draw player background circle with glow
+            const glowColors = ['#667eea', '#7c8eec', '#9dabf0', '#c0c8f5', '#e0e4fa'];
+            ctx.fillStyle = glowColors[Math.min(petData.level - 1, 4)];
+            ctx.shadowColor = glowColors[Math.min(petData.level - 1, 4)];
+            ctx.shadowBlur = 10 + (petData.level * 2);
             ctx.beginPath();
             ctx.arc(
                 playerPos.x * CELL_SIZE + CELL_SIZE / 2,
@@ -10197,13 +10255,13 @@
                 Math.PI * 2
             );
             ctx.fill();
+            ctx.shadowBlur = 0;
             
-            // Player face
-            ctx.fillStyle = '#fff';
-            ctx.font = '14px Arial';
+            // Draw pet emoji as player
+            ctx.font = `${CELL_SIZE - 8}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('😊', playerPos.x * CELL_SIZE + CELL_SIZE / 2, playerPos.y * CELL_SIZE + CELL_SIZE / 2);
+            ctx.fillText(petData.emoji, playerPos.x * CELL_SIZE + CELL_SIZE / 2, playerPos.y * CELL_SIZE + CELL_SIZE / 2);
             
             // Draw fog gradient overlay for smooth edges (only in fog mode)
             if (fogOfWarEnabled) {
@@ -10320,8 +10378,13 @@
 
         // Check if maze is complete
         function checkMazeComplete() {
-            // Show completion message
-            document.getElementById('mazeCompleteMessage').classList.add('show');
+            // Load pet data for celebration
+            const petData = loadMazePetData();
+            
+            // Show completion message with pet celebration
+            const completeMsg = document.getElementById('mazeCompleteMessage');
+            completeMsg.innerHTML = `${petData.emoji} 🎉 成功脱出！<br><small style="font-size: 14px;">宠物等级 ${petData.level} 为你庆祝</small>`;
+            completeMsg.classList.add('show');
             
             // Play sound if available
             if (typeof playFireworkSound === 'function') {

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物游戏整合测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .game-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .game-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .game-status {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .status-done {
+            background: #28a745;
+        }
+        .status-original {
+            background: #17a2b8;
+        }
+        .feature-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        .feature-list h2 {
+            margin-top: 0;
+        }
+        .feature-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .button-container {
+            text-align: center;
+        }
+        .test-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .test-button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>🐾 宠物游戏整合完成 🎮</h1>
+    
+    <div class="feature-list">
+        <h2>新增功能特性</h2>
+        <ul>
+            <li><strong>宠物角色展示</strong>：所有游戏中玩家角色改为显示宠物表情</li>
+            <li><strong>宠物等级提示</strong>：游戏开始界面显示宠物等级和能力加成</li>
+            <li><strong>等级增益系统</strong>：宠物等级越高，游戏体验越好（速度、生命、无敌时间等）</li>
+            <li><strong>庆祝动画</strong>：游戏完成时显示宠物庆祝，展示宠物等级</li>
+            <li><strong>视觉光晕效果</strong>：根据宠物等级显示不同颜色的光晕特效</li>
+        </ul>
+    </div>
+
+    <h2 style="text-align: center;">游戏列表</h2>
+    <div class="game-grid">
+        <div class="game-card">
+            <div class="game-icon">🐍</div>
+            <div class="game-name">贪食蛇</div>
+            <div class="game-status status-original">原有集成</div>
+        </div>
+        <div class="game-card">
+            <div class="game-icon">🐝</div>
+            <div class="game-name">小蜜蜂</div>
+            <div class="game-status status-done">✓ 新增集成</div>
+        </div>
+        <div class="game-card">
+            <div class="game-icon">🧩</div>
+            <div class="game-name">拼图游戏</div>
+            <div class="game-status status-done">✓ 新增集成</div>
+        </div>
+        <div class="game-card">
+            <div class="game-icon">🏃</div>
+            <div class="game-name">迷宫冒险</div>
+            <div class="game-status status-done">✓ 新增集成</div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a href="space-invaders.html" class="test-button">🐝 测试小蜜蜂</a>
+        <a href="snake-game.html" class="test-button">🐍 测试贪食蛇</a>
+        <a href="museum-checkin.html" class="test-button">🏛️ 测试拼图/迷宫</a>
+    </div>
+    
+    <div class="feature-list" style="margin-top: 40px;">
+        <h2>技术实现</h2>
+        <ul>
+            <li>从localStorage加载虚拟宠物数据（表情、等级）</li>
+            <li>根据totalXPSpent计算宠物等级（1-5级）</li>
+            <li>在游戏中用宠物emoji替换原有角色显示</li>
+            <li>基于等级提供不同的游戏增益和视觉效果</li>
+            <li>完成游戏时展示宠物庆祝动画</li>
+        </ul>
+    </div>
+</body>
+</html>

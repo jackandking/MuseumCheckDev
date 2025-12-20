@@ -86,12 +86,21 @@ let touchFire = false;
 // Animation frame ID
 let animationId = null;
 
+// Pet data (loaded from localStorage)
+let petData = null;
+let petLevel = 1;
+let petEmoji = '🐾';
+let petType = null;
+
 /**
  * Initialize the game
  */
 function initGame() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
+    
+    // Load pet data
+    loadPetData();
     
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -106,8 +115,93 @@ function initGame() {
     // Initialize stars background
     initStars();
     
+    // Update start screen with pet info
+    updateStartScreen();
+    
     // Start render loop (for start screen)
     renderLoop();
+}
+
+/**
+ * Load pet data from localStorage
+ */
+function loadPetData() {
+    try {
+        const saved = localStorage.getItem('virtualPetData');
+        if (saved) {
+            petData = JSON.parse(saved);
+            if (petData.adopted && petData.pet) {
+                const pet = petData.pet;
+                petType = pet.type;
+                petEmoji = pet.emoji;
+                
+                // Calculate pet level based on XP spent
+                const xpSpent = pet.totalXPSpent || 0;
+                if (xpSpent >= 500) petLevel = 5;
+                else if (xpSpent >= 300) petLevel = 4;
+                else if (xpSpent >= 150) petLevel = 3;
+                else if (xpSpent >= 50) petLevel = 2;
+                else petLevel = 1;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load pet data:', error);
+    }
+}
+
+/**
+ * Update start screen with pet information
+ */
+function updateStartScreen() {
+    const startScreen = document.getElementById('startScreen');
+    if (!startScreen) return;
+    
+    const levelNames = ['新手', '见习', '熟练', '专家', '大师'];
+    const levelName = levelNames[petLevel - 1] || '新手';
+    
+    let levelFeatures = '';
+    switch (petLevel) {
+        case 1:
+        case 2:
+            levelFeatures = '基础游戏体验';
+            break;
+        case 3:
+            levelFeatures = '子弹增强 + 音效';
+            break;
+        case 4:
+            levelFeatures = '移速加成 + 更多生命';
+            break;
+        case 5:
+            levelFeatures = '无敌时间延长 + 奖励翻倍 🎆';
+            break;
+    }
+    
+    // Add pet info to start screen if not already present
+    let petInfo = startScreen.querySelector('.pet-info');
+    if (!petInfo) {
+        petInfo = document.createElement('div');
+        petInfo.className = 'pet-info';
+        petInfo.style.cssText = 'margin: 20px 0; text-align: center;';
+        
+        const petDisplay = document.createElement('div');
+        petDisplay.style.cssText = 'font-size: 64px; margin-bottom: 10px;';
+        petDisplay.textContent = petEmoji;
+        
+        const levelBadge = document.createElement('div');
+        levelBadge.style.cssText = 'background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 8px 20px; border-radius: 20px; font-size: 16px; font-weight: bold; display: inline-block; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);';
+        levelBadge.innerHTML = `宠物等级 ${petLevel} - ${levelName}<br><small style="font-size: 12px;">${levelFeatures}</small>`;
+        
+        petInfo.appendChild(petDisplay);
+        petInfo.appendChild(levelBadge);
+        
+        // Insert before the start button
+        const startBtn = startScreen.querySelector('.start-btn');
+        startScreen.insertBefore(petInfo, startBtn);
+    } else {
+        // Update existing pet info
+        petInfo.querySelector('div:first-child').textContent = petEmoji;
+        petInfo.querySelector('div:last-child').innerHTML = `宠物等级 ${petLevel} - ${levelName}<br><small style="font-size: 12px;">${levelFeatures}</small>`;
+    }
 }
 
 /**
@@ -253,7 +347,8 @@ function startGame() {
     
     // Reset game state
     score = 0;
-    lives = GAME_CONFIG.PLAYER_LIVES;
+    // Pet level bonus: extra life at level 4+
+    lives = GAME_CONFIG.PLAYER_LIVES + (petLevel >= 4 ? 1 : 0);
     level = 1;
     enemiesKilled = 0;
     maxLevel = 1;
@@ -261,12 +356,14 @@ function startGame() {
     enemyBullets = [];
     explosions = [];
     
-    // Initialize player
+    // Initialize player with pet bonuses
+    const speedBonus = petLevel >= 3 ? 2 : 0;
     player = {
         x: canvas.width / 2 - GAME_CONFIG.PLAYER_WIDTH / 2,
         y: canvas.height - GAME_CONFIG.PLAYER_HEIGHT - 20,
         width: GAME_CONFIG.PLAYER_WIDTH,
         height: GAME_CONFIG.PLAYER_HEIGHT,
+        speed: GAME_CONFIG.PLAYER_SPEED + speedBonus,
         invincible: false,
         invincibleTime: 0
     };
@@ -415,11 +512,14 @@ function update() {
  * Update player position
  */
 function updatePlayer() {
+    // Get player speed (includes pet bonus)
+    const speed = player.speed || GAME_CONFIG.PLAYER_SPEED;
+    
     if (keys.left || touchLeft) {
-        player.x -= GAME_CONFIG.PLAYER_SPEED;
+        player.x -= speed;
     }
     if (keys.right || touchRight) {
-        player.x += GAME_CONFIG.PLAYER_SPEED;
+        player.x += speed;
     }
     
     // Keep player in bounds
@@ -587,8 +687,11 @@ function playerHit() {
         gameOver();
     } else {
         // Make player invincible for a short time
+        // Pet level 5 gets extended invincibility
+        const baseInvincibleTime = 120; // frames
+        const bonusTime = petLevel >= 5 ? 60 : 0;
         player.invincible = true;
-        player.invincibleTime = 120; // frames
+        player.invincibleTime = baseInvincibleTime + bonusTime;
     }
 }
 
@@ -692,7 +795,7 @@ function drawStars() {
 }
 
 /**
- * Draw the player spaceship
+ * Draw the player spaceship (now using pet emoji)
  */
 function drawPlayer() {
     if (!player) return;
@@ -704,33 +807,31 @@ function drawPlayer() {
     
     ctx.save();
     
-    // Glow effect
-    ctx.shadowColor = GAME_CONFIG.COLORS.PLAYER_GLOW;
-    ctx.shadowBlur = 20;
+    // Glow effect based on pet level
+    const glowColors = ['rgba(0, 255, 0, 0.3)', 'rgba(100, 255, 100, 0.4)', 
+                        'rgba(255, 215, 0, 0.5)', 'rgba(255, 100, 255, 0.6)', 
+                        'rgba(255, 0, 255, 0.8)'];
+    ctx.shadowColor = glowColors[Math.min(petLevel - 1, 4)];
+    ctx.shadowBlur = 20 + (petLevel * 5);
     
-    ctx.fillStyle = GAME_CONFIG.COLORS.PLAYER;
-    
-    // Draw spaceship shape
     const x = player.x;
     const y = player.y;
     const w = player.width;
     const h = player.height;
     
-    ctx.beginPath();
-    // Main body
-    ctx.moveTo(x + w / 2, y); // Top center (nose)
-    ctx.lineTo(x + w, y + h); // Bottom right
-    ctx.lineTo(x + w * 0.7, y + h * 0.7); // Right wing inner
-    ctx.lineTo(x + w * 0.3, y + h * 0.7); // Left wing inner
-    ctx.lineTo(x, y + h); // Bottom left
-    ctx.closePath();
-    ctx.fill();
+    // Draw pet emoji as the player character
+    ctx.font = `${Math.floor(h * 1.2)}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(petEmoji, x + w / 2, y + h / 2);
     
-    // Cockpit
-    ctx.fillStyle = '#00CCFF';
-    ctx.beginPath();
-    ctx.arc(x + w / 2, y + h * 0.4, w * 0.15, 0, Math.PI * 2);
-    ctx.fill();
+    // Add level indicator for high-level pets
+    if (petLevel >= 4) {
+        ctx.shadowBlur = 0;
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#FFD700';
+        ctx.fillText(`Lv.${petLevel}`, x + w / 2, y + h + 10);
+    }
     
     ctx.restore();
 }
