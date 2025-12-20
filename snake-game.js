@@ -7,9 +7,9 @@
 // Game constants
 const GAME_CONFIG = {
     GRID_SIZE: 20,
-    INITIAL_SPEED: 150, // ms per frame
-    SPEED_INCREMENT: 5, // Speed increases as snake grows
-    MIN_SPEED: 80,
+    INITIAL_SPEED: 200, // ms per frame - increased from 150 to 200 for slower, easier start
+    SPEED_INCREMENT: 3, // Speed increases as snake grows - reduced from 5 to 3 for gentler difficulty curve
+    MIN_SPEED: 100, // Increased from 80 to 100 to prevent game from becoming too fast
     
     // Scoring
     BASE_FOOD_SCORE: 10,

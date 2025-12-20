@@ -12215,7 +12215,7 @@
         // Game constants
         const PA_GRAVITY = 0.8;
         const PA_JUMP_FORCE = -15;
-        let PA_GROUND_Y = 320; // Will be adjusted based on canvas size
+        let PA_GROUND_Y = 420; // Will be adjusted based on canvas size - increased for better visibility
         const PA_PLAYER_SIZE = 40;
         const PA_OBSTACLE_WIDTH = 30;
         const PA_OBSTACLE_MIN_HEIGHT = 40;
@@ -12228,7 +12228,7 @@
         const PA_BASE_SPEED = 3;
         const PA_SPEED_INCREASE_RATE = 0.3;
         const PA_DEFAULT_CANVAS_WIDTH = 600;
-        const PA_DEFAULT_CANVAS_HEIGHT = 400;
+        const PA_DEFAULT_CANVAS_HEIGHT = 500; // Increased from 400 to 500 for better jump visibility
         const PA_CANVAS_ASPECT_RATIO = PA_DEFAULT_CANVAS_HEIGHT / PA_DEFAULT_CANVAS_WIDTH; // Height / Width
         
         function initPetAdventureGame(taskIndex = 0) {
@@ -12252,13 +12252,13 @@
                 paCanvas.width = maxWidth;
                 paCanvas.height = Math.floor(maxWidth * PA_CANVAS_ASPECT_RATIO);
                 
-                // Adjust ground position based on canvas height
-                PA_GROUND_Y = paCanvas.height - 80; // 80px from bottom
+                // Adjust ground position to ensure full jump visibility (leaving more space at top)
+                PA_GROUND_Y = paCanvas.height - 80; // 80px from bottom provides proper viewport
             } else {
-                // Fallback to default size
+                // Fallback to default size with increased canvas height
                 paCanvas.width = PA_DEFAULT_CANVAS_WIDTH;
                 paCanvas.height = PA_DEFAULT_CANVAS_HEIGHT;
-                PA_GROUND_Y = 320;
+                PA_GROUND_Y = 420; // Increased from 320 to match new canvas height
             }
             
             // Initialize game state
