@@ -7543,8 +7543,12 @@
                         const date = new Date().toLocaleDateString('zh-CN');
                         ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
                         
-                        // Update preview
-                        preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                        // Update preview and SAVE TO GALLERY
+                        const posterDataURL = canvas.toDataURL('image/png');
+                        preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
+                        
+                        // CRITICAL FIX: Save poster to localStorage for gallery view (was missing in async callback)
+                        savePosterToGallery(posterDataURL);
                     };
                     
                     museumImg.onerror = function(){
@@ -7555,8 +7559,12 @@
                         ctx.fillText('期待您拍摄更多精彩瞬间！', 40, currentY);
                         currentY += 40;
                         
-                        // Update preview even if image fails
-                        preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                        // Update preview and SAVE TO GALLERY
+                        const posterDataURL = canvas.toDataURL('image/png');
+                        preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
+                        
+                        // CRITICAL FIX: Save poster to localStorage for gallery view (was missing in error callback)
+                        savePosterToGallery(posterDataURL);
                     };
                     
                     museumImg.src = currentMuseum.image;
@@ -7655,7 +7663,16 @@
                 
                 // Save to localStorage
                 localStorage.setItem('museumPosters', JSON.stringify(postersData));
-                console.log('Poster saved to gallery for:', museumName);
+                
+                // Debug logging
+                console.log('✅ Poster saved to gallery for:', museumName);
+                console.log('📊 Total posters in gallery:', Object.keys(postersData).length);
+                console.log('🎨 Poster metadata:', {
+                    museumId: museumId,
+                    museumName: museumName,
+                    ageGroup: ageGroup,
+                    timestamp: new Date().toLocaleString('zh-CN')
+                });
             } catch (error) {
                 console.error('Error saving poster to gallery:', error);
                 // If localStorage quota exceeded, try to remove old posters
@@ -7673,6 +7690,7 @@
                     };
                     try {
                         localStorage.setItem('museumPosters', JSON.stringify(postersData));
+                        console.log('✅ Poster saved after clearing old data');
                     } catch (e) {
                         console.error('Still failed after clearing:', e);
                     }

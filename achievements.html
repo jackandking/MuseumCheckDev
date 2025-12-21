@@ -44,6 +44,11 @@
             gap: 15px;
         }
 
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+
         .back-button {
             width: 44px;
             height: 44px;
@@ -61,6 +66,31 @@
 
         .back-button:hover {
             transform: scale(1.05);
+        }
+
+        .refresh-button {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .refresh-button:hover {
+            transform: scale(1.05);
+            animation: spin 0.6s linear;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg) scale(1.05); }
+            to { transform: rotate(360deg) scale(1.05); }
         }
 
         .header h1 {
@@ -328,6 +358,9 @@
                 <button class="back-button" onclick="goBack()">←</button>
                 <h1>🏆 我的成就</h1>
             </div>
+            <div class="header-right">
+                <button class="refresh-button" onclick="refreshPosters()" title="刷新加载成就海报">🔄</button>
+            </div>
         </div>
 
         <!-- Stats Cards -->
@@ -386,11 +419,41 @@
             renderPosters();
         }
 
+        // Refresh posters from localStorage
+        function refreshPosters() {
+            console.log('🔄 Refreshing posters...');
+            
+            // Add rotation animation
+            const btn = event.target.closest('.refresh-button');
+            if (btn) {
+                btn.style.animation = 'spin 0.6s linear';
+                setTimeout(() => {
+                    btn.style.animation = '';
+                }, 600);
+            }
+            
+            // Reload and re-render
+            loadPosters();
+            renderPosters();
+            
+            console.log('✅ Refresh complete');
+        }
+
         // Load posters from localStorage
         function loadPosters() {
             try {
                 const data = localStorage.getItem('museumPosters');
                 postersData = data ? JSON.parse(data) : {};
+                
+                // Debug logging for troubleshooting
+                console.log('✅ Loaded posters from localStorage:', Object.keys(postersData).length, 'posters');
+                console.log('Poster keys:', Object.keys(postersData));
+                
+                // If no posters found, log available storage keys for debugging
+                if (Object.keys(postersData).length === 0) {
+                    console.warn('⚠️ No posters found in localStorage');
+                    console.log('Available localStorage keys:', Object.keys(localStorage));
+                }
             } catch (error) {
                 console.error('Error loading posters:', error);
                 postersData = {};
