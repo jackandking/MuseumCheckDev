@@ -977,9 +977,9 @@ header h1 {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* Changed from space-between to center buttons when progress-text is hidden */
     gap: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Reduced from 15px since progress bar is hidden */
 }
 
 .progress-text {
@@ -3149,10 +3149,10 @@ header h1 {
     }
     
     .progress-display {
-        margin-bottom: 5px;
+        margin-bottom: 0; /* Reduced from 5px since progress bar is hidden */
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center; /* Changed to center for consistency */
         gap: 8px;
         flex-wrap: wrap;
     }
