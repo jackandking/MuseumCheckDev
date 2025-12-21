@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的成就 - 博物馆打卡</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="查看您在博物馆打卡应用中获得的所有成就海报">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-button {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: scale(1.05);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .posters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .poster-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .poster-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .poster-thumbnail {
+            width: 100%;
+            aspect-ratio: 9/16;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .poster-info {
+            padding: 15px;
+        }
+
+        .poster-museum-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .poster-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 40px auto;
+            max-width: 500px;
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .empty-state .start-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .empty-state .start-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Full-size viewer modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-info {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .modal-info h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal-info p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                min-width: 150px;
+                padding: 15px;
+            }
+
+            .stat-card .stat-icon {
+                font-size: 28px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 24px;
+            }
+
+            .posters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .posters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="back-button" onclick="goBack()">←</button>
+                <h1>🏆 我的成就</h1>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-value" id="posterCount">0</div>
+                <div class="stat-label">成就海报</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-value" id="museumCount">0</div>
+                <div class="stat-label">参观博物馆</div>
+            </div>
+        </div>
+
+        <!-- Posters Grid -->
+        <div class="posters-grid" id="postersGrid">
+            <!-- Posters will be loaded here dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">🎨</div>
+            <h2>还没有成就海报</h2>
+            <p>完成博物馆的探索任务后，系统会自动生成精美的成就海报</p>
+            <p>快去探索博物馆吧！</p>
+            <a href="index.html" class="start-button">开始探索</a>
+        </div>
+    </div>
+
+    <!-- Full-size Viewer Modal -->
+    <div class="modal" id="viewerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeViewer()">×</button>
+            <img class="modal-image" id="viewerImage" src="" alt="海报">
+            <div class="modal-info">
+                <h3 id="viewerTitle">博物馆名称</h3>
+                <p id="viewerDate">生成日期</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button" onclick="downloadPoster()">📱 下载海报</button>
+                <button class="modal-button" onclick="sharePoster()">📤 分享海报</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPoster = null;
+        let postersData = {};
+
+        // Initialize page
+        function init() {
+            loadPosters();
+            renderPosters();
+        }
+
+        // Load posters from localStorage
+        function loadPosters() {
+            try {
+                const data = localStorage.getItem('museumPosters');
+                postersData = data ? JSON.parse(data) : {};
+            } catch (error) {
+                console.error('Error loading posters:', error);
+                postersData = {};
+            }
+        }
+
+        // Render posters grid
+        function renderPosters() {
+            const grid = document.getElementById('postersGrid');
+            const emptyState = document.getElementById('emptyState');
+            const posterEntries = Object.entries(postersData);
+
+            // Update stats
+            document.getElementById('posterCount').textContent = posterEntries.length;
+            document.getElementById('museumCount').textContent = posterEntries.length;
+
+            // Show empty state or grid
+            if (posterEntries.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            // Clear existing content
+            grid.innerHTML = '';
+
+            // Sort by timestamp (newest first)
+            posterEntries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+            // Render each poster
+            posterEntries.forEach(([museumId, posterInfo]) => {
+                const posterItem = document.createElement('div');
+                posterItem.className = 'poster-item';
+                posterItem.onclick = () => openViewer(posterInfo);
+
+                posterItem.innerHTML = `
+                    <img src="${posterInfo.dataURL}" alt="${posterInfo.museumName}" class="poster-thumbnail">
+                    <div class="poster-info">
+                        <div class="poster-museum-name">${posterInfo.museumName}</div>
+                        <div class="poster-date">${posterInfo.date}</div>
+                    </div>
+                `;
+
+                grid.appendChild(posterItem);
+            });
+        }
+
+        // Open full-size viewer
+        function openViewer(posterInfo) {
+            currentPoster = posterInfo;
+            
+            const modal = document.getElementById('viewerModal');
+            const image = document.getElementById('viewerImage');
+            const title = document.getElementById('viewerTitle');
+            const date = document.getElementById('viewerDate');
+
+            image.src = posterInfo.dataURL;
+            title.textContent = posterInfo.museumName;
+            date.textContent = `生成于 ${posterInfo.date}`;
+
+            modal.classList.add('show');
+
+            // Track event (if analytics available)
+            if (typeof gtag === 'function') {
+                gtag('event', 'achievement_poster_viewed', {
+                    museum_id: posterInfo.museumId,
+                    museum_name: posterInfo.museumName
+                });
+            }
+        }
+
+        // Close viewer
+        function closeViewer() {
+            const modal = document.getElementById('viewerModal');
+            modal.classList.remove('show');
+            currentPoster = null;
+        }
+
+        // Download poster
+        function downloadPoster() {
+            if (!currentPoster) return;
+
+            const link = document.createElement('a');
+            link.download = `${currentPoster.museumName}_打卡海报_${currentPoster.date.replace(/\//g, '-')}.png`;
+            link.href = currentPoster.dataURL;
+            link.click();
+
+            // Track event
+            if (typeof gtag === 'function') {
+                gtag('event', 'achievement_poster_downloaded', {
+                    museum_id: currentPoster.museumId,
+                    museum_name: currentPoster.museumName
+                });
+            }
+        }
+
+        // Share poster
+        async function sharePoster() {
+            if (!currentPoster) return;
+
+            try {
+                // Convert data URL to blob
+                const response = await fetch(currentPoster.dataURL);
+                const blob = await response.blob();
+                
+                // Check if Web Share API is available
+                if (navigator.share && navigator.canShare) {
+                    const files = [new File([blob], `${currentPoster.museumName}_打卡海报.png`, { type: 'image/png' })];
+                    
+                    if (navigator.canShare({ files })) {
+                        await navigator.share({
+                            files: files,
+                            title: `${currentPoster.museumName}打卡海报`,
+                            text: `我完成了${currentPoster.museumName}的探索任务！`
+                        });
+                        
+                        // Track event
+                        if (typeof gtag === 'function') {
+                            gtag('event', 'achievement_poster_shared', {
+                                museum_id: currentPoster.museumId,
+                                museum_name: currentPoster.museumName,
+                                method: 'native_share'
+                            });
+                        }
+                        return;
+                    }
+                }
+                
+                // Fallback: Copy image or show message
+                alert('请长按图片保存到相册，然后分享到社交媒体');
+                
+            } catch (error) {
+                console.error('Share failed:', error);
+                alert('分享功能暂不可用，请截图分享');
+            }
+        }
+
+        // Go back to main page
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('viewerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'viewerModal') {
+                closeViewer();
+            }
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+
+    <!-- Baidu Analytics -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</body>
+</html>

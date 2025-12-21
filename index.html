@@ -396,86 +396,8 @@
         </div>
     </div>
 
-    <!-- Achievement Modal -->
-    <div id="achievementModal" class="modal achievement-modal hidden">
-        <div class="modal-content achievement-content">
-            <span class="close">&times;</span>
-            <h2>🎖️ 我的成就</h2>
-            
-            <!-- Gamification Stats Cards -->
-            <div class="gamification-stats">
-                <div class="stat-card xp">
-                    <div class="stat-card-icon">⭐</div>
-                    <div class="stat-card-value" id="gamificationXP">0</div>
-                    <div class="stat-card-label">总经验值</div>
-                </div>
-                <div class="stat-card level">
-                    <div class="stat-card-icon">🎖️</div>
-                    <div class="stat-card-value" id="gamificationLevel">1</div>
-                    <div class="stat-card-label">当前等级</div>
-                </div>
-                <div class="stat-card streak">
-                    <div class="stat-card-icon">🔥</div>
-                    <div class="stat-card-value" id="gamificationStreak">0</div>
-                    <div class="stat-card-label">连续打卡</div>
-                </div>
-                <div class="stat-card achievements">
-                    <div class="stat-card-icon">🏆</div>
-                    <div class="stat-card-value" id="totalAchievements">0</div>
-                    <div class="stat-card-label">已解锁成就</div>
-                </div>
-            </div>
-            
-            <!-- XP Progress Bar -->
-            <div class="xp-level-display">
-                <div class="xp-level-info">
-                    <div class="xp-level-label">距离下一等级</div>
-                    <div id="xpProgressText" class="xp-progress-text">0 / 0 XP</div>
-                </div>
-                <div class="xp-progress-bar">
-                    <div class="xp-progress-fill" id="xpProgressFill" style="width: 0%"></div>
-                </div>
-            </div>
-            
-            <div class="achievement-summary">
-                <div class="achievement-overview">
-                    <div class="achievement-stat">
-                        <span class="stat-number" id="visitProgress">0</span>
-                        <span class="stat-label">参观进度</span>
-                    </div>
-                </div>
-                <button id="generateAchievementPoster" class="achievement-poster-button">
-                    🎨 生成成就海报
-                </button>
-            </div>
-            
-            <!-- Achievement Hints Section -->
-            <div id="achievementHints" class="achievement-hints" style="display: none;">
-                <div class="achievement-hints-title">💡 即将解锁</div>
-                <div id="achievementHintsList"></div>
-            </div>
-            
-            <!-- Museum Posters Gallery Section -->
-            <div id="museumPostersGallery" class="museum-posters-gallery" style="display: none;">
-                <h3 class="gallery-title">🎨 博物馆打卡海报</h3>
-                <div id="posterGalleryGrid" class="poster-gallery-grid">
-                    <!-- Museum posters will be populated by JavaScript -->
-                </div>
-            </div>
-            
-            <div id="achievementList" class="achievement-list">
-                <!-- Achievements will be populated by JavaScript -->
-            </div>
-            <div id="achievementPosterSection" class="achievement-poster-section" style="display: none;">
-                <canvas id="achievementPosterCanvas" style="display: none; max-width: 100%;"></canvas>
-                <div id="achievementPosterPreview" class="poster-preview"></div>
-                <div class="poster-actions">
-                    <button id="downloadAchievementPoster" class="poster-button" style="display: none;">📱 下载成就海报</button>
-                    <button id="shareAchievementPoster" class="poster-button" style="display: none;">📤 分享成就海报</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Achievement Modal - REMOVED, now using separate achievements.html page -->
+    <!-- Old achievement modal code removed - achievement button now navigates to achievements.html -->
 
     <!-- Full-size Poster Viewer Modal -->
     <div id="posterViewerModal" class="modal poster-viewer-modal hidden">

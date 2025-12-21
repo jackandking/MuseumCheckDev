@@ -5268,9 +5268,9 @@ class MuseumCheckApp {
             }
         });
         
-        // Achievement button
+        // Achievement button - Navigate to new achievements page
         document.getElementById('achievementButton').addEventListener('click', () => {
-            this.showAchievementModal();
+            window.location.href = 'achievements.html';
         });
 
         // Assessment history button
@@ -5298,10 +5298,12 @@ class MuseumCheckApp {
             this.showSettingsModal();
         });
 
-        // Achievement modal close
+        // Achievement modal close - DISABLED (now using separate achievements.html page)
+        /* Commented out - achievement modal removed
         document.querySelector('#achievementModal .close').addEventListener('click', () => {
             this.closeAchievementModal();
         });
+        */
 
         // Assessment history modal close
         document.querySelector('#assessmentHistoryModal .close').addEventListener('click', () => {
@@ -5338,11 +5340,14 @@ class MuseumCheckApp {
         }
 
         // Click outside achievement modal to close
+        // Achievement modal click outside - DISABLED (now using separate achievements.html page)
+        /* Commented out - achievement modal removed
         document.getElementById('achievementModal').addEventListener('click', (e) => {
             if (e.target.id === 'achievementModal') {
                 this.closeAchievementModal();
             }
         });
+        */
 
         // Click outside assessment history modal to close
         document.getElementById('assessmentHistoryModal').addEventListener('click', (e) => {
@@ -5764,25 +5769,32 @@ class MuseumCheckApp {
         this.initializeTreasureCheckinConfig();
 
         // Achievement poster generation button
+        // Generate achievement poster button - DISABLED (now using separate achievements.html page)
+        /* Commented out - achievement modal removed
         document.getElementById('generateAchievementPoster').addEventListener('click', () => {
             this.generateAchievementPoster();
         });
+        */
 
-        // Achievement poster download button
+        // Achievement poster download button - DISABLED (now using separate achievements.html page)
+        /* Commented out - achievement modal removed
         const downloadAchievementBtn = document.getElementById('downloadAchievementPoster');
         if (downloadAchievementBtn) {
             downloadAchievementBtn.addEventListener('click', () => {
                 this.downloadAchievementPoster();
             });
         }
+        */
 
-        // Achievement poster share button
+        // Achievement poster share button - DISABLED (now using separate achievements.html page)
+        /* Commented out - achievement modal removed
         const shareAchievementBtn = document.getElementById('shareAchievementPoster');
         if (shareAchievementBtn) {
             shareAchievementBtn.addEventListener('click', () => {
                 this.shareAchievementPoster();
             });
         }
+        */
 
         // Fireworks button - opens fireworks wall page showing all museum achievements
         document.getElementById('fireworksButton').addEventListener('click', () => {
