@@ -2369,7 +2369,14 @@ class AnalyticsManager {
     getUserId() {
         let userId = localStorage.getItem('user_id');
         if (!userId) {
-            userId = 'user_' + Date.now().toString(36) + Math.random().toString(36).substring(2);
+            // Generate UUID v4 using crypto API (RFC 4122 compliant)
+            // Fallback to timestamp-based ID for older browsers
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                userId = crypto.randomUUID();
+            } else {
+                // Use consistent format across all managers
+                userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+            }
             localStorage.setItem('user_id', userId);
         }
         return userId;
@@ -3804,7 +3811,14 @@ class LeaderboardManager {
     getUserId() {
         let userId = localStorage.getItem('user_id');
         if (!userId) {
-            userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            // Generate UUID v4 using crypto API (RFC 4122 compliant)
+            // Fallback to timestamp-based ID for older browsers
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                userId = crypto.randomUUID();
+            } else {
+                // Use consistent format across all managers
+                userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+            }
             localStorage.setItem('user_id', userId);
         }
         return userId;
@@ -3994,49 +4008,6 @@ class LeaderboardManager {
     }
 
     /**
-     * Check if user should be prompted to update their score
-     * Now checks both visit count AND XP changes to ensure leaderboard is updated for all score changes
-     */
-    shouldSubmitScore() {
-        const lastSubmittedCount = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
-        const currentCount = this.app.visitedMuseums.length;
-        
-        // Check if visit count changed
-        if (currentCount !== lastSubmittedCount) {
-            return true;
-        }
-        
-        // Also check if XP changed (for XP leaderboard tab)
-        const lastSubmittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
-        let currentXP = 0;
-        if (this.app.achievementGamification) {
-            const xpData = this.app.achievementGamification.getXPInfo();
-            currentXP = xpData.total || 0;
-        }
-        
-        if (currentXP !== lastSubmittedXP) {
-            return true;
-        }
-        
-        // Also check if pet stats changed (for Pet leaderboard tab)
-        const lastSubmittedPetPower = parseInt(localStorage.getItem('lastSubmittedPetPower') || '0', 10);
-        let currentPetPower = 0;
-        try {
-            if (typeof VirtualPet !== 'undefined') {
-                const petData = JSON.parse(localStorage.getItem('virtualPetData') || '{}');
-                if (petData.adopted && petData.pet && !petData.pet.isDead) {
-                    const pet = petData.pet;
-                    currentPetPower = (pet.attack || 10) + (pet.defense || 10);
-                }
-            }
-        } catch (e) {
-            // Ignore pet data parsing errors
-        }
-        
-        return currentPetPower !== lastSubmittedPetPower;
-    }
-
-    /**
      * Check if leaderboard should be force refreshed due to recent score submission
      */
     shouldForceRefresh() {
@@ -4048,15 +4019,11 @@ class LeaderboardManager {
     }
 
     /**
-     * Auto-submit score if count changed and return rank change information
+     * Manual submit score and return rank change information
      * Now includes XP and pet stats for multiple ranking types
      * @returns {Object} Result with rank change info: { success, oldRank, newRank, rankChange, totalUsers }
      */
-    async autoSubmitScore() {
-        if (!this.shouldSubmitScore()) {
-            return { success: false, reason: 'no_change' };
-        }
-        
+    async manualSubmitScore() {
         const nickname = this.app.childNickname || '小朋友';
         const visitedCount = this.app.visitedMuseums.length;
         const userId = this.getUserId();
@@ -4115,7 +4082,11 @@ class LeaderboardManager {
         if (petStats && petStats.totalPower) {
             localStorage.setItem('lastSubmittedPetPower', petStats.totalPower.toString());
         }
-        console.log('Auto-submitted score to leaderboard with XP:', xp, 'petStats:', petStats);
+        
+        // Update last submission timestamp for cache refresh logic
+        this.lastScoreSubmitTime = Date.now();
+        
+        console.log('Manually submitted score to leaderboard with XP:', xp, 'petStats:', petStats);
         
         // Get new rank after submitting
         let newRank = null;
@@ -4140,6 +4111,51 @@ class LeaderboardManager {
             rankChange,
             totalUsers,
             isNewEntry: !oldRank && newRank
+        };
+    }
+    
+    /**
+     * Get comparison between local data and last submitted data
+     * @returns {Object} Comparison data with hasChanges flag
+     */
+    getSubmissionStatus() {
+        const localVisits = this.app.visitedMuseums.length;
+        const submittedVisits = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
+        
+        let localXP = 0;
+        if (this.app.achievementGamification) {
+            const xpData = this.app.achievementGamification.getXPInfo();
+            localXP = xpData.total || 0;
+        }
+        const submittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
+        
+        let localPetPower = 0;
+        try {
+            if (typeof VirtualPet !== 'undefined') {
+                const petData = JSON.parse(localStorage.getItem('virtualPetData') || '{}');
+                if (petData.adopted && petData.pet && !petData.pet.isDead) {
+                    const pet = petData.pet;
+                    localPetPower = (pet.attack || 10) + (pet.defense || 10);
+                }
+            }
+        } catch (e) {
+            // Ignore pet data parsing errors
+        }
+        const submittedPetPower = parseInt(localStorage.getItem('lastSubmittedPetPower') || '0', 10);
+        
+        return {
+            local: {
+                visits: localVisits,
+                xp: localXP,
+                petPower: localPetPower
+            },
+            submitted: {
+                visits: submittedVisits,
+                xp: submittedXP,
+                petPower: submittedPetPower
+            },
+            hasChanges: localVisits !== submittedVisits || localXP !== submittedXP || localPetPower !== submittedPetPower,
+            isFirstSubmit: submittedVisits === 0 && submittedXP === 0 && submittedPetPower === 0
         };
     }
     
@@ -7887,30 +7903,12 @@ class MuseumCheckApp {
         this.filterMuseums();
         this.renderMuseums();
         
-        // Auto-submit score to leaderboard (same as manual check-in) and show rank change
-        if (this.leaderboardManager) {
-            this.leaderboardManager.autoSubmitScore()
-                .then(result => {
-                    // Show rank change notification after leaderboard update
-                    this.showAutoCheckinNotification(museum, result);
-                })
-                .catch(err => {
-                    console.warn('Failed to auto-submit leaderboard score:', err);
-                    // Still show basic notification on error
-                    UIManager.showNotification(
-                        `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`,
-                        4000,
-                        'success'
-                    );
-                });
-        } else {
-            // No leaderboard manager, show basic notification
-            UIManager.showNotification(
-                `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`,
-                4000,
-                'success'
-            );
-        }
+        // Show completion notification
+        UIManager.showNotification(
+            `🎉 恭喜！完成 ${museum.name} 所有任务，自动打卡成功！`,
+            4000,
+            'success'
+        );
         
         // Track auto check-in event
         this.trackEvent('museum_auto_checkin', {
@@ -9191,16 +9189,6 @@ class MuseumCheckApp {
                         this.achievementGamification.addXP(5);
                         this.achievementGamification.showXPGainNotification(5, '完成任务');
                         
-                        // ===== AUTO-SUBMIT TO LEADERBOARD =====
-                        // Submit XP change to leaderboard so user can see their rank in XP tab
-                        if (this.leaderboardManager) {
-                            this.leaderboardManager.autoSubmitScore()
-                                .catch(err => {
-                                    console.warn('Failed to auto-submit leaderboard score after XP gain:', err);
-                                });
-                        }
-                        // ===== END AUTO-SUBMIT TO LEADERBOARD =====
-                        
                         // ===== VIRTUAL PET INTEGRATION =====
                         // Notify virtual pet of task completion
                         VirtualPet.notifyTaskCompleted();
@@ -10471,6 +10459,12 @@ class MuseumCheckApp {
         // Set up tab click handlers
         this.setupLeaderboardTabs();
         
+        // Set up manual submit button
+        this.setupManualSubmitButton();
+        
+        // Update submission status display
+        this.updateSubmissionStatus();
+        
         // Force refresh if score was recently submitted
         const shouldForceRefresh = this.leaderboardManager.shouldForceRefresh();
         await this.renderLeaderboard(shouldForceRefresh, this.currentRankingType);
@@ -10480,6 +10474,119 @@ class MuseumCheckApp {
             'visited_count': this.visitedMuseums.length,
             'ranking_type': this.currentRankingType
         });
+    }
+    
+    setupManualSubmitButton() {
+        const submitBtn = document.getElementById('submitToLeaderboard');
+        if (!submitBtn) return;
+        
+        // Remove any existing listeners
+        const newBtn = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newBtn, submitBtn);
+        
+        // Add click handler for manual submission
+        newBtn.addEventListener('click', async () => {
+            if (newBtn.disabled) return;
+            
+            const status = this.leaderboardManager.getSubmissionStatus();
+            if (!status.hasChanges && !status.isFirstSubmit) {
+                UIManager.showNotification('数据没有变化，无需更新', 2000, 'info');
+                return;
+            }
+            
+            // Show confirmation dialog
+            const confirmMessage = status.isFirstSubmit 
+                ? '确认首次提交数据到排行榜吗？'
+                : `确认更新数据到排行榜吗？\n\n当前本地：${status.local.visits}个博物馆，${status.local.xp}积分\n已提交：${status.submitted.visits}个博物馆，${status.submitted.xp}积分`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            // Disable button and show loading
+            newBtn.disabled = true;
+            newBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">提交中...</span>';
+            
+            try {
+                const result = await this.leaderboardManager.manualSubmitScore();
+                
+                if (result.success) {
+                    UIManager.showNotification(
+                        `✅ 成功更新到排行榜！${result.newRank ? `当前排名：第${result.newRank}名` : ''}`,
+                        4000,
+                        'success'
+                    );
+                    
+                    // Update submission status display
+                    this.updateSubmissionStatus();
+                    
+                    // Refresh leaderboard to show updated data
+                    await this.renderLeaderboard(true, this.currentRankingType);
+                    
+                    // Track submission event
+                    this.trackEvent('leaderboard_manual_submit', {
+                        'visited_count': this.visitedMuseums.length,
+                        'ranking_type': this.currentRankingType,
+                        'new_rank': result.newRank,
+                        'rank_change': result.rankChange
+                    });
+                } else {
+                    UIManager.showNotification(
+                        `❌ 提交失败：${result.error || '未知错误'}`,
+                        4000,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Manual submit error:', error);
+                UIManager.showNotification(
+                    `❌ 提交失败：${error.message}`,
+                    4000,
+                    'error'
+                );
+            } finally {
+                // Re-enable button and restore text
+                newBtn.innerHTML = '<span class="btn-icon">🚀</span><span class="btn-text">更新到排行榜</span>';
+                // Update button state based on current status
+                this.updateSubmissionStatus();
+            }
+        });
+    }
+    
+    updateSubmissionStatus() {
+        const status = this.leaderboardManager.getSubmissionStatus();
+        const submitBtn = document.getElementById('submitToLeaderboard');
+        const localDataElem = document.getElementById('statusLocalData');
+        const submittedDataElem = document.getElementById('statusSubmittedData');
+        const hintElem = document.getElementById('statusHint');
+        
+        if (localDataElem) {
+            localDataElem.textContent = `${status.local.visits}个博物馆, ${status.local.xp}积分${status.local.petPower > 0 ? `, ${status.local.petPower}宠物战力` : ''}`;
+        }
+        
+        if (submittedDataElem) {
+            if (status.isFirstSubmit) {
+                submittedDataElem.textContent = '尚未提交';
+            } else {
+                submittedDataElem.textContent = `${status.submitted.visits}个博物馆, ${status.submitted.xp}积分${status.submitted.petPower > 0 ? `, ${status.submitted.petPower}宠物战力` : ''}`;
+            }
+        }
+        
+        if (submitBtn && hintElem) {
+            if (status.isFirstSubmit) {
+                submitBtn.disabled = false;
+                hintElem.textContent = '首次提交数据到排行榜';
+                hintElem.className = 'status-hint has-changes';
+            } else if (status.hasChanges) {
+                submitBtn.disabled = false;
+                hintElem.textContent = '检测到数据变化，可以更新';
+                hintElem.className = 'status-hint has-changes';
+            } else {
+                submitBtn.disabled = true;
+                hintElem.textContent = '数据无变化';
+                hintElem.className = 'status-hint';
+            }
+        }
     }
     
     setupLeaderboardTabs() {
@@ -12119,16 +12226,6 @@ class MuseumCheckApp {
                     
                     // Award XP for photo upload
                     this.achievementGamification.addXP(10);
-                    
-                    // ===== AUTO-SUBMIT TO LEADERBOARD =====
-                    // Submit XP change to leaderboard so user can see their rank in XP tab
-                    if (this.leaderboardManager) {
-                        this.leaderboardManager.autoSubmitScore()
-                            .catch(err => {
-                                console.warn('Failed to auto-submit leaderboard score after photo XP gain:', err);
-                            });
-                    }
-                    // ===== END AUTO-SUBMIT TO LEADERBOARD =====
                     
                     // ===== VIRTUAL PET INTEGRATION =====
                     // Notify virtual pet of photo upload (more points than regular task)

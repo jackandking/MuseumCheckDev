@@ -887,6 +887,34 @@
             <div class="leaderboard-intro" id="leaderboardIntro">
                 <p>看看谁的博物馆之旅最精彩！参观越多，排名越高！</p>
             </div>
+            
+            <!-- Submission Status Section -->
+            <div class="leaderboard-submission-status" id="leaderboardSubmissionStatus">
+                <div class="status-card">
+                    <div class="status-header">
+                        <span class="status-icon">📊</span>
+                        <span class="status-title">我的数据状态</span>
+                    </div>
+                    <div class="status-body">
+                        <div class="status-row">
+                            <span class="status-label">当前本地数据：</span>
+                            <span class="status-value" id="statusLocalData">-</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="status-label">已提交数据：</span>
+                            <span class="status-value" id="statusSubmittedData">-</span>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button id="submitToLeaderboard" class="btn-primary submit-btn" disabled>
+                            <span class="btn-icon">🚀</span>
+                            <span class="btn-text">更新到排行榜</span>
+                        </button>
+                        <p class="status-hint" id="statusHint">数据无变化</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="leaderboard-my-rank" id="leaderboardMyRank">
                 <div class="my-rank-card">
                     <div class="rank-badge">我的排名</div>

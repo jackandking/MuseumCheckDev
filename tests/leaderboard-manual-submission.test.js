@@ -1,22 +1,19 @@
 /**
- * Regression test for leaderboard XP auto-submit bug
+ * Test for leaderboard manual submission feature
  * 
- * Issue: 排行榜不工作
+ * Issue: 排行榜手动更新
  * 
- * Problem: After completing a task at 首都博物馆, the XP is added locally
- * but not submitted to the leaderboard server. The user expects to see
- * their XP rank in the leaderboard XP tab.
+ * Requirement: Users should be able to view their current data and the latest leaderboard,
+ * then manually decide whether to submit their score to the leaderboard.
  * 
- * Root cause: autoSubmitScore() was only checking if visitedMuseums.length changed,
- * but not if XP changed. This meant XP gains from tasks were never submitted.
- * 
- * Fix: 
- * 1. Modified shouldSubmitScore() to also check XP changes
- * 2. Added auto-submit call after XP is added in checklist item completion
- * 3. Save lastSubmittedXP in localStorage to track XP changes
+ * Features:
+ * 1. UUID generation for each user to avoid duplicate records when nickname changes
+ * 2. Manual submission instead of auto-submission
+ * 3. Display comparison between local data and submitted data
+ * 4. Allow user to decide when to update their score
  */
 
-describe('Leaderboard XP auto-submit fix', () => {
+describe('Leaderboard manual submission', () => {
     let leaderboardManager;
     let mockApp;
     
@@ -33,102 +30,145 @@ describe('Leaderboard XP auto-submit fix', () => {
             }
         };
         
-        // Create LeaderboardManager mock that matches the new shouldSubmitScore logic
+        // Create LeaderboardManager mock that matches the new getSubmissionStatus logic
         leaderboardManager = {
             app: mockApp,
-            shouldSubmitScore: function() {
-                const lastSubmittedCount = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
-                const currentCount = this.app.visitedMuseums.length;
+            getSubmissionStatus: function() {
+                const localVisits = this.app.visitedMuseums.length;
+                const submittedVisits = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
                 
-                // Check if visit count changed
-                if (currentCount !== lastSubmittedCount) {
-                    return true;
-                }
-                
-                // Also check if XP changed (for XP leaderboard tab)
-                const lastSubmittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
-                let currentXP = 0;
+                let localXP = 0;
                 if (this.app.achievementGamification) {
                     const xpData = this.app.achievementGamification.getXPInfo();
-                    currentXP = xpData.total || 0;
+                    localXP = xpData.total || 0;
                 }
+                const submittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
                 
-                return currentXP !== lastSubmittedXP;
+                let localPetPower = 0;
+                const submittedPetPower = parseInt(localStorage.getItem('lastSubmittedPetPower') || '0', 10);
+                
+                return {
+                    local: {
+                        visits: localVisits,
+                        xp: localXP,
+                        petPower: localPetPower
+                    },
+                    submitted: {
+                        visits: submittedVisits,
+                        xp: submittedXP,
+                        petPower: submittedPetPower
+                    },
+                    hasChanges: localVisits !== submittedVisits || localXP !== submittedXP || localPetPower !== submittedPetPower,
+                    isFirstSubmit: submittedVisits === 0 && submittedXP === 0 && submittedPetPower === 0
+                };
             }
         };
     });
     
-    test('shouldSubmitScore returns true when XP changes but visit count stays the same', () => {
+    test('getSubmissionStatus returns hasChanges=true when XP changes but visit count stays the same', () => {
         // Initially, both XP and visit count are 0
-        expect(leaderboardManager.shouldSubmitScore()).toBe(false);
+        let status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(false);
+        expect(status.isFirstSubmit).toBe(true);
         
         // Now XP changes to 5 (from completing a task)
         mockApp.achievementGamification.getXPInfo.mockReturnValue({ total: 5, level: 1 });
         
-        // shouldSubmitScore should return true because XP changed
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        // getSubmissionStatus should return hasChanges=true because XP changed
+        status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
+        expect(status.local.xp).toBe(5);
+        expect(status.submitted.xp).toBe(0);
     });
     
-    test('shouldSubmitScore returns false when lastSubmittedXP matches current XP', () => {
+    test('getSubmissionStatus returns hasChanges=false when lastSubmittedXP matches current XP', () => {
         // Set XP to 5 and mark as submitted
         mockApp.achievementGamification.getXPInfo.mockReturnValue({ total: 5, level: 1 });
         localStorage.setItem('lastSubmittedXP', '5');
         
-        // shouldSubmitScore should return false because nothing changed
-        expect(leaderboardManager.shouldSubmitScore()).toBe(false);
+        // getSubmissionStatus should return hasChanges=false because nothing changed
+        const status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(false);
+        expect(status.local.xp).toBe(5);
+        expect(status.submitted.xp).toBe(5);
     });
     
-    test('shouldSubmitScore returns true when visit count changes', () => {
+    test('getSubmissionStatus returns hasChanges=true when visit count changes', () => {
         // Add a visited museum
         mockApp.visitedMuseums.push('forbidden-city');
         
-        // shouldSubmitScore should return true because visit count changed
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        // getSubmissionStatus should return hasChanges=true because visit count changed
+        const status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
+        expect(status.local.visits).toBe(1);
+        expect(status.submitted.visits).toBe(0);
     });
     
-    test('shouldSubmitScore returns true when both XP and visit count change', () => {
+    test('getSubmissionStatus returns hasChanges=true when both XP and visit count change', () => {
         // Change both XP and visit count
         mockApp.achievementGamification.getXPInfo.mockReturnValue({ total: 15, level: 1 });
         mockApp.visitedMuseums.push('national-museum');
         
-        // shouldSubmitScore should return true
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        // getSubmissionStatus should return hasChanges=true
+        const status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
+        expect(status.local.visits).toBe(1);
+        expect(status.local.xp).toBe(15);
     });
     
-    test('shouldSubmitScore correctly handles missing achievementGamification', () => {
+    test('getSubmissionStatus correctly handles missing achievementGamification', () => {
         // Remove achievementGamification
         mockApp.achievementGamification = null;
         
-        // No changes, should return false
-        expect(leaderboardManager.shouldSubmitScore()).toBe(false);
+        // No changes, should return isFirstSubmit=true and hasChanges=false
+        let status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(false);
+        expect(status.isFirstSubmit).toBe(true);
         
         // Add a museum visit
         mockApp.visitedMuseums.push('shanghai-museum');
         
-        // Should still work based on visit count
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        // Should detect visit count change
+        status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
+        expect(status.local.visits).toBe(1);
     });
     
-    test('shouldSubmitScore handles incremental XP gains', () => {
+    test('getSubmissionStatus handles incremental XP gains', () => {
         // First XP gain: 5
         mockApp.achievementGamification.getXPInfo.mockReturnValue({ total: 5, level: 1 });
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        let status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
         
         // Simulate submission
         localStorage.setItem('lastSubmittedXP', '5');
         
         // No change, should be false
-        expect(leaderboardManager.shouldSubmitScore()).toBe(false);
+        status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(false);
         
         // Second XP gain: 10
         mockApp.achievementGamification.getXPInfo.mockReturnValue({ total: 10, level: 1 });
-        expect(leaderboardManager.shouldSubmitScore()).toBe(true);
+        status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(true);
         
         // Simulate submission
         localStorage.setItem('lastSubmittedXP', '10');
         
         // No change, should be false
-        expect(leaderboardManager.shouldSubmitScore()).toBe(false);
+        status = leaderboardManager.getSubmissionStatus();
+        expect(status.hasChanges).toBe(false);
+    });
+    
+    test('getSubmissionStatus correctly identifies first-time submission', () => {
+        const status = leaderboardManager.getSubmissionStatus();
+        expect(status.isFirstSubmit).toBe(true);
+        expect(status.hasChanges).toBe(false);
+        
+        // After submitting at least one field with non-zero value, isFirstSubmit should be false
+        localStorage.setItem('lastSubmittedVisitCount', '1');
+        const status2 = leaderboardManager.getSubmissionStatus();
+        expect(status2.isFirstSubmit).toBe(false);
     });
 });
 
