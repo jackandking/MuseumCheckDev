@@ -69,6 +69,7 @@ const APP_CONFIG = {
         SHARING_STATE: 'museumCheckSharingState',
         SORT_PREFERENCE: 'museumSortPreference',
         FAVORITE_MUSEUMS: 'favoriteMuseums',
+        BROWSED_MUSEUMS: 'browsedMuseums',  // Museums the user has viewed (with timestamps)
         CONTRIBUTED_TREASURES: 'contributedTreasures',  // User-contributed treasures
         CONTRIBUTED_MUSEUM_PHOTOS: 'contributedMuseumPhotos',  // User-contributed museum entrance photos
         MUSEUM_POSTERS: 'museumPosters'  // Generated museum check-in posters
@@ -4195,6 +4196,7 @@ class MuseumCheckApp {
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
+        this.browsedMuseums = this.loadBrowsedMuseums(); // Load browsed museums with timestamps
         
         // Initialize specialized modules
         this.modalManager = new ModalManager();
@@ -4269,6 +4271,9 @@ class MuseumCheckApp {
         
         // Request user location for better sorting (optional, non-blocking)
         this.requestUserLocation();
+        
+        // Apply default filtering (show visited/favorited/browsed museums when no search)
+        this.filterMuseums();
         
         this.renderMuseums();
         this.updateStats();
@@ -5880,30 +5885,59 @@ class MuseumCheckApp {
 
     // Search functionality methods
     filterMuseums() {
-        if (!this.searchQuery) {
+        // If there's a search query, filter museums by search criteria (all museums)
+        if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            this.filteredMuseums = MUSEUMS.filter(museum => {
+                // Safety check for undefined values
+                const name = museum.name || '';
+                const location = museum.location || '';
+                const description = museum.description || '';
+                const tags = museum.tags || [];
+                
+                return name.toLowerCase().includes(query) ||
+                       location.toLowerCase().includes(query) ||
+                       description.toLowerCase().includes(query) ||
+                       tags.some(tag => (tag || '').toLowerCase().includes(query));
+            });
+            return;
+        }
+        
+        // No search query - show only visited/favorited/browsed museums
+        // Get IDs of museums to display
+        const relevantMuseumIds = new Set();
+        
+        // Add visited museums
+        this.visitedMuseums.forEach(id => relevantMuseumIds.add(id));
+        
+        // Add favorited museums
+        this.favoriteMuseums.forEach(id => relevantMuseumIds.add(id));
+        
+        // Add browsed museums
+        Object.keys(this.browsedMuseums).forEach(id => relevantMuseumIds.add(id));
+        
+        // If user has no relevant museums, show all museums
+        if (relevantMuseumIds.size === 0) {
             this.filteredMuseums = MUSEUMS;
             return;
         }
         
-        const query = this.searchQuery.toLowerCase();
-        this.filteredMuseums = MUSEUMS.filter(museum => {
-            // Safety check for undefined values
-            const name = museum.name || '';
-            const location = museum.location || '';
-            const description = museum.description || '';
-            const tags = museum.tags || [];
-            
-            return name.toLowerCase().includes(query) ||
-                   location.toLowerCase().includes(query) ||
-                   description.toLowerCase().includes(query) ||
-                   tags.some(tag => (tag || '').toLowerCase().includes(query));
+        // Filter to only show relevant museums
+        this.filteredMuseums = MUSEUMS.filter(museum => relevantMuseumIds.has(museum.id));
+        
+        // Sort by recency (most recently browsed first)
+        this.filteredMuseums.sort((a, b) => {
+            const timeA = this.browsedMuseums[a.id] || 0;
+            const timeB = this.browsedMuseums[b.id] || 0;
+            return timeB - timeA; // Most recent first
         });
     }
     
     clearSearch() {
         this.searchQuery = '';
         document.getElementById('museumSearch').value = '';
-        this.filteredMuseums = MUSEUMS;
+        // Apply default filtering (shows visited/favorited/browsed museums)
+        this.filterMuseums();
         this.renderMuseums();
         this.toggleClearButton();
     }
@@ -5956,6 +5990,38 @@ class MuseumCheckApp {
         } catch (error) {
             console.error('Failed to save favorite museums:', error);
         }
+    }
+
+    loadBrowsedMuseums() {
+        try {
+            const saved = localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.BROWSED_MUSEUMS);
+            // Returns object with museum IDs as keys and timestamps as values
+            // e.g., { "forbidden-city": 1640000000000, "shanghai-museum": 1640000001000 }
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.error('Failed to load browsed museums:', error);
+            return {};
+        }
+    }
+
+    saveBrowsedMuseums() {
+        try {
+            localStorage.setItem(APP_CONFIG.LOCAL_STORAGE_KEYS.BROWSED_MUSEUMS, JSON.stringify(this.browsedMuseums));
+        } catch (error) {
+            console.error('Failed to save browsed museums:', error);
+        }
+    }
+
+    /**
+     * Mark a museum as browsed (viewed by user)
+     * @param {string} museumId - The museum ID to mark as browsed
+     */
+    markMuseumAsBrowsed(museumId) {
+        if (!museumId) return;
+        
+        // Record current timestamp for this museum
+        this.browsedMuseums[museumId] = Date.now();
+        this.saveBrowsedMuseums();
     }
 
     loadMuseumChecklists() {
@@ -7570,6 +7636,9 @@ class MuseumCheckApp {
                         !e.target.classList.contains('museum-checkin-button') &&
                         !e.target.classList.contains('museum-manage-button') &&
                         !e.target.classList.contains('favorite-button')) {
+                        // Mark museum as browsed
+                        this.markMuseumAsBrowsed(museum.id);
+                        
                         // Navigate to v2 check-in page (museum-checkin.html)
                         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
                         const ageGroup = checkedRadio ? checkedRadio.value : (this.currentAge || APP_CONFIG.DEFAULT_AGE);
@@ -7631,6 +7700,9 @@ class MuseumCheckApp {
                 if (checkinButton) {
                     checkinButton.addEventListener('click', (e) => {
                         e.stopPropagation();
+                        // Mark museum as browsed
+                        this.markMuseumAsBrowsed(museum.id);
+                        
                         // Navigate to museum-checkin.html with museum ID and age group
                         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
                         const ageGroup = checkedRadio ? checkedRadio.value : this.currentAge;
@@ -7706,6 +7778,8 @@ class MuseumCheckApp {
         if (index > -1) {
             this.visitedMuseums.splice(index, 1);
             this.saveVisitedMuseums();
+            // Re-filter museums to update display (in case no search is active)
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track museum visit toggle
@@ -7809,6 +7883,8 @@ class MuseumCheckApp {
         // Trigger large rocket animation for museum visit (same as manual check-in)
         this.triggerLargeRocket();
         this.saveVisitedMuseums();
+        // Re-filter museums to update display (in case no search is active)
+        this.filterMuseums();
         this.renderMuseums();
         
         // Auto-submit score to leaderboard (same as manual check-in) and show rank change
@@ -7924,6 +8000,8 @@ class MuseumCheckApp {
             // Remove from favorites
             this.favoriteMuseums.splice(index, 1);
             this.saveFavoriteMuseums();
+            // Re-filter museums to update display (in case no search is active)
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track favorite toggle
@@ -7936,6 +8014,8 @@ class MuseumCheckApp {
             // Add to favorites
             this.favoriteMuseums.push(museumId);
             this.saveFavoriteMuseums();
+            // Re-filter museums to update display (in case no search is active)
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track favorite toggle
