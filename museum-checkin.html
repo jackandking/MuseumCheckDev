@@ -4352,7 +4352,7 @@
         <div class="pet-adventure-header">
             <div class="pet-adventure-title">🐾 宠物大冒险 🐾</div>
             <div class="pet-adventure-stats">
-                得分：<span id="paScore">0</span> | 生命：<span id="paLives">❤️❤️❤️</span>
+                得分：<span id="paScore">0</span> | 生命：<span id="paLives">❤️❤️❤️❤️❤️</span>
             </div>
         </div>
         <div class="pet-adventure-container">
@@ -12287,9 +12287,9 @@
         const PA_OBSTACLE_EMOJIS = ['🌵', '🪨', '🗿'];
         const PA_COLLECTIBLE_EMOJIS = ['🏺', '⚱️', '📜', '👑', '💎'];
         const PA_DIFFICULTY_DISTANCE_THRESHOLD = 1000;
-        const PA_MAX_SPEED = 6;
-        const PA_BASE_SPEED = 3;
-        const PA_SPEED_INCREASE_RATE = 0.3;
+        const PA_MAX_SPEED = 4; // Reduced from 6 to make game less overwhelming
+        const PA_BASE_SPEED = 2; // Reduced from 3 for easier start
+        const PA_SPEED_INCREASE_RATE = 0.2; // Reduced from 0.3 for gentler difficulty curve
         const PA_DEFAULT_CANVAS_WIDTH = 600;
         const PA_DEFAULT_CANVAS_HEIGHT = 500; // Increased from 400 to 500 for better jump visibility
         const PA_CANVAS_ASPECT_RATIO = PA_DEFAULT_CANVAS_HEIGHT / PA_DEFAULT_CANVAS_WIDTH; // Height / Width
@@ -12358,7 +12358,7 @@
             paObstacles = [];
             paCollectibles = [];
             paScore = 0;
-            paLives = 3;
+            paLives = 5; // Increased from 3 to make game more forgiving for children
             paGameSpeed = PA_BASE_SPEED;
             paSpawnTimer = 0;
             paDistance = 0;
@@ -12443,11 +12443,11 @@
             paSpawnTimer++;
             paDistance += paGameSpeed;
             
-            if (paSpawnTimer > 80) {
+            if (paSpawnTimer > 100) { // Increased from 80 to give more space between objects
                 paSpawnTimer = 0;
                 
                 // Randomly spawn obstacle or collectible
-                if (Math.random() < 0.7) {
+                if (Math.random() < 0.5) { // Reduced from 0.7 to spawn fewer obstacles, more collectibles
                     // Spawn obstacle
                     const height = PA_OBSTACLE_MIN_HEIGHT + Math.random() * (PA_OBSTACLE_MAX_HEIGHT - PA_OBSTACLE_MIN_HEIGHT);
                     paObstacles.push({
