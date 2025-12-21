@@ -70,7 +70,8 @@ const APP_CONFIG = {
         SORT_PREFERENCE: 'museumSortPreference',
         FAVORITE_MUSEUMS: 'favoriteMuseums',
         CONTRIBUTED_TREASURES: 'contributedTreasures',  // User-contributed treasures
-        CONTRIBUTED_MUSEUM_PHOTOS: 'contributedMuseumPhotos'  // User-contributed museum entrance photos
+        CONTRIBUTED_MUSEUM_PHOTOS: 'contributedMuseumPhotos',  // User-contributed museum entrance photos
+        MUSEUM_POSTERS: 'museumPosters'  // Generated museum check-in posters
     },
     
     AGE_GROUPS: ['3-6', '7-12', '13-18'],   // Supported age groups
@@ -5311,6 +5312,30 @@ class MuseumCheckApp {
         document.querySelector('#leaderboardModal .close').addEventListener('click', () => {
             this.closeLeaderboardModal();
         });
+        
+        // Poster viewer modal close
+        const posterViewerClose = document.querySelector('#posterViewerModal .close');
+        if (posterViewerClose) {
+            posterViewerClose.addEventListener('click', () => {
+                this.closePosterViewer();
+            });
+        }
+        
+        // Poster viewer modal download button
+        const downloadViewedPosterBtn = document.getElementById('downloadViewedPoster');
+        if (downloadViewedPosterBtn) {
+            downloadViewedPosterBtn.addEventListener('click', () => {
+                this.downloadViewedPoster();
+            });
+        }
+        
+        // Poster viewer modal share button
+        const shareViewedPosterBtn = document.getElementById('shareViewedPoster');
+        if (shareViewedPosterBtn) {
+            shareViewedPosterBtn.addEventListener('click', () => {
+                this.shareViewedPoster();
+            });
+        }
 
         // Click outside achievement modal to close
         document.getElementById('achievementModal').addEventListener('click', (e) => {
@@ -5332,6 +5357,16 @@ class MuseumCheckApp {
                 this.closeLeaderboardModal();
             }
         });
+        
+        // Click outside poster viewer modal to close
+        const posterViewerModal = document.getElementById('posterViewerModal');
+        if (posterViewerModal) {
+            posterViewerModal.addEventListener('click', (e) => {
+                if (e.target.id === 'posterViewerModal') {
+                    this.closePosterViewer();
+                }
+            });
+        }
 
         // Settings icon click
         document.getElementById('settingsIcon').addEventListener('click', () => {
@@ -11139,6 +11174,9 @@ class MuseumCheckApp {
         
         // 生成个性化成就建议
         this.generatePersonalizedSuggestions(visitedCount, assessmentQuality, achievements);
+        
+        // Render museum posters gallery
+        this.renderMuseumPostersGallery();
     }
 
     // 新增方法：渲染融合的成就概览
@@ -11555,6 +11593,167 @@ class MuseumCheckApp {
 
         // 存储建议供其他组件使用
         this.personalizedSuggestions = suggestions;
+    }
+
+    // Render museum posters gallery
+    renderMuseumPostersGallery() {
+        const gallery = document.getElementById('museumPostersGallery');
+        const grid = document.getElementById('posterGalleryGrid');
+        
+        if (!gallery || !grid) return;
+        
+        // Load posters from localStorage
+        const postersData = this.loadMuseumPosters();
+        const posterEntries = Object.entries(postersData);
+        
+        // Show/hide gallery based on whether there are posters
+        if (posterEntries.length === 0) {
+            gallery.style.display = 'none';
+            return;
+        }
+        
+        gallery.style.display = 'block';
+        
+        // Clear existing content
+        grid.innerHTML = '';
+        
+        // Sort posters by timestamp (newest first)
+        posterEntries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+        
+        // Render each poster
+        posterEntries.forEach(([museumId, posterInfo]) => {
+            const posterItem = document.createElement('div');
+            posterItem.className = 'poster-gallery-item';
+            posterItem.innerHTML = `
+                <img src="${posterInfo.dataURL}" alt="${posterInfo.museumName}" class="poster-thumbnail">
+                <div class="poster-info">
+                    <div class="poster-museum-name">${posterInfo.museumName}</div>
+                    <div class="poster-date">${posterInfo.date}</div>
+                </div>
+            `;
+            
+            // Add click event to open full-size viewer
+            posterItem.addEventListener('click', () => {
+                this.showPosterViewer(posterInfo);
+            });
+            
+            grid.appendChild(posterItem);
+        });
+    }
+    
+    // Load museum posters from localStorage
+    loadMuseumPosters() {
+        try {
+            const data = localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.MUSEUM_POSTERS);
+            return data ? JSON.parse(data) : {};
+        } catch (error) {
+            console.error('Error loading museum posters:', error);
+            return {};
+        }
+    }
+    
+    // Show poster viewer modal
+    showPosterViewer(posterInfo) {
+        const modal = document.getElementById('posterViewerModal');
+        const image = document.getElementById('posterViewerImage');
+        const title = document.getElementById('posterViewerTitle');
+        const date = document.getElementById('posterViewerDate');
+        
+        if (!modal || !image || !title || !date) return;
+        
+        // Set poster information
+        image.src = posterInfo.dataURL;
+        title.textContent = posterInfo.museumName;
+        date.textContent = `生成于 ${posterInfo.date}`;
+        
+        // Store current poster info for download/share
+        this.currentViewedPoster = posterInfo;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        // Track event
+        this.trackEvent('museum_poster_viewed', {
+            museum_id: posterInfo.museumId,
+            museum_name: posterInfo.museumName
+        });
+    }
+    
+    // Close poster viewer modal
+    closePosterViewer() {
+        const modal = document.getElementById('posterViewerModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        this.currentViewedPoster = null;
+    }
+    
+    // Download viewed poster
+    downloadViewedPoster() {
+        if (!this.currentViewedPoster) return;
+        
+        const link = document.createElement('a');
+        link.download = `${this.currentViewedPoster.museumName}_打卡海报_${this.currentViewedPoster.date.replace(/\//g, '-')}.png`;
+        link.href = this.currentViewedPoster.dataURL;
+        link.click();
+        
+        // Track event
+        this.trackEvent('museum_poster_downloaded', {
+            museum_id: this.currentViewedPoster.museumId,
+            museum_name: this.currentViewedPoster.museumName
+        });
+    }
+    
+    // Share viewed poster
+    async shareViewedPoster() {
+        if (!this.currentViewedPoster) return;
+        
+        const posterInfo = this.currentViewedPoster;
+        
+        // In WeChat environment, show long-press hint
+        if (UtilityFunctions.isWeChatEnvironment()) {
+            const image = document.getElementById('posterViewerImage');
+            if (image) {
+                image.style.pointerEvents = 'auto';
+                image.style.webkitTouchCallout = 'default';
+            }
+            
+            alert('请长按海报图片保存到相册或分享给好友');
+            
+            this.trackEvent('museum_poster_shared', {
+                museum_id: posterInfo.museumId,
+                museum_name: posterInfo.museumName,
+                method: 'wechat_longpress'
+            });
+            return;
+        }
+        
+        // Standard browser share
+        try {
+            const blob = await (await fetch(posterInfo.dataURL)).blob();
+            const files = [new File([blob], `${posterInfo.museumName}_打卡海报.png`, { type: 'image/png' })];
+            
+            if (navigator.canShare && navigator.canShare({ files })) {
+                await navigator.share({
+                    files,
+                    title: `${posterInfo.museumName}打卡海报`,
+                    text: `我完成了${posterInfo.museumName}的探索任务！`
+                });
+                
+                this.trackEvent('museum_poster_shared', {
+                    museum_id: posterInfo.museumId,
+                    museum_name: posterInfo.museumName,
+                    method: 'native_share'
+                });
+            } else {
+                // Fallback to download
+                this.downloadViewedPoster();
+            }
+        } catch (error) {
+            console.error('Error sharing poster:', error);
+            // Fallback to download
+            this.downloadViewedPoster();
+        }
     }
 
     editChecklistItem(button) {

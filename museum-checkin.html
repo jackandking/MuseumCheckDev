@@ -7593,7 +7593,11 @@
                 ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
                 
                 // Display preview - always update, even if no photos
-                preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                const posterDataURL = canvas.toDataURL('image/png');
+                preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
+                
+                // Save poster to localStorage for gallery view
+                savePosterToGallery(posterDataURL);
             }).catch(error => {
                 // Fallback: even if everything fails, show a basic poster
                 console.error('Error generating poster:', error);
@@ -7622,8 +7626,58 @@
                 ctx.fillText('🎉 恭喜完成所有任务！', 40, 250);
                 
                 // Display basic poster
-                preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" style="max-width:100%;border-radius:12px;">`;
+                const posterDataURL = canvas.toDataURL('image/png');
+                preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
+                
+                // Save poster to localStorage for gallery view
+                savePosterToGallery(posterDataURL);
             });
+        }
+
+        // Save poster to localStorage for gallery view in main app
+        function savePosterToGallery(posterDataURL) {
+            try {
+                // Load existing posters
+                const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+                
+                // Get museum name for display
+                const museumName = currentMuseum ? currentMuseum.name : '未知博物馆';
+                
+                // Save poster data with metadata
+                postersData[museumId] = {
+                    dataURL: posterDataURL,
+                    museumId: museumId,
+                    museumName: museumName,
+                    ageGroup: ageGroup,
+                    timestamp: Date.now(),
+                    date: new Date().toLocaleDateString('zh-CN')
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('museumPosters', JSON.stringify(postersData));
+                console.log('Poster saved to gallery for:', museumName);
+            } catch (error) {
+                console.error('Error saving poster to gallery:', error);
+                // If localStorage quota exceeded, try to remove old posters
+                if (error.name === 'QuotaExceededError') {
+                    console.warn('Storage quota exceeded, clearing old posters');
+                    // Keep only this poster
+                    const postersData = {};
+                    postersData[museumId] = {
+                        dataURL: posterDataURL,
+                        museumId: museumId,
+                        museumName: currentMuseum ? currentMuseum.name : '未知博物馆',
+                        ageGroup: ageGroup,
+                        timestamp: Date.now(),
+                        date: new Date().toLocaleDateString('zh-CN')
+                    };
+                    try {
+                        localStorage.setItem('museumPosters', JSON.stringify(postersData));
+                    } catch (e) {
+                        console.error('Still failed after clearing:', e);
+                    }
+                }
+            }
         }
 
         // Get child nickname

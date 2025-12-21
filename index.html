@@ -455,6 +455,14 @@
                 <div id="achievementHintsList"></div>
             </div>
             
+            <!-- Museum Posters Gallery Section -->
+            <div id="museumPostersGallery" class="museum-posters-gallery" style="display: none;">
+                <h3 class="gallery-title">🎨 博物馆打卡海报</h3>
+                <div id="posterGalleryGrid" class="poster-gallery-grid">
+                    <!-- Museum posters will be populated by JavaScript -->
+                </div>
+            </div>
+            
             <div id="achievementList" class="achievement-list">
                 <!-- Achievements will be populated by JavaScript -->
             </div>
@@ -465,6 +473,24 @@
                     <button id="downloadAchievementPoster" class="poster-button" style="display: none;">📱 下载成就海报</button>
                     <button id="shareAchievementPoster" class="poster-button" style="display: none;">📤 分享成就海报</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full-size Poster Viewer Modal -->
+    <div id="posterViewerModal" class="modal poster-viewer-modal hidden">
+        <div class="modal-content poster-viewer-content">
+            <span class="close">&times;</span>
+            <div id="posterViewerContainer" class="poster-viewer-container">
+                <img id="posterViewerImage" src="" alt="博物馆海报">
+            </div>
+            <div class="poster-viewer-info">
+                <h3 id="posterViewerTitle">博物馆名称</h3>
+                <p id="posterViewerDate">生成日期</p>
+            </div>
+            <div class="poster-viewer-actions">
+                <button id="downloadViewedPoster" class="poster-button">📱 下载海报</button>
+                <button id="shareViewedPoster" class="poster-button">📤 分享海报</button>
             </div>
         </div>
     </div>

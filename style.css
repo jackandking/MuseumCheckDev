@@ -8498,3 +8498,151 @@ main[role="main"] {
         height: 40px;
     }
 }
+/* Museum Posters Gallery Styles */
+.museum-posters-gallery {
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 12px;
+}
+
+.gallery-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.poster-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.poster-gallery-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.poster-gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.poster-thumbnail {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.poster-info {
+    padding: 12px;
+    text-align: center;
+}
+
+.poster-museum-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.poster-date {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Poster Viewer Modal */
+.poster-viewer-modal .modal-content {
+    max-width: 900px;
+    padding: 20px;
+}
+
+.poster-viewer-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.poster-viewer-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.poster-viewer-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.poster-viewer-info h3 {
+    font-size: 22px;
+    color: #2c5aa0;
+    margin-bottom: 8px;
+}
+
+.poster-viewer-info p {
+    font-size: 14px;
+    color: #666;
+}
+
+.poster-viewer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .poster-gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    
+    .gallery-title {
+        font-size: 18px;
+    }
+    
+    .poster-viewer-modal .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .poster-viewer-actions {
+        flex-direction: column;
+    }
+    
+    .poster-viewer-actions .poster-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .poster-gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .poster-info {
+        padding: 8px;
+    }
+    
+    .poster-museum-name {
+        font-size: 12px;
+    }
+    
+    .poster-date {
+        font-size: 10px;
+    }
+}
