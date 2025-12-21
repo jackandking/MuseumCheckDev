@@ -8430,65 +8430,164 @@ main[role="main"] {
 /* =====================================================
    SITE FOOTER WITH ICP REGISTRATION
    网站底部备案信息
+   
+   Professional footer design with modern aesthetics
    ===================================================== */
 
 .site-footer {
     width: 100%;
-    margin-top: 60px;
-    padding: 30px 20px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
+    margin-top: 80px;
+    padding: 40px 20px 30px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #f1f3f5 100%);
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(44, 90, 160, 0.2) 20%, 
+        rgba(44, 90, 160, 0.4) 50%, 
+        rgba(44, 90, 160, 0.2) 80%, 
+        transparent 100%) 1;
     text-align: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 }
 
 .footer-text {
-    margin: 8px 0;
-    font-size: 13px;
+    margin: 0;
+    font-size: 14px;
     color: #666;
-    line-height: 1.6;
+    line-height: 1.8;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 .footer-link {
     color: #666;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(44, 90, 160, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .footer-link:hover {
     color: var(--primary-color);
-    text-decoration: underline;
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(44, 90, 160, 0.3);
+    box-shadow: 0 4px 12px rgba(44, 90, 160, 0.15);
+    transform: translateY(-2px);
 }
 
 .footer-icon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     vertical-align: middle;
-    margin-right: 2px;
+    flex-shrink: 0;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.footer-link:hover .footer-icon {
+    opacity: 1;
+}
+
+/* Decorative element */
+.footer-content::before {
+    content: '🏛️';
+    font-size: 28px;
+    opacity: 0.6;
+    margin-bottom: 8px;
+    filter: grayscale(0.3);
+}
+
+/* Divider between footer items */
+.footer-text + .footer-text {
+    position: relative;
+}
+
+.footer-text + .footer-text::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(44, 90, 160, 0.2) 50%, 
+        transparent 100%);
 }
 
 /* Mobile optimization for footer */
 @media (max-width: 768px) {
     .site-footer {
+        margin-top: 50px;
+        padding: 30px 15px 25px;
+    }
+    
+    .footer-content {
+        gap: 14px;
+    }
+    
+    .footer-text {
+        font-size: 13px;
+    }
+    
+    .footer-link {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .footer-icon {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .footer-content::before {
+        font-size: 24px;
+        margin-bottom: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-footer {
         margin-top: 40px;
-        padding: 20px 15px;
+        padding: 25px 12px 20px;
+    }
+    
+    .footer-content {
+        gap: 12px;
     }
     
     .footer-text {
         font-size: 12px;
-        margin: 6px 0;
+    }
+    
+    .footer-link {
+        padding: 5px 10px;
+        font-size: 11px;
     }
     
     .footer-icon {
         width: 12px;
         height: 12px;
+    }
+    
+    .footer-content::before {
+        font-size: 20px;
     }
 }
 
