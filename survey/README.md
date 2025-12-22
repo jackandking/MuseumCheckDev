@@ -6,21 +6,25 @@
 
 ```
 survey/
-├── README.md                  # 本文档
-├── util.js                    # 共享工具函数库
-├── popularity/                # 博物馆人气调查
+├── README.md                      # 本文档
+├── util.js                        # 共享工具函数库
+├── popularity/                    # 博物馆人气调查
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
-├── treasure/                  # 镇馆之宝猜测游戏（首都博物馆）
+├── treasure/                      # 镇馆之宝猜测游戏（首都博物馆）
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
-├── forbidden-city-treasure/   # 镇馆之宝猜测游戏（故宫博物院）
+├── forbidden-city-treasure/       # 镇馆之宝猜测游戏（故宫博物院）
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
-└── guess/                     # 博物馆数量猜测
+├── archaeology-museum-treasure/   # 镇馆之宝猜测游戏（中国考古博物馆）
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+└── guess/                         # 博物馆数量猜测
     ├── index.html
     ├── app.js
     └── styles.css
@@ -201,7 +205,67 @@ const surveyConfig = {
 - 从其他知名博物馆加载镇馆之宝作为干扰项
 - 默认使用中国国家博物馆、上海博物馆、首都博物馆的藏品
 
-### 4. Guess Survey (博物馆数量猜测)
+### 4. Archaeology Museum Treasure Survey (中国考古博物馆镇馆之宝猜测游戏)
+
+**路径**: `survey/archaeology-museum-treasure/`
+
+**功能描述**:
+- 展示中国考古博物馆的图片
+- 用户从 4 个藏品选项（1个正确答案 + 3个其他博物馆的藏品作为干扰项）中猜测哪个是中国考古博物馆的镇馆之宝
+- 显示全网用户的答题统计和正确答案
+
+**用户流程**:
+1. 用户看到中国考古博物馆图片和名称
+2. 用户看到 4 个藏品选项（1个正确 + 3个干扰项）
+3. 用户选择他们认为正确的镇馆之宝
+4. 查看广告后显示统计结果和正确答案
+5. 结果包括每个选项的投票数、百分比和答对率
+
+**数据存储**:
+
+- **Storage Key**: `archaeologyMuseumTreasure.data`
+- **数据结构**:
+  ```javascript
+  {
+    "treasure-name-1": 234,  // 投票数
+    "treasure-name-2": 567,
+    "treasure-name-3": 123,
+    "treasure-name-4": 89
+  }
+  ```
+- **示例数据**:
+  ```javascript
+  {
+    "绿松石龙形器": 567,              // 正确答案
+    "《清明上河图》": 234,           // 干扰项
+    "后母戊鼎": 123,                  // 干扰项
+    "大克鼎": 89                      // 干扰项
+  }
+  ```
+
+**配置参数**:
+```javascript
+const surveyConfig = {
+    title: "猜猜哪个是中国考古博物馆的镇馆之宝？",
+    question: "以下哪个是中国考古博物馆的镇馆之宝？",
+    museumId: "china-archaeology-museum",
+    storageKey: "archaeologyMuseumTreasure.data",
+    kvStoreEndpoint: "https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore",
+    kvStoreKeyPrefix: "museum-data-"
+};
+```
+
+**数据来源**:
+- **优先级顺序**:
+  1. **最高优先级**: KV Store (动态数据): `museum-data-china-archaeology-museum` with sortKey `museum`
+  2. **次优先**: 静态文件: `/museums/china-archaeology-museum.json`
+  3. **兜底方案**: 内置默认数据
+
+**干扰项来源**:
+- 从其他知名博物馆加载镇馆之宝作为干扰项
+- 默认使用故宫博物院、中国国家博物馆、上海博物馆的藏品
+
+### 5. Guess Survey (博物馆数量猜测)
 
 **路径**: `survey/guess/`
 
@@ -400,6 +464,7 @@ POST https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStor
 | Popularity Survey | `museumPopularity.data` | Object | 博物馆ID到投票数的映射 |
 | Treasure Survey (Capital Museum) | `capitalMuseumTreasure.data` | Object | 藏品名称到投票数的映射 |
 | Treasure Survey (Forbidden City) | `forbiddenCityTreasure.data` | Object | 藏品名称到投票数的映射 |
+| Treasure Survey (Archaeology Museum) | `archaeologyMuseumTreasure.data` | Object | 藏品名称到投票数的映射 |
 | Guess Survey | `museumCount.data` | Object | 数量范围到投票数的映射 |
 
 ## 数据结构详细说明
@@ -551,7 +616,9 @@ python3 -m http.server 8000
 
 # 访问调查页面
 # Popularity: http://localhost:8000/survey/popularity/
-# Treasure: http://localhost:8000/survey/treasure/
+# Treasure (Capital Museum): http://localhost:8000/survey/treasure/
+# Treasure (Forbidden City): http://localhost:8000/survey/forbidden-city-treasure/
+# Treasure (Archaeology Museum): http://localhost:8000/survey/archaeology-museum-treasure/
 # Guess: http://localhost:8000/survey/guess/
 ```
 
@@ -576,7 +643,15 @@ getConfig('museumPopularity.data', (data) => {
 });
 
 getConfig('capitalMuseumTreasure.data', (data) => {
-    console.log('Treasure votes:', data);
+    console.log('Capital Museum treasure votes:', data);
+});
+
+getConfig('forbiddenCityTreasure.data', (data) => {
+    console.log('Forbidden City treasure votes:', data);
+});
+
+getConfig('archaeologyMuseumTreasure.data', (data) => {
+    console.log('Archaeology Museum treasure votes:', data);
 });
 
 getConfig('museumCount.data', (data) => {
