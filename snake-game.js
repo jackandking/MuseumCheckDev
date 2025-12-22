@@ -79,15 +79,60 @@ function initGame() {
     // Keyboard controls
     document.addEventListener('keydown', handleKeyDown);
     
-    // Touch controls
+    // Touch controls (swipe on canvas)
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    
+    // Touch button controls (for mobile)
+    setupTouchButtons();
     
     // Update start screen with pet info
     updateStartScreen();
     
     // Draw initial grid
     drawGrid();
+}
+
+/**
+ * Setup touch button controls for mobile
+ */
+function setupTouchButtons() {
+    const upBtn = document.getElementById('upBtn');
+    const downBtn = document.getElementById('downBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    
+    // Up button
+    upBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState === 'playing' && direction.y === 0) {
+            nextDirection = { x: 0, y: -1 };
+        }
+    });
+    
+    // Down button
+    downBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState === 'playing' && direction.y === 0) {
+            nextDirection = { x: 0, y: 1 };
+        }
+    });
+    
+    // Left button
+    leftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState === 'playing' && direction.x === 0) {
+            nextDirection = { x: -1, y: 0 };
+        }
+    });
+    
+    // Right button
+    rightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState === 'playing' && direction.x === 0) {
+            nextDirection = { x: 1, y: 0 };
+        }
+    });
 }
 
 /**
