@@ -384,14 +384,40 @@ class AchievementGamification {
     loadXPData() {
         try {
             const data = localStorage.getItem('museumcheck_xp_data');
-            return data ? JSON.parse(data) : {
+            const parsed = data ? JSON.parse(data) : null;
+            
+            if (parsed) {
+                // Initialize lifetimeXP if it doesn't exist (migration for existing users)
+                if (typeof parsed.lifetimeXP === 'undefined') {
+                    // For existing users, initialize lifetimeXP = totalXP (current) + totalXPSpent (from pet)
+                    parsed.lifetimeXP = parsed.totalXP || 0;
+                    
+                    // Try to get total XP spent from pet data for accurate migration
+                    try {
+                        const petData = localStorage.getItem('virtualPetData');
+                        if (petData) {
+                            const pet = JSON.parse(petData);
+                            if (pet.pet && pet.pet.totalXPSpent) {
+                                parsed.lifetimeXP += pet.pet.totalXPSpent;
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore pet data errors during migration
+                    }
+                }
+                return parsed;
+            }
+            
+            return {
                 totalXP: 0,
+                lifetimeXP: 0,
                 level: 1,
                 xpHistory: []
             };
         } catch (e) {
             return {
                 totalXP: 0,
+                lifetimeXP: 0,
                 level: 1,
                 xpHistory: []
             };
@@ -405,6 +431,10 @@ class AchievementGamification {
     addXP(amount) {
         const oldTotalXP = this.xpData.totalXP;
         this.xpData.totalXP += amount;
+        
+        // Track lifetime XP (never decreases, always accumulates)
+        this.xpData.lifetimeXP = (this.xpData.lifetimeXP || 0) + amount;
+        
         this.xpData.xpHistory.push({
             amount,
             timestamp: new Date().toISOString()
@@ -537,11 +567,12 @@ class AchievementGamification {
     
     /**
      * Get XP information for leaderboard submission
-     * @returns {Object} { total, level }
+     * @returns {Object} { total, level, lifetime }
      */
     getXPInfo() {
         return {
             total: this.xpData.totalXP || 0,
+            lifetime: this.xpData.lifetimeXP || 0,
             level: this.xpData.level || 1
         };
     }

@@ -4021,6 +4021,7 @@ class LeaderboardManager {
     /**
      * Manual submit score and return rank change information
      * Now includes XP and pet stats for multiple ranking types
+     * Uses lifetime XP (历史累计总积分) for ranking to prevent spending from affecting rank
      * @returns {Object} Result with rank change info: { success, oldRank, newRank, rankChange, totalUsers }
      */
     async manualSubmitScore() {
@@ -4029,10 +4030,13 @@ class LeaderboardManager {
         const userId = this.getUserId();
         
         // Get XP from achievement gamification system
+        // Use lifetimeXP for leaderboard ranking (never decreases when spending points)
         let xp = 0;
+        let lifetimeXP = 0;
         if (this.app.achievementGamification) {
             const xpData = this.app.achievementGamification.getXPInfo();
-            xp = xpData.total || 0;
+            xp = xpData.total || 0; // Current XP (can be spent on pet)
+            lifetimeXP = xpData.lifetime || 0; // Lifetime total XP (never decreases)
         }
         
         // Get pet stats from virtual pet system
@@ -4070,14 +4074,14 @@ class LeaderboardManager {
             console.warn('Failed to get old rank:', err);
         }
         
-        // Submit new score with XP and pet stats
-        const result = await this.submitScore(nickname, visitedCount, xp, petStats);
+        // Submit new score with lifetime XP and pet stats
+        const result = await this.submitScore(nickname, visitedCount, lifetimeXP, petStats);
         if (!result.success) {
             return { success: false, error: result.error };
         }
         
         localStorage.setItem('lastSubmittedVisitCount', visitedCount.toString());
-        localStorage.setItem('lastSubmittedXP', xp.toString());
+        localStorage.setItem('lastSubmittedXP', lifetimeXP.toString());
         // Save pet power for future comparison to detect pet stats changes
         if (petStats && petStats.totalPower) {
             localStorage.setItem('lastSubmittedPetPower', petStats.totalPower.toString());
@@ -4086,7 +4090,7 @@ class LeaderboardManager {
         // Update last submission timestamp for cache refresh logic
         this.lastScoreSubmitTime = Date.now();
         
-        console.log('Manually submitted score to leaderboard with XP:', xp, 'petStats:', petStats);
+        console.log('Manually submitted score to leaderboard with lifetime XP:', lifetimeXP, 'current XP:', xp, 'petStats:', petStats);
         
         // Get new rank after submitting
         let newRank = null;
@@ -4116,6 +4120,7 @@ class LeaderboardManager {
     
     /**
      * Get comparison between local data and last submitted data
+     * Uses lifetime XP for accurate comparison (never decreases)
      * @returns {Object} Comparison data with hasChanges flag
      */
     getSubmissionStatus() {
@@ -4123,9 +4128,11 @@ class LeaderboardManager {
         const submittedVisits = parseInt(localStorage.getItem('lastSubmittedVisitCount') || '0', 10);
         
         let localXP = 0;
+        let localLifetimeXP = 0;
         if (this.app.achievementGamification) {
             const xpData = this.app.achievementGamification.getXPInfo();
-            localXP = xpData.total || 0;
+            localXP = xpData.total || 0; // Current XP (for display)
+            localLifetimeXP = xpData.lifetime || 0; // Lifetime XP (for comparison)
         }
         const submittedXP = parseInt(localStorage.getItem('lastSubmittedXP') || '0', 10);
         
@@ -4146,7 +4153,7 @@ class LeaderboardManager {
         return {
             local: {
                 visits: localVisits,
-                xp: localXP,
+                xp: localLifetimeXP, // Use lifetime XP for comparison
                 petPower: localPetPower
             },
             submitted: {
@@ -10856,12 +10863,15 @@ class MuseumCheckApp {
         switch (rankingType) {
             case 'xp':
                 let xp = 0;
+                let lifetimeXP = 0;
                 if (this.achievementGamification) {
                     const xpData = this.achievementGamification.getXPInfo();
                     xp = xpData.total || 0;
+                    lifetimeXP = xpData.lifetime || 0;
                 }
-                localValue = xp;
-                localValueLabel = `${xp} 积分`;
+                localValue = lifetimeXP;
+                // Show lifetime XP for ranking (the value used in leaderboard)
+                localValueLabel = `${lifetimeXP} 积分`;
                 break;
             case 'pet':
                 try {
