@@ -5282,6 +5282,8 @@ class MuseumCheckApp {
             }
         });
 
+        // Inline nickname editing functionality
+        this.setupInlineNicknameEditing();
 
 
         // Modal close
@@ -6347,11 +6349,127 @@ class MuseumCheckApp {
     }
 
     updateHeaderTitle() {
-        const headerTitle = document.getElementById('headerTitle');
-        if (headerTitle) {
+        const nicknameDisplay = document.getElementById('nicknameDisplay');
+        if (nicknameDisplay) {
             const nickname = this.childNickname || '小淘气';
-            headerTitle.textContent = `${nickname}的博物馆之旅`;
+            nicknameDisplay.textContent = nickname;
         }
+    }
+
+    /**
+     * Setup inline nickname editing functionality
+     * Allows users to click on their nickname in the header to edit it inline
+     */
+    setupInlineNicknameEditing() {
+        const nicknameDisplay = document.getElementById('nicknameDisplay');
+        if (!nicknameDisplay) return;
+
+        nicknameDisplay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.startInlineNicknameEdit(nicknameDisplay);
+        });
+    }
+
+    /**
+     * Start inline editing of the nickname
+     * @param {HTMLElement} nicknameDisplay - The nickname display element
+     */
+    startInlineNicknameEdit(nicknameDisplay) {
+        // Prevent multiple editing sessions
+        if (nicknameDisplay.querySelector('input')) {
+            return;
+        }
+
+        const currentNickname = nicknameDisplay.textContent.trim();
+        
+        // Create input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentNickname;
+        input.maxLength = 10;
+        input.className = 'nickname-editing';
+        
+        // Store original value for cancel
+        const originalNickname = currentNickname;
+        
+        // Replace text with input
+        nicknameDisplay.textContent = '';
+        nicknameDisplay.appendChild(input);
+        
+        // Focus and select text
+        input.focus();
+        input.select();
+        
+        // Handle save on Enter key
+        const handleSave = () => {
+            const newNickname = input.value.trim();
+            
+            if (newNickname === '') {
+                // Restore original if empty
+                nicknameDisplay.textContent = originalNickname;
+                return;
+            }
+            
+            if (newNickname !== originalNickname) {
+                // Validate and save
+                const result = this.saveChildNickname(newNickname);
+                
+                if (result.isValid) {
+                    // Update display
+                    nicknameDisplay.textContent = newNickname;
+                    
+                    // Track event
+                    this.trackEvent('nickname_inline_edit', {
+                        'nickname_length': newNickname.length,
+                        'previous_length': originalNickname.length
+                    });
+                    
+                    // Show brief success feedback
+                    nicknameDisplay.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                    setTimeout(() => {
+                        nicknameDisplay.style.backgroundColor = '';
+                    }, 500);
+                } else {
+                    // Show error and restore original
+                    alert(result.message);
+                    nicknameDisplay.textContent = originalNickname;
+                }
+            } else {
+                // No change, just restore display
+                nicknameDisplay.textContent = originalNickname;
+            }
+        };
+        
+        // Handle cancel on Escape key
+        const handleCancel = () => {
+            nicknameDisplay.textContent = originalNickname;
+        };
+        
+        // Keyboard event handler
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSave();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancel();
+            }
+        });
+        
+        // Handle blur (lost focus)
+        input.addEventListener('blur', () => {
+            // Small delay to allow button clicks
+            setTimeout(() => {
+                if (nicknameDisplay.contains(input)) {
+                    handleSave();
+                }
+            }, 100);
+        });
+        
+        // Prevent clicks on input from closing
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     loadFireworksRetentionTime() {
