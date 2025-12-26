@@ -3146,3 +3146,13 @@ window.MUSEUMS_META = [
     "hasCollections": true
   }
 ];
+
+// 新增：中国古代建筑博物馆元数据
+window.MUSEUMS_META.push({
+  id: "china-ancient-architecture-museum",
+  name: "中国古代建筑博物馆",
+  location: "北京",
+  tags: ["建筑", "古代", "文化", "北京"],
+  image: "https://upload.wikimedia.org/wikipedia/commons/5/5d/%E5%8C%97%E4%BA%AC%E5%85%88%E5%86%9C%E5%9D%9B%E6%8B%9C%E6%AE%BF2021.jpg",
+  hasCollections: true
+});
