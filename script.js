@@ -7700,18 +7700,45 @@ class MuseumCheckApp {
         try {
             const grid = document.getElementById('museumGrid');
             const loadingIndicator = document.getElementById('loadingIndicator');
-            
             // Hide loading indicator
             if (loadingIndicator) {
                 loadingIndicator.style.display = 'none';
             }
-            
             grid.innerHTML = '';
 
-            // Apply collection filter if enabled
+            // Determine if user is new (no visited museums, no search, no favorites, no filters)
+            const isNewUser = (!this.visitedMuseums || this.visitedMuseums.length === 0)
+                && (!this.favoriteMuseums || this.favoriteMuseums.length === 0)
+                && (!this.lastSearchQuery || this.lastSearchQuery.trim() === '')
+                && (!this.showOnlyMuseumsWithCollections);
+
             let museumsToRender = this.filteredMuseums;
             if (this.showOnlyMuseumsWithCollections) {
                 museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
+            }
+
+            // For new users, show only the nearest 5 museums (if geolocation available), else fallback to Beijing/popular museums
+            if (isNewUser) {
+                let nearbyMuseums = [];
+                if (this.userLocation) {
+                    // Sort by distance and take top 5
+                    nearbyMuseums = [...museumsToRender]
+                        .map(m => ({ museum: m, dist: this.getMuseumDistance(m) }))
+                        .filter(m => m.dist < Infinity)
+                        .sort((a, b) => a.dist - b.dist)
+                        .slice(0, 5)
+                        .map(m => m.museum);
+                }
+                if (!nearbyMuseums.length) {
+                    // Fallback: Beijing museums or top 5 popular museums
+                    nearbyMuseums = museumsToRender.filter(m => m.location && m.location.includes('北京')).slice(0, 5);
+                    if (!nearbyMuseums.length) {
+                        nearbyMuseums = museumsToRender.slice(0, 5);
+                    }
+                }
+                museumsToRender = nearbyMuseums;
+                // Optionally show a tip for new users
+                UIManager && UIManager.showNotification && UIManager.showNotification('已为你推荐附近的博物馆，允许定位可获得更精准推荐', 3000, 'info');
             }
 
             // Sort museums before rendering
