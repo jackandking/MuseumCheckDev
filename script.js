@@ -2627,8 +2627,11 @@ class EventWallService {
         try {
             // Get user ID from localStorage
             const userId = localStorage.getItem('user_id') || 'anonymous';
-            // Get child nickname from localStorage
-            const childNickname = localStorage.getItem('childNickname') || '';
+            console.log('childNickname before event:', localStorage.getItem('childNickname'));            // Get child nickname from localStorage, fallback to default if missing
+            let childNickname = localStorage.getItem('childNickname');
+            if (!childNickname || childNickname.trim() === '') {
+                childNickname = '小淘气';
+            }
             
             // Create event object
             const event = {
