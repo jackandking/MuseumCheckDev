@@ -965,6 +965,8 @@
       // Adopt meta as default dataset before main script executes
       (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
     </script>
+    <!-- Event Wall Service (shared) -->
+    <script src="event-wall-service.js"></script>
     <!-- Main application script - must run to render museum list -->
     <script src="script.js"></script>
     <!-- Deferred feature scripts - non-critical, load after main app is interactive -->
