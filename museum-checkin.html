@@ -4407,22 +4407,18 @@
         </div>
     </div>
 
+
     <!-- Load dependencies -->
     <script src="museums-data.js"></script>
-    <!-- Museum data loader for dynamic data priority support -->
     <script src="museum-data-loader.js"></script>
-    <!-- Auto-generate treasure hunt workflows for all museums -->
     <script src="treasure-workflow-generator.js"></script>
-    <!-- Museum data loaded from museums-data.js and Tier 1 JSON files via museum-data-loader.js -->
     <script src="firework.js"></script>
-    <!-- Achievement Gamification System for XP/Points -->
     <script src="achievement-gamification.js"></script>
-    <!-- Virtual Pet System for child mode -->
     <script src="virtual-pet.js"></script>
-    <!-- Baidu Image Search for treasure photos -->
     <script src="baidu-image-search.js"></script>
-    <!-- Image Upload Utility for uploading photos to letmetry.cloud -->
     <script src="image-upload-util.js"></script>
+    <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
+    <script src="event-wall-service.js"></script>
     
     <script>
         // Configuration
