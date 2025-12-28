@@ -7462,7 +7462,15 @@
         function savePosterToGallery(posterDataURL) {
             try {
                 // Load existing posters
-                const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+                const raw = localStorage.getItem('museumPosters');
+                console.debug('[savePosterToGallery] raw localStorage museumPosters:', raw);
+                let postersData;
+                try {
+                    postersData = JSON.parse(raw || '{}');
+                } catch (e) {
+                    console.error('[savePosterToGallery] Failed to parse museumPosters JSON, resetting to {}', e);
+                    postersData = {};
+                }
                 
                 // Get museum name for display
                 const museumName = currentMuseum ? currentMuseum.name : '未知博物馆';
@@ -7478,17 +7486,27 @@
                 };
                 
                 // Save to localStorage
-                localStorage.setItem('museumPosters', JSON.stringify(postersData));
-                
-                // Debug logging
-                console.log('✅ Poster saved to gallery for:', museumName);
-                console.log('📊 Total posters in gallery:', Object.keys(postersData).length);
-                console.log('🎨 Poster metadata:', {
-                    museumId: museumId,
-                    museumName: museumName,
-                    ageGroup: ageGroup,
-                    timestamp: new Date().toLocaleString('zh-CN')
-                });
+                try {
+                    localStorage.setItem('museumPosters', JSON.stringify(postersData));
+                    // Debug logging
+                    console.info('[savePosterToGallery] ✅ Poster saved to gallery for:', museumName);
+                    console.info('[savePosterToGallery] 📊 Total posters in gallery:', Object.keys(postersData).length);
+                    console.info('[savePosterToGallery] 🎨 Poster metadata:', {
+                        museumId: museumId,
+                        museumName: museumName,
+                        ageGroup: ageGroup,
+                        timestamp: new Date().toLocaleString('zh-CN')
+                    });
+                    // Read-back verification
+                    try {
+                        const verify = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+                        console.debug('[savePosterToGallery] verify readback keys:', Object.keys(verify));
+                    } catch (e) {
+                        console.warn('[savePosterToGallery] Readback verification failed', e);
+                    }
+                } catch (e) {
+                    throw e;
+                }
             } catch (error) {
                 console.error('Error saving poster to gallery:', error);
                 // If localStorage quota exceeded, try to remove old posters

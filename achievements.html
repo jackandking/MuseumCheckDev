@@ -447,17 +447,23 @@
         // Load posters from localStorage
         function loadPosters() {
             try {
-                const data = localStorage.getItem('museumPosters');
-                postersData = data ? JSON.parse(data) : {};
-                
+                const raw = localStorage.getItem('museumPosters');
+                console.debug('[achievements.loadPosters] raw museumPosters:', raw);
+                try {
+                    postersData = raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    console.error('[achievements.loadPosters] Failed to parse museumPosters JSON:', e);
+                    postersData = {};
+                }
+
                 // Debug logging for troubleshooting
-                console.log('✅ Loaded posters from localStorage:', Object.keys(postersData).length, 'posters');
-                console.log('Poster keys:', Object.keys(postersData));
-                
+                console.info('[achievements.loadPosters] ✅ Loaded posters from localStorage:', Object.keys(postersData).length, 'posters');
+                console.debug('[achievements.loadPosters] Poster keys:', Object.keys(postersData));
+
                 // If no posters found, log available storage keys for debugging
                 if (Object.keys(postersData).length === 0) {
-                    console.warn('⚠️ No posters found in localStorage');
-                    console.log('Available localStorage keys:', Object.keys(localStorage));
+                    console.warn('[achievements.loadPosters] ⚠️ No posters found in localStorage');
+                    try { console.debug('[achievements.loadPosters] Available localStorage keys:', Object.keys(localStorage)); } catch(e) { console.debug('localStorage access error', e); }
                 }
             } catch (error) {
                 console.error('Error loading posters:', error);
@@ -617,16 +623,8 @@
 
                 // Use LetmetryAPI defaults — anonymous upload will be attempted if no API key is configured
 
-                // Upload using the same image uploader used by museum checkin (handles compression and endpoint)
-                let imageUrl = null;
-                try {
-                    imageUrl = await imageUploader.uploadImage(file, { compress: true });
-                } catch (uploadErr) {
-                    // Fallback to LetmetryAPI direct upload
-                    console.warn('imageUploader failed, falling back to LetmetryAPI.uploadFile', uploadErr);
-                    const upload = await LetmetryAPI.uploadFile(file);
-                    imageUrl = upload.url || (upload.raw && (upload.raw.url || upload.raw.fileUrl || upload.raw.imageUrl));
-                }
+                // Upload via the official image upload endpoint only
+                const imageUrl = await imageUploader.uploadImage(file, { compress: true });
                 if (!imageUrl) throw new Error('上传未返回图片地址');
 
                 // Publish poster record to MySQL (achievement_posters) via Letmetry API if available

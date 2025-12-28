@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>大家的成就 - MuseumCheck</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="achievement-gamification.css">
@@ -40,17 +41,9 @@
       text-align: center;
     }
     @media (max-width: 480px) {
-      .poster-gallery {
-        grid-template-columns: 1fr;
-        gap: 12px;
-        padding: 10px;
-      }
-      .poster-card {
-        padding: 10px 4px 14px 4px;
-      }
-      .poster-card img {
-        max-width: 95vw;
-      }
+      .poster-gallery { grid-template-columns: 1fr; gap: 12px; padding: 10px; }
+      .poster-card { padding: 10px 4px 14px 4px; }
+      .poster-card img { max-width: 95vw; }
     }
   </style>
 </head>
@@ -66,6 +59,7 @@
     <div id="loading" style="text-align:center;color:#888;margin:30px 0;display:none;">正在加载大家的成就海报...</div>
     <div id="error" style="text-align:center;color:#d33;margin:30px 0;display:none;">加载失败，请稍后重试。</div>
   </main>
+
   <script src="achievement-gamification.js"></script>
   <script>
     // Load posters from letmetry — try official endpoint, fallback to file list
@@ -88,14 +82,20 @@
         const json = await resp.json();
         const files = (json && json.files) || [];
 
+        // Map file entries to poster objects (only use image extensions)
         const posters = files
           .filter(f => f.filename && /\.(png|jpg|jpeg|gif)$/i.test(f.filename))
-          .map(f => ({
-            imageUrl: `https://letmetry.cloud/${encodeURIComponent(f.filename)}`,
-            title: f.filename,
-            userName: '',
-            createdAt: f.created || f.modified
-          }));
+          .map(f => {
+            // Ensure public images are loaded from /images/<filename>
+            const filename = (f.filename || '').split('/').pop();
+            const imageUrl = `https://letmetry.cloud/images/${encodeURIComponent(filename)}`;
+            return {
+              imageUrl,
+              title: f.filename,
+              userName: f.uploader || '',
+              createdAt: f.created || f.modified || ''
+            };
+          }).filter(p => p.imageUrl);
 
         renderPosters(posters);
         document.getElementById('loading').style.display = 'none';
