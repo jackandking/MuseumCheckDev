@@ -96,6 +96,29 @@ const APP_CONFIG = {
 
 // ===== UTILITY FUNCTIONS =====
 // Small utility functions for common DOM operations and data handling
+// Initialize debug-mode when script bundle loads (if debug flag set by query)
+(function(){
+    try {
+        if (window.__MC_DEBUG === undefined) {
+            // if debug-mode.js loaded set window.__MC_DEBUG; otherwise, check URL
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('debug') === 'true' || params.get('debug') === '1') {
+                try { localStorage.setItem('mc_debug','1'); } catch(e){}
+                window.__MC_DEBUG = true;
+            } else if (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1') {
+                window.__MC_DEBUG = true;
+            }
+        }
+        // if debug set and debug-mode.js wasn't present, attempt to load vConsole
+        if (window.__MC_DEBUG && !window.__MC_VCONSOLE_LOADED) {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/vconsole@3.9.0/dist/vconsole.min.js';
+            s.onload = function(){ try{ window.vConsole = new VConsole({ maxLogNumber: 1000 }); console.info('vConsole enabled (script.js)'); }catch(e){} };
+            document.head.appendChild(s);
+            window.__MC_VCONSOLE_LOADED = true;
+        }
+    } catch(e) {}
+})();
 const UtilityFunctions = {
     // DOM helper functions
     querySelector: (selector) => document.querySelector(selector),

@@ -349,6 +349,7 @@
             }
         }
     </style>
+    <script src="debug-mode.js"></script>
 </head>
 <body>
     <div class="container">
@@ -402,11 +403,15 @@
                 <p id="viewerDate">生成日期</p>
             </div>
             <div class="modal-actions">
+                <button class="modal-button" id="publishButton" onclick="publishPosterToEveryone()">📣 发布到大家的成就</button>
                 <button class="modal-button" onclick="downloadPoster()">📱 下载海报</button>
                 <button class="modal-button" onclick="sharePoster()">📤 分享海报</button>
             </div>
         </div>
     </div>
+
+    <script src="letmetry-cloud-api.js"></script>
+    <script src="image-upload-util.js"></script>
 
     <script>
         // Global variables
@@ -591,6 +596,83 @@
             } catch (error) {
                 console.error('Share failed:', error);
                 alert('分享功能暂不可用，请截图分享');
+            }
+        }
+
+        // Publish poster to letmetry.cloud -> everyone achievements
+        async function publishPosterToEveryone() {
+            if (!currentPoster) return;
+            const btn = document.getElementById('publishButton');
+            const origText = btn ? btn.textContent : '';
+            try {
+                if (btn) { btn.disabled = true; btn.textContent = '发布中...'; }
+
+                // user name fallback
+                const userName = localStorage.getItem('museumcheck_user_name') || localStorage.getItem('profileName') || '匿名';
+
+                // Convert dataURL to blob
+                const resp = await fetch(currentPoster.dataURL);
+                const blob = await resp.blob();
+                const file = new File([blob], `${(currentPoster.museumName||'poster')}.png`, { type: blob.type || 'image/png' });
+
+                // Use LetmetryAPI defaults — anonymous upload will be attempted if no API key is configured
+
+                // Upload using the same image uploader used by museum checkin (handles compression and endpoint)
+                let imageUrl = null;
+                try {
+                    imageUrl = await imageUploader.uploadImage(file, { compress: true });
+                } catch (uploadErr) {
+                    // Fallback to LetmetryAPI direct upload
+                    console.warn('imageUploader failed, falling back to LetmetryAPI.uploadFile', uploadErr);
+                    const upload = await LetmetryAPI.uploadFile(file);
+                    imageUrl = upload.url || (upload.raw && (upload.raw.url || upload.raw.fileUrl || upload.raw.imageUrl));
+                }
+                if (!imageUrl) throw new Error('上传未返回图片地址');
+
+                // Publish poster record to MySQL (achievement_posters) via Letmetry API if available
+                const title = `${currentPoster.museumName || '打卡'} 海报`;
+                if (LetmetryAPI && LetmetryAPI.insertRecord) {
+                    try {
+                        const record = {
+                            image_url: (typeof imageUrl === 'object' && imageUrl.url) ? imageUrl.url : imageUrl,
+                            title: title,
+                            user_name: userName,
+                            source: 'museumcheck_web',
+                            visibility: 'public',
+                            metadata: JSON.stringify({ museumId: currentPoster.museumId, museumName: currentPoster.museumName, date: currentPoster.date }),
+                            status: 'active'
+                        };
+                        await LetmetryAPI.insertRecord('achievement_posters', record);
+                    } catch (e) {
+                        console.warn('insertRecord failed, continuing with uploaded image only', e);
+                    }
+                } else if (LetmetryAPI && LetmetryAPI.publishPoster) {
+                    // Legacy fallback: call publishPoster if insertRecord not available
+                    try {
+                        await LetmetryAPI.publishPoster({ imageUrl, title, userName });
+                    } catch (e) {
+                        console.warn('publishPoster API failed, continuing with uploaded image only', e);
+                    }
+                }
+
+                alert('已成功发布到大家的成就！感谢分享。');
+
+                if (confirm('是否打开「大家的成就」查看？')) {
+                    window.open('everyone-achievements.html', '_blank');
+                }
+
+                if (typeof gtag === 'function') {
+                    gtag('event', 'achievement_poster_published', {
+                        museum_id: currentPoster.museumId,
+                        museum_name: currentPoster.museumName
+                    });
+                }
+
+            } catch (err) {
+                console.error('Publish failed:', err);
+                alert('发布失败：' + (err.message || err));
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = origText; }
             }
         }
 

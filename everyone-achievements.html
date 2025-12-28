@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>大家的成就 - MuseumCheck</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="achievement-gamification.css">
+  <script src="debug-mode.js"></script>
+  <style>
+    .poster-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+      padding: 18px;
+      background: #f8f8f8;
+    }
+    .poster-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 8px 18px 8px;
+      transition: box-shadow 0.2s;
+    }
+    .poster-card img {
+      width: 100%;
+      max-width: 200px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #eee;
+    }
+    .poster-meta {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .poster-gallery {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 10px;
+      }
+      .poster-card {
+        padding: 10px 4px 14px 4px;
+      }
+      .poster-card img {
+        max-width: 95vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <h1>大家的成就</h1>
+    <a href="achievements.html" class="back-link">← 返回我的成就</a>
+  </header>
+  <main>
+    <section id="posterGallery" class="poster-gallery">
+      <!-- Posters will be loaded here -->
+    </section>
+    <div id="loading" style="text-align:center;color:#888;margin:30px 0;display:none;">正在加载大家的成就海报...</div>
+    <div id="error" style="text-align:center;color:#d33;margin:30px 0;display:none;">加载失败，请稍后重试。</div>
+  </main>
+  <script src="achievement-gamification.js"></script>
+  <script>
+    // Load posters from letmetry — try official endpoint, fallback to file list
+    async function loadPosters() {
+      document.getElementById('loading').style.display = '';
+      document.getElementById('error').style.display = 'none';
+      try {
+        // Try official posters API first
+        let resp = await fetch('https://letmetry.cloud/api/v1/achievement-posters?limit=100&order=desc');
+        if (resp.ok) {
+          const posters = await resp.json();
+          renderPosters(posters);
+          document.getElementById('loading').style.display = 'none';
+          return;
+        }
+
+        // Fallback: list files and display recent images
+        resp = await fetch('https://letmetry.cloud/file/list');
+        if (!resp.ok) throw new Error('无法读取文件列表');
+        const json = await resp.json();
+        const files = (json && json.files) || [];
+
+        const posters = files
+          .filter(f => f.filename && /\.(png|jpg|jpeg|gif)$/i.test(f.filename))
+          .map(f => ({
+            imageUrl: `https://letmetry.cloud/${encodeURIComponent(f.filename)}`,
+            title: f.filename,
+            userName: '',
+            createdAt: f.created || f.modified
+          }));
+
+        renderPosters(posters);
+        document.getElementById('loading').style.display = 'none';
+      } catch (e) {
+        console.error('loadPosters error', e);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = '';
+      }
+    }
+
+    function renderPosters(posters) {
+      const gallery = document.getElementById('posterGallery');
+      gallery.innerHTML = '';
+      if (!Array.isArray(posters) || posters.length === 0) {
+        gallery.innerHTML = '<div style="color:#888;text-align:center;width:100%;">还没有人发布成就海报，快来成为第一个吧！</div>';
+        return;
+      }
+      posters.forEach(poster => {
+        const card = document.createElement('div');
+        card.className = 'poster-card';
+        const img = document.createElement('img');
+        img.src = poster.imageUrl;
+        img.alt = poster.title || '成就海报';
+        img.loading = 'lazy';
+        card.appendChild(img);
+        const meta = document.createElement('div');
+        meta.className = 'poster-meta';
+        meta.textContent = (poster.userName ? poster.userName + ' · ' : '') + (poster.createdAt ? new Date(poster.createdAt).toLocaleDateString() : '');
+        card.appendChild(meta);
+        if (poster.title) {
+          const title = document.createElement('div');
+          title.style.fontWeight = 'bold';
+          title.style.fontSize = '14px';
+          title.style.margin = '6px 0 2px 0';
+          title.textContent = poster.title;
+          card.insertBefore(title, meta);
+        }
+        gallery.appendChild(card);
+      });
+    }
+    loadPosters();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>大家的成就 - MuseumCheck</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="achievement-gamification.css">
+  <script src="debug-mode.js"></script>
+  <style>
+    .poster-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+      padding: 18px;
+      background: #f8f8f8;
+    }
+    .poster-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 8px 18px 8px;
+      transition: box-shadow 0.2s;
+    }
+    .poster-card img {
+      width: 100%;
+      max-width: 200px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #eee;
+    }
+    .poster-meta {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .poster-gallery {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 10px;
+      }
+      .poster-card {
+        padding: 10px 4px 14px 4px;
+      }
+      .poster-card img {
+        max-width: 95vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <h1>大家的成就</h1>
+    <a href="achievements.html" class="back-link">← 返回我的成就</a>
+  </header>
+  <main>
+    <section id="posterGallery" class="poster-gallery">
+        // Try official posters API first
+        let resp = await fetch('https://letmetry.cloud/api/v1/achievement-posters?limit=100&order=desc');
+        if (resp.ok) {
+          const posters = await resp.json();
+          renderPosters(posters);
+          document.getElementById('loading').style.display = 'none';
+          return;
+        }
+
+        // Fallback: list files and display recent images
+        resp = await fetch('https://letmetry.cloud/file/list');
+        if (!resp.ok) throw new Error('无法读取文件列表');
+        const json = await resp.json();
+        const files = (json && json.files) || [];
+
+        // Map file entries to poster objects (only use image extensions)
+        const posters = files
+          .filter(f => f.filename && /\.(png|jpg|jpeg|gif)$/i.test(f.filename))
+          .map(f => ({
+            imageUrl: `https://letmetry.cloud/${encodeURIComponent(f.filename)}`,
+            title: f.filename,
+            userName: '',
+            createdAt: f.created || f.modified
+          }));
+
+        renderPosters(posters);
+        document.getElementById('loading').style.display = 'none';
+            const imageUrl = path && path.indexOf('http') === 0 ? path : (base.replace(/\/$/,'') + path);
+            return {
+              imageUrl,
+              title: filename,
+              userName: f.uploader || '',
+              createdAt: f.created || f.modified || ''
+            };
+          }).filter(p=>p.imageUrl);
+        } else {
+          // fallback: try original posters endpoint
+          const resp = await fetch('https://letmetry.cloud/api/v1/achievement-posters?limit=100&order=desc');
+          if (!resp.ok) throw new Error('网络错误');
+          posters = await resp.json();
+        }
+        renderPosters(posters);
+        document.getElementById('loading').style.display = 'none';
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = '';
+      }
+    }
+    function renderPosters(posters) {
+      const gallery = document.getElementById('posterGallery');
+      gallery.innerHTML = '';
+      if (!Array.isArray(posters) || posters.length === 0) {
+        gallery.innerHTML = '<div style="color:#888;text-align:center;width:100%;">还没有人发布成就海报，快来成为第一个吧！</div>';
+        return;
+      }
+      posters.forEach(poster => {
+        const card = document.createElement('div');
+        card.className = 'poster-card';
+        const img = document.createElement('img');
+        img.src = poster.imageUrl;
+        img.alt = poster.title || '成就海报';
+        img.loading = 'lazy';
+        card.appendChild(img);
+        const meta = document.createElement('div');
+        meta.className = 'poster-meta';
+        meta.textContent = (poster.userName ? poster.userName + ' · ' : '') + (poster.createdAt ? new Date(poster.createdAt).toLocaleDateString() : '');
+        card.appendChild(meta);
+        if (poster.title) {
+          const title = document.createElement('div');
+          title.style.fontWeight = 'bold';
+          title.style.fontSize = '14px';
+          title.style.margin = '6px 0 2px 0';
+          title.textContent = poster.title;
+          card.insertBefore(title, meta);
+        }
+        gallery.appendChild(card);
+      });
+    }
+    loadPosters();
+  </script>
+</body>
+</html>
