@@ -4472,8 +4472,15 @@
                 try {
                     // Get user ID from localStorage
                     const userId = localStorage.getItem('user_id') || 'anonymous';
-                    
-                    // Create event object
+
+                    // Log and get child nickname from localStorage (check-in page)
+                    console.log('childNickname before event (checkin page):', localStorage.getItem('childNickname'));
+                    let childNickname = localStorage.getItem('childNickname');
+                    if (!childNickname || childNickname.trim() === '') {
+                        childNickname = '小淘气';
+                    }
+
+                    // Create event object (include childNickname)
                     const event = {
                         id: this.generateEventId(),
                         eventType: eventType,
@@ -4482,6 +4489,7 @@
                         description: description,
                         parameters: parameters,
                         userId: userId,
+                        childNickname: childNickname,
                         timestamp: Date.now(),
                         version: '1.0'
                     };
