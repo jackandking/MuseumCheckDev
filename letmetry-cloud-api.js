@@ -47,7 +47,7 @@ const LetmetryAPI = (function(){
       filename = parts.length ? parts[parts.length - 1] : pathOrFilename;
     }
     if (!filename) return null;
-    return base.replace(/\/+$/,'') + '/images/' + filename;
+    return base.replace(/\/+$/,'') + '/images/' + encodeURIComponent(filename);
   }
 
   // Upload to /file/upload (general file) and /image/upload (image)
@@ -121,6 +121,22 @@ const LetmetryAPI = (function(){
     return await _fetchJson(`${base}/file/list`, { method: 'GET' });
   }
 
+  // Execute a raw SQL query via Letmetry MySQL endpoint
+  // Returns an array of rows or an object with `rows` depending on server response
+  async function queryMysql(sql, params = []) {
+    if (!sql) throw new Error('sql is required');
+    const url = `${base}/mysql/query`;
+    const body = JSON.stringify({ sql, params });
+    const res = await _fetchJson(url, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } });
+    // _fetchJson returns parsed JSON or null. Normalize to array of rows when possible.
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res.rows)) return res.rows;
+    // Some endpoints may wrap in { data: [...] }
+    if (Array.isArray(res.data)) return res.data;
+    return [];
+  }
+
   // Insert a record into a MySQL table via Letmetry API
   async function insertRecord(table, data) {
     if (!table || !data) throw new Error('table and data are required');
@@ -137,7 +153,7 @@ const LetmetryAPI = (function(){
     return { uploaded: upload, imageUrl, title: title || '', userName: userName || '' };
   }
 
-  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, setApiKey, getApiKey, setBaseUrl, getBaseUrl, DEFAULT_BASE };
+  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, queryMysql, setApiKey, getApiKey, setBaseUrl, getBaseUrl, DEFAULT_BASE };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = LetmetryAPI;

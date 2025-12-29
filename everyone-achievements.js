@@ -16,6 +16,14 @@
 
   async function fetchFromMySQL(){
     const sql = "SELECT image_url AS imageUrl, title, user_name AS userName, created_at AS createdAt FROM achievement_posters WHERE visibility='public' ORDER BY created_at DESC LIMIT 100";
+    // Prefer using LetmetryAPI.queryMysql if available (centralized auth/error handling)
+    if (typeof LetmetryAPI !== 'undefined' && typeof LetmetryAPI.queryMysql === 'function') {
+      const rows = await LetmetryAPI.queryMysql(sql, []);
+      const list = Array.isArray(rows) ? rows.map(normalizeRow).filter(Boolean) : [];
+      return list;
+    }
+
+    // Fallback: direct fetch to endpoint
     const resp = await fetch('https://letmetry.cloud/mysql/query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

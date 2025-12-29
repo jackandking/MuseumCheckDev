@@ -181,7 +181,7 @@ class ImageUploader {
             sanitizedFilename = sanitizedFilename.split(/[\/\\]/).pop() || 'unnamed';
             
             // Files are served from /images/ directory on the server
-            return `${baseUrl}/images/${sanitizedFilename}`;
+            return `${baseUrl}/images/${encodeURIComponent(sanitizedFilename)}`;
         }
         
         throw new Error('上传响应格式无效');
