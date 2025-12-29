@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>管理员 — 大家的成就 管理</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body{padding:18px}
+    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table th,.admin-table td{border:1px solid #eee;padding:8px;text-align:left}
+    .admin-actions button{margin-right:8px}
+    .filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+    .small{font-size:13px;color:#666}
+  </style>
+</head>
+<body>
+  <h1>大家的成就 — 管理</h1>
+  <p class="small">仅限管理员使用。无需入口，会通过 URL 直接访问。</p>
+
+  <div class="filter-row">
+    <input id="qInput" placeholder="搜索 title / user" style="flex:1;padding:8px" />
+    <button id="refreshBtn" class="btn">刷新</button>
+  </div>
+
+  <table class="admin-table" id="postersTable">
+    <thead>
+      <tr><th>ID</th><th>图片</th><th>标题</th><th>用户</th><th>时间</th><th>可见性</th><th>操作</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="message" style="margin-top:12px;color:#d33"></div>
+
+  <script src="letmetry-cloud-api.js"></script>
+  <script src="admin-everyone-achievements.js" defer></script>
+</body>
+</html>

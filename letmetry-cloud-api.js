@@ -137,6 +137,22 @@ const LetmetryAPI = (function(){
     return [];
   }
 
+  // Update a record in a MySQL table via Letmetry API
+  async function updateRecord(table, id, data) {
+    if (!table || (!id && id !== 0) || !data) throw new Error('table, id and data are required');
+    const url = `${base}/mysql/update`;
+    const body = JSON.stringify({ table, id, data });
+    return await _fetchJson(url, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } });
+  }
+
+  // Delete a record in a MySQL table via Letmetry API
+  async function deleteRecord(table, id) {
+    if (!table || (!id && id !== 0)) throw new Error('table and id are required');
+    const url = `${base}/mysql/delete`;
+    const body = JSON.stringify({ table, id });
+    return await _fetchJson(url, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } });
+  }
+
   // Insert a record into a MySQL table via Letmetry API
   async function insertRecord(table, data) {
     if (!table || !data) throw new Error('table and data are required');
@@ -153,7 +169,7 @@ const LetmetryAPI = (function(){
     return { uploaded: upload, imageUrl, title: title || '', userName: userName || '' };
   }
 
-  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, queryMysql, setApiKey, getApiKey, setBaseUrl, getBaseUrl, DEFAULT_BASE };
+  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, queryMysql, updateRecord, deleteRecord, setApiKey, getApiKey, setBaseUrl, getBaseUrl, DEFAULT_BASE };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = LetmetryAPI;
