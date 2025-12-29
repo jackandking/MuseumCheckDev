@@ -88,6 +88,21 @@
             animation: spin 0.6s linear;
         }
 
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.15s;
+        }
+
+        .link-button:hover { transform: scale(1.03); }
         @keyframes spin {
             from { transform: rotate(0deg) scale(1.05); }
             to { transform: rotate(360deg) scale(1.05); }
@@ -360,6 +375,7 @@
                 <h1>🏆 我的成就</h1>
             </div>
             <div class="header-right">
+                <a class="link-button" href="everyone-achievements.html" title="查看大家的成就">👥 大家的成就</a>
                 <button class="refresh-button" onclick="refreshPosters()" title="刷新加载成就海报">🔄</button>
             </div>
         </div>

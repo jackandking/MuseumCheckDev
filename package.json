@@ -19,6 +19,7 @@
     "mcp:start": "node museum-mcp-server.js",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui"
+    ,"verify:everyone":"bash tools/verify_everyone_with_curl.sh"
   },
   "keywords": [
     "museum",
