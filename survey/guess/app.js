@@ -132,10 +132,8 @@ function nextQuestion(selectedOption) {
             }
         } else {
             // No more questions - show result button
-            const showResultBtn = document.getElementById('showResultBtn');
-            if (showResultBtn) {
-                showResultBtn.style.display = 'block';
-            }
+                // Immediately open ad/results for selected answer
+                showAd();
         }
     } catch (error) {
         console.error('Error processing question:', error);
