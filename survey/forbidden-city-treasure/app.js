@@ -279,6 +279,20 @@ async function setupPageContent() {
     // Initialize vote data
     initializeVoteData();
     
+    // Persist metadata about the correct answer so result pages can identify it
+    try {
+        const correctTreasureForMeta = allTreasures.find(t => t.isCorrect);
+        if (correctTreasureForMeta) {
+            updateConfig(`${surveyConfig.storageKey}.meta`, {
+                correctName: correctTreasureForMeta.name,
+                museumId: surveyConfig.museumId,
+                timestamp: Date.now()
+            });
+        }
+    } catch (err) {
+        console.warn('Failed to persist survey metadata:', err);
+    }
+
     // Generate option cards
     const optionsContainer = document.getElementById('optionsContainer');
     if (optionsContainer) {
@@ -486,28 +500,60 @@ function showResult(voteData) {
         return;
     }
 
-    // Clear and set up result container
-    resultDiv.innerHTML = "";
-    
-    // Add header with better styling
-    const header = document.createElement('div');
-    header.className = 'result-header';
-    header.innerHTML = `
-        <h2>🎯 全网用户统计结果</h2>
-        <p class="result-subtitle">以下是所有参与用户的选择分布</p>
-    `;
-    resultDiv.appendChild(header);
+    // Try to load metadata (saved during option generation) so we can reliably
+    // determine which option is the correct answer even if `allTreasures` isn't
+    // fully populated in this context (mobile webviews / separate result loaders).
+    getConfig(`${surveyConfig.storageKey}.meta`, (meta) => {
+        // If meta exists and specifies a correctName, make sure a matching
+        // entry in `allTreasures` is marked as correct for rendering helpers.
+        try {
+            if (meta && meta.correctName) {
+                // Ensure at least a minimal allTreasures entry exists for the
+                // correct answer so rendering can pick it up by name.
+                let found = allTreasures.find(t => t.name === meta.correctName);
+                if (!found) {
+                    // Create a minimal placeholder so charts and answer sections
+                    // can show the correct badge and image if available from museumData.
+                    const fromMuseum = museumData && museumData.collections && museumData.collections[0];
+                    const placeholder = {
+                        name: meta.correctName,
+                        isCorrect: true,
+                        imageUrl: fromMuseum ? fromMuseum.imageUrl || fromMuseum.image : undefined,
+                        museumName: museumData ? museumData.name : undefined,
+                        description: fromMuseum ? fromMuseum.description : ''
+                    };
+                    allTreasures.push(placeholder);
+                } else {
+                    found.isCorrect = true;
+                }
+            }
+        } catch (err) {
+            console.warn('Error applying survey meta to treasures:', err);
+        }
 
-    // Create improved bar chart with treasure images
-    const chartContainer = createImprovedChart(voteData);
-    resultDiv.appendChild(chartContainer);
-    
-    // Add answer reveal section
-    const answerSection = createAnswerSection();
-    resultDiv.appendChild(answerSection);
-    
-    // Add summary statistics
-    addImprovedStatistics(resultDiv, voteData);
+        // Clear and set up result container
+        resultDiv.innerHTML = "";
+        
+        // Add header with better styling
+        const header = document.createElement('div');
+        header.className = 'result-header';
+        header.innerHTML = `
+            <h2>🎯 全网用户统计结果</h2>
+            <p class="result-subtitle">以下是所有参与用户的选择分布</p>
+        `;
+        resultDiv.appendChild(header);
+
+        // Create improved bar chart with treasure images
+        const chartContainer = createImprovedChart(voteData);
+        resultDiv.appendChild(chartContainer);
+        
+        // Add answer reveal section
+        const answerSection = createAnswerSection();
+        resultDiv.appendChild(answerSection);
+        
+        // Add summary statistics
+        addImprovedStatistics(resultDiv, voteData);
+    });
 }
 
 /**
