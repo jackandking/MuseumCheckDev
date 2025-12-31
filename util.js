@@ -49,3 +49,17 @@ function uploadFirework(fireworkId, timestamp, x, y, city, fireworkType = 'heart
         fireworkType: fireworkType
     });
 }
+
+/**
+ * Detect whether debug mode is enabled.
+ * Consistent with `debug-mode.js` which sets `window.__MC_DEBUG` or stores `mc_debug` in localStorage.
+ */
+function isDebugMode() {
+    try {
+        if (window && window.__MC_DEBUG) return true;
+        const params = new URLSearchParams(window.location.search || '');
+        if (params.get('debug') === 'true' || params.get('debug') === '1') return true;
+        if (localStorage && localStorage.getItem && localStorage.getItem('mc_debug') === '1') return true;
+    } catch (e) { }
+    return false;
+}

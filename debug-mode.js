@@ -36,12 +36,47 @@
   // Activate debug mode if URL param present, or if stored flag exists.
   const param = hasDebugParam();
   if (param) setDebugStored(true);
+
+  // Expose MC_debug helper
+  window.MC_debug = {
+    enable: ()=>{ setDebugStored(true); console.info('mc_debug: enabling debug (user)'); loadVConsole(); },
+    disable: ()=>{ setDebugStored(false); console.info('mc_debug: disabling debug (user)'); if(window.vConsole){ try{vConsole.destroy();}catch(e){} } }
+  };
+
+  // expose a simple flag for compatibility
   if (param || isDebugEnabledStored()) {
-    // expose a global flag
     window.__MC_DEBUG = true;
-    // small helper to toggle
-    window.MC_debug = { enable: ()=>{ setDebugStored(true); loadVConsole(); }, disable: ()=>{ setDebugStored(false); if(window.vConsole){ try{vConsole.destroy();}catch(e){} } } };
-    // Load vConsole asynchronously
+    console.info('mc_debug: Debug mode enabled at load (via URL param or stored flag)');
+  } else {
+    window.__MC_DEBUG = false;
+    console.debug('mc_debug: Debug mode not enabled at load');
+  }
+
+  // Centralized debug API
+  window.MC_debugMode = {
+    isEnabled(verbose){
+      try {
+        const viaWindow = !!window.__MC_DEBUG;
+        let viaParam = false;
+        let viaStored = false;
+        try { const p = new URLSearchParams(window.location.search); viaParam = p.get('debug') === 'true' || p.get('debug') === '1'; } catch (e) {}
+        try { viaStored = isDebugEnabledStored(); } catch(e) { viaStored = false; }
+        const result = viaWindow || viaParam || viaStored;
+        if (verbose) console.info('MC_debugMode.isEnabled:', { viaWindow, viaParam, viaStored, result });
+        return result;
+      } catch (e) { console.warn('MC_debugMode.isEnabled error', e); return false; }
+    },
+    logStatus(context){
+      try {
+        const enabled = this.isEnabled(true);
+        console.info('MC_debugMode.logStatus', { context: context || '(unknown)', enabled });
+        return enabled;
+      } catch(e){ console.warn('MC_debugMode.logStatus error', e); return false; }
+    }
+  };
+
+  // Load vConsole asynchronously if debug active
+  if (window.MC_debugMode && window.MC_debugMode.isEnabled(true)) {
     loadVConsole();
   }
 })();

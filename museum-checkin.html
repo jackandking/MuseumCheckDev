@@ -4415,6 +4415,7 @@
     <script src="firework.js"></script>
     <script src="achievement-gamification.js"></script>
     <script src="virtual-pet.js"></script>
+    <script src="snake-game-inline.js"></script>
     <script src="baidu-image-search.js"></script>
     <script src="image-upload-util.js"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
@@ -6041,8 +6042,13 @@
                     } else if (gameType === 'pet-adventure') {
                         initPetAdventureGame(taskIndexForGame);
                     } else if (gameType === 'snake') {
-                        // Open snake game in new window
-                        window.open('snake-game.html', '_blank');
+                        // Open snake inline overlay instead of new window
+                        if (typeof initSnakeInlineGame === 'function') {
+                            initSnakeInlineGame(taskIndexForGame);
+                        } else {
+                            // Inline snake not available — skip opening new window to keep user in flow
+                            console.warn('initSnakeInlineGame not available');
+                        }
                     } else {
                         // Default to minesweeper
                         initMinesweeperGame(taskIndexForGame);
@@ -7838,7 +7844,11 @@
 
             const resetPuzzleBtn = document.getElementById('resetPuzzle');
             if (resetPuzzleBtn) {
-                resetPuzzleBtn.onclick = resetPuzzle;
+                if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                    resetPuzzleBtn.onclick = closePuzzleGame;
+                } else {
+                    resetPuzzleBtn.onclick = resetPuzzle;
+                }
             }
 
             const toggleRefBtn = document.getElementById('toggleReference');
@@ -7854,7 +7864,13 @@
 
             const resetMazeBtn = document.getElementById('resetMaze');
             if (resetMazeBtn) {
-                resetMazeBtn.onclick = resetMaze;
+                if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                    resetMazeBtn.style.display = 'none';
+                    resetMazeBtn.onclick = closeMazeGame;
+                } else {
+                    resetMazeBtn.style.display = '';
+                    resetMazeBtn.onclick = resetMaze;
+                }
             }
 
             // Maze direction buttons
@@ -7886,7 +7902,13 @@
 
             const resetShootingBtn = document.getElementById('resetShooting');
             if (resetShootingBtn) {
-                resetShootingBtn.onclick = resetShootingGame;
+                if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                    resetShootingBtn.style.display = 'none';
+                    resetShootingBtn.onclick = closeShootingGame;
+                } else {
+                    resetShootingBtn.style.display = '';
+                    resetShootingBtn.onclick = resetShootingGame;
+                }
             }
 
             // Close modals on background click
@@ -10038,6 +10060,11 @@
             
             // Show the maze overlay
             document.getElementById('mazeGameOverlay').classList.add('show');
+            // Log debug status when opening maze
+            try {
+                const mazeDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1'));
+                console.info('Maze opened debug check:', mazeDebug);
+            } catch(e){}
             
             // Setup keyboard controls
             document.addEventListener('keydown', handleMazeKeydown);
@@ -10421,6 +10448,8 @@
             
             // Show the shooting overlay
             document.getElementById('shootingGameOverlay').classList.add('show');
+            // Log debug status when opening shooting
+            try { const sDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('Shooting opened debug check:', sDebug); } catch(e){}
             
             // Setup canvas click/touch handler
             const canvas = document.getElementById('shootingCanvas');
@@ -10782,6 +10811,8 @@
             
             // Show overlay
             document.getElementById('spaceInvadersOverlay').classList.add('show');
+            // Log debug status when opening space invaders
+            try { const siDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('SpaceInvaders opened debug check:', siDebug); } catch(e){}
             
             // Setup keyboard events
             document.addEventListener('keydown', siHandleKeyDown);
@@ -10791,10 +10822,16 @@
             setupSITouchControls();
             
             // Setup button handlers
-            document.getElementById('resetSpaceInvaders').onclick = () => {
-                cleanupSpaceInvadersGame();
-                initSpaceInvadersGame(taskIndex);
-            };
+            const resetSI = document.getElementById('resetSpaceInvaders');
+            if (resetSI) {
+                if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                    resetSI.style.display = 'none';
+                    resetSI.onclick = cleanupSpaceInvadersGame;
+                } else {
+                    resetSI.style.display = '';
+                    resetSI.onclick = () => { cleanupSpaceInvadersGame(); initSpaceInvadersGame(taskIndex); };
+                }
+            }
             document.getElementById('exitSpaceInvaders').onclick = cleanupSpaceInvadersGame;
             
             // Start game loop
@@ -11213,6 +11250,7 @@
             
             // Show overlay
             document.getElementById('tankBattleOverlay').classList.add('show');
+            try { const tbDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('TankBattle opened debug check:', tbDebug); } catch(e){}
             
             // Setup keyboard events
             document.addEventListener('keydown', tbHandleKeyDown);
@@ -11222,10 +11260,16 @@
             setupTBTouchControls();
             
             // Setup button handlers
-            document.getElementById('resetTankBattle').onclick = () => {
-                cleanupTankBattleGame();
-                initTankBattleGame(taskIndex);
-            };
+            const resetTB = document.getElementById('resetTankBattle');
+            if (resetTB) {
+                if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                    resetTB.style.display = 'none';
+                    resetTB.onclick = cleanupTankBattleGame;
+                } else {
+                    resetTB.style.display = '';
+                    resetTB.onclick = () => { cleanupTankBattleGame(); initTankBattleGame(taskIndex); };
+                }
+            }
             document.getElementById('exitTankBattle').onclick = cleanupTankBattleGame;
             
             // Start game loop
@@ -11898,13 +11942,50 @@
             
             // Show overlay
             document.getElementById('minesweeperOverlay').classList.add('show');
-            
+
+            // Log debug mode status using centralized API if available
+            try {
+                if (window.MC_debugMode && typeof window.MC_debugMode.logStatus === 'function') {
+                    window.MC_debugMode.logStatus('Minesweeper opened');
+                } else if (window.MC_isDebug) {
+                    const r = !!window.MC_isDebug(true);
+                    console.info('Minesweeper debug check (legacy MC_isDebug):', r);
+                } else {
+                    const p = new URLSearchParams(window.location.search);
+                    const r = p.get('debug') === 'true' || p.get('debug') === '1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug') === '1');
+                    console.info('Minesweeper debug check (fallback):', r);
+                }
+            } catch (e) { console.warn('Minesweeper debug log error', e); }
+
             // Setup button handlers
-            document.getElementById('resetMinesweeper').onclick = () => {
-                cleanupMinesweeperGame();
-                initMinesweeperGame(taskIndex);
-            };
-            document.getElementById('exitMinesweeper').onclick = cleanupMinesweeperGame;
+            const resetMS = document.getElementById('resetMinesweeper');
+            const exitMS = document.getElementById('exitMinesweeper');
+            // Determine debug mode using centralized checker if available
+            let msIsDebug = false;
+            try {
+                if (window.MC_debugMode && typeof window.MC_debugMode.isEnabled === 'function') {
+                    msIsDebug = !!window.MC_debugMode.isEnabled(true);
+                } else if (window.MC_isDebug) {
+                    msIsDebug = !!window.MC_isDebug(true);
+                } else {
+                    const p = new URLSearchParams(window.location.search);
+                    msIsDebug = p.get('debug') === 'true' || p.get('debug') === '1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug') === '1');
+                }
+            } catch (e) { msIsDebug = false; }
+
+            try { console.info('Minesweeper debug check (final):', { msIsDebug }); } catch(e){}
+
+            if (resetMS) {
+                if (!msIsDebug) {
+                    // hide restart in normal mode; only allow exit
+                    resetMS.style.display = 'none';
+                    resetMS.onclick = cleanupMinesweeperGame;
+                } else {
+                    resetMS.style.display = '';
+                    resetMS.onclick = () => { cleanupMinesweeperGame(); initMinesweeperGame(taskIndex); };
+                }
+            }
+            if (exitMS) exitMS.onclick = cleanupMinesweeperGame;
         }
 
         function placeMines(excludeRow, excludeCol) {
@@ -12203,6 +12284,7 @@
         function initPetAdventureGame(taskIndex = 0) {
             // Show overlay
             document.getElementById('petAdventureOverlay').classList.add('show');
+            try { const paDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('PetAdventure opened debug check:', paDebug); } catch(e){}
             
             // Get canvas - with null check
             paCanvas = document.getElementById('petAdventureCanvas');
@@ -12292,13 +12374,19 @@
             
             // Add new listeners
             newJumpBtn.addEventListener('click', paJump);
-            newRestartBtn.addEventListener('click', () => {
-                resetPetAdventureGame();
-                if (!paGameRunning) {
-                    paGameRunning = true;
-                    paGameLoop();
-                }
-            });
+            if (typeof isDebugMode === 'function' && !isDebugMode()) {
+                newRestartBtn.style.display = 'none';
+                newRestartBtn.addEventListener('click', cleanupPetAdventureGame);
+            } else {
+                newRestartBtn.style.display = '';
+                newRestartBtn.addEventListener('click', () => {
+                    resetPetAdventureGame();
+                    if (!paGameRunning) {
+                        paGameRunning = true;
+                        paGameLoop();
+                    }
+                });
+            }
             newExitBtn.addEventListener('click', cleanupPetAdventureGame);
             
             // Keyboard controls - add fresh listener after removing old one

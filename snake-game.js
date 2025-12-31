@@ -83,14 +83,55 @@ function initGame() {
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     
-    // Touch button controls (for mobile)
-    setupTouchButtons();
+    // Touch button controls (for mobile) — removed in favor of swipe gestures
+    // setupTouchButtons();
     
     // Update start screen with pet info
     updateStartScreen();
     
     // Draw initial grid
     drawGrid();
+    // Configure end-screen buttons based on debug mode
+    configureEndButtons();
+}
+
+/**
+ * Detect debug mode (compatible with debug-mode.js behavior)
+ */
+function isDebugMode() {
+    try {
+        if (window.MC_isDebug) {
+            const r = window.MC_isDebug(true);
+            console.debug('snake-game: MC_isDebug ->', r);
+            return r;
+        }
+        const params = new URLSearchParams(window.location.search);
+        const viaParam = params.get('debug') === 'true' || params.get('debug') === '1';
+        const viaStored = (localStorage && localStorage.getItem && localStorage.getItem('mc_debug') === '1');
+        const viaWindow = !!window.__MC_DEBUG;
+        const result = viaParam || viaStored || viaWindow;
+        console.debug('snake-game fallback debug check', { viaWindow, viaParam, viaStored, result });
+        return result;
+    } catch (e) { console.warn('snake-game isDebugMode error', e); }
+    return false;
+}
+
+/**
+ * Show restart button only when debug enabled; otherwise show continue button
+ */
+function configureEndButtons() {
+    try {
+        const restart = document.getElementById('restartBtn');
+        const cont = document.getElementById('continueBtn');
+        if (!restart && !cont) return;
+        if (isDebugMode()) {
+            if (restart) restart.classList.remove('hidden');
+            if (cont) cont.classList.add('hidden');
+        } else {
+            if (restart) restart.classList.add('hidden');
+            if (cont) cont.classList.remove('hidden');
+        }
+    } catch (e) { console.warn('configureEndButtons error', e); }
 }
 
 /**
@@ -694,8 +735,9 @@ function gameOver() {
     document.getElementById('finalLength').textContent = snake.length;
     document.getElementById('foodEaten').textContent = foodEaten;
     document.getElementById('xpReward').textContent = `+${xpEarned} XP`;
-    
     document.getElementById('gameOverScreen').classList.remove('hidden');
+    // Ensure buttons reflect current debug state (in case debug toggled via URL/localStorage)
+    configureEndButtons();
 }
 
 /**

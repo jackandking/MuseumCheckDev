@@ -294,7 +294,8 @@
                     <div class="stat-label">最高关卡</div>
                 </div>
             </div>
-            <button class="start-btn" onclick="restartGame()">再来一局</button>
+            <button id="restartBtn" class="start-btn" onclick="restartGame()">再来一局</button>
+            <button id="continueBtn" class="start-btn hidden" onclick="(function(){ window.location.href='index.html'; })()">继续导览</button>
         </div>
         
         <!-- Level Complete Screen -->

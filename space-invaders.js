@@ -120,6 +120,46 @@ function initGame() {
     
     // Start render loop (for start screen)
     renderLoop();
+    // configure restart/continue buttons according to debug mode
+    configureEndButtons();
+    // Log debug mode when opening game
+    try { if (window.MC_debugMode && typeof window.MC_debugMode.logStatus === 'function') window.MC_debugMode.logStatus('Space Invaders opened'); } catch(e){ console.debug('space-invaders debug log error', e); }
+}
+
+function isDebugMode() {
+    try {
+        if (window.MC_debugMode && typeof window.MC_debugMode.isEnabled === 'function') {
+            return !!window.MC_debugMode.isEnabled(true);
+        }
+        if (window.MC_isDebug) {
+            const r = window.MC_isDebug(true);
+            console.debug('space-invaders: MC_isDebug ->', r);
+            return r;
+        }
+        const params = new URLSearchParams(window.location.search);
+        const viaParam = params.get('debug') === 'true' || params.get('debug') === '1';
+        const viaStored = (localStorage && localStorage.getItem && localStorage.getItem('mc_debug') === '1');
+        const viaWindow = !!window.__MC_DEBUG;
+        const result = viaParam || viaStored || viaWindow;
+        console.debug('space-invaders fallback debug check', { viaWindow, viaParam, viaStored, result });
+        return result;
+    } catch (e) { console.warn('space-invaders isDebugMode error', e); }
+    return false;
+}
+
+function configureEndButtons() {
+    try {
+        const restart = document.getElementById('restartBtn');
+        const cont = document.getElementById('continueBtn');
+        if (!restart && !cont) return;
+        if (isDebugMode()) {
+            if (restart) restart.classList.remove('hidden');
+            if (cont) cont.classList.add('hidden');
+        } else {
+            if (restart) restart.classList.add('hidden');
+            if (cont) cont.classList.remove('hidden');
+        }
+    } catch (e) { console.warn('configureEndButtons error', e); }
 }
 
 /**
@@ -742,6 +782,8 @@ function gameOver() {
     document.getElementById('maxLevel').textContent = maxLevel;
     
     document.getElementById('gameOverScreen').classList.remove('hidden');
+    // Ensure buttons reflect debug mode
+    try { configureEndButtons(); console.info('space-invaders debug check (on gameOver)'); } catch(e){ console.warn('configureEndButtons missing', e); }
 }
 
 /**
