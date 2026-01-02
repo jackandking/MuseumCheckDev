@@ -9,10 +9,12 @@
   <script src="debug-mode.js"></script>
   <style>
     .poster-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:18px; padding:18px; background:#f8f8f8 }
-    .poster-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; display:flex; flex-direction:column; align-items:center; padding:12px 8px 18px 8px; transition:box-shadow .2s, transform .12s }
+    .poster-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; display:flex; flex-direction:column; align-items:center; padding:12px 8px 18px 8px; transition:box-shadow .2s, transform .12s; position:relative }
     .poster-card:hover{ transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,0.12) }
     .poster-card img{ width:100%; max-width:200px; border-radius:8px; margin-bottom:10px; background:#eee; object-fit:cover }
     .poster-meta{ font-size:13px; color:#666; margin-top:6px; text-align:center; word-break:break-word }
+    .delete-poster-btn { position:absolute; top:8px; right:8px; background:rgba(255,68,68,0.9); color:white; border:none; border-radius:50%; width:32px; height:32px; font-size:16px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2); z-index:10; transition:all 0.2s }
+    .delete-poster-btn:hover { transform:scale(1.1); background:rgba(255,68,68,1) }
     .controls{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin:12px 18px 0 18px }
     .btn{ background:#fff; padding:8px 12px; border-radius:10px; color:#333; text-decoration:none; border:1px solid rgba(0,0,0,.06); cursor:pointer }
     @media (max-width:480px){ .poster-gallery{ grid-template-columns:1fr; gap:12px; padding:10px } .poster-card{ padding:10px 4px 14px 4px } .poster-card img{ max-width:95vw } .controls{ justify-content:space-between } }
@@ -37,6 +39,7 @@
   </main>
 
   <script src="achievement-gamification.js"></script>
+  <script src="letmetry-cloud-api.js"></script>
   <script src="everyone-achievements.js" defer></script>
 </body>
 </html>

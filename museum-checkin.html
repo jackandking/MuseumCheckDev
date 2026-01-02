@@ -590,6 +590,53 @@
             padding: 12px 20px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 12px;
+        }
+
+        .poster-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .poster-action-button {
+            background: white;
+            color: #2c5aa0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .poster-action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .poster-action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .poster-action-button.delete-button {
+            background: #ff4444;
+            color: white;
+        }
+
+        .poster-action-button.published {
+            background: #4caf50;
+            color: white;
             animation: buttonsSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
         }
 
@@ -4405,6 +4452,16 @@
         <div class="poster-hint">
             💡 长按海报图片可以保存到相册
         </div>
+        <div class="poster-actions">
+            <button class="poster-action-button" id="publishPosterButton" onclick="publishPosterFromCheckin()">
+                <span>📣</span>
+                <span>发布到大家的成就</span>
+            </button>
+            <button class="poster-action-button delete-button" id="deletePosterButton" onclick="deletePublishedPoster()" style="display: none;">
+                <span>🗑️</span>
+                <span>删除已发布海报</span>
+            </button>
+        </div>
     </div>
 
 
@@ -4417,6 +4474,7 @@
     <script src="virtual-pet.js"></script>
     <script src="snake-game-inline.js"></script>
     <script src="baidu-image-search.js"></script>
+    <script src="letmetry-cloud-api.js"></script>
     <script src="image-upload-util.js"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
     <script src="event-wall-service.js"></script>
@@ -5439,6 +5497,9 @@
             // Show celebration modal with animation
             const celebration = document.getElementById('completionCelebration');
             celebration.classList.add('show');
+            
+            // Update poster button states (check if already published)
+            updatePosterButtonStates();
             
             // Create confetti particles
             createConfetti();
@@ -7535,6 +7596,215 @@
                         console.error('Still failed after clearing:', e);
                     }
                 }
+            }
+        }
+
+        // Publish poster from check-in page to everyone's achievements
+        async function publishPosterFromCheckin() {
+            const publishBtn = document.getElementById('publishPosterButton');
+            const deleteBtn = document.getElementById('deletePosterButton');
+            
+            if (!publishBtn) return;
+            
+            // Check if already published
+            const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+            if (publishedPosters[museumId] && publishedPosters[museumId].recordId) {
+                alert('此海报已经发布过了！');
+                return;
+            }
+            
+            const originalText = publishBtn.textContent;
+            
+            try {
+                publishBtn.disabled = true;
+                publishBtn.innerHTML = '<span>⏳</span><span>发布中...</span>';
+                
+                // Get current poster data from localStorage
+                const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+                const currentPoster = postersData[museumId];
+                
+                if (!currentPoster || !currentPoster.dataURL) {
+                    throw new Error('海报数据未找到，请先生成海报');
+                }
+                
+                // Get user name
+                const userName = localStorage.getItem('museumcheck_user_name') || 
+                                localStorage.getItem('profileName') || 
+                                localStorage.getItem('childNickname') || 
+                                '匿名';
+                
+                // Convert dataURL to blob
+                const response = await fetch(currentPoster.dataURL);
+                const blob = await response.blob();
+                const file = new File([blob], `${currentPoster.museumName || 'poster'}.png`, { 
+                    type: blob.type || 'image/png' 
+                });
+                
+                // Upload image using imageUploader or LetmetryAPI
+                let imageUrl;
+                if (typeof imageUploader !== 'undefined' && imageUploader.uploadImage) {
+                    imageUrl = await imageUploader.uploadImage(file, { compress: true });
+                } else if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.uploadImage) {
+                    const upload = await LetmetryAPI.uploadImage(file);
+                    imageUrl = upload.url;
+                } else {
+                    throw new Error('上传服务不可用');
+                }
+                
+                if (!imageUrl) {
+                    throw new Error('上传未返回图片地址');
+                }
+                
+                // Normalize image URL
+                const rawImageUrl = (typeof imageUrl === 'object' && imageUrl.url) ? imageUrl.url : imageUrl;
+                const safeImageUrl = (typeof rawImageUrl === 'string') ? encodeURI(rawImageUrl) : rawImageUrl;
+                
+                // Publish poster record to MySQL database
+                const title = `${currentPoster.museumName || '打卡'} 海报`;
+                let recordId = null;
+                
+                if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.insertRecord) {
+                    const record = {
+                        image_url: safeImageUrl,
+                        title: title,
+                        user_name: userName,
+                        visibility: 'public',
+                        museum_id: museumId,
+                        age_group: ageGroup,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    const result = await LetmetryAPI.insertRecord('achievement_posters', record);
+                    recordId = result && result.insertId;
+                    
+                    console.log('Poster published successfully, record ID:', recordId);
+                }
+                
+                // Save published poster info to localStorage
+                publishedPosters[museumId] = {
+                    recordId: recordId,
+                    imageUrl: safeImageUrl,
+                    title: title,
+                    userName: userName,
+                    publishedAt: Date.now()
+                };
+                localStorage.setItem('publishedPosters', JSON.stringify(publishedPosters));
+                
+                // Update button states
+                publishBtn.classList.add('published');
+                publishBtn.innerHTML = '<span>✅</span><span>已发布</span>';
+                publishBtn.disabled = true;
+                
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'flex';
+                }
+                
+                alert('已成功发布到大家的成就！感谢分享。');
+                
+                if (confirm('是否打开「大家的成就」查看？')) {
+                    window.open('everyone-achievements.html', '_blank');
+                }
+                
+                // Analytics tracking
+                if (typeof gtag === 'function') {
+                    gtag('event', 'achievement_poster_published_checkin', {
+                        museum_id: museumId,
+                        museum_name: currentPoster.museumName
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Publish failed:', error);
+                alert('发布失败：' + (error.message || error));
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Delete published poster
+        async function deletePublishedPoster() {
+            const deleteBtn = document.getElementById('deletePosterButton');
+            const publishBtn = document.getElementById('publishPosterButton');
+            
+            if (!deleteBtn) return;
+            
+            // Check if poster is published
+            const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+            const publishedPoster = publishedPosters[museumId];
+            
+            if (!publishedPoster || !publishedPoster.recordId) {
+                alert('未找到已发布的海报记录');
+                return;
+            }
+            
+            if (!confirm('确定要删除已发布的海报吗？删除后将从「大家的成就」中移除。')) {
+                return;
+            }
+            
+            const originalText = deleteBtn.textContent;
+            
+            try {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<span>⏳</span><span>删除中...</span>';
+                
+                // Delete from database
+                if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.deleteRecord) {
+                    await LetmetryAPI.deleteRecord('achievement_posters', publishedPoster.recordId);
+                    console.log('Poster deleted from database, record ID:', publishedPoster.recordId);
+                }
+                
+                // Remove from localStorage
+                delete publishedPosters[museumId];
+                localStorage.setItem('publishedPosters', JSON.stringify(publishedPosters));
+                
+                // Update button states
+                deleteBtn.style.display = 'none';
+                
+                if (publishBtn) {
+                    publishBtn.classList.remove('published');
+                    publishBtn.innerHTML = '<span>📣</span><span>发布到大家的成就</span>';
+                    publishBtn.disabled = false;
+                }
+                
+                alert('已成功删除发布的海报');
+                
+                // Analytics tracking
+                if (typeof gtag === 'function') {
+                    gtag('event', 'achievement_poster_deleted', {
+                        museum_id: museumId
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Delete failed:', error);
+                alert('删除失败：' + (error.message || error));
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Check and update button states when celebration modal opens
+        function updatePosterButtonStates() {
+            const publishBtn = document.getElementById('publishPosterButton');
+            const deleteBtn = document.getElementById('deletePosterButton');
+            
+            if (!publishBtn || !deleteBtn) return;
+            
+            const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+            const publishedPoster = publishedPosters[museumId];
+            
+            if (publishedPoster && publishedPoster.recordId) {
+                // Already published - show published state
+                publishBtn.classList.add('published');
+                publishBtn.innerHTML = '<span>✅</span><span>已发布</span>';
+                publishBtn.disabled = true;
+                deleteBtn.style.display = 'flex';
+            } else {
+                // Not published - show publish button
+                publishBtn.classList.remove('published');
+                publishBtn.innerHTML = '<span>📣</span><span>发布到大家的成就</span>';
+                publishBtn.disabled = false;
+                deleteBtn.style.display = 'none';
             }
         }
 

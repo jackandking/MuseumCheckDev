@@ -7,15 +7,17 @@
     const imageUrl = r.imageUrl || r.image_url || r.url || r.path || (r.data && r.data.image_url);
     if(!imageUrl) return null;
     return {
+      id: r.id,
       imageUrl,
       title: r.title || r.name || r.filename || '',
       userName: r.userName || r.user_name || r.uploader || '',
-      createdAt: r.createdAt || r.created_at || r.modified || r.date || ''
+      createdAt: r.createdAt || r.created_at || r.modified || r.date || '',
+      museumId: r.museumId || r.museum_id || ''
     };
   }
 
   async function fetchFromMySQL(){
-    const sql = "SELECT image_url AS imageUrl, title, user_name AS userName, created_at AS createdAt FROM achievement_posters WHERE visibility='public' ORDER BY created_at DESC LIMIT 100";
+    const sql = "SELECT id, image_url AS imageUrl, title, user_name AS userName, museum_id AS museumId, created_at AS createdAt FROM achievement_posters WHERE visibility='public' ORDER BY created_at DESC LIMIT 100";
     // Prefer using LetmetryAPI.queryMysql if available (centralized auth/error handling)
     if (typeof LetmetryAPI !== 'undefined' && typeof LetmetryAPI.queryMysql === 'function') {
       const rows = await LetmetryAPI.queryMysql(sql, []);
@@ -73,9 +75,35 @@
       gallery.innerHTML='<div style="color:#888;text-align:center;width:100%;padding:40px 0">还没有人发布成就海报，快来成为第一个吧！</div>';
       return;
     }
+    
+    // Get user's published posters from localStorage to check ownership
+    const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+    const userPosterIds = new Set(
+      Object.values(publishedPosters)
+        .map(p => p.recordId)
+        .filter(id => id != null)
+    );
+    
     posters.forEach(poster=>{
       const card=document.createElement('div');
       card.className='poster-card';
+      
+      // Check if this is user's own poster
+      const isOwnPoster = poster.id && userPosterIds.has(poster.id);
+      
+      // Add delete button for user's own posters
+      if (isOwnPoster) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-poster-btn';
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = '删除我的海报';
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deletePoster(poster);
+        };
+        card.appendChild(deleteBtn);
+      }
+      
       const img=document.createElement('img');
       img.src=poster.imageUrl;
       img.alt=poster.title||'成就海报';
@@ -97,8 +125,66 @@
       gallery.appendChild(card);
     });
   }
+  
+  // Delete poster function
+  async function deletePoster(poster) {
+    if (!poster || !poster.id) {
+      alert('无法删除：海报信息不完整');
+      return;
+    }
+    
+    if (!confirm(`确定要删除海报「${poster.title || '海报'}」吗？删除后将无法恢复。`)) {
+      return;
+    }
+    
+    try {
+      // Delete from database
+      if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.deleteRecord) {
+        await LetmetryAPI.deleteRecord('achievement_posters', poster.id);
+        console.log('Poster deleted from database, ID:', poster.id);
+      } else {
+        // Fallback: direct fetch
+        const resp = await fetch('https://letmetry.cloud/mysql/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: 'achievement_posters', id: poster.id })
+        });
+        if (!resp.ok) {
+          throw new Error('删除请求失败: ' + resp.status);
+        }
+      }
+      
+      // Remove from localStorage published posters
+      const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+      const museumId = poster.museumId || Object.keys(publishedPosters).find(
+        key => publishedPosters[key].recordId === poster.id
+      );
+      
+      if (museumId && publishedPosters[museumId]) {
+        delete publishedPosters[museumId];
+        localStorage.setItem('publishedPosters', JSON.stringify(publishedPosters));
+      }
+      
+      alert('海报已成功删除');
+      
+      // Reload posters to refresh the list
+      loadPosters();
+      
+      // Analytics tracking
+      if (typeof gtag === 'function') {
+        gtag('event', 'achievement_poster_deleted_everyone', {
+          poster_id: poster.id,
+          museum_id: poster.museumId
+        });
+      }
+      
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert('删除失败：' + (error.message || error));
+    }
+  }
 
   // expose for debug (optional)
-  window.MuseumEveryone = { loadPosters, renderPosters };
+  window.MuseumEveryone = { loadPosters, renderPosters, deletePoster };
   document.addEventListener('DOMContentLoaded', ()=> loadPosters());
 })();
