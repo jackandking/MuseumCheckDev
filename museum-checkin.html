@@ -7798,8 +7798,8 @@
                         user_name: userName,
                         visibility: 'public',
                         museum_id: museumId,
-                        age_group: ageGroup,
-                        created_at: new Date().toISOString()
+                        age_group: ageGroup
+                        // created_at will be set automatically by MySQL DEFAULT CURRENT_TIMESTAMP
                     };
                     
                     try {

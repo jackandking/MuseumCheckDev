@@ -85,8 +85,8 @@ describe('Poster Publish Database Error Handling', () => {
         user_name: userName,
         visibility: 'public',
         museum_id: museumId,
-        age_group: '7-12',
-        created_at: new Date().toISOString()
+        age_group: '7-12'
+        // created_at will be set automatically by MySQL DEFAULT CURRENT_TIMESTAMP
       };
 
       try {
@@ -153,8 +153,8 @@ describe('Poster Publish Database Error Handling', () => {
         user_name: userName,
         visibility: 'public',
         museum_id: museumId,
-        age_group: '7-12',
-        created_at: new Date().toISOString()
+        age_group: '7-12'
+        // created_at will be set automatically by MySQL DEFAULT CURRENT_TIMESTAMP
       };
 
       try {
@@ -220,8 +220,8 @@ describe('Poster Publish Database Error Handling', () => {
         user_name: userName,
         visibility: 'public',
         museum_id: museumId,
-        age_group: '7-12',
-        created_at: new Date().toISOString()
+        age_group: '7-12'
+        // created_at will be set automatically by MySQL DEFAULT CURRENT_TIMESTAMP
       };
 
       try {
@@ -279,8 +279,8 @@ describe('Poster Publish Database Error Handling', () => {
         user_name: userName,
         visibility: 'public',
         museum_id: museumId,
-        age_group: '7-12',
-        created_at: new Date().toISOString()
+        age_group: '7-12'
+        // created_at will be set automatically by MySQL DEFAULT CURRENT_TIMESTAMP
       };
 
       const result = await LetmetryAPI.insertRecord('achievement_posters', record);
@@ -298,5 +298,64 @@ describe('Poster Publish Database Error Handling', () => {
         title: '测试博物馆 海报'
       })
     );
+  });
+
+  test('regression: created_at should not be sent to avoid datetime format error', async () => {
+    // This test verifies the fix for the issue where new Date().toISOString() 
+    // was sending "2026-01-02T15:03:09.728Z" which MySQL rejected
+    
+    // Mock successful scenario
+    global.LetmetryAPI = {
+      uploadImage: jest.fn().mockResolvedValue({
+        url: 'https://example.com/test.png'
+      }),
+      insertRecord: jest.fn().mockResolvedValue({
+        insertId: 456
+      })
+    };
+
+    async function publishPosterFromCheckin() {
+      const museumId = 'test-museum';
+      const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+      const currentPoster = postersData[museumId];
+
+      const userName = 'Test User';
+      const response = await fetch(currentPoster.dataURL);
+      const blob = await response.blob();
+      const file = new File([blob], 'test.png', { type: 'image/png' });
+
+      const upload = await LetmetryAPI.uploadImage(file);
+      const imageUrl = upload.url;
+
+      // The fix: Do NOT include created_at - let MySQL use DEFAULT CURRENT_TIMESTAMP
+      const record = {
+        image_url: imageUrl,
+        title: `${currentPoster.museumName} 海报`,
+        user_name: userName,
+        visibility: 'public',
+        museum_id: museumId,
+        age_group: '7-12'
+        // created_at is intentionally omitted - MySQL will use DEFAULT CURRENT_TIMESTAMP
+      };
+
+      const result = await LetmetryAPI.insertRecord('achievement_posters', record);
+      return result.insertId;
+    }
+
+    // Execute and verify
+    const recordId = await publishPosterFromCheckin();
+    expect(recordId).toBe(456);
+    
+    // Verify that created_at was NOT included in the record
+    expect(LetmetryAPI.insertRecord).toHaveBeenCalledWith(
+      'achievement_posters',
+      expect.objectContaining({
+        museum_id: 'test-museum'
+      })
+    );
+    
+    // Verify created_at is NOT in the record
+    const callArgs = LetmetryAPI.insertRecord.mock.calls[0][1];
+    expect(callArgs).not.toHaveProperty('created_at');
   });
 });
