@@ -632,16 +632,54 @@
                 // user name fallback
                 const userName = localStorage.getItem('museumcheck_user_name') || localStorage.getItem('profileName') || '匿名';
 
+                // Generate unique filename to avoid 409 conflicts
+                const userId = localStorage.getItem('userId') || 
+                              localStorage.getItem('museumcheck_user_id') || 
+                              `user_${Math.random().toString(36).substring(2, 11)}`;
+                const timestamp = Date.now();
+                const sanitizedMuseumName = (currentPoster.museumName || 'poster')
+                    .replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')
+                    .substring(0, 30);
+                const uniqueFilename = `${sanitizedMuseumName}_${userId}_${timestamp}.png`;
+
                 // Convert dataURL to blob
                 const resp = await fetch(currentPoster.dataURL);
                 const blob = await resp.blob();
-                const file = new File([blob], `${(currentPoster.museumName||'poster')}.png`, { type: blob.type || 'image/png' });
+                let file = new File([blob], uniqueFilename, { type: blob.type || 'image/png' });
 
-                // Use LetmetryAPI defaults — anonymous upload will be attempted if no API key is configured
-
-                // Upload via the official image upload endpoint only
-                const imageUrl = await imageUploader.uploadImage(file, { compress: true });
-                if (!imageUrl) throw new Error('上传未返回图片地址');
+                // Upload via the official image upload endpoint with retry on 409 conflict
+                let imageUrl;
+                let uploadAttempts = 0;
+                const MAX_UPLOAD_ATTEMPTS = 3;
+                
+                while (uploadAttempts < MAX_UPLOAD_ATTEMPTS) {
+                    try {
+                        imageUrl = await imageUploader.uploadImage(file, { compress: true });
+                        if (!imageUrl) throw new Error('上传未返回图片地址');
+                        break; // Success, exit retry loop
+                    } catch (uploadError) {
+                        uploadAttempts++;
+                        
+                        // Check if it's a 409 conflict error
+                        const is409 = uploadError.message && uploadError.message.includes('409');
+                        const isConflict = is409 || 
+                                         uploadError.message && uploadError.message.toLowerCase().includes('conflict');
+                        
+                        if (isConflict && uploadAttempts < MAX_UPLOAD_ATTEMPTS) {
+                            console.warn(`Upload attempt ${uploadAttempts} failed with conflict, retrying...`);
+                            // Generate new filename with additional random suffix
+                            const retryFilename = `${sanitizedMuseumName}_${userId}_${timestamp}_retry${uploadAttempts}_${Math.random().toString(36).substring(2, 8)}.png`;
+                            file = new File([blob], retryFilename, { type: blob.type || 'image/png' });
+                            continue; // Retry
+                        }
+                        
+                        // Not a conflict error or max retries reached
+                        if (is409) {
+                            throw new Error('文件名冲突，已尝试多次仍然失败。请稍后重试或联系管理员。');
+                        }
+                        throw uploadError;
+                    }
+                }
 
                 // Publish poster record to MySQL (achievement_posters) via Letmetry API if available
                 const title = `${currentPoster.museumName || '打卡'} 海报`;

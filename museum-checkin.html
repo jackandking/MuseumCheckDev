@@ -7708,22 +7708,64 @@
                                 localStorage.getItem('childNickname') || 
                                 '匿名';
                 
+                // Generate unique filename to avoid 409 conflicts
+                // Format: museumName_userId_timestamp.png
+                // This ensures different users and multiple visits create unique files
+                const userId = localStorage.getItem('userId') || 
+                              localStorage.getItem('museumcheck_user_id') || 
+                              `user_${Math.random().toString(36).substring(2, 11)}`;
+                const timestamp = Date.now();
+                const sanitizedMuseumName = (currentPoster.museumName || 'poster')
+                    .replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')  // Replace special chars
+                    .substring(0, 30);  // Limit length
+                const uniqueFilename = `${sanitizedMuseumName}_${userId}_${timestamp}.png`;
+                
                 // Convert dataURL to blob
                 const response = await fetch(currentPoster.dataURL);
                 const blob = await response.blob();
-                const file = new File([blob], `${currentPoster.museumName || 'poster'}.png`, { 
+                let file = new File([blob], uniqueFilename, { 
                     type: blob.type || 'image/png' 
                 });
                 
-                // Upload image using imageUploader or LetmetryAPI
+                // Upload image with retry on 409 conflict
                 let imageUrl;
-                if (typeof imageUploader !== 'undefined' && imageUploader.uploadImage) {
-                    imageUrl = await imageUploader.uploadImage(file, { compress: true });
-                } else if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.uploadImage) {
-                    const upload = await LetmetryAPI.uploadImage(file);
-                    imageUrl = upload.url;
-                } else {
-                    throw new Error('上传服务不可用');
+                let uploadAttempts = 0;
+                const MAX_UPLOAD_ATTEMPTS = 3;
+                
+                while (uploadAttempts < MAX_UPLOAD_ATTEMPTS) {
+                    try {
+                        if (typeof imageUploader !== 'undefined' && imageUploader.uploadImage) {
+                            imageUrl = await imageUploader.uploadImage(file, { compress: true });
+                        } else if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.uploadImage) {
+                            const upload = await LetmetryAPI.uploadImage(file);
+                            imageUrl = upload.url;
+                        } else {
+                            throw new Error('上传服务不可用');
+                        }
+                        break; // Success, exit retry loop
+                    } catch (uploadError) {
+                        uploadAttempts++;
+                        
+                        // Check if it's a 409 conflict error
+                        const is409 = uploadError.message && uploadError.message.includes('409');
+                        const isConflict = is409 || 
+                                         uploadError.message && uploadError.message.toLowerCase().includes('conflict');
+                        
+                        if (isConflict && uploadAttempts < MAX_UPLOAD_ATTEMPTS) {
+                            console.warn(`Upload attempt ${uploadAttempts} failed with conflict, retrying...`);
+                            // Generate new filename with additional random suffix
+                            const retryFilename = `${sanitizedMuseumName}_${userId}_${timestamp}_retry${uploadAttempts}_${Math.random().toString(36).substring(2, 8)}.png`;
+                            const retryFile = new File([blob], retryFilename, { type: blob.type || 'image/png' });
+                            file = retryFile;  // Update file for next attempt
+                            continue;  // Retry
+                        }
+                        
+                        // Not a conflict error or max retries reached, throw
+                        if (is409) {
+                            throw new Error('文件名冲突，已尝试多次仍然失败。请稍后重试或联系管理员。');
+                        }
+                        throw uploadError;
+                    }
                 }
                 
                 if (!imageUrl) {

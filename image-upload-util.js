@@ -139,7 +139,17 @@ class ImageUploader {
         if (onProgress) onProgress('uploading', 100);
         
         if (!response.ok) {
-            throw new Error(`上传失败: ${response.status}`);
+            // Provide user-friendly error messages for specific status codes
+            if (response.status === 409) {
+                throw new Error(`文件名冲突 (409): 该文件名已存在，请使用不同的文件名`);
+            } else if (response.status === 413) {
+                throw new Error(`文件太大 (413): 请压缩后再上传`);
+            } else if (response.status === 401 || response.status === 403) {
+                throw new Error(`权限错误 (${response.status}): 请检查访问权限`);
+            } else if (response.status >= 500) {
+                throw new Error(`服务器错误 (${response.status}): 服务暂时不可用，请稍后重试`);
+            }
+            throw new Error(`上传失败 (${response.status}): 请稍后重试`);
         }
         
         const data = await response.json();
