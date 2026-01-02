@@ -8590,8 +8590,12 @@
                     return saved;
                 }
                 
-                // Generate random nickname for new users
-                return generateRandomNickname();
+                // Generate random nickname for new users and save it immediately
+                const newNickname = generateRandomNickname();
+                // Save the default nickname so it's available for poster generation
+                // This prevents users from being marked as anonymous when using default nickname
+                localStorage.setItem('childNickname', newNickname);
+                return newNickname;
             } catch (error) {
                 console.error('Failed to load child nickname:', error);
                 return generateRandomNickname();

@@ -1500,6 +1500,15 @@ class VirtualPet {
         // Only show if user doesn't have a pet
         if (this.hasPet()) return;
         
+        // NEW: Only show when user has accumulated some points (minimum 10 XP)
+        // This prevents the prompt from appearing immediately for brand new users
+        const currentPoints = this.getCurrentPoints();
+        const MINIMUM_POINTS_FOR_PROMPT = 10;
+        
+        if (currentPoints < MINIMUM_POINTS_FOR_PROMPT) {
+            return; // Don't show prompt if user has insufficient points
+        }
+        
         // Don't show prompt too frequently - use sessionStorage to track
         const lastPromptKey = 'virtualPetPromptShown';
         const lastPromptTime = sessionStorage.getItem(lastPromptKey);
