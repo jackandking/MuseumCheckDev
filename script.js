@@ -12350,7 +12350,7 @@ class MuseumCheckApp {
         if (!canvas) return;
         
         const dataURL = canvas.toDataURL('image/png');
-        const filename = `${museum.name}_博物馆打卡_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+        const filename = `${museum.id}_博物馆打卡_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
         
         // In WeChat environment, show long-press hint instead of triggering download
         if (UtilityFunctions.isWeChatEnvironment()) {

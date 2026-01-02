@@ -567,7 +567,7 @@
             if (!currentPoster) return;
 
             const link = document.createElement('a');
-            link.download = `${currentPoster.museumName}_打卡海报_${currentPoster.date.replace(/\//g, '-')}.png`;
+            link.download = `${currentPoster.museumId || 'poster'}_打卡海报_${currentPoster.date.replace(/\//g, '-')}.png`;
             link.href = currentPoster.dataURL;
             link.click();
 
@@ -633,14 +633,14 @@
                 const userName = localStorage.getItem('museumcheck_user_name') || localStorage.getItem('profileName') || '匿名';
 
                 // Generate unique filename to avoid 409 conflicts
+                // Format: museumId_userId_timestamp.png
+                // Using museumId instead of Chinese name to avoid URL-encoding issues
                 const userId = localStorage.getItem('userId') || 
                               localStorage.getItem('museumcheck_user_id') || 
                               `user_${Math.random().toString(36).substring(2, 11)}`;
                 const timestamp = Date.now();
-                const sanitizedMuseumName = (currentPoster.museumName || 'poster')
-                    .replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')
-                    .substring(0, 30);
-                const uniqueFilename = `${sanitizedMuseumName}_${userId}_${timestamp}.png`;
+                const museumIdForFilename = (currentPoster.museumId || 'poster');
+                const uniqueFilename = `${museumIdForFilename}_${userId}_${timestamp}.png`;
 
                 // Convert dataURL to blob
                 const resp = await fetch(currentPoster.dataURL);
@@ -668,7 +668,7 @@
                         if (isConflict && uploadAttempts < MAX_UPLOAD_ATTEMPTS) {
                             console.warn(`Upload attempt ${uploadAttempts} failed with conflict, retrying...`);
                             // Generate new filename with additional random suffix
-                            const retryFilename = `${sanitizedMuseumName}_${userId}_${timestamp}_retry${uploadAttempts}_${Math.random().toString(36).substring(2, 8)}.png`;
+                            const retryFilename = `${museumIdForFilename}_${userId}_${timestamp}_retry${uploadAttempts}_${Math.random().toString(36).substring(2, 8)}.png`;
                             file = new File([blob], retryFilename, { type: blob.type || 'image/png' });
                             continue; // Retry
                         }
