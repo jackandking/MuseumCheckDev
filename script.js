@@ -209,6 +209,15 @@ const UtilityFunctions = {
         });
     },
     
+    // Generate random nickname ID for new users using UUID substring
+    generateRandomNickname: () => {
+        // Generate UUID and take a substring to create unique but shorter nickname
+        const uuid = UtilityFunctions.generateUUID();
+        // Take last 8 characters of UUID (without hyphens) for uniqueness
+        const shortId = uuid.replace(/-/g, '').slice(-8);
+        return `用户${shortId}`;
+    },
+    
     // ===== WeChat Environment Detection =====
     // Detect if running in WeChat browser or Mini Program webview
     isWeChatEnvironment: () => {
@@ -4046,6 +4055,17 @@ class MuseumCheckApp {
         // Update header title with child nickname
         this.updateHeaderTitle();
         
+        // Check if this is a first-time user and trigger inline nickname editing
+        if (!this.hasSetNickname()) {
+            // Trigger inline nickname editing for first-time users after a short delay
+            setTimeout(() => {
+                const nicknameDisplay = document.getElementById('nicknameDisplay');
+                if (nicknameDisplay) {
+                    this.startInlineNicknameEdit(nicknameDisplay);
+                }
+            }, 500); // Small delay to ensure UI is ready
+        }
+        
         // Update dynamic museum count displays
         this.updateDynamicMuseumCounts();
         
@@ -5718,10 +5738,40 @@ class MuseumCheckApp {
     loadChildNickname() {
         try {
             const saved = localStorage.getItem('childNickname');
-            return saved || '小淘气'; // Default to '小淘气' if not saved
+            if (saved) {
+                return saved;
+            }
+            
+            // Generate random nickname for new users
+            const randomNickname = UtilityFunctions.generateRandomNickname();
+            // Store it temporarily (will be saved when user confirms)
+            return randomNickname;
         } catch (error) {
             console.error('Failed to load child nickname:', error);
-            return '小淘气';
+            return UtilityFunctions.generateRandomNickname();
+        }
+    }
+    
+    /**
+     * Check if user has explicitly set a nickname
+     * @returns {boolean} true if nickname has been set by user
+     */
+    hasSetNickname() {
+        try {
+            return localStorage.getItem('nicknameHasBeenSet') === 'true';
+        } catch (error) {
+            return false;
+        }
+    }
+    
+    /**
+     * Mark that user has explicitly set their nickname
+     */
+    markNicknameAsSet() {
+        try {
+            localStorage.setItem('nicknameHasBeenSet', 'true');
+        } catch (error) {
+            console.error('Failed to mark nickname as set:', error);
         }
     }
 
@@ -6478,6 +6528,9 @@ class MuseumCheckApp {
             
             this.childNickname = nickname;
             localStorage.setItem('childNickname', nickname);
+            
+            // Mark nickname as explicitly set by user
+            this.markNicknameAsSet();
             
             // Update header title
             this.updateHeaderTitle();
