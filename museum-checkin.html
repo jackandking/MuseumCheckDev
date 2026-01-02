@@ -651,6 +651,81 @@
             }
         }
 
+        /* Mobile responsive styles for poster modal */
+        @media (max-width: 768px) {
+            .completion-celebration {
+                justify-content: flex-start;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 80px 15px 20px 15px;
+            }
+            
+            .completion-title {
+                font-size: 24px;
+                margin-bottom: 15px;
+                position: sticky;
+                top: 0;
+                background: linear-gradient(135deg, #a8d8ea 0%, #7fc8dc 50%, #5ab4d1 100%);
+                padding: 10px 0;
+                z-index: 1;
+            }
+            
+            .poster-container {
+                max-width: 100%;
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .poster-hint {
+                font-size: 14px;
+                padding: 10px 15px;
+                margin-top: 10px;
+            }
+            
+            .poster-actions {
+                margin-top: 15px;
+                padding-bottom: 20px;
+                gap: 10px;
+            }
+            
+            .poster-action-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+            
+            .celebration-close-button {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .completion-celebration {
+                padding: 70px 10px 15px 10px;
+            }
+            
+            .completion-title {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            
+            .poster-container {
+                padding: 10px;
+                border-radius: 15px;
+            }
+            
+            .poster-action-button {
+                padding: 8px 16px;
+                font-size: 13px;
+                min-width: 100px;
+            }
+        }
+
         /* Confetti particles */
         .confetti {
             position: fixed;
