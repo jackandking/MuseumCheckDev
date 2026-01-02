@@ -7802,10 +7802,32 @@
                         created_at: new Date().toISOString()
                     };
                     
-                    const result = await LetmetryAPI.insertRecord('achievement_posters', record);
-                    recordId = result && result.insertId;
-                    
-                    console.log('Poster published successfully, record ID:', recordId);
+                    try {
+                        const result = await LetmetryAPI.insertRecord('achievement_posters', record);
+                        recordId = result && result.insertId;
+                        
+                        console.log('Poster published successfully, record ID:', recordId);
+                    } catch (dbError) {
+                        // Check if it's a "table doesn't exist" error (case-insensitive)
+                        const errorMsg = (dbError.message || dbError.sqlMessage || String(dbError)).toLowerCase();
+                        const isTableMissing = errorMsg.includes("doesn't exist") || 
+                                             errorMsg.includes("unknown column") ||
+                                             (errorMsg.includes("table") && errorMsg.includes("not found"));
+                        
+                        if (isTableMissing) {
+                            console.error('Database table not initialized:', dbError);
+                            throw new Error(
+                                '数据库表未初始化。\n\n' +
+                                '请联系管理员运行以下命令初始化数据库：\n' +
+                                'node init-achievement-posters-table.js\n\n' +
+                                '您的海报图片已成功上传，但未能保存到数据库记录。'
+                            );
+                        }
+                        
+                        // Other database errors
+                        console.error('Database insert error:', dbError);
+                        throw new Error(`数据库操作失败：${dbError.message || dbError.sqlMessage || dbError}`);
+                    }
                 }
                 
                 // Save published poster info to localStorage
