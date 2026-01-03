@@ -6850,6 +6850,76 @@ class MuseumCheckApp {
         return cityCoords[cityName] || null;
     }
 
+    // Determine user's city based on GPS coordinates
+    // Returns the name of the nearest city or null if location unavailable
+    getUserCity() {
+        if (!this.userLocation) {
+            return null;
+        }
+        
+        // Get all city coordinates
+        const cityCoords = {
+            '北京': { lat: 39.9042, lon: 116.4074 },
+            '上海': { lat: 31.2304, lon: 121.4737 },
+            '广州': { lat: 23.1291, lon: 113.2644 },
+            '深圳': { lat: 22.5431, lon: 114.0579 },
+            '成都': { lat: 30.5728, lon: 104.0668 },
+            '杭州': { lat: 30.2741, lon: 120.1551 },
+            '重庆': { lat: 29.4316, lon: 106.9123 },
+            '武汉': { lat: 30.5928, lon: 114.3055 },
+            '西安': { lat: 34.3416, lon: 108.9398 },
+            '天津': { lat: 39.3434, lon: 117.3616 },
+            '南京': { lat: 32.0603, lon: 118.7969 },
+            '苏州': { lat: 31.2989, lon: 120.5853 },
+            '长沙': { lat: 28.2282, lon: 112.9388 },
+            '郑州': { lat: 34.7466, lon: 113.6253 },
+            '沈阳': { lat: 41.8057, lon: 123.4328 },
+            '大连': { lat: 38.9140, lon: 121.6147 },
+            '济南': { lat: 36.6512, lon: 117.1209 },
+            '青岛': { lat: 36.0671, lon: 120.3826 },
+            '厦门': { lat: 24.4798, lon: 118.0894 },
+            '福州': { lat: 26.0745, lon: 119.2965 },
+            '昆明': { lat: 25.0406, lon: 102.7123 },
+            '兰州': { lat: 36.0611, lon: 103.8343 },
+            '乌鲁木齐': { lat: 43.8256, lon: 87.6168 },
+            '拉萨': { lat: 29.6520, lon: 91.1722 },
+            '哈尔滨': { lat: 45.8038, lon: 126.5340 },
+            '长春': { lat: 43.8171, lon: 125.3235 },
+            '石家庄': { lat: 38.0428, lon: 114.5149 },
+            '太原': { lat: 37.8706, lon: 112.5489 },
+            '合肥': { lat: 31.8206, lon: 117.2272 },
+            '南昌': { lat: 28.6829, lon: 115.8579 },
+            '贵阳': { lat: 26.6470, lon: 106.6302 },
+            '海口': { lat: 20.0458, lon: 110.1991 },
+            '三亚': { lat: 18.2528, lon: 109.5117 },
+            '银川': { lat: 38.4872, lon: 106.2309 },
+            '西宁': { lat: 36.6171, lon: 101.7782 },
+            '呼和浩特': { lat: 40.8414, lon: 111.7519 }
+        };
+        
+        // Calculate distance to each city and find the nearest one
+        let nearestCity = null;
+        let minDistance = Infinity;
+        
+        for (const [cityName, coords] of Object.entries(cityCoords)) {
+            const distance = this.calculateDistance(
+                this.userLocation.lat,
+                this.userLocation.lon,
+                coords.lat,
+                coords.lon
+            );
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestCity = cityName;
+            }
+        }
+        
+        // Only consider it the user's city if within 100km
+        // This prevents false matches when user is between cities
+        return (minDistance <= 100) ? nearestCity : null;
+    }
+
     // Get museum distance from user
     getMuseumDistance(museum) {
         if (!this.userLocation) {
@@ -7077,28 +7147,55 @@ class MuseumCheckApp {
                 museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
             }
 
-            // For new users, show only the nearest 5 museums (if geolocation available), else fallback to Beijing/popular museums
+            // For new users, show museums from their city (if location available), else fallback to Beijing/popular museums
             if (isNewUser) {
-                let nearbyMuseums = [];
-                if (this.userLocation) {
-                    // Sort by distance and take top 5
-                    nearbyMuseums = [...museumsToRender]
-                        .map(m => ({ museum: m, dist: this.getMuseumDistance(m) }))
-                        .filter(m => m.dist < Infinity)
-                        .sort((a, b) => a.dist - b.dist)
-                        .slice(0, 5)
-                        .map(m => m.museum);
-                }
-                if (!nearbyMuseums.length) {
-                    // Fallback: Beijing museums or top 5 popular museums
-                    nearbyMuseums = museumsToRender.filter(m => m.location && m.location.includes('北京')).slice(0, 5);
-                    if (!nearbyMuseums.length) {
-                        nearbyMuseums = museumsToRender.slice(0, 5);
+                let displayMuseums = [];
+                let notificationMessage = '';
+                
+                // Try to determine user's city and show all museums in that city
+                const userCity = this.getUserCity();
+                if (userCity) {
+                    // Show all museums in user's city
+                    displayMuseums = museumsToRender.filter(m => m.location && m.location.includes(userCity));
+                    
+                    if (displayMuseums.length > 0) {
+                        notificationMessage = `已为你推荐${userCity}的博物馆（共${displayMuseums.length}个）`;
                     }
                 }
-                museumsToRender = nearbyMuseums;
-                // Optionally show a tip for new users
-                UIManager && UIManager.showNotification && UIManager.showNotification('已为你推荐附近的博物馆，允许定位可获得更精准推荐', 3000, 'info');
+                
+                // If no museums found in user's city or city detection failed, fall back to nearest museums
+                if (displayMuseums.length === 0) {
+                    if (this.userLocation) {
+                        // Sort by distance and take nearest museums
+                        const sortedByDistance = [...museumsToRender]
+                            .map(m => ({ museum: m, dist: this.getMuseumDistance(m) }))
+                            .filter(m => m.dist < Infinity)
+                            .sort((a, b) => a.dist - b.dist)
+                            .slice(0, 10) // Show more museums when location is available but not in a major city
+                            .map(m => m.museum);
+                        
+                        if (sortedByDistance.length > 0) {
+                            displayMuseums = sortedByDistance;
+                            notificationMessage = `已为你推荐附近的博物馆（共${displayMuseums.length}个）`;
+                        }
+                    }
+                    
+                    // Final fallback: Beijing museums or top museums
+                    if (displayMuseums.length === 0) {
+                        displayMuseums = museumsToRender.filter(m => m.location && m.location.includes('北京')).slice(0, 10);
+                        if (displayMuseums.length === 0) {
+                            displayMuseums = museumsToRender.slice(0, 10);
+                        }
+                        notificationMessage = '已为你推荐热门博物馆，允许定位可获得更精准推荐';
+                    }
+                }
+                
+                museumsToRender = displayMuseums;
+                
+                // Show notification to user
+                if (notificationMessage && UIManager && UIManager.showNotification) {
+                    UIManager.showNotification(notificationMessage, 4000, 'info');
+                }
             }
 
             // Sort museums before rendering
