@@ -48,13 +48,22 @@
     const style = document.createElement('style');
     style.textContent = `
       .inline-snake-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999}
-      .inline-snake-panel{width:90%;max-width:640px;background:#0b1220;color:#fff;border-radius:12px;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,0.6);}
+      .inline-snake-panel{width:90%;max-width:640px;background:#0b1220;color:#fff;border-radius:12px;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,0.6);max-height:95vh;display:flex;flex-direction:column;}
       .inline-snake-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
       .inline-snake-canvas{display:block;background:#021; border-radius:8px; width:100%;}
       .inline-snake-controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
       .inline-snake-btn{padding:8px 16px;border-radius:8px;border:none;background:linear-gradient(90deg,#667eea,#764ba2);color:#fff;cursor:pointer}
       .inline-snake-hidden{display:none!important}
       .inline-snake-stats{font-size:14px;color:#cfe}
+      .inline-snake-touch-controls{display:none;margin-top:12px;padding:12px 0;}
+      .inline-snake-direction-pad{display:grid;grid-template-columns:60px 60px 60px;grid-template-rows:60px 60px;gap:8px;justify-content:center;align-items:center;}
+      .inline-snake-touch-btn{width:60px;height:60px;background:rgba(102,126,234,0.3);border:2px solid #667eea;border-radius:12px;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer;}
+      .inline-snake-touch-btn:active{background:rgba(102,126,234,0.6);transform:scale(0.95);}
+      .inline-snake-touch-btn-up{grid-column:2;grid-row:1;}
+      .inline-snake-touch-btn-left{grid-column:1;grid-row:2;}
+      .inline-snake-touch-btn-down{grid-column:2;grid-row:2;}
+      .inline-snake-touch-btn-right{grid-column:3;grid-row:2;}
+      @media (max-width:768px){.inline-snake-touch-controls{display:block;}}
     `;
     document.head.appendChild(style);
 
@@ -75,6 +84,14 @@
             <button id="snakeInlineRestartBtn" class="inline-snake-btn inline-snake-hidden">再玩一次</button>
           </div>
         </div>
+        <div class="inline-snake-touch-controls" id="snakeTouchControls">
+          <div class="inline-snake-direction-pad">
+            <button class="inline-snake-touch-btn inline-snake-touch-btn-up" id="snakeUpBtn">▲</button>
+            <button class="inline-snake-touch-btn inline-snake-touch-btn-left" id="snakeLeftBtn">◀</button>
+            <button class="inline-snake-touch-btn inline-snake-touch-btn-down" id="snakeDownBtn">▼</button>
+            <button class="inline-snake-touch-btn inline-snake-touch-btn-right" id="snakeRightBtn">▶</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -82,12 +99,52 @@
 
     overlayElements = {
       overlay, canvas: overlay.querySelector('#snakeInlineCanvas'), closeBtn: overlay.querySelector('#snakeCloseBtn'),
-      startBtn: overlay.querySelector('#snakeInlineStartBtn'), restartBtn: overlay.querySelector('#snakeInlineRestartBtn'), scoreEl: overlay.querySelector('#snakeInlineScore')
+      startBtn: overlay.querySelector('#snakeInlineStartBtn'), restartBtn: overlay.querySelector('#snakeInlineRestartBtn'), scoreEl: overlay.querySelector('#snakeInlineScore'),
+      upBtn: overlay.querySelector('#snakeUpBtn'), downBtn: overlay.querySelector('#snakeDownBtn'),
+      leftBtn: overlay.querySelector('#snakeLeftBtn'), rightBtn: overlay.querySelector('#snakeRightBtn')
     };
 
     overlayElements.closeBtn.addEventListener('click', cleanup);
     overlayElements.startBtn.addEventListener('click', startGame);
     overlayElements.restartBtn.addEventListener('click', restartGame);
+    
+    // Touch control event listeners
+    setupTouchControls();
+  }
+
+  function setupTouchControls() {
+    // Helper function to handle direction changes
+    const handleDirection = (newDir, checkAxis) => (e) => {
+      e.preventDefault();
+      if (state === 'playing') {
+        // Check if movement is allowed (not reversing into self)
+        if (checkAxis === 'x' && dir.x === 0) {
+          nextDir = newDir;
+        } else if (checkAxis === 'y' && dir.y === 0) {
+          nextDir = newDir;
+        }
+      }
+    };
+
+    // Up button (check y-axis)
+    const upHandler = handleDirection({ x: 0, y: -1 }, 'y');
+    overlayElements.upBtn.addEventListener('touchstart', upHandler);
+    overlayElements.upBtn.addEventListener('click', upHandler);
+
+    // Down button (check y-axis)
+    const downHandler = handleDirection({ x: 0, y: 1 }, 'y');
+    overlayElements.downBtn.addEventListener('touchstart', downHandler);
+    overlayElements.downBtn.addEventListener('click', downHandler);
+
+    // Left button (check x-axis)
+    const leftHandler = handleDirection({ x: -1, y: 0 }, 'x');
+    overlayElements.leftBtn.addEventListener('touchstart', leftHandler);
+    overlayElements.leftBtn.addEventListener('click', leftHandler);
+
+    // Right button (check x-axis)
+    const rightHandler = handleDirection({ x: 1, y: 0 }, 'x');
+    overlayElements.rightBtn.addEventListener('touchstart', rightHandler);
+    overlayElements.rightBtn.addEventListener('click', rightHandler);
   }
 
   // Game state
