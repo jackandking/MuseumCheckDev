@@ -143,6 +143,22 @@ describe('Museum Check-in Page', () => {
             expect(saveNicknameFnMatch).toBeTruthy();
         });
 
+        test('should have inline nickname editing on page title click', () => {
+            // Check that pageTitle has click event listener setup
+            expect(htmlContent).toContain('getElementById(\'pageTitle\')');
+            expect(htmlContent).toContain('addEventListener(\'click\'');
+            expect(htmlContent).toContain('startInlineNicknameEditOnTitle');
+            
+            // Check that the title element has tooltip
+            expect(htmlContent).toContain('title="点击修改昵称"');
+            
+            // Check that cursor pointer style is set
+            expect(htmlContent).toContain('cursor: pointer');
+            
+            // Verify the inline editing function exists
+            expect(htmlContent).toContain('function startInlineNicknameEditOnTitle(titleElement)');
+        });
+
         test('should use museumDataLoader for dynamic data priority', () => {
             // Check that loadMuseumData is async
             expect(htmlContent).toContain('async function loadMuseumData()');
