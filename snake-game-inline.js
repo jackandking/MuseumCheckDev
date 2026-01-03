@@ -221,13 +221,13 @@
       // add to achievementPoints
       const pts = localStorage.getItem('achievementPoints'); let cur = pts?parseInt(pts):0; cur += xp; localStorage.setItem('achievementPoints', String(cur));
     }catch(e){}
-      // In debug mode allow restarting; otherwise do not show start/restart — user should continue browsing
+      // In debug mode show "再玩一次" button; in normal mode show "开始" button to allow restart
       if (isDebugMode()) {
         overlayElements.restartBtn.classList.remove('inline-snake-hidden');
         overlayElements.startBtn.classList.add('inline-snake-hidden');
       } else {
         overlayElements.restartBtn.classList.add('inline-snake-hidden');
-        overlayElements.startBtn.classList.add('inline-snake-hidden');
+        overlayElements.startBtn.classList.remove('inline-snake-hidden');
       }
       console.log('snake-inline endGame debug check', debugStatus());
   }
