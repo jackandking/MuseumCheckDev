@@ -3892,6 +3892,169 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* Fullscreen Image Viewer Styles */
+        .fullscreen-image-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fullscreen-image-viewer.show {
+            display: flex;
+        }
+
+        .fullscreen-image-container {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-image-viewer img {
+            max-width: 100%;
+            max-height: 95vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            cursor: default;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: transform 0.3s ease;
+        }
+
+        .fullscreen-close-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 10001;
+        }
+
+        .fullscreen-close-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .fullscreen-close-button:active {
+            transform: scale(0.95);
+        }
+
+        .fullscreen-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            opacity: 1;
+            animation: hintFadeInOut 3s ease-in-out;
+        }
+
+        @keyframes hintFadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        /* Zoom controls for desktop */
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 10001;
+        }
+
+        .zoom-button {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .zoom-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .zoom-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .fullscreen-image-viewer img {
+                max-width: 100vw;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .fullscreen-close-button {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+            }
+
+            .fullscreen-hint {
+                bottom: 20px;
+                font-size: 13px;
+                padding: 10px 20px;
+            }
+
+            .zoom-controls {
+                display: none; /* Hide on mobile, use pinch gestures instead */
+            }
+        }
+
+        /* Make task image clickable */
+        .task-image {
+            cursor: zoom-in;
+        }
+
+        .task-image:hover {
+            opacity: 0.95;
+        }
     </style>
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
     <link rel="stylesheet" href="virtual-pet.css" media="print" onload="this.media='all'">
@@ -13206,8 +13369,175 @@
             return games[randomIndex];
         }
 
+        // ===== Fullscreen Image Viewer =====
+        // Global state for fullscreen viewer
+        let currentScale = 1;
+        let isFullscreenOpen = false;
+        let lastTapTime = 0;
+        let touchStartDistance = 0;
+        let initialScale = 1;
+
+        // Initialize fullscreen viewer
+        function initFullscreenViewer() {
+            const modalImage = document.getElementById('modalImage');
+            const fullscreenViewer = document.getElementById('fullscreenViewer');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            const fullscreenCloseBtn = document.getElementById('fullscreenCloseBtn');
+            const fullscreenHint = document.getElementById('fullscreenHint');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+            if (!modalImage || !fullscreenViewer || !fullscreenImage) {
+                console.warn('Fullscreen viewer elements not found');
+                return;
+            }
+
+            // Open fullscreen when clicking modal image
+            modalImage.addEventListener('click', function(e) {
+                if (modalImage.style.display !== 'none' && modalImage.src) {
+                    e.stopPropagation();
+                    openFullscreen(modalImage.src);
+                }
+            });
+
+            // Close fullscreen
+            function closeFullscreen() {
+                fullscreenViewer.classList.remove('show');
+                isFullscreenOpen = false;
+                currentScale = 1;
+                fullscreenImage.style.transform = 'scale(1)';
+                document.body.style.overflow = '';
+            }
+
+            // Open fullscreen
+            function openFullscreen(imageSrc) {
+                fullscreenImage.src = imageSrc;
+                fullscreenViewer.classList.add('show');
+                isFullscreenOpen = true;
+                currentScale = 1;
+                fullscreenImage.style.transform = 'scale(1)';
+                document.body.style.overflow = 'hidden';
+
+                // Show hint temporarily
+                if (fullscreenHint) {
+                    fullscreenHint.style.display = 'block';
+                    setTimeout(() => {
+                        if (fullscreenHint) fullscreenHint.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Close button
+            if (fullscreenCloseBtn) {
+                fullscreenCloseBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeFullscreen();
+                });
+            }
+
+            // Click background to close
+            fullscreenViewer.addEventListener('click', function(e) {
+                if (e.target === fullscreenViewer) {
+                    closeFullscreen();
+                }
+            });
+
+            // ESC key to close
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isFullscreenOpen) {
+                    closeFullscreen();
+                }
+            });
+
+            // Zoom functions
+            function zoomIn() {
+                currentScale = Math.min(currentScale + 0.5, 4);
+                fullscreenImage.style.transform = `scale(${currentScale})`;
+            }
+
+            function zoomOut() {
+                currentScale = Math.max(currentScale - 0.5, 0.5);
+                fullscreenImage.style.transform = `scale(${currentScale})`;
+            }
+
+            function zoomReset() {
+                currentScale = 1;
+                fullscreenImage.style.transform = 'scale(1)';
+            }
+
+            // Zoom controls
+            if (zoomInBtn) zoomInBtn.addEventListener('click', zoomIn);
+            if (zoomOutBtn) zoomOutBtn.addEventListener('click', zoomOut);
+            if (zoomResetBtn) zoomResetBtn.addEventListener('click', zoomReset);
+
+            // Double-tap to zoom on mobile
+            fullscreenImage.addEventListener('touchend', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTapTime;
+                
+                if (tapLength < 300 && tapLength > 0) {
+                    e.preventDefault();
+                    if (currentScale === 1) {
+                        currentScale = 2;
+                    } else {
+                        currentScale = 1;
+                    }
+                    fullscreenImage.style.transform = `scale(${currentScale})`;
+                }
+                lastTapTime = currentTime;
+            });
+
+            // Pinch to zoom on mobile
+            fullscreenImage.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    touchStartDistance = Math.hypot(
+                        touch1.clientX - touch2.clientX,
+                        touch1.clientY - touch2.clientY
+                    );
+                    initialScale = currentScale;
+                }
+            });
+
+            fullscreenImage.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const touchCurrentDistance = Math.hypot(
+                        touch1.clientX - touch2.clientX,
+                        touch1.clientY - touch2.clientY
+                    );
+                    
+                    if (touchStartDistance > 0) {
+                        const scaleFactor = touchCurrentDistance / touchStartDistance;
+                        currentScale = Math.max(0.5, Math.min(4, initialScale * scaleFactor));
+                        fullscreenImage.style.transform = `scale(${currentScale})`;
+                    }
+                }
+            });
+
+            // Mouse wheel zoom on desktop
+            fullscreenImage.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    zoomIn();
+                } else {
+                    zoomOut();
+                }
+            }, { passive: false });
+
+            console.log('Fullscreen image viewer initialized');
+        }
+
         // Initialize on page load
-        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('DOMContentLoaded', function() {
+            init();
+            initFullscreenViewer();
+        });
     </script>
 
     <!-- Wiki Image Search Modal -->
@@ -13249,5 +13579,19 @@
             </p>
         </div>
     </footer>
+
+    <!-- Fullscreen Image Viewer -->
+    <div class="fullscreen-image-viewer" id="fullscreenViewer">
+        <button class="fullscreen-close-button" id="fullscreenCloseBtn" aria-label="关闭全屏">&times;</button>
+        <div class="fullscreen-image-container">
+            <img id="fullscreenImage" src="" alt="全屏查看" />
+        </div>
+        <div class="fullscreen-hint" id="fullscreenHint">双击或捏合缩放图片</div>
+        <div class="zoom-controls" id="zoomControls">
+            <button class="zoom-button" id="zoomInBtn" aria-label="放大">+</button>
+            <button class="zoom-button" id="zoomOutBtn" aria-label="缩小">−</button>
+            <button class="zoom-button" id="zoomResetBtn" aria-label="重置">⟲</button>
+        </div>
+    </div>
 </body>
 </html>
