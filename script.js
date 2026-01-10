@@ -7226,7 +7226,16 @@ class MuseumCheckApp {
                 // Manual check-in is disabled - only unchecking is allowed
                 // Museums can only be checked via auto check-in when all child tasks are completed
                 const checkboxDisabled = this.readonlyCheckboxes || !isVisited;
+                
+                // Generate museum image HTML if image URL is available
+                const museumImageHtml = museum.image 
+                    ? `<div class="museum-image">
+                         <img src="${museum.image}" alt="${museum.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                       </div>`
+                    : '';
+                
                 card.innerHTML = `
+                    ${museumImageHtml}
                     <div class="museum-header">
                         <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
                                ${checkboxDisabled ? 'disabled' : ''}
