@@ -1023,7 +1023,8 @@ header h1 {
 .settings-button-icon,
 .fireworks-button-icon,
 .event-wall-button-icon,
-.treasures-button-icon {
+.treasures-button-icon,
+.quiz-button-icon {
     /* Extends .btn-icon base styles */
     width: var(--btn-icon-size);
     height: var(--btn-icon-size);
@@ -1052,6 +1053,12 @@ header h1 {
 .assessment-history-button-icon:hover:not(:disabled) {
     background-color: rgba(0, 123, 255, 0.1);
     border-color: #007bff;
+    transform: scale(1.1);
+}
+
+.quiz-button-icon:hover:not(:disabled) {
+    background-color: rgba(79, 70, 229, 0.1);
+    border-color: #4F46E5;
     transform: scale(1.1);
 }
 

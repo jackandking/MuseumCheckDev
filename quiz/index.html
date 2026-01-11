@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考一考 - 博物馆知识测验</title>
+    <link rel="stylesheet" href="css/quiz-style.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <header class="quiz-header">
+            <h1>🎓 考一考</h1>
+            <div class="user-stats">
+                <span class="points">积分: <strong id="totalPoints">0</strong></span>
+                <span class="daily-limit">今日: <span id="dailyCount">0</span>/<span id="dailyLimit">30</span>题</span>
+            </div>
+        </header>
+
+        <section class="visited-museums">
+            <h2>📚 我的博物馆 (已访问 <span id="visitedCount">0</span> 个)</h2>
+            <div id="museumList" class="museum-grid"></div>
+        </section>
+
+        <section class="quick-start">
+            <h2>🎯 快速开始</h2>
+            <div class="action-buttons">
+                <button class="action-btn daily-challenge" onclick="startDailyChallenge()">
+                    <span class="icon">📝</span>
+                    <span class="text">每日挑战</span>
+                    <span class="subtitle">5题，50积分</span>
+                </button>
+                <button class="action-btn random-quiz" onclick="startRandomQuiz()">
+                    <span class="icon">🔥</span>
+                    <span class="text">随机答题</span>
+                    <span class="subtitle">所有博物馆</span>
+                </button>
+                <button class="action-btn wrong-questions" onclick="goToWrongQuestions()">
+                    <span class="icon">📖</span>
+                    <span class="text">错题本</span>
+                    <span class="subtitle" id="wrongCount">0题待复习</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="my-stats">
+            <h2>📊 我的成绩</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">总答题数</span>
+                    <span class="stat-value" id="totalAnswered">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">正确率</span>
+                    <span class="stat-value" id="accuracy">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">连胜记录</span>
+                    <span class="stat-value" id="bestStreak">0</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="quiz-footer">
+            <button onclick="goHome()">返回首页</button>
+        </footer>
+    </div>
+
+    <!-- Load museum data first -->
+    <script src="../museums-data.js"></script>
+    <!-- Then load quiz modules -->
+    <script src="js/points-manager.js"></script>
+    <script src="js/quiz-data.js"></script>
+    <script src="js/quiz-engine.js"></script>
+    <script src="js/quiz-statistics.js"></script>
+    <script src="js/quiz-limit.js"></script>
+    <script src="js/quiz-ui.js"></script>
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuizHomePage();
+        });
+
+        function loadQuizHomePage() {
+            // Load user statistics
+            const stats = QuizStatistics.getStatistics();
+            document.getElementById('totalPoints').textContent = PointsManager.getPoints();
+            document.getElementById('totalAnswered').textContent = stats.totalQuestions;
+            document.getElementById('accuracy').textContent = stats.accuracy + '%';
+            document.getElementById('bestStreak').textContent = stats.bestStreak;
+
+            // Load daily limit
+            const limit = QuizLimit.checkDailyLimit('7-12');
+            document.getElementById('dailyCount').textContent = limit.answered;
+            document.getElementById('dailyLimit').textContent = limit.limit;
+
+            // Load visited museums
+            loadVisitedMuseums();
+
+            // Load wrong questions count
+            const wrongQuestions = QuizStatistics.getWrongQuestions();
+            document.getElementById('wrongCount').textContent = wrongQuestions.length + '题待复习';
+        }
+
+        function loadVisitedMuseums() {
+            const visitedMuseums = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+            const museumList = document.getElementById('museumList');
+            const visitedCount = document.getElementById('visitedCount');
+
+            visitedCount.textContent = visitedMuseums.length;
+
+            if (visitedMuseums.length === 0) {
+                museumList.innerHTML = '<p class="empty-message">还没有访问过博物馆，快去打卡吧！</p>';
+                return;
+            }
+
+            museumList.innerHTML = '';
+            const engine = new QuizEngine();
+            
+            visitedMuseums.forEach(museumId => {
+                const progress = engine.getMuseumProgress(museumId);
+                const card = document.createElement('div');
+                card.className = 'museum-card';
+                card.onclick = () => startMuseumQuiz(museumId);
+                
+                card.innerHTML = `
+                    <div class="museum-name">${QuizUI.getMuseumName(museumId)}</div>
+                    <div class="museum-progress">
+                        <span>${progress.answered}/${progress.total}题</span>
+                        <div class="stars">${QuizUI.createStarRating(progress.stars)}</div>
+                    </div>
+                `;
+                
+                museumList.appendChild(card);
+            });
+        }
+
+        function startMuseumQuiz(museumId) {
+            window.location.href = `session.html?museum=${museumId}&mode=normal`;
+        }
+
+        function startDailyChallenge() {
+            window.location.href = 'session.html?mode=daily';
+        }
+
+        function startRandomQuiz() {
+            window.location.href = 'session.html?mode=random';
+        }
+
+        function goToWrongQuestions() {
+            window.location.href = 'wrong-questions.html';
+        }
+
+        function goHome() {
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

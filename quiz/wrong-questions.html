@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错题本 - 考一考</title>
+    <link rel="stylesheet" href="css/quiz-style.css">
+    <style>
+        .wrong-questions-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wrong-questions-header {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--quiz-shadow-lg);
+        }
+
+        .wrong-questions-header h1 {
+            margin: 0 0 12px 0;
+            font-size: 28px;
+        }
+
+        .wrong-questions-header p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--quiz-shadow);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid var(--quiz-border);
+            background: white;
+            color: var(--quiz-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--quiz-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--quiz-primary);
+            border-color: var(--quiz-primary);
+            color: white;
+        }
+
+        .wrong-question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--quiz-shadow);
+            border-left: 4px solid var(--quiz-error);
+        }
+
+        .wrong-question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .wrong-question-meta {
+            flex: 1;
+        }
+
+        .wrong-question-museum {
+            font-size: 14px;
+            color: var(--quiz-text-light);
+            margin-bottom: 4px;
+        }
+
+        .wrong-count {
+            font-size: 12px;
+            color: var(--quiz-error);
+            font-weight: 600;
+        }
+
+        .resolve-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            background: var(--quiz-success);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .resolve-btn:hover {
+            opacity: 0.8;
+        }
+
+        .wrong-question-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--quiz-text);
+        }
+
+        .wrong-question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .wrong-option {
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: var(--quiz-bg);
+            font-size: 14px;
+        }
+
+        .wrong-option.user-selected {
+            background: #FEE2E2;
+            border: 2px solid var(--quiz-error);
+        }
+
+        .wrong-option.correct {
+            background: #D1FAE5;
+            border: 2px solid var(--quiz-success);
+            font-weight: 600;
+        }
+
+        .wrong-explanation {
+            background: var(--quiz-bg);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .wrong-explanation strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--quiz-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--quiz-text);
+        }
+
+        .empty-state-description {
+            font-size: 16px;
+            color: var(--quiz-text-light);
+            margin-bottom: 24px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .wrong-questions-container {
+                padding: 12px;
+            }
+
+            .wrong-question-card {
+                padding: 16px;
+            }
+
+            .wrong-question-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .filter-bar {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrong-questions-container">
+        <header class="wrong-questions-header">
+            <h1>📖 错题本</h1>
+            <p>温故而知新，复习错题是进步的捷径！</p>
+        </header>
+
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="recent">最近</button>
+            <button class="filter-btn" data-filter="frequent">多次出错</button>
+        </div>
+
+        <div id="wrongQuestionsContainer"></div>
+
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="reviewWrongQuestions()">开始复习</button>
+            <button class="btn-secondary" onclick="goToQuizHome()">返回答题</button>
+        </div>
+    </div>
+
+    <!-- Load museum data first -->
+    <script src="../../museums-data.js"></script>
+    <!-- Then load quiz modules -->
+    <script src="js/points-manager.js"></script>
+    <script src="js/quiz-data.js"></script>
+    <script src="js/quiz-engine.js"></script>
+    <script src="js/quiz-statistics.js"></script>
+    <script src="js/quiz-ui.js"></script>
+    <script>
+        let currentFilter = 'all';
+        const engine = new QuizEngine();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilters();
+            displayWrongQuestions();
+        });
+
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    displayWrongQuestions();
+                });
+            });
+        }
+
+        function displayWrongQuestions() {
+            const container = document.getElementById('wrongQuestionsContainer');
+            let wrongQuestions = engine.getWrongQuestions(true);
+
+            // Apply filter
+            if (currentFilter === 'recent') {
+                // Sort by last attempt, most recent first
+                wrongQuestions.sort((a, b) => b.lastAttempt - a.lastAttempt);
+                wrongQuestions = wrongQuestions.slice(0, 10);
+            } else if (currentFilter === 'frequent') {
+                // Sort by wrong count, highest first
+                wrongQuestions.sort((a, b) => b.wrongCount - a.wrongCount);
+                wrongQuestions = wrongQuestions.filter(q => q.wrongCount >= 2);
+            }
+
+            if (wrongQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎉</div>
+                        <h2 class="empty-state-title">太棒了！</h2>
+                        <p class="empty-state-description">
+                            ${currentFilter === 'all' ? '暂无错题，继续保持！' : '此分类暂无错题！'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            wrongQuestions.forEach(question => {
+                const card = createWrongQuestionCard(question);
+                container.appendChild(card);
+            });
+        }
+
+        function createWrongQuestionCard(question) {
+            const card = document.createElement('div');
+            card.className = 'wrong-question-card';
+            card.dataset.questionId = question.id;
+
+            const museumName = QuizUI.getMuseumName(question.museumId);
+            const lastAttemptDate = QuizUI.formatDate(question.lastAttempt);
+
+            let optionsHTML = '';
+            question.options.forEach((option, index) => {
+                let className = 'wrong-option';
+                if (index === question.selectedAnswer) {
+                    className += ' user-selected';
+                }
+                if (index === question.correctAnswer) {
+                    className += ' correct';
+                }
+                
+                const prefix = String.fromCharCode(65 + index);
+                const label = index === question.correctAnswer ? ' ✓ 正确答案' : 
+                             index === question.selectedAnswer ? ' ✗ 你的选择' : '';
+                
+                optionsHTML += `
+                    <div class="${className}">
+                        ${prefix}. ${option}${label}
+                    </div>
+                `;
+            });
+
+            card.innerHTML = `
+                <div class="wrong-question-header">
+                    <div class="wrong-question-meta">
+                        <div class="wrong-question-museum">${museumName} · ${lastAttemptDate}</div>
+                        <div class="wrong-count">错误 ${question.wrongCount} 次</div>
+                    </div>
+                    <button class="resolve-btn" onclick="markResolved('${question.id}')">
+                        ✓ 已掌握
+                    </button>
+                </div>
+                <div class="wrong-question-text">${question.question}</div>
+                <div class="wrong-question-options">${optionsHTML}</div>
+                <div class="wrong-explanation">
+                    <strong>💡 解析：</strong>
+                    ${question.explanation}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function markResolved(questionId) {
+            if (confirm('确定已掌握这道题目？')) {
+                engine.resolveWrongQuestion(questionId);
+                
+                // Remove card from display
+                const card = document.querySelector(`[data-question-id="${questionId}"]`);
+                if (card) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(100px)';
+                    setTimeout(() => {
+                        card.remove();
+                        displayWrongQuestions();
+                    }, 300);
+                }
+                
+                QuizUI.showNotification('已标记为已掌握！', 'success');
+            }
+        }
+
+        function reviewWrongQuestions() {
+            const wrongQuestions = engine.getWrongQuestions(true);
+            if (wrongQuestions.length === 0) {
+                alert('没有需要复习的错题！');
+                return;
+            }
+            
+            window.location.href = 'session.html?mode=wrong';
+        }
+
+        function goToQuizHome() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

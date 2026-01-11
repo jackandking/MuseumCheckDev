@@ -4710,6 +4710,11 @@ class MuseumCheckApp {
             this.showLeaderboardModal();
         });
 
+        // Quiz button
+        document.getElementById('quizButton').addEventListener('click', () => {
+            window.location.href = 'quiz/index.html';
+        });
+
         // National Treasures Survey button
         document.getElementById('nationalTreasuresButton').addEventListener('click', () => {
             window.open('survey/national-treasures/index.html', '_blank');

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答题中 - 考一考</title>
+    <link rel="stylesheet" href="css/quiz-style.css">
+</head>
+<body class="quiz-session-body">
+    <div class="session-container">
+        <header class="session-header">
+            <div class="museum-name" id="museumName"></div>
+            <div class="question-progress">
+                第 <span id="currentIndex">1</span>/<span id="totalQuestions">10</span> 题
+            </div>
+            <div class="session-stats">
+                <span class="streak" id="streakDisplay">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</span>
+                <span class="timer" id="timer">00:00</span>
+                <span class="points-earned">+<span id="pointsEarned">0</span>分</span>
+            </div>
+        </header>
+
+        <div class="question-container" id="questionContainer">
+            <div class="question-image" id="questionImage" style="display: none;">
+                <img src="" alt="题目图片" />
+            </div>
+
+            <div class="question-text" id="questionText"></div>
+
+            <div class="options-container" id="optionsContainer"></div>
+
+            <div class="question-actions">
+                <button class="btn-secondary" onclick="skipQuestion()">跳过 (消耗5分)</button>
+                <button class="btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>提交答案</button>
+            </div>
+
+            <div class="question-hint" id="questionHint" style="display: none;">
+                <p>💡 你在打卡任务中见过相关内容！</p>
+            </div>
+        </div>
+
+        <div class="feedback-container" id="feedbackContainer" style="display: none;">
+            <div class="feedback-content" id="feedbackContent"></div>
+            <button class="btn-primary" id="nextBtn" onclick="nextQuestion()">下一题 <span id="autoNext">(3)</span></button>
+        </div>
+    </div>
+
+    <!-- Load museum data first -->
+    <script src="../museums-data.js"></script>
+    <!-- Then load quiz modules -->
+    <script src="js/points-manager.js"></script>
+    <script src="js/quiz-data.js"></script>
+    <script src="js/quiz-engine.js"></script>
+    <script src="js/quiz-limit.js"></script>
+    <script src="js/quiz-ui.js"></script>
+    <script>
+        let engine;
+        let startTime;
+        let timerInterval;
+        let autoNextTimer;
+        let selectedAnswer = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initQuizSession();
+        });
+
+        function initQuizSession() {
+            const params = new URLSearchParams(window.location.search);
+            const museumId = params.get('museum');
+            const mode = params.get('mode') || 'normal';
+            const ageGroup = '7-12';
+
+            // Check daily limit
+            const limit = QuizLimit.checkDailyLimit(ageGroup);
+            if (!limit.canEarnPoints) {
+                if (!confirm(`今日答题已达${limit.limit}题上限。\n\n可以继续答题学习（不获得积分），或明天再来。\n\n点击"确定"继续学习，"取消"返回。`)) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            }
+
+            // Initialize quiz engine
+            engine = new QuizEngine();
+            const session = engine.startSession(museumId, ageGroup, mode);
+
+            if (!session.questions || session.questions.length === 0) {
+                alert('暂无可用题目！请先访问一些博物馆后再来答题。');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Update UI
+            document.getElementById('museumName').textContent = QuizUI.getMuseumName(museumId) || '随机答题';
+            document.getElementById('totalQuestions').textContent = session.questions.length;
+
+            // Start timer
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+
+            // Display first question
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = engine.getCurrentQuestion();
+            if (!question) {
+                completeSession();
+                return;
+            }
+
+            // Reset state
+            selectedAnswer = null;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('feedbackContainer').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+
+            // Update progress
+            document.getElementById('currentIndex').textContent = engine.currentSession.currentIndex + 1;
+
+            // Display question
+            document.getElementById('questionText').textContent = question.question;
+
+            // Display image (if available)
+            if (question.image) {
+                document.getElementById('questionImage').style.display = 'block';
+                document.getElementById('questionImage').querySelector('img').src = question.image;
+            } else {
+                document.getElementById('questionImage').style.display = 'none';
+            }
+
+            // Display options
+            displayOptions(question);
+
+            // Update streak display
+            updateStreakDisplay();
+        }
+
+        function displayOptions(question) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = String.fromCharCode(65 + index) + '. ' + option;
+                button.onclick = () => selectOption(index, button);
+                container.appendChild(button);
+            });
+        }
+
+        function selectOption(index, button) {
+            // Clear previous selection
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Mark new selection
+            button.classList.add('selected');
+            selectedAnswer = index;
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === null) return;
+
+            const result = engine.submitAnswer(selectedAnswer);
+            displayFeedback(result);
+
+            // Update points display
+            document.getElementById('pointsEarned').textContent = engine.currentSession.sessionPoints;
+
+            // Update daily count
+            QuizLimit.incrementDailyCount('7-12');
+        }
+
+        function displayFeedback(result) {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('feedbackContainer').style.display = 'block';
+
+            const feedbackContent = document.getElementById('feedbackContent');
+            const question = engine.currentSession.questions[engine.currentSession.currentIndex];
+
+            if (result.isCorrect) {
+                feedbackContent.innerHTML = `
+                    <div class="feedback-icon correct animate-bounce">🎉</div>
+                    <h2 class="feedback-title">回答正确！</h2>
+                    <p class="feedback-points">+${result.points} 积分</p>
+                    ${result.streak > 0 ? `<p class="feedback-streak">连对 ${result.streak} 题！</p>` : ''}
+                    <div class="feedback-explanation">
+                        <strong>💡 知识点：</strong>
+                        <p>${result.explanation}</p>
+                    </div>
+                `;
+            } else {
+                feedbackContent.innerHTML = `
+                    <div class="feedback-icon wrong animate-shake">😢</div>
+                    <h2 class="feedback-title">答错了</h2>
+                    <p class="feedback-correct-answer">正确答案是：${String.fromCharCode(65 + result.correctAnswer)}. ${question.options[result.correctAnswer]}</p>
+                    <div class="feedback-explanation">
+                        <strong>💡 知识点：</strong>
+                        <p>${result.explanation}</p>
+                        <p class="added-to-wrong">（已加入错题本）</p>
+                    </div>
+                `;
+            }
+
+            // Auto jump to next question
+            startAutoNext();
+        }
+
+        function startAutoNext() {
+            let countdown = 3;
+            const autoNextSpan = document.getElementById('autoNext');
+            
+            autoNextTimer = setInterval(() => {
+                countdown--;
+                autoNextSpan.textContent = `(${countdown})`;
+                
+                if (countdown <= 0) {
+                    clearInterval(autoNextTimer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            if (autoNextTimer) {
+                clearInterval(autoNextTimer);
+            }
+
+            engine.nextQuestion();
+
+            if (engine.isSessionComplete()) {
+                completeSession();
+            } else {
+                displayQuestion();
+            }
+        }
+
+        function skipQuestion() {
+            if (!confirm('跳过此题将扣除5积分，确定跳过吗？')) {
+                return;
+            }
+
+            PointsManager.addPoints(-5, 'quiz', { action: 'skip' });
+            nextQuestion();
+        }
+
+        function completeSession() {
+            clearInterval(timerInterval);
+            const result = engine.completeSession();
+            
+            // Jump to results page
+            const params = new URLSearchParams({
+                correct: result.correctCount,
+                total: result.totalQuestions,
+                accuracy: result.accuracy,
+                points: result.totalPoints,
+                streak: result.bestStreak,
+                duration: result.duration
+            });
+            
+            window.location.href = 'result.html?' + params.toString();
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('timer').textContent = QuizUI.formatTime(elapsed);
+        }
+
+        function updateStreakDisplay() {
+            const streak = engine.currentSession.streak;
+            const streakDisplay = document.getElementById('streakDisplay');
+            streakDisplay.textContent = '⭐'.repeat(Math.min(streak, 10));
+        }
+    </script>
+</body>
+</html>

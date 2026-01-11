@@ -1,0 +1,389 @@
+/**
+ * Quiz Data Manager
+ * 题库数据管理器
+ * 
+ * Responsible for:
+ * - Loading museum data
+ * - Generating questions from museum information
+ * - Managing question bank
+ * - Providing questions for quiz sessions
+ */
+
+class QuizData {
+    /**
+     * Get all available museums from the main data source
+     * @returns {Array} Array of museum objects
+     */
+    static getMuseums() {
+        // Try to get museums from global MUSEUMS array (from museums-data.js)
+        if (typeof MUSEUMS !== 'undefined') {
+            return MUSEUMS;
+        }
+        
+        console.warn('MUSEUMS data not available');
+        return [];
+    }
+    
+    /**
+     * Get museum by ID
+     * @param {string} museumId - Museum ID
+     * @returns {Object|null} Museum object or null
+     */
+    static getMuseumById(museumId) {
+        const museums = this.getMuseums();
+        return museums.find(m => m.id === museumId) || null;
+    }
+    
+    /**
+     * Get visited museums from localStorage
+     * @returns {Array} Array of museum IDs
+     */
+    static getVisitedMuseums() {
+        const visited = localStorage.getItem('visitedMuseums');
+        if (!visited) return [];
+        
+        try {
+            return JSON.parse(visited);
+        } catch (e) {
+            console.error('Failed to parse visited museums:', e);
+            return [];
+        }
+    }
+    
+    /**
+     * Generate questions for a specific museum
+     * @param {string} museumId - Museum ID
+     * @param {string} ageGroup - Age group ('7-12')
+     * @returns {Array} Array of question objects
+     */
+    static generateQuestionsForMuseum(museumId, ageGroup = '7-12') {
+        const museum = this.getMuseumById(museumId);
+        if (!museum) return [];
+        
+        const questions = [];
+        
+        // Basic info questions
+        questions.push(...this.generateBasicInfoQuestions(museum, ageGroup));
+        
+        // Collection/treasure questions
+        if (museum.collections && museum.collections.length > 0) {
+            questions.push(...this.generateCollectionQuestions(museum, ageGroup));
+        }
+        
+        // Location questions
+        questions.push(...this.generateLocationQuestions(museum, ageGroup));
+        
+        // Tag-based questions
+        if (museum.tags && museum.tags.length > 0) {
+            questions.push(...this.generateTagQuestions(museum, ageGroup));
+        }
+        
+        return questions;
+    }
+    
+    /**
+     * Generate basic information questions
+     * @private
+     */
+    static generateBasicInfoQuestions(museum, ageGroup) {
+        const questions = [];
+        const museumId = museum.id;
+        
+        // Location question
+        if (museum.location) {
+            questions.push({
+                id: `${museumId}_location`,
+                museumId: museumId,
+                type: 'single-choice',
+                difficulty: 'easy',
+                question: `${museum.name}位于哪个城市？`,
+                options: this.generateLocationOptions(museum.location),
+                correctAnswer: 0,
+                explanation: `${museum.name}位于${museum.location}。`,
+                points: 10,
+                tags: ['基础信息', '地理'],
+                ageGroup: '7-12'
+            });
+        }
+        
+        // Description true/false question
+        if (museum.description) {
+            questions.push({
+                id: `${museumId}_description_tf`,
+                museumId: museumId,
+                type: 'true-false',
+                difficulty: 'easy',
+                question: `${museum.name}${museum.description}，这个说法对吗？`,
+                options: ['对', '错'],
+                correctAnswer: 0,
+                explanation: `正确！${museum.description}`,
+                points: 10,
+                tags: ['基础信息'],
+                ageGroup: '7-12'
+            });
+        }
+        
+        return questions;
+    }
+    
+    /**
+     * Generate collection/treasure questions
+     * @private
+     */
+    static generateCollectionQuestions(museum, ageGroup) {
+        const questions = [];
+        const museumId = museum.id;
+        
+        museum.collections.forEach((collection, index) => {
+            // Collection name question
+            questions.push({
+                id: `${museumId}_collection_${index}`,
+                museumId: museumId,
+                type: 'single-choice',
+                difficulty: 'medium',
+                question: `${museum.name}的镇馆之宝包括哪一件？`,
+                options: this.generateCollectionOptions(collection.name, museum.name),
+                correctAnswer: 0,
+                explanation: `${collection.name}是${museum.name}的重要藏品。${collection.description || ''}`,
+                points: 15,
+                tags: ['藏品', '文物'],
+                ageGroup: '7-12',
+                image: collection.imageUrl
+            });
+            
+            // Collection description question (if available)
+            if (collection.description && collection.description.length > 20) {
+                const keyInfo = this.extractKeyInfo(collection.description);
+                if (keyInfo) {
+                    questions.push({
+                        id: `${museumId}_collection_${index}_detail`,
+                        museumId: museumId,
+                        type: 'single-choice',
+                        difficulty: 'hard',
+                        question: `关于${collection.name}，以下哪个说法是正确的？`,
+                        options: [keyInfo, ...this.generateWrongOptions(keyInfo)],
+                        correctAnswer: 0,
+                        explanation: collection.description,
+                        points: 20,
+                        tags: ['藏品', '历史'],
+                        ageGroup: '7-12',
+                        image: collection.imageUrl
+                    });
+                }
+            }
+        });
+        
+        return questions;
+    }
+    
+    /**
+     * Generate location-related questions
+     * @private
+     */
+    static generateLocationQuestions(museum, ageGroup) {
+        const questions = [];
+        
+        // Only generate if we have location data
+        if (!museum.location) return questions;
+        
+        // Museum count in same city (requires checking all museums)
+        const museums = this.getMuseums();
+        const sameCity = museums.filter(m => m.location === museum.location);
+        
+        if (sameCity.length > 2) {
+            questions.push({
+                id: `${museum.id}_city_museums`,
+                museumId: museum.id,
+                type: 'single-choice',
+                difficulty: 'medium',
+                question: `在${museum.location}，我们收录了多少家博物馆？`,
+                options: this.generateCountOptions(sameCity.length),
+                correctAnswer: 0,
+                explanation: `在${museum.location}，我们收录了${sameCity.length}家博物馆。`,
+                points: 15,
+                tags: ['地理', '统计'],
+                ageGroup: '7-12'
+            });
+        }
+        
+        return questions;
+    }
+    
+    /**
+     * Generate tag-based questions
+     * @private
+     */
+    static generateTagQuestions(museum, ageGroup) {
+        const questions = [];
+        const museumId = museum.id;
+        
+        if (museum.tags && museum.tags.length > 0) {
+            questions.push({
+                id: `${museumId}_tags`,
+                museumId: museumId,
+                type: 'single-choice',
+                difficulty: 'easy',
+                question: `${museum.name}的主要类型是？`,
+                options: this.generateTagOptions(museum.tags[0]),
+                correctAnswer: 0,
+                explanation: `${museum.name}是一座${museum.tags.join('、')}类型的博物馆。`,
+                points: 10,
+                tags: ['分类'],
+                ageGroup: '7-12'
+            });
+        }
+        
+        return questions;
+    }
+    
+    /**
+     * Generate location options with distractors
+     * @private
+     */
+    static generateLocationOptions(correctLocation) {
+        const cities = ['北京', '上海', '西安', '南京', '广州', '成都', '杭州', '武汉'];
+        const options = [correctLocation];
+        
+        // Add 3 random different cities
+        const otherCities = cities.filter(c => c !== correctLocation);
+        for (let i = 0; i < 3 && otherCities.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * otherCities.length);
+            options.push(otherCities[randomIndex]);
+            otherCities.splice(randomIndex, 1);
+        }
+        
+        return options;
+    }
+    
+    /**
+     * Generate collection name options
+     * @private
+     */
+    static generateCollectionOptions(correctName, museumName) {
+        const famousTreasures = [
+            '清明上河图',
+            '翠玉白菜',
+            '后母戊鼎',
+            '越王勾践剑',
+            '兵马俑',
+            '金缕玉衣',
+            '大克鼎',
+            '毛公鼎'
+        ];
+        
+        const options = [correctName];
+        const otherTreasures = famousTreasures.filter(t => !correctName.includes(t));
+        
+        // Add 3 random different treasures
+        for (let i = 0; i < 3 && otherTreasures.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * otherTreasures.length);
+            options.push(otherTreasures[randomIndex]);
+            otherTreasures.splice(randomIndex, 1);
+        }
+        
+        return options;
+    }
+    
+    /**
+     * Generate count options
+     * @private
+     */
+    static generateCountOptions(correctCount) {
+        const options = [
+            correctCount.toString(),
+            (correctCount + 2).toString(),
+            (correctCount - 1 > 0 ? correctCount - 1 : correctCount + 1).toString(),
+            (correctCount + 5).toString()
+        ];
+        
+        return options;
+    }
+    
+    /**
+     * Generate tag options
+     * @private
+     */
+    static generateTagOptions(correctTag) {
+        const commonTags = ['历史', '艺术', '科技', '自然', '军事', '民俗', '建筑'];
+        const options = [correctTag];
+        
+        const otherTags = commonTags.filter(t => t !== correctTag);
+        for (let i = 0; i < 3 && otherTags.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * otherTags.length);
+            options.push(otherTags[randomIndex]);
+            otherTags.splice(randomIndex, 1);
+        }
+        
+        return options;
+    }
+    
+    /**
+     * Extract key information from description
+     * @private
+     */
+    static extractKeyInfo(description) {
+        // Look for sentences with specific patterns
+        const sentences = description.split(/[。；]/);
+        for (const sentence of sentences) {
+            if (sentence.length > 10 && sentence.length < 50) {
+                return sentence.trim();
+            }
+        }
+        
+        // Return first 30 characters if no good sentence found
+        return description.substring(0, 30);
+    }
+    
+    /**
+     * Generate wrong options based on correct option
+     * @private
+     */
+    static generateWrongOptions(correctOption) {
+        // Generate plausible but incorrect options
+        const templates = [
+            '这件文物来自唐朝时期',
+            '这是一件青铜器文物',
+            '这件作品由清代画家创作',
+            '这是明朝时期的建筑'
+        ];
+        
+        return templates.slice(0, 3);
+    }
+    
+    /**
+     * Get all questions for visited museums
+     * @param {string} ageGroup - Age group
+     * @returns {Array} All questions
+     */
+    static getAllAvailableQuestions(ageGroup = '7-12') {
+        const visitedMuseums = this.getVisitedMuseums();
+        let allQuestions = [];
+        
+        visitedMuseums.forEach(museumId => {
+            const questions = this.generateQuestionsForMuseum(museumId, ageGroup);
+            allQuestions = allQuestions.concat(questions);
+        });
+        
+        return allQuestions;
+    }
+    
+    /**
+     * Get random questions from all visited museums
+     * @param {number} count - Number of questions
+     * @param {string} ageGroup - Age group
+     * @returns {Array} Random questions
+     */
+    static getRandomQuestions(count = 10, ageGroup = '7-12') {
+        const allQuestions = this.getAllAvailableQuestions(ageGroup);
+        
+        // Shuffle questions
+        const shuffled = allQuestions.sort(() => Math.random() - 0.5);
+        
+        return shuffled.slice(0, count);
+    }
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = QuizData;
+}
