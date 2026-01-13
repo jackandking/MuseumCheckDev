@@ -8,7 +8,7 @@
       "建筑",
       "文物"
     ],
-    "image": "http://eb118-file.cdn.bcebos.com/upload/c67a7249b6884703bfc8faceb3a8ad9d_2209653549.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG",
     "hasCollections": true
   },
   {
@@ -20,7 +20,7 @@
       "文化",
       "艺术"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/5b6fdbca17a04047b55adc6658a750bd_2211489532.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/8/8b/%E4%B8%AD%E5%9B%BD%E5%9B%BD%E5%AE%B6%E5%8D%9A%E7%89%A9%E9%A6%86.JPG",
     "hasCollections": true
   },
   {
@@ -32,7 +32,7 @@
       "文物",
       "收藏"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/077edc2915f74519802c6e197d27a7de_1275819179.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/3/3a/%E4%B8%8A%E6%B5%B7%E5%8D%9A%E7%89%A9%E9%A6%86%E4%B8%9C%E9%A6%86_161003.jpg",
     "hasCollections": true
   },
   {
@@ -44,7 +44,7 @@
       "考古",
       "世界遗产"
     ],
-    "image": "",
+    "image": "https://img0.baidu.com/it/u=394895228,4120900227&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500",
     "hasCollections": true
   },
   {
@@ -116,8 +116,8 @@
       "海丝",
       "文物"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Guangdong_Museum.jpg",
+    "hasCollections": true
   },
   {
     "id": "sichuan-museum",
@@ -128,8 +128,8 @@
       "历史",
       "民俗"
     ],
-    "image": "",
-    "hasCollections": false
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E5%9B%9B%E5%B7%9D%E5%8D%9A%E7%89%A9%E9%99%A2.JPG",
+    "hasCollections": true
   },
   {
     "id": "henan-museum",
