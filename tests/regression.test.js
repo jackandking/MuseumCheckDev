@@ -2864,16 +2864,18 @@ describe('Regression Tests - Previously Fixed Bugs', () => {
         clear: jest.fn()
       };
       Object.defineProperty(window, 'localStorage', {
-        value: mockStorage
+        value: mockStorage,
+        writable: true,
+        configurable: true
       });
 
       // Mock clearAllData function behavior
       const clearAllData = () => {
         const confirmed = confirm('⚠️ 清空所有个人数据 ⚠️\n\n您即将清空所有参观记录和清单完成记录\n\n此操作不可撤销！\n\n确定要继续吗？');
         if (confirmed) {
-          localStorage.removeItem('visitedMuseums');
-          localStorage.removeItem('museumChecklists');
-          localStorage.removeItem('taskPhotos');
+          window.localStorage.removeItem('visitedMuseums');
+          window.localStorage.removeItem('museumChecklists');
+          window.localStorage.removeItem('taskPhotos');
           alert('✅ 所有数据已清空！');
         }
       };
