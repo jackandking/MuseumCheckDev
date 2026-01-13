@@ -73,15 +73,21 @@ describe('Leaderboard Force Refresh After Check-in', () => {
   });
   
   test('should force refresh on edge of grace period', async () => {
-    // Submit a score
-    const now = Date.now();
-    mockLeaderboardManager.lastScoreSubmitTime = now - 2999; // Just within 3 second grace period
+    // Mock Date.now() to return consistent time
+    const fixedTime = 1000000000;
+    const originalDateNow = Date.now;
+    Date.now = jest.fn(() => fixedTime);
     
+    // Just within 3 second grace period (2999ms ago)
+    mockLeaderboardManager.lastScoreSubmitTime = fixedTime - 2999;
     expect(mockLeaderboardManager.shouldForceRefresh()).toBe(true);
     
-    // Just after grace period
-    mockLeaderboardManager.lastScoreSubmitTime = now - 3001;
+    // Just after grace period (3001ms ago)
+    mockLeaderboardManager.lastScoreSubmitTime = fixedTime - 3001;
     expect(mockLeaderboardManager.shouldForceRefresh()).toBe(false);
+    
+    // Restore original Date.now
+    Date.now = originalDateNow;
   });
   
   test('force check-in flow: submit score then open leaderboard', async () => {
