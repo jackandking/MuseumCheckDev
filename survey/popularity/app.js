@@ -80,28 +80,23 @@ function showError(message) {
  * Loads museums data from various sources
  */
 async function loadMuseumsData() {
-    // Try to use MUSEUMS_META if available (from museums-meta.js)
-    if (typeof window !== 'undefined' && window.MUSEUMS_META && Array.isArray(window.MUSEUMS_META)) {
-        allMuseums = window.MUSEUMS_META.filter(m => m && m.id && m.name);
-        console.log('Loaded museums from MUSEUMS_META:', allMuseums.length);
-        return;
-    }
-    
-    // Try to fetch museums-meta.js dynamically
+    // Try to fetch museums metadata from JSON endpoint (primary source)
     try {
-        const response = await fetch('/museums-meta.js');
+        const response = await fetch('/data/museums-meta.json');
         if (response.ok) {
-            const text = await response.text();
-            // Parse the JavaScript to extract the array
-            const match = text.match(/window\.MUSEUMS_META\s*=\s*(\[[\s\S]*?\]);/);
-            if (match) {
-                allMuseums = JSON.parse(match[1]).filter(m => m && m.id && m.name);
-                console.log('Loaded museums from fetched museums-meta.js:', allMuseums.length);
-                return;
-            }
+            allMuseums = (await response.json()).filter(m => m && m.id && m.name);
+            console.log('Loaded museums from /data/museums-meta.json:', allMuseums.length);
+            return;
         }
     } catch (error) {
-        console.error('Failed to fetch museums-meta.js:', error);
+        console.error('Failed to fetch /data/museums-meta.json:', error);
+    }
+    
+    // Try legacy MUSEUMS_META global (backward compatibility)
+    if (typeof window !== 'undefined' && window.MUSEUMS_META && Array.isArray(window.MUSEUMS_META)) {
+        allMuseums = window.MUSEUMS_META.filter(m => m && m.id && m.name);
+        console.log('Loaded museums from MUSEUMS_META global:', allMuseums.length);
+        return;
     }
     
     // Fallback: use a default set of popular museums

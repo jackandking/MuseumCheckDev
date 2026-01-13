@@ -3,15 +3,14 @@
 /**
  * Museum Data Validation Tool
  * 
- * Validates museum data quality in museums-data.js (canonical source for tools/tests).
- * Note: Runtime no longer depends on museums-data.js; it uses Tier2→Tier1 loader.
- * This tool checks the source data that generates museums-meta.js and test fixtures.
+ * Validates museum metadata quality in data/museums-meta.json.
+ * This is a lightweight metadata file; full descriptions and checklists are stored separately.
  * 
  * Detects:
  * - Duplicate names and IDs
- * - Missing required fields
- * - Data integrity issues
- * - Inconsistent data structure
+ * - Missing required metadata fields
+ * - Missing image URLs
+ * - Invalid tag structure
  * 
  * Usage: node tools/validate-museum-data.js
  */
@@ -19,39 +18,27 @@
 const fs = require('fs');
 const path = require('path');
 
-const SCRIPT_PATH = path.join(__dirname, '..', 'script.js');
-const MUSEUMS_DATA_PATH = path.join(__dirname, '..', 'museums-data.js');
+const MUSEUMS_META_PATH = path.join(__dirname, '..', 'data', 'museums-meta.json');
 
 function validateMuseumData() {
     console.log('🔍 Museum Data Validation Tool');
     console.log('=====================================\n');
     
-    // Read and parse museum data
+    // Read and parse museum metadata from JSON
     let museums;
     try {
-        let content;
-        let sourcePath;
-        
-        // Try loading from museums-data.js first (new structure)
-        if (fs.existsSync(MUSEUMS_DATA_PATH)) {
-            content = fs.readFileSync(MUSEUMS_DATA_PATH, 'utf8');
-            sourcePath = 'museums-data.js';
-        } else {
-            // Fallback to script.js (legacy structure)
-            content = fs.readFileSync(SCRIPT_PATH, 'utf8');
-            sourcePath = 'script.js';
+        if (!fs.existsSync(MUSEUMS_META_PATH)) {
+            throw new Error(`museums-meta.json not found at ${MUSEUMS_META_PATH}`);
         }
         
-        const startIndex = content.indexOf('const MUSEUMS = [');
-        const endIndex = content.indexOf('];', startIndex) + 2;
+        const content = fs.readFileSync(MUSEUMS_META_PATH, 'utf8');
+        museums = JSON.parse(content);
         
-        if (startIndex === -1 || endIndex === -1) {
-            throw new Error(`Could not find MUSEUMS array in ${sourcePath}`);
+        if (!Array.isArray(museums)) {
+            throw new Error('museums-meta.json must contain an array');
         }
         
-        const museumsCode = content.substring(startIndex, endIndex);
-        museums = eval(museumsCode.replace('const MUSEUMS = ', ''));
-        console.log(`✅ Successfully loaded ${museums.length} museums from ${sourcePath}\n`);
+        console.log(`✅ Successfully loaded ${museums.length} museums from data/museums-meta.json\n`);
     } catch (error) {
         console.error('❌ Error loading museum data:', error.message);
         process.exit(1);
@@ -79,8 +66,8 @@ function validateMuseumData() {
                 ids: [museums[firstIndex].id, museum.id]
             });
             console.log(`❌ DUPLICATE NAME: "${museum.name}"`);
-            console.log(`   First occurrence: ID "${museums[firstIndex].id}" at index ${firstIndex}`);
-            console.log(`   Duplicate: ID "${museum.id}" at index ${index}`);
+            console.log(`   First occurrence: "${museums[firstIndex].id}" at index ${firstIndex}`);
+            console.log(`   Duplicate: "${museum.id}" at index ${index}`);
             hasErrors = true;
         } else {
             nameMap.set(museum.name, index);
@@ -129,9 +116,9 @@ function validateMuseumData() {
     }
     console.log('');
     
-    // 3. Check for missing required fields
-    console.log('📋 Checking required fields...');
-    const requiredFields = ['id', 'name', 'location', 'description', 'tags'];
+    // 3. Check for missing required metadata fields
+    console.log('📋 Checking required metadata fields...');
+    const requiredFields = ['id', 'name', 'location'];
     let fieldErrors = 0;
     
     museums.forEach((museum, index) => {
@@ -145,80 +132,67 @@ function validateMuseumData() {
     });
     
     if (fieldErrors === 0) {
-        console.log('✅ All museums have required fields');
+        console.log('✅ All museums have required metadata fields');
     } else {
         console.log(`❌ Found ${fieldErrors} missing field issues`);
     }
     console.log('');
     
-    // 4. Check checklist structure
-    console.log('📝 Checking checklist structure...');
-    let checklistErrors = 0;
+    // 4. Check for proper image URLs (optional but recommended)
+    console.log('📸 Checking image URLs...');
+    let imageErrors = 0;
     
     museums.forEach((museum, index) => {
-        if (!museum.checklists) {
-            console.log(`❌ Museum "${museum.name}" at index ${index} missing checklists`);
-            checklistErrors++;
-            hasErrors = true;
-            return;
+        if (!museum.image) {
+            console.log(`⚠️ Museum "${museum.name}" at index ${index} missing image URL`);
+            imageErrors++;
         }
-        
-        if (!museum.checklists.parent || !museum.checklists.child) {
-            console.log(`❌ Museum "${museum.name}" at index ${index} missing parent or child checklists`);
-            checklistErrors++;
-            hasErrors = true;
-            return;
-        }
-        
-        const ageGroups = ['3-6', '7-12', '13-18'];
-        ageGroups.forEach(age => {
-            if (!museum.checklists.parent[age] || !museum.checklists.child[age]) {
-                console.log(`❌ Museum "${museum.name}" at index ${index} missing checklist for age ${age}`);
-                checklistErrors++;
-                hasErrors = true;
-            }
-        });
     });
     
-    if (checklistErrors === 0) {
-        console.log('✅ All museums have proper checklist structure');
+    if (imageErrors === 0) {
+        console.log('✅ All museums have image URLs');
     } else {
-        console.log(`❌ Found ${checklistErrors} checklist structure issues`);
+        console.log(`⚠️ Found ${imageErrors} museums without images`);
     }
     console.log('');
     
-    // 5. Summary and recommendations
+    // 5. Check tags structure
+    console.log('🏷️  Checking tags...');
+    let tagErrors = 0;
+    
+    museums.forEach((museum, index) => {
+        if (!museum.tags || !Array.isArray(museum.tags) || museum.tags.length === 0) {
+            console.log(`⚠️ Museum "${museum.name}" at index ${index} missing or empty tags`);
+            tagErrors++;
+        }
+    });
+    
+    if (tagErrors === 0) {
+        console.log('✅ All museums have tags');
+    } else {
+        console.log(`⚠️ Found ${tagErrors} museums with missing/empty tags`);
+    }
+    console.log('');
+    
+    // Summary
     console.log('📊 VALIDATION SUMMARY');
     console.log('===================');
     console.log(`Total museums: ${museums.length}`);
     console.log(`Duplicate names: ${duplicateNames.length}`);
     console.log(`Duplicate IDs: ${duplicateIds.length}`);
-    console.log(`Field errors: ${fieldErrors}`);
-    console.log(`Checklist errors: ${checklistErrors}`);
+    console.log(`Missing images: ${imageErrors}`);
+    console.log(`Missing/empty tags: ${tagErrors}`);
+    console.log('');
     
     if (hasErrors) {
-        console.log('\n🚨 CRITICAL ISSUES DETECTED');
+        console.log('🚨 CRITICAL ISSUES DETECTED');
         console.log('============================');
-        console.log('STOP: Do not proceed with changes until data quality issues are resolved.');
-        console.log('');
-        console.log('REQUIRED ACTIONS:');
-        console.log('1. Report all discovered issues to user');
-        console.log('2. Get guidance on systematic fix vs. individual fix');
-        console.log('3. Create comprehensive deduplication plan');
-        console.log('4. Update tests to reflect corrected data');
-        console.log('');
-        console.log('IMPACT: These issues affect user experience through:');
-        console.log('- Search confusion from duplicate entries');
-        console.log('- Data inconsistency in progress tracking');
-        console.log('- Potential application errors from missing fields');
-        
         process.exit(1);
     } else {
-        console.log('\n✅ DATA VALIDATION PASSED');
-        console.log('All museum data is valid and consistent.');
+        console.log('✅ DATA VALIDATION PASSED');
+        console.log('All museum metadata is valid and consistent.');
         process.exit(0);
     }
 }
 
-// Run validation
 validateMuseumData();

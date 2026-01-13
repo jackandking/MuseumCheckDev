@@ -331,7 +331,6 @@
   <script src="baidu-image-search.js"></script>
   <script src="deepseek-api.js"></script>
   <script src="image-upload-util.js"></script>
-  <script src="js/museums-meta.js"></script>
   <script src="js/museum-data-loader.js"></script>
   <script>
     (function(){
@@ -340,12 +339,16 @@
       let currentData = null;
 
       // Initialize museum ID selectors
-      function initMuseumSelector() {
+      async function initMuseumSelector() {
         const uploadSelect = document.getElementById('museumIdSelect');
         const quickLoadSelect = document.getElementById('quickLoadMuseumId');
         
-        if (typeof MUSEUMS_META !== 'undefined') {
-          MUSEUMS_META.forEach(museum => {
+        try {
+          // Load museums from JSON
+          const response = await fetch('/data/museums-meta.json');
+          const museums = await response.json();
+          
+          museums.forEach(museum => {
             // Add to upload selector
             const uploadOption = document.createElement('option');
             uploadOption.value = museum.id;
@@ -358,6 +361,9 @@
             quickLoadOption.textContent = `${museum.name} (${museum.id})`;
             quickLoadSelect.appendChild(quickLoadOption);
           });
+        } catch (error) {
+          console.error('Failed to load museums metadata:', error);
+        }
         }
       }
 
@@ -408,10 +414,15 @@
           if (!data) {
             showStatus('未找到博物馆数据，将创建新数据', 'info');
             
-            // Look up meta information from MUSEUMS_META to pre-populate fields
-            const metaInfo = (typeof MUSEUMS_META !== 'undefined') 
-              ? MUSEUMS_META.find(m => m.id === museumId) 
-              : null;
+            // Look up meta information from JSON to pre-populate fields
+            let metaInfo = null;
+            try {
+              const response = await fetch('/data/museums-meta.json');
+              const museums = await response.json();
+              metaInfo = museums.find(m => m.id === museumId);
+            } catch (error) {
+              console.error('Failed to load metadata:', error);
+            }
             
             currentData = {
               id: museumId,
