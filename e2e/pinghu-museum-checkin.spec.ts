@@ -217,7 +217,7 @@ test.describe('Pinghu Museum QR Code Verification', () => {
     // This is a smoke test to verify the QR code file exists
     // In a real scenario, we'd verify the QR code content decodes to the correct URL
     
-    const response = await page.request.get(`${BASE_URL}/MuseumCheck_QRCode_PinghuMuseum.png`);
+    const response = await page.request.get(`${BASE_URL}/assets/qrcodes/MuseumCheck_QRCode_PinghuMuseum.png`);
     expect(response.ok()).toBeTruthy();
     expect(response.status()).toBe(200);
     

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初始化调试 - 详细追踪</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fafafa;
+            border-left: 4px solid #2c5aa0;
+            border-radius: 4px;
+        }
+        .section h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #2c5aa0;
+        }
+        .log-line {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .log-info {
+            background: #e8f4f8;
+            color: #006688;
+        }
+        .log-success {
+            background: #e8f8e8;
+            color: #006600;
+        }
+        .log-warning {
+            background: #fff8e8;
+            color: #886600;
+        }
+        .log-error {
+            background: #f8e8e8;
+            color: #880000;
+        }
+        .log-time {
+            color: #999;
+            font-size: 0.85em;
+            margin-right: 10px;
+        }
+        #loadingIndicator {
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2c5aa0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #2c5aa0;
+        }
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .button-group {
+            margin: 15px 0;
+        }
+        button {
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1e4070;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 MuseumCheckApp 初始化调试 - 详细追踪</h1>
+        
+        <div id="loadingIndicator" class="debug-loading">
+            <div class="spinner"></div>
+            <p>正在监控初始化过程...</p>
+        </div>
+        
+        <div class="section">
+            <h2>📊 初始化阶段</h2>
+            <div id="initPhases"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📈 依赖检查</h2>
+            <div id="dependencies"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📚 数据统计</h2>
+            <div class="stats" id="stats"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 操作工具</h2>
+            <div class="button-group">
+                <button onclick="manualRender()">🎨 手动渲染</button>
+                <button onclick="hideLoading()">👁️ 隐藏Loading</button>
+                <button onclick="checkConsole()">📋 检查Console</button>
+                <button onclick="location.reload()">🔄 刷新页面</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📝 初始化日志</h2>
+            <div id="logs" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 最终状态</h2>
+            <div id="finalStatus"></div>
+        </div>
+    </div>
+
+    <!-- Load script.js to trigger initialization -->
+    <script src="museum-data-loader.js"></script>
+    <script src="museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
+    <script>
+        if (!window.MUSEUMS && window.MUSEUMS_META) { 
+            window.MUSEUMS = window.MUSEUMS_META; 
+        }
+    </script>
+    <script src="core/event-bus.js"></script>
+    <script src="core/data-manager.js"></script>
+    <script src="core/version-manager.js"></script>
+    <script src="core/overlay-manager.js"></script>
+    <script src="core/storage/storage-adapter-base.js"></script>
+    <script src="core/storage/local-storage-adapter.js"></script>
+    <script src="core/storage/kv-storage-adapter.js"></script>
+    <script src="core/storage/sql-storage-adapter.js"></script>
+    <script src="core/storage/file-storage-adapter.js"></script>
+    <script src="core/adapters/homepage-adapter.js"></script>
+    <script>
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+            window.eventBus = new EventBus();
+            window.dataManager = new DataManager(window.eventBus);
+        }
+    </script>
+    <script src="event-wall-service.js"></script>
+
+    <script>
+        // Debug logging system
+        const debugLogs = [];
+        const startTime = performance.now();
+        
+        function log(message, type = 'info') {
+            const time = ((performance.now() - startTime) / 1000).toFixed(3);
+            const entry = { time, message, type };
+            debugLogs.push(entry);
+            
+            const logsDiv = document.getElementById('logs');
+            const logLine = document.createElement('div');
+            logLine.className = `log-line log-${type}`;
+            logLine.innerHTML = `<span class="log-time">[${time}s]</span> ${escapeHtml(message)}`;
+            logsDiv.appendChild(logLine);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            
+            console.log(`[${time}s] [${type.toUpperCase()}] ${message}`);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function addPhase(name, status, details = '') {
+            const phasesDiv = document.getElementById('initPhases');
+            const phase = document.createElement('div');
+            phase.className = 'log-line log-' + (status === 'success' ? 'success' : 'error');
+            phase.innerHTML = `<strong>${name}</strong>: ${status}${details ? ' - ' + details : ''}`;
+            phasesDiv.appendChild(phase);
+        }
+        
+        function addDependency(name, status, version = '') {
+            const depsDiv = document.getElementById('dependencies');
+            const dep = document.createElement('div');
+            dep.className = 'log-line log-' + (status === 'loaded' ? 'success' : status === 'checking' ? 'info' : 'error');
+            dep.innerHTML = `<strong>${name}</strong>: ${status}${version ? ' (' + version + ')' : ''}`;
+            depsDiv.appendChild(dep);
+        }
+        
+        function updateStats() {
+            const stats = {
+                'MUSEUMS_META': (window.MUSEUMS_META || []).length,
+                'MUSEUMS': (window.MUSEUMS || []).length,
+                'filteredMuseums': window.app ? (window.app.filteredMuseums || []).length : 'N/A',
+                'visitedMuseums': window.app ? (window.app.visitedMuseums || []).length : 'N/A',
+            };
+            
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = Object.entries(stats).map(([label, value]) => 
+                `<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${value}</div></div>`
+            ).join('');
+        }
+        
+        function updateStatus() {
+            const statusDiv = document.getElementById('finalStatus');
+            const hasApp = typeof window.app !== 'undefined';
+            const hasInitPromise = hasApp && typeof window.app.initPromise !== 'undefined';
+            
+            statusDiv.innerHTML = `
+                <div class="log-line log-${hasApp ? 'success' : 'error'}">
+                    <strong>MuseumCheckApp</strong>: ${hasApp ? '✅ 已创建' : '❌ 未创建'}
+                </div>
+                <div class="log-line log-${hasInitPromise ? 'success' : 'error'}">
+                    <strong>initPromise</strong>: ${hasInitPromise ? '✅ 已启动' : '❌ 未启动'}
+                </div>
+                <div class="log-line log-${window.app && window.app.filteredMuseums && window.app.filteredMuseums.length > 0 ? 'success' : 'error'}">
+                    <strong>Museums Rendered</strong>: ${window.app && window.app.filteredMuseums ? window.app.filteredMuseums.length + ' 个' : '❌ 无'}
+                </div>
+            `;
+        }
+        
+        // Monitor app initialization
+        log('🔍 开始监控初始化...', 'info');
+        
+        // Check dependencies
+        log('检查依赖...', 'info');
+        addDependency('MUSEUMS_META', typeof window.MUSEUMS_META !== 'undefined' ? 'loaded' : 'missing');
+        addDependency('MUSEUMS', typeof window.MUSEUMS !== 'undefined' ? 'loaded' : 'missing');
+        addDependency('EventBus', typeof window.eventBus !== 'undefined' ? 'loaded' : 'missing');
+        addDependency('DataManager', typeof window.dataManager !== 'undefined' ? 'loaded' : 'missing');
+        addDependency('MuseumCheckApp', typeof window.MuseumCheckApp !== 'undefined' ? 'loaded' : 'missing');
+        
+        // Monitor app creation
+        const originalApp = window.app;
+        Object.defineProperty(window, 'app', {
+            set(value) {
+                log('✅ MuseumCheckApp 实例已创建', 'success');
+                addPhase('App Creation', 'success');
+                
+                if (value && typeof value.initPromise !== 'undefined') {
+                    log('⏳ 等待 initPromise 完成...', 'info');
+                    value.initPromise.then(() => {
+                        log('✅ initPromise 已完成！', 'success');
+                        addPhase('Async Init', 'success');
+                        hideLoading();
+                        updateStats();
+                        updateStatus();
+                    }).catch(err => {
+                        log('❌ initPromise 失败: ' + err.message, 'error');
+                        addPhase('Async Init', 'error', err.message);
+                        hideLoading();
+                    });
+                }
+                
+                this._app = value;
+            },
+            get() {
+                return this._app;
+            },
+            configurable: true
+        });
+        
+        function hideLoading() {
+            const indicator = document.getElementById('loadingIndicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+                log('✅ Loading indicator 已隐藏', 'success');
+            }
+        }
+        
+        function manualRender() {
+            if (window.app && typeof window.app.renderMuseums === 'function') {
+                log('🎨 手动调用 renderMuseums()...', 'info');
+                window.app.renderMuseums();
+                log('✅ renderMuseums() 已执行', 'success');
+                updateStats();
+            } else {
+                log('❌ renderMuseums() 不可用', 'error');
+            }
+        }
+        
+        function checkConsole() {
+            log('📋 检查浏览器控制台输出...', 'info');
+            console.log('=== 调试信息 ===');
+            console.log('App 实例:', window.app);
+            console.log('filteredMuseums:', window.app ? window.app.filteredMuseums : 'N/A');
+            console.log('MUSEUMS 数量:', window.MUSEUMS ? window.MUSEUMS.length : 0);
+            console.log('MUSEUMS_META 数量:', window.MUSEUMS_META ? window.MUSEUMS_META.length : 0);
+        }
+        
+        // Start monitoring after page loads
+        window.addEventListener('load', () => {
+            log('📄 页面加载完成', 'success');
+            updateStats();
+            updateStatus();
+        });
+        
+        // Also check periodically
+        setInterval(() => {
+            updateStats();
+            updateStatus();
+        }, 1000);
+        
+        log('🚀 调试脚本已加载，等待应用初始化...', 'info');
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>

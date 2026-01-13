@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Core Init Test</title>
+</head>
+<body>
+    <h2>Core Initialization Test</h2>
+    <pre id="output" style="border: 1px solid #ccc; padding: 10px; margin: 10px; background: #f5f5f5; max-height: 400px; overflow: auto;"></pre>
+    
+    <script>
+        const output = document.getElementById('output');
+        function log(msg) {
+            output.textContent += msg + '\n';
+        }
+        
+        log('Page loaded');
+        log('window.MUSEUMS_META: ' + (typeof window.MUSEUMS_META));
+        log('window.MUSEUMS: ' + (typeof window.MUSEUMS));
+    </script>
+    
+    <script src="museums-meta.js"></script>
+    
+    <script>
+        log('After museums-meta.js:');
+        log('window.MUSEUMS_META length: ' + (window.MUSEUMS_META ? window.MUSEUMS_META.length : 'undefined'));
+        log('window.MUSEUMS: ' + (typeof window.MUSEUMS));
+    </script>
+    
+    <script>
+        if(!window.MUSEUMS && window.MUSEUMS_META){ 
+            window.MUSEUMS = window.MUSEUMS_META; 
+        }
+        log('After adoption:');
+        log('window.MUSEUMS length: ' + (window.MUSEUMS ? window.MUSEUMS.length : 'undefined'));
+    </script>
+    
+    <script src="core/event-bus.js"></script>
+    <script src="core/data-manager.js"></script>
+    
+    <script>
+        log('After core scripts:');
+        log('EventBus: ' + (typeof EventBus));
+        log('DataManager: ' + (typeof DataManager));
+    </script>
+    
+    <script>
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+            window.eventBus = new EventBus();
+            window.dataManager = new DataManager(window.eventBus);
+            log('✓ Core systems initialized successfully');
+        } else {
+            log('✗ Core systems init failed - missing classes');
+        }
+    </script>
+</body>
+</html>

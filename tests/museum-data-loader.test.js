@@ -1,421 +1,207 @@
-/**
- * Unit tests for Museum Data Loader
- * Tests the dynamic-first data management system (Tier 2 → Tier 1)
- * Note: Tier 3 is intentionally excluded to avoid potentially bad data
- */
+const { MuseumDataLoader } = require('../js/museum-data-loader.js');
 
-const { describe, test, expect, beforeEach } = require('@jest/globals');
-
-// Mock fetch globally
 global.fetch = jest.fn();
 
-// Mock localStorage
 const localStorageMock = {
-    data: {},
-    getItem(key) {
-        return this.data[key] || null;
-    },
-    setItem(key, value) {
-        this.data[key] = value;
-    },
-    removeItem(key) {
-        delete this.data[key];
-    },
-    clear() {
-        this.data = {};
-    }
+  data: {},
+  getItem(key) {
+    return this.data[key] || null;
+  },
+  setItem(key, value) {
+    this.data[key] = value;
+  },
+  removeItem(key) {
+    delete this.data[key];
+  },
+  clear() {
+    this.data = {};
+  }
 };
+
 global.localStorage = localStorageMock;
 
-// Mock MUSEUMS array
-global.MUSEUMS = [
-    {
-        id: 'forbidden-city',
-        name: '故宫博物院',
-        location: '北京',
-        description: '世界上现存规模最大、保存最为完整的木质结构古建筑群',
-        tags: ['历史', '建筑', '文物']
-    },
-    {
-        id: 'national-museum',
-        name: '中国国家博物馆',
-        location: '北京',
-        description: '综合性历史艺术博物馆',
-        tags: ['历史', '文化', '艺术']
+const sampleMuseums = [
+  {
+    id: 'forbidden-city',
+    name: '故宫博物院',
+    location: '北京',
+    description: '世界上现存规模最大、保存最为完整的木质结构古建筑群。',
+    tags: ['历史', '建筑', '文化'],
+    collections: [
+      {
+        name: '翠玉白菜',
+        imageUrl: 'https://example.com/jadeite-cabbage.jpg',
+        description: '清代玉器，以翠玉雕成白菜形状。'
+      }
+    ],
+    checklists: {
+      parent: {
+        '3-6': ['数一数有多少个宫灯'],
+        '7-12': ['记录紫禁城的主要门楼'],
+        '13-18': ['调研明清两朝宫廷制度差异']
+      },
+      child: {
+        '3-6': ['找出最多的金色装饰'],
+        '7-12': ['识别不同朝代的服饰'],
+        '13-18': ['比较古今博物馆展陈方式差异']
+      }
     }
+  },
+  {
+    id: 'national-museum',
+    name: '中国国家博物馆',
+    location: '北京',
+    description: '展示中国历史文化精髓的综合性国家博物馆。',
+    tags: ['历史', '艺术', '文化'],
+    collections: [
+      {
+        name: '司母戊鼎',
+        imageUrl: 'https://example.com/simu-wu-tripod.jpg',
+        description: '商代青铜器之王，国家级藏品。'
+      }
+    ],
+    checklists: {
+      parent: {
+        '3-6': ['观察青铜器的纹饰'],
+        '7-12': ['记录展厅中各时期的服饰变化'],
+        '13-18': ['追踪博物馆文物修复的流程']
+      },
+      child: {
+        '3-6': ['认识其中一件陶器'],
+        '7-12': ['描述一个王朝的代表文物'],
+        '13-18': ['讨论文物保护与现代技术结合的方式']
+      }
+    }
+  }
 ];
 
-// Load the module
-const { MuseumDataLoader } = require('../museum-data-loader.js');
+global.MUSEUMS = sampleMuseums;
+window.MUSEUMS = sampleMuseums;
 
 describe('MuseumDataLoader', () => {
-    let loader;
+  let loader;
 
-    beforeEach(() => {
-        // Reset mocks
-        localStorageMock.clear();
-        global.fetch.mockClear();
-        
-        // Create new loader instance
-        loader = new MuseumDataLoader();
+  beforeEach(() => {
+    localStorageMock.clear();
+    global.fetch.mockClear();
+    loader = new MuseumDataLoader();
+  });
+
+  describe('loadFromKVStore', () => {
+    test('loads museum data when KV store responds with JSON', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院' };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+
+      const museum = await loader.loadFromKVStore('forbidden-city');
+
+      expect(museum).toEqual(payload);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      const url = fetch.mock.calls[0][0];
+      expect(url).toContain('key=museum-data-forbidden-city');
+      expect(url).toContain('sortKey=museum');
     });
 
-    describe('Priority Settings', () => {
-        test('should use default priority (tier2, tier1) when no settings exist', () => {
-            const priority = loader.getPrioritySettings();
-            expect(priority).toEqual(['tier2', 'tier1']);
-        });
-
-        test('should filter tier3 from priority settings in localStorage', () => {
-            localStorage.setItem('museumDataTierPriority', JSON.stringify({
-                priority: ['tier2', 'tier1', 'tier3']
-            }));
-            
-            const newLoader = new MuseumDataLoader();
-            expect(newLoader.getPrioritySettings()).toEqual(['tier2', 'tier1']);
-        });
-
-        test('should update priority settings and filter out tier3', () => {
-            loader.updatePrioritySettings(['tier3', 'tier2', 'tier1']);
-            
-            // tier3 should be filtered out
-            expect(loader.getPrioritySettings()).toEqual(['tier2', 'tier1']);
-            
-            const saved = JSON.parse(localStorage.getItem('museumDataTierPriority'));
-            expect(saved.priority).toEqual(['tier2', 'tier1']);
-        });
+    test('returns null when KV store returns non-OK response', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 404 });
+      const result = await loader.loadFromKVStore('missing');
+      expect(result).toBeNull();
     });
 
-    describe('Tier 1 Loading (Static Files)', () => {
-        test('should load museum from static JSON file using relative path', async () => {
-            const mockData = {
-                id: 'forbidden-city',
-                name: '故宫博物院',
-                location: '北京'
-            };
+    test('returns null when KV value is not JSON', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: 'not-json' })
+      });
 
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => mockData
-            });
+      const result = await loader.loadFromKVStore('forbidden-city');
+      expect(result).toBeNull();
+    });
+  });
 
-            const result = await loader.loadFromTier1('forbidden-city');
-            
-            // CRITICAL: Must use relative path for GitHub Pages compatibility
-            // Absolute path (/museums/...) doesn't work when deployed to subdirectory
-            expect(fetch).toHaveBeenCalledWith('museums/forbidden-city.json');
-            expect(result).toEqual(mockData);
-        });
+  describe('loadMuseum', () => {
+    test('caches successful KV loads', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院' };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
 
-        test('should return null if file not found', async () => {
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
+      const first = await loader.loadMuseum('forbidden-city');
+      const second = await loader.loadMuseum('forbidden-city');
 
-            const result = await loader.loadFromTier1('nonexistent');
-            expect(result).toBeNull();
-        });
-
-        test('should handle fetch errors gracefully', async () => {
-            global.fetch.mockRejectedValueOnce(new Error('Network error'));
-
-            const result = await loader.loadFromTier1('forbidden-city');
-            expect(result).toBeNull();
-        });
+      expect(first).toEqual(payload);
+      expect(second).toEqual(payload);
+      expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    describe('Tier 2 Loading (KV Store)', () => {
-        test('should load museum from KV store', async () => {
-            const mockData = {
-                id: 'forbidden-city',
-                name: '故宫博物院',
-                location: '北京'
-            };
+    test('honors cacheBypass flag', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院' };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
 
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    value: JSON.stringify(mockData)
-                })
-            });
+      await loader.loadMuseum('forbidden-city');
+      await loader.loadMuseum('forbidden-city', false);
 
-            const result = await loader.loadFromTier2('forbidden-city');
-            
-            expect(fetch).toHaveBeenCalled();
-            expect(result).toEqual(mockData);
-        });
-
-        test('should include sortKey parameter in KV store query', async () => {
-            const mockData = {
-                id: 'forbidden-city',
-                name: '故宫博物院',
-                location: '北京'
-            };
-
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    value: JSON.stringify(mockData)
-                })
-            });
-
-            await loader.loadFromTier2('forbidden-city');
-            
-            // Verify the fetch was called with the correct URL including sortKey
-            const fetchCall = fetch.mock.calls[0];
-            const url = fetchCall[0];
-            
-            expect(url).toContain('key=museum-data-forbidden-city');
-            expect(url).toContain('sortKey=museum');
-        });
-
-        test('should return null if not in KV store', async () => {
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-
-            const result = await loader.loadFromTier2('nonexistent');
-            expect(result).toBeNull();
-        });
-
-        test('should handle invalid JSON in KV store', async () => {
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    value: 'invalid json'
-                })
-            });
-
-            const result = await loader.loadFromTier2('forbidden-city');
-            expect(result).toBeNull();
-        });
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
 
-    describe('Tier 3 Loading (MUSEUMS Array) - For Homepage Listing Only', () => {
-        test('should load museum from MUSEUMS array', async () => {
-            const result = await loader.loadFromTier3('forbidden-city');
-            
-            expect(result).toBeDefined();
-            expect(result.id).toBe('forbidden-city');
-            expect(result.name).toBe('故宫博物院');
-        });
+    test('returns null when KV fails', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 500 });
+      const result = await loader.loadMuseum('unknown');
+      expect(result).toBeNull();
+    });
+  });
 
-        test('should return null if museum not in array', async () => {
-            const result = await loader.loadFromTier3('nonexistent');
-            expect(result).toBeNull();
-        });
+  describe('KV store helpers', () => {
+    test('saveToKVStore sends POST payload', async () => {
+      const payload = { id: 'test', name: '测试' };
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ success: true }) });
+
+      const success = await loader.saveToKVStore('test', payload);
+
+      expect(success).toBe(true);
+      expect(fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
     });
 
-    describe('Fallback Logic (Dynamic First)', () => {
-        test('should try tiers in priority order (tier2 first by default)', async () => {
-            const mockData = { id: 'test', name: 'Test Museum' };
-            
-            // With default priority tier2 → tier1:
-            // Tier 2 fails
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-            
-            // Tier 1 succeeds
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => mockData
-            });
-
-            const result = await loader.loadMuseum('test', false);
-            
-            expect(fetch).toHaveBeenCalledTimes(2);
-            expect(result).toEqual(mockData);
-        });
-
-        test('should return null when tier2 and tier1 fail (no tier3 fallback)', async () => {
-            // With default priority tier2 → tier1:
-            // Tier 2 fails
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-            
-            // Tier 1 fails
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-
-            // Museum exists in tier3 but should NOT be returned
-            const result = await loader.loadMuseum('forbidden-city', false);
-            
-            // Should return null - better to show network error than bad data
-            expect(result).toBeNull();
-        });
-
-        test('should return null if all tiers fail for nonexistent museum', async () => {
-            // With default priority tier2 → tier1:
-            // Tier 2 fails
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-            
-            // Tier 1 fails
-            global.fetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404
-            });
-
-            const result = await loader.loadMuseum('nonexistent', false);
-            expect(result).toBeNull();
-        });
-
-        test('should respect custom priority order', async () => {
-            loader.updatePrioritySettings(['tier1', 'tier2']);
-            
-            const mockData = { id: 'test', name: 'Test' };
-            
-            // Tier 1 succeeds
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => mockData
-            });
-            
-            const result = await loader.loadMuseum('test', false);
-            
-            // Should load from Tier 1 first
-            expect(fetch).toHaveBeenCalledTimes(1);
-            expect(result.id).toBe('test');
-        });
+    test('deleteFromKVStore handles success', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ success: true }) });
+      expect(await loader.deleteFromKVStore('test')).toBe(true);
     });
 
-    describe('Caching', () => {
-        test('should cache loaded museum data', async () => {
-            const mockData = { id: 'test', name: 'Test' };
-            
-            // With tier2 first, we need to mock KV store format
-            global.fetch.mockResolvedValue({
-                ok: true,
-                json: async () => ({ value: JSON.stringify(mockData) })
-            });
+    test('saveToKVStore handles failures', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('network down'));
+      expect(await loader.saveToKVStore('test', {})).toBe(false);
+    });
+  });
 
-            // First load
-            await loader.loadMuseum('test', false);
-            
-            // Second load (should use cache)
-            const result = await loader.loadMuseum('test', true);
-            
-            expect(fetch).toHaveBeenCalledTimes(1); // Only once because of cache
-            expect(result).toEqual(mockData);
-        });
-
-        test('should bypass cache when requested', async () => {
-            const mockData = { id: 'test', name: 'Test' };
-            
-            // With tier2 first, we need to mock KV store format
-            global.fetch.mockResolvedValue({
-                ok: true,
-                json: async () => ({ value: JSON.stringify(mockData) })
-            });
-
-            await loader.loadMuseum('test', false);
-            await loader.loadMuseum('test', false); // Don't use cache
-            
-            expect(fetch).toHaveBeenCalledTimes(2); // Called twice because cache is bypassed
-        });
-
-        test('should clear cache for specific museum', async () => {
-            const mockData = { id: 'test', name: 'Test' };
-            
-            // With tier2 first, we need to mock KV store format
-            global.fetch.mockResolvedValue({
-                ok: true,
-                json: async () => ({ value: JSON.stringify(mockData) })
-            });
-
-            await loader.loadMuseum('test', false);
-            loader.clearCache('test');
-            await loader.loadMuseum('test', true);
-            
-            expect(fetch).toHaveBeenCalledTimes(2); // Called twice because cache was cleared
-        });
+  describe('loadAllMuseums', () => {
+    test('returns current MUSEUMS array', async () => {
+      const museums = await loader.loadAllMuseums();
+      expect(museums).toHaveLength(sampleMuseums.length);
     });
 
-    describe('KV Store Operations', () => {
-        test('should save museum to KV store', async () => {
-            const museumData = {
-                id: 'test-museum',
-                name: 'Test Museum',
-                location: 'Test City'
-            };
+    test('returns empty array when fallback data missing', async () => {
+      const original = global.MUSEUMS;
+      delete global.MUSEUMS;
+      delete window.MUSEUMS;
 
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ success: true })
-            });
+      const museums = await loader.loadAllMuseums();
 
-            const result = await loader.saveToKVStore('test-museum', museumData);
-            
-            expect(result).toBe(true);
-            expect(fetch).toHaveBeenCalledWith(
-                expect.any(String),
-                expect.objectContaining({
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-            );
-        });
+      expect(museums).toEqual([]);
 
-        test('should delete museum from KV store', async () => {
-            global.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ success: true })
-            });
-
-            const result = await loader.deleteFromKVStore('test-museum');
-            
-            expect(result).toBe(true);
-            expect(fetch).toHaveBeenCalled();
-        });
-
-        test('should handle save errors gracefully', async () => {
-            global.fetch.mockRejectedValueOnce(new Error('Network error'));
-
-            const result = await loader.saveToKVStore('test', {});
-            expect(result).toBe(false);
-        });
+      global.MUSEUMS = original;
+      window.MUSEUMS = original;
     });
-
-    describe('Load All Museums (Homepage Listing)', () => {
-        test('should load all museums from MUSEUMS array', async () => {
-            const museums = await loader.loadAllMuseums();
-            
-            expect(museums).toHaveLength(2);
-            expect(museums[0].id).toBe('forbidden-city');
-            expect(museums[1].id).toBe('national-museum');
-        });
-
-        test('should return metadata only', async () => {
-            const museums = await loader.loadAllMuseums();
-            
-            // Should have basic fields
-            expect(museums[0]).toHaveProperty('id');
-            expect(museums[0]).toHaveProperty('name');
-            expect(museums[0]).toHaveProperty('location');
-            
-            // Should not have full checklist data
-            expect(museums[0]).not.toHaveProperty('checklists');
-        });
-
-        test('should handle missing MUSEUMS array', async () => {
-            const originalMUSEUMS = global.MUSEUMS;
-            delete global.MUSEUMS;
-            
-            const museums = await loader.loadAllMuseums();
-            
-            expect(museums).toEqual([]);
-            
-            global.MUSEUMS = originalMUSEUMS;
-        });
-    });
+  });
 });

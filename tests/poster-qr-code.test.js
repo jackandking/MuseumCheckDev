@@ -67,17 +67,17 @@ describe('v2 Poster QR Code Enhancement', () => {
     const path = require('path');
 
     test('Pinghu Museum QR code file should exist', () => {
-      const qrPath = path.join(__dirname, '..', 'MuseumCheck_QRCode_PinghuMuseum.png');
+      const qrPath = path.join(__dirname, '..', 'assets', 'qrcodes', 'MuseumCheck_QRCode_PinghuMuseum.png');
       expect(fs.existsSync(qrPath)).toBe(true);
     });
 
     test('Generic WeChat QR code file should exist as fallback', () => {
-      const qrPath = path.join(__dirname, '..', 'MuseumCheck_QRCode_WX.jpg');
+      const qrPath = path.join(__dirname, '..', 'assets', 'qrcodes', 'MuseumCheck_QRCode_WX.jpg');
       expect(fs.existsSync(qrPath)).toBe(true);
     });
 
     test('Forbidden City QR code file should exist', () => {
-      const qrPath = path.join(__dirname, '..', 'MuseumCheck_QRCode_ForbiddenCity.png');
+      const qrPath = path.join(__dirname, '..', 'assets', 'qrcodes', 'MuseumCheck_QRCode_ForbiddenCity.png');
       expect(fs.existsSync(qrPath)).toBe(true);
     });
   });

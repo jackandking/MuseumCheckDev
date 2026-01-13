@@ -57,7 +57,7 @@ test.describe('v3 immersive tour (mobile)', () => {
       // Photo task: upload a local image from repo to first file input
       const firstInput = wfVisit.locator('input[type="file"]').first();
       if (await firstInput.count() > 0) {
-        await firstInput.setInputFiles('MuseumCheck_logo.jpg');
+        await firstInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
       }
       // Confirm task: click "我完成了" if present
       const doneBtn = wfVisit.locator('button:has-text("我完成了")').first();
@@ -67,13 +67,13 @@ test.describe('v3 immersive tour (mobile)', () => {
       // Attempt another photo if present (victory)
       const nextInput = wfVisit.locator('input[type="file"]').nth(1);
       if (await nextInput.count() > 0) {
-        await nextInput.setInputFiles('MuseumCheck_logo.jpg');
+        await nextInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
       }
     } else {
       // Static fallback: do entrance photo, confirm, victory photo
       const camEntrance = page.locator('#camEntrance');
       if (await camEntrance.count() > 0) {
-        await camEntrance.setInputFiles('MuseumCheck_logo.jpg');
+        await camEntrance.setInputFiles('assets/images/MuseumCheck_logo.jpg');
       }
       const foundJade = page.locator('#foundJade');
       if (await foundJade.count() > 0) {
@@ -81,7 +81,7 @@ test.describe('v3 immersive tour (mobile)', () => {
       }
       const camVictory = page.locator('#camVictory');
       if (await camVictory.count() > 0) {
-        await camVictory.setInputFiles('MuseumCheck_logo.jpg');
+        await camVictory.setInputFiles('assets/images/MuseumCheck_logo.jpg');
       }
     }
 

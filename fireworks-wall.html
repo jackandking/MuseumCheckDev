@@ -15,6 +15,7 @@
             s.parentNode.insertBefore(hm, s);
         })();
     </script>
+    <script src="js/debug-mode.js"></script>
     <style>
         * {
             margin: 0;
@@ -528,7 +529,7 @@
         </div>
     </div>
 
-    <script src="museums-data.js"></script>
+    <script src="js/museum-data-loader.js"></script>
     <script>
         // Canvas setup
         const canvas = document.getElementById('canvas');
@@ -595,23 +596,30 @@
         let downloadTimer = null;
         let seenFireworkIds = new Set();
 
+        // Helper function to get museum name by ID
+        async function getMuseumNameById(museumId) {
+            try {
+                const museum = await museumDataLoader.loadMuseum(museumId);
+                return museum ? museum.name : null;
+            } catch (error) {
+                console.error('Failed to load museum:', error);
+                return null;
+            }
+        }
+
         // Get museum ID from URL parameter for filtering
         const urlParams = new URLSearchParams(window.location.search);
         const filterMuseumId = urlParams.get('museum');
-        const filterMuseumName = filterMuseumId ? getMuseumNameById(filterMuseumId) : null;
+        let filterMuseumName = null;
 
-        // Helper function to get museum name by ID
-        function getMuseumNameById(museumId) {
-            if (typeof MUSEUMS !== 'undefined') {
-                const museum = MUSEUMS.find(m => m.id === museumId);
-                return museum ? museum.name : null;
-            }
-            return null;
-        }
-
-        // Update page title if filtering by museum
-        if (filterMuseumName) {
-            document.title = `${filterMuseumName} - 烟花墙`;
+        // Initialize museum filter name asynchronously
+        if (filterMuseumId) {
+            getMuseumNameById(filterMuseumId).then(name => {
+                filterMuseumName = name;
+                if (filterMuseumName) {
+                    document.title = `${filterMuseumName} - 烟花墙`;
+                }
+            });
         }
 
         // Function to update QR code based on museum filter

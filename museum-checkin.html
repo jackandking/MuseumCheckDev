@@ -9,6 +9,8 @@
     <link rel="dns-prefetch" href="//hm.baidu.com">
     <link rel="dns-prefetch" href="//static.hotjar.com">
     
+    <script src="js/debug-mode.js"></script>
+    
     <!-- Deferred Analytics Loading - Load after page becomes interactive -->
     <script>
         // Performance optimization: Defer all analytics to after first paint
@@ -70,40 +72,102 @@
         .loading { text-align: center; color: white; font-size: 18px; padding: 40px; }
         .loading-spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; margin-bottom: 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .header { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .menu-button, .settings-button { width: 44px; height: 44px; background: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .header { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
+        .menu-button, .settings-button {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
         .menu-button { font-size: 24px; }
         .settings-button { font-size: 20px; }
-        .title { font-size: 32px; font-weight: bold; color: white; text-align: center; margin: 20px 0 30px 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); cursor: pointer; }
+
+        .menu-button:hover:not(:disabled),
+        .settings-button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.2);
+        }
+
+        .menu-button:active,
+        .settings-button:active {
+            transform: scale(0.95);
+        }
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
         .museum-name { font-size: 18px; color: rgba(255, 255, 255, 0.9); text-align: center; margin-bottom: 30px; }
         .task-grid { width: 100%; max-width: 800px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding-bottom: 20px; }
-        @media (max-width: 768px) { .task-grid { grid-template-columns: repeat(2, 1fr); } .title { font-size: 28px; } }
+        @media (max-width: 768px) { 
+            .task-grid { grid-template-columns: repeat(2, 1fr); } 
+            .title { font-size: 28px; }
+            .menu-button, .settings-button { width: 44px; height: 44px; font-size: 18px; }
+        }
+        @media (max-width: 480px) {
+            .menu-button, .settings-button { width: 40px; height: 40px; font-size: 16px; }
+        }
     </style>
     
     <!-- Additional CSS - Styles for task cards, modals, and other UI components -->
     <style>
         .task-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             position: relative;
             min-height: 180px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
         }
 
         .task-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .task-card:active {
+            transform: translateY(-2px) scale(0.98);
+            transition: all 0.1s ease-out;
         }
 
         .task-card.completed {
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            animation: completeFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes completeFlip {
+            0% {
+                transform: scale(1) rotateY(0deg);
+            }
+            50% {
+                transform: scale(1.05) rotateY(10deg);
+            }
+            100% {
+                transform: scale(1) rotateY(0deg);
+            }
         }
 
         .task-icon {
@@ -146,21 +210,31 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.6);
+            box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
         }
 
         .task-card.completed .completion-badge {
             opacity: 1;
+            transform: scale(1);
+            animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .add-task-card {
@@ -207,11 +281,74 @@
             overflow: hidden;
         }
 
+        /* Task completion notification/toast */
+        .task-completion-toast {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+            font-weight: 600;
+            z-index: 1500;
+            opacity: 0;
+            animation: toastSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: auto;
+            max-width: 90%;
+        }
+
+        @keyframes toastSlideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes toastSlideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+        .task-completion-toast.fade-out {
+            animation: toastSlideUp 0.3s ease-out forwards;
+        }
+
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
             border-radius: 6px;
-            transition: width 0.5s ease;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         /* Modal styles */
@@ -234,12 +371,25 @@
 
         .modal-content {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 30px;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -260,13 +410,26 @@
             color: #999;
             cursor: pointer;
             border: none;
-            background: none;
-            padding: 0;
-            width: 32px;
-            height: 32px;
+            background: transparent;
+            padding: 8px;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            margin-right: -8px;
+        }
+
+        .close-button:hover {
+            background: #f0f0f0;
+            color: #333;
+            transform: scale(1.1);
+        }
+
+        .close-button:active {
+            transform: scale(0.95);
         }
 
         .task-detail-icon {
@@ -306,30 +469,45 @@
             flex: 1;
             padding: 15px;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: manipulation;
+            min-height: 48px;
         }
 
         .button-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
         }
 
         .button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
         }
 
         .button-secondary {
             background: #f0f0f0;
             color: #333;
+            border: 2px solid #e0e0e0;
         }
 
         .button-secondary:hover {
-            background: #e0e0e0;
+            background: #e8e8e8;
+            border-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .button-secondary:active {
+            transform: translateY(0);
         }
 
         .parent-hint {
@@ -480,6 +658,7 @@
             opacity: 0;
             transform: scale(0.8);
             transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(4px);
         }
 
         .completion-celebration.show {
@@ -625,20 +804,26 @@
             color: #2c5aa0;
             border: none;
             padding: 12px 24px;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
             display: flex;
             align-items: center;
             gap: 8px;
+            touch-action: manipulation;
         }
 
         .poster-action-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+        }
+
+        .poster-action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .poster-action-button:disabled {
@@ -650,12 +835,22 @@
         .poster-action-button.delete-button {
             background: #ff4444;
             color: white;
+            box-shadow: 0 4px 16px rgba(255, 68, 68, 0.3);
+        }
+
+        .poster-action-button.delete-button:hover {
+            box-shadow: 0 8px 24px rgba(255, 68, 68, 0.4);
         }
 
         .poster-action-button.published {
             background: #4caf50;
             color: white;
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
             animation: buttonsSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
+        }
+
+        .poster-action-button.published:hover {
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
         }
 
         @keyframes buttonsSlideUp {
@@ -1039,30 +1234,45 @@
             flex: 1;
             padding: 14px 20px;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: manipulation;
         }
 
         .puzzle-button-continue {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
         }
 
         .puzzle-button-continue:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .puzzle-button-continue:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
         }
 
         .puzzle-button-reset {
             background: #f0f0f0;
             color: #333;
+            border: 2px solid #e0e0e0;
+            transition: all 0.25s ease;
         }
 
         .puzzle-button-reset:hover {
-            background: #e0e0e0;
+            background: #e8e8e8;
+            border-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .puzzle-button-reset:active {
+            transform: translateY(0);
         }
 
         .puzzle-complete-message {
@@ -4057,11 +4267,11 @@
         }
     </style>
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
-    <link rel="stylesheet" href="virtual-pet.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="achievement-gamification.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/virtual-pet.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/achievement-gamification.css" media="print" onload="this.media='all'">
     <noscript>
-        <link rel="stylesheet" href="virtual-pet.css">
-        <link rel="stylesheet" href="achievement-gamification.css">
+        <link rel="stylesheet" href="css/virtual-pet.css">
+        <link rel="stylesheet" href="css/achievement-gamification.css">
     </noscript>
 </head>
 <!-- child-mode class is intentionally hardcoded because this page is specifically for kids' tasks -->
@@ -4722,18 +4932,16 @@
 
 
     <!-- Load dependencies -->
-    <script src="museums-data.js"></script>
-    <script src="museum-data-loader.js"></script>
-    <script src="treasure-workflow-generator.js"></script>
-    <script src="firework.js"></script>
-    <script src="achievement-gamification.js"></script>
-    <script src="virtual-pet.js"></script>
-    <script src="snake-game-inline.js"></script>
+    <script src="js/museum-data-loader.js"></script>
+    <script src="js/treasure-workflow-generator.js"></script>
+    <script src="js/firework.js"></script>
+    <script src="js/achievement-gamification.js"></script>
+    <script src="js/virtual-pet.js"></script>
     <script src="baidu-image-search.js"></script>
-    <script src="letmetry-cloud-api.js"></script>
+    <script src="js/letmetry-cloud-api.js"></script>
     <script src="image-upload-util.js"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
-    <script src="event-wall-service.js"></script>
+    <script src="js/event-wall-service.js"></script>
     
     <script>
         // Configuration
@@ -5448,9 +5656,11 @@
                 }, 800); // Slightly longer delay to ensure page is fully loaded
             }
             
-            // Load treasure reports and image error reports in parallel with museum data
-            const [_, treasureReportsData, imageErrorReportsData] = await Promise.all([
-                loadMuseumData(),
+            // Load museum data first (await ensures tasks/render have data)
+            await loadMuseumData();
+            
+            // Then load treasure reports and image error reports in parallel
+            const [treasureReportsData, imageErrorReportsData] = await Promise.all([
                 loadTreasureReports(),
                 loadImageErrorReports()
             ]);
@@ -5490,7 +5700,7 @@
 
         // Load museum data with dynamic data priority support
         async function loadMuseumData() {
-            // Use museum data loader if available (respects tier priority)
+            // Load museum data via tiered loader (Tier2 -> Tier1). Tier3 is deprecated.
             let museum = null;
             if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
                 try {
@@ -5500,35 +5710,16 @@
                     console.warn('Error loading museum with museumDataLoader:', error);
                 }
             }
-            
-            // Fallback to static MUSEUMS array
+
             if (!museum) {
-                museum = MUSEUMS.find(m => m.id === museumId);
-                console.log(`Loaded museum ${museumId} from static MUSEUMS array`);
-            }
-            
-            // Merge dynamic data (from KV store/Tier 1) with complete Tier 3 data
-            // KV store typically has updated images/collections but may lack checklists
-            // This ensures we have both new photos AND checklist data
-            if (museum) {
-                const tier3Museum = MUSEUMS.find(m => m.id === museumId);
-                if (tier3Museum) {
-                    // Merge: Tier 3 data as base, override with loaded data
-                    // This preserves checklists from Tier 3 while using updated collections/images
-                    currentMuseum = { ...tier3Museum, ...museum };
-                    console.log(`Merged dynamic data with Tier 3 data for museum ${museumId}`);
-                } else {
-                    currentMuseum = museum;
-                }
-            } else {
-                currentMuseum = null;
-            }
-            
-            if (!currentMuseum) {
+                console.warn(`Museum ${museumId} not found via loader (Tier2/Tier1)`);
                 document.getElementById('museumName').textContent = '博物馆未找到';
                 document.getElementById('taskGrid').innerHTML = '<div class="loading">未找到该博物馆的信息</div>';
+                currentMuseum = null;
                 return;
             }
+
+            currentMuseum = museum;
 
             // Merge user-added treasures from localStorage into currentMuseum.collections
             // This ensures user-added treasures are available even if KV store save failed
@@ -7396,7 +7587,7 @@
                 const pascalCase = musId.split('-')
                     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
                     .join('');
-                return `MuseumCheck_QRCode_${pascalCase}.png`;
+                return `assets/qrcodes/MuseumCheck_QRCode_${pascalCase}.png`;
             };
             
             // Try to load museum-specific QR code or fallback to generic WeChat QR
@@ -7413,7 +7604,7 @@
                     fallbackQR.crossOrigin = 'anonymous';
                     fallbackQR.onload = () => resolve(fallbackQR);
                     fallbackQR.onerror = () => resolve(null);
-                    fallbackQR.src = 'MuseumCheck_QRCode_WX.jpg';
+                    fallbackQR.src = 'assets/qrcodes/MuseumCheck_QRCode_WX.jpg';
                 };
                 qrImg.src = museumQRFile;
             });

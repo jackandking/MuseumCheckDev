@@ -15,19 +15,216 @@
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+  <script src="js/debug-mode.js"></script>
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Helvetica,Arial; background:#f7f9fb; color:#2c3e50;}
-    .wrap{max-width:760px;margin:0 auto;padding:16px}
-    .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:16px;margin-bottom:16px}
-    .title{font-size:22px;font-weight:800;margin:4px 0 12px}
-    .row{margin:12px 0}
-    label{display:block;font-size:14px;margin-bottom:6px;color:#445}
-    select{width:100%;padding:12px;border-radius:12px;border:2px solid #dee2e6;font-size:16px}
-    .actions{display:flex;gap:10px;margin-top:14px}
-    .btn{padding:12px 16px;border:none;border-radius:12px;cursor:pointer;font-size:16px;font-weight:700}
-    .btn-primary{background:linear-gradient(135deg,#2c5aa0,#5b8bd9);color:#fff}
-    .btn-secondary{background:#eef2f6;color:#2c3e50}
-    .hint{font-size:13px;color:#667;margin-top:8px}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #2c3e50;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+    
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0 0 20px 0;
+      background: linear-gradient(135deg, #2c5aa0, #5b8bd9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .card .title {
+      font-size: 18px;
+      color: #2c5aa0;
+      margin: 0 0 16px 0;
+      -webkit-text-fill-color: #2c5aa0;
+    }
+    
+    .row {
+      margin: 16px 0;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #445;
+      transition: color 0.2s ease;
+    }
+    
+    input:focus ~ label,
+    select:focus ~ label {
+      color: #2c5aa0;
+    }
+    
+    select,
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2px solid #e0e6ed;
+      font-size: 16px;
+      font-family: inherit;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: white;
+    }
+    
+    select:hover,
+    input:hover {
+      border-color: #b0c4de;
+      box-shadow: 0 2px 12px rgba(44, 90, 160, 0.08);
+    }
+    
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #2c5aa0;
+      box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+    }
+    
+    select:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #2c5aa0;
+      outline-offset: 2px;
+    }
+    
+    .hint {
+      font-size: 13px;
+      color: #667;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    
+    .hint a {
+      color: #2c5aa0;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    
+    .hint a:hover {
+      color: #1e4976;
+      text-decoration: underline;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      touch-action: manipulation;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #2c5aa0, #5b8bd9);
+      color: white;
+      box-shadow: 0 4px 16px rgba(44, 90, 160, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(44, 90, 160, 0.4);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(44, 90, 160, 0.2);
+    }
+    
+    .btn-primary:focus-visible {
+      outline: 2px solid #2c5aa0;
+      outline-offset: 2px;
+    }
+    
+    .btn-secondary {
+      background: #eef2f6;
+      color: #2c3e50;
+      border: 2px solid #d4dce6;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    
+    .btn-secondary:hover {
+      background: #e4eaf2;
+      border-color: #b0c4de;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .btn-secondary:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+    
+    .btn-secondary:focus-visible {
+      outline: 2px solid #2c5aa0;
+      outline-offset: 2px;
+    }
+    
+    /* Mobile optimization */
+    @media (max-width: 480px) {
+      .wrap {
+        padding: 12px;
+      }
+      
+      .card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      
+      .title {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      
+      .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -95,7 +292,7 @@
     </div>
   </div>
 
-  <script src="museum-data-loader.js"></script>
+  <script src="js/museum-data-loader.js"></script>
   <script>
     (function(){
       function load(){

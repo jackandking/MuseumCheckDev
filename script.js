@@ -43,14 +43,11 @@ const DOM_SELECTORS = {
         MUSEUM_MODAL: '#museumModal',
         MUSEUM_MODAL_CLOSE: '#museumModal .close',
         ACHIEVEMENT_MODAL: '#achievementModal',
-        ACHIEVEMENT_MODAL_CLOSE: '#achievementModal .close',
-        ASSESSMENT_HISTORY_MODAL: '#assessmentHistoryModal',
-        ASSESSMENT_HISTORY_MODAL_CLOSE: '#assessmentHistoryModal .close'
+        ACHIEVEMENT_MODAL_CLOSE: '#achievementModal .close'
     },
     
     BUTTONS: {
-        ACHIEVEMENT: '#achievementButton',
-        ASSESSMENT_HISTORY: '#assessmentHistoryButton'
+        ACHIEVEMENT: '#achievementButton'
     },
     
     ELEMENTS: {
@@ -96,29 +93,6 @@ const APP_CONFIG = {
 
 // ===== UTILITY FUNCTIONS =====
 // Small utility functions for common DOM operations and data handling
-// Initialize debug-mode when script bundle loads (if debug flag set by query)
-(function(){
-    try {
-        if (window.__MC_DEBUG === undefined) {
-            // if debug-mode.js loaded set window.__MC_DEBUG; otherwise, check URL
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('debug') === 'true' || params.get('debug') === '1') {
-                try { localStorage.setItem('mc_debug','1'); } catch(e){}
-                window.__MC_DEBUG = true;
-            } else if (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1') {
-                window.__MC_DEBUG = true;
-            }
-        }
-        // if debug set and debug-mode.js wasn't present, attempt to load vConsole
-        if (window.__MC_DEBUG && !window.__MC_VCONSOLE_LOADED) {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/vconsole@3.9.0/dist/vconsole.min.js';
-            s.onload = function(){ try{ window.vConsole = new VConsole({ maxLogNumber: 1000 }); console.info('vConsole enabled (script.js)'); }catch(e){} };
-            document.head.appendChild(s);
-            window.__MC_VCONSOLE_LOADED = true;
-        }
-    } catch(e) {}
-})();
 const UtilityFunctions = {
     // DOM helper functions
     querySelector: (selector) => document.querySelector(selector),
@@ -4026,7 +4000,19 @@ class MuseumCheckApp {
             this.achievementGamification = new AchievementGamification();
         }
         
-        this.init();
+        // Initialize homepage adapter for museum data management
+        this.homepageAdapter = null;  // Will be initialized in async init()
+        
+        // Start async initialization but don't block constructor
+        // The initialization will complete in the background
+        this.initPromise = this.init().catch(error => {
+            console.error('[Init] Failed to initialize MuseumCheckApp:', error);
+            // Even if init fails, show loading indicator hiding to prevent hang
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+        });
     }
 
     initAgeSelector() {
@@ -4047,7 +4033,49 @@ class MuseumCheckApp {
     }
 
     async init() {
+        console.log('[Init] Starting MuseumCheckApp initialization...');
         await this.initIndexedDB();
+        
+        // Initialize homepage adapter for museum data management (Phase 2.5)
+        console.log('[Init] Checking Phase 2.5 dependencies:');
+        console.log('  HomepageAdapter:', typeof HomepageAdapter);
+        console.log('  dataManager:', typeof window.dataManager);
+        console.log('  eventBus:', typeof window.eventBus);
+        console.log('  museumDataLoader:', typeof window.museumDataLoader);
+        
+        if (typeof HomepageAdapter !== 'undefined' && 
+            typeof window.dataManager !== 'undefined' && 
+            typeof window.eventBus !== 'undefined' && 
+            typeof window.museumDataLoader !== 'undefined') {
+            try {
+                this.homepageAdapter = new HomepageAdapter({
+                    dataManager: window.dataManager,
+                    eventBus: window.eventBus,
+                    museumDataLoader: window.museumDataLoader
+                });
+                await this.homepageAdapter.init();
+                
+                // Use adapter's museums instead of MUSEUMS array
+                const adapterMuseums = this.homepageAdapter.getFilteredMuseums();
+                this.filteredMuseums = Array.isArray(adapterMuseums) ? adapterMuseums : MUSEUMS || [];
+                
+                console.log('[Phase 2.5] HomepageAdapter initialized successfully with', this.filteredMuseums.length, 'museums');
+            } catch (error) {
+                console.error('[Phase 2.5] Failed to initialize HomepageAdapter:', error);
+                // Fallback to MUSEUMS array
+                this.filteredMuseums = MUSEUMS || [];
+            }
+        } else {
+            // Fallback: Use MUSEUMS array directly (backward compatibility)
+            console.log('[Phase 2.5] HomepageAdapter not available, using MUSEUMS array');
+            this.filteredMuseums = MUSEUMS || [];
+        }
+        
+        // Defensive guard: ensure filteredMuseums is always an array
+        if (!Array.isArray(this.filteredMuseums)) {
+            console.warn('[Init Guard] filteredMuseums is not an array after initialization:', typeof this.filteredMuseums);
+            this.filteredMuseums = MUSEUMS || [];
+        }
         
         // Initialize age selector visual state
         this.initAgeSelector();
@@ -4097,6 +4125,12 @@ class MuseumCheckApp {
         
         this.renderMuseums();
         this.updateStats();
+        
+        // Ensure loading indicator is hidden (final safety check)
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
         
         // Update fireworks button visibility based on available fireworks
         this.updateFireworksButtonVisibility();
@@ -4696,39 +4730,88 @@ class MuseumCheckApp {
         });
         
         // Achievement button - Navigate to new achievements page
-        document.getElementById('achievementButton').addEventListener('click', () => {
-            window.location.href = 'achievements.html';
-        });
+        // Note: Achievement button no longer in top bar, only in mobile menu
+        const achievementButton = document.getElementById('achievementButton');
+        if (achievementButton) {
+            achievementButton.addEventListener('click', () => {
+                window.location.href = 'achievements.html';
+            });
+        }
 
-        // Assessment history button
-        document.getElementById('assessmentHistoryButton').addEventListener('click', () => {
-            this.showAssessmentHistoryModal();
-        });
+        // Leaderboard button (desktop-only, may not exist on mobile)
+        const leaderboardButton = document.getElementById('leaderboardButton');
+        if (leaderboardButton) {
+            leaderboardButton.addEventListener('click', () => {
+                this.showLeaderboardModal();
+            });
+        }
 
-        // Leaderboard button
-        document.getElementById('leaderboardButton').addEventListener('click', () => {
-            this.showLeaderboardModal();
-        });
+        // Quiz button (desktop-only)
+        const quizButton = document.getElementById('quizButton');
+        if (quizButton) {
+            quizButton.addEventListener('click', () => {
+                window.location.href = 'quiz/index.html';
+            });
+        }
 
-        // Quiz button
-        document.getElementById('quizButton').addEventListener('click', () => {
-            window.location.href = 'quiz/index.html';
-        });
+        // National Treasures Survey button (desktop-only)
+        const nationalTreasuresButton = document.getElementById('nationalTreasuresButton');
+        if (nationalTreasuresButton) {
+            nationalTreasuresButton.addEventListener('click', () => {
+                window.open('survey/national-treasures/index.html', '_blank');
+            });
+        }
 
-        // National Treasures Survey button
-        document.getElementById('nationalTreasuresButton').addEventListener('click', () => {
-            window.open('survey/national-treasures/index.html', '_blank');
-        });
-
-        // Event Wall button
-        document.getElementById('eventWallButton').addEventListener('click', () => {
-            window.open('event-wall.html', '_blank');
-        });
+        // Event Wall button (desktop-only)
+        const eventWallButton = document.getElementById('eventWallButton');
+        if (eventWallButton) {
+            eventWallButton.addEventListener('click', () => {
+                window.open('event-wall.html', '_blank');
+            });
+        }
 
         // Settings button
-        document.getElementById('settingsButton').addEventListener('click', () => {
-            this.showSettingsModal();
+        const settingsButton = document.getElementById('settingsButton');
+        if (settingsButton) {
+            settingsButton.addEventListener('click', () => {
+                this.showSettingsModal();
+            });
+        }
+
+        // 汉堡菜单按钮
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => {
+                this.openMobileMenu();
+            });
+        }
+
+        // 汉堡菜单关闭按钮
+        const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
+        if (closeMobileMenuBtn) {
+            closeMobileMenuBtn.addEventListener('click', () => {
+                this.closeMobileMenu();
+            });
+        }
+
+        // 汉堡菜单项点击事件委托
+        const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
+        mobileMenuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = e.currentTarget.getAttribute('data-action');
+                this.handleMobileMenuAction(action);
+            });
         });
+
+        // 汉堡菜单模态框外部点击关闭
+        const mobileMenuModal = document.getElementById('mobileMenuModal');
+        if (mobileMenuModal) {
+            mobileMenuModal.addEventListener('click', (e) => {
+                if (e.target.id === 'mobileMenuModal') {
+                    this.closeMobileMenu();
+                }
+            });
+        }
 
         // Achievement modal close - DISABLED (now using separate achievements.html page)
         /* Commented out - achievement modal removed
@@ -4738,9 +4821,13 @@ class MuseumCheckApp {
         */
 
         // Assessment history modal close
-        document.querySelector('#assessmentHistoryModal .close').addEventListener('click', () => {
-            this.closeAssessmentHistoryModal();
-        });
+        // Assessment history modal removed - this element no longer exists
+        const assessmentHistoryModalClose = document.querySelector('#assessmentHistoryModal .close');
+        if (assessmentHistoryModalClose) {
+            assessmentHistoryModalClose.addEventListener('click', () => {
+                this.closeAssessmentHistoryModal();
+            });
+        }
 
         // Leaderboard modal close
         document.querySelector('#leaderboardModal .close').addEventListener('click', () => {
@@ -4782,11 +4869,15 @@ class MuseumCheckApp {
         */
 
         // Click outside assessment history modal to close
-        document.getElementById('assessmentHistoryModal').addEventListener('click', (e) => {
-            if (e.target.id === 'assessmentHistoryModal') {
-                this.closeAssessmentHistoryModal();
-            }
-        });
+        // Assessment history modal removed - feature no longer exists
+        const assessmentHistoryModal = document.getElementById('assessmentHistoryModal');
+        if (assessmentHistoryModal) {
+            assessmentHistoryModal.addEventListener('click', (e) => {
+                if (e.target.id === 'assessmentHistoryModal') {
+                    this.closeAssessmentHistoryModal();
+                }
+            });
+        }
 
         // Click outside leaderboard modal to close
         document.getElementById('leaderboardModal').addEventListener('click', (e) => {
@@ -4806,14 +4897,21 @@ class MuseumCheckApp {
         }
 
         // Settings icon click
-        document.getElementById('settingsIcon').addEventListener('click', () => {
-            this.showSettingsModal();
-        });
+        // Settings icon no longer visible - hidden in header updates
+        const settingsIcon = document.getElementById('settingsIcon');
+        if (settingsIcon) {
+            settingsIcon.addEventListener('click', () => {
+                this.showSettingsModal();
+            });
+        }
 
         // Settings modal close
-        document.querySelector('#settingsModal .close').addEventListener('click', () => {
-            this.closeSettingsModal();
-        });
+        const settingsModalClose = document.querySelector('#settingsModal .close');
+        if (settingsModalClose) {
+            settingsModalClose.addEventListener('click', () => {
+                this.closeSettingsModal();
+            });
+        }
 
         // Click outside settings modal to close
         document.getElementById('settingsModal').addEventListener('click', (e) => {
@@ -4852,23 +4950,7 @@ class MuseumCheckApp {
             });
         }
 
-        // Auto-save DeepSeek API Key on blur
-        const deepseekApiKeyInput = document.getElementById('deepseekApiKeyInput');
-        if (deepseekApiKeyInput) {
-            deepseekApiKeyInput.addEventListener('blur', () => {
-                const apiKey = deepseekApiKeyInput.value.trim();
-                if (apiKey) {
-                    localStorage.setItem('deepseekApiKey', apiKey);
-                } else {
-                    localStorage.removeItem('deepseekApiKey');
-                }
-                
-                // Track API key saved event
-                this.trackEvent('deepseek_api_key_saved', {
-                    'has_key': !!apiKey
-                });
-            });
-        }
+        // Auto-save DeepSeek API Key on blur - REMOVED (setting deleted)
 
         // Auto-save age group on change
         const ageGroupSelector = document.getElementById('ageGroupSelector');
@@ -4961,73 +5043,11 @@ class MuseumCheckApp {
         this.updateGamificationStatsDisplay();
         // ===== END GAMIFICATION SETTINGS =====
 
-        // Fireworks retention time slider
-        const retentionSlider = document.getElementById('fireworksRetentionInput');
-        if (retentionSlider) {
-            retentionSlider.addEventListener('input', (e) => {
-                const minutes = parseInt(e.target.value, 10);
-                this.updateFireworksRetentionDisplay(minutes);
-            });
-            
-            retentionSlider.addEventListener('change', (e) => {
-                const minutes = parseInt(e.target.value, 10);
-                const retentionMs = minutes * 60000;
-                
-                const result = this.saveFireworksRetentionTime(retentionMs);
-                
-                if (result.success) {
-                    // Track retention time change
-                    this.trackEvent('fireworks_retention_changed', {
-                        'retention_minutes': minutes,
-                        'retention_hours': minutes / 60
-                    });
-                    
-                    // Clean up expired fireworks immediately
-                    this.fireworks = this.cleanupExpiredFireworks(this.fireworks);
-                    this.updateStats();
-                }
-            });
-        }
+        // Fireworks retention time slider - REMOVED (setting deleted)
 
-        // Auto-save firework type on change
-        const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
-        if (fireworkTypeSelector) {
-            fireworkTypeSelector.addEventListener('change', () => {
-                const selectedType = fireworkTypeSelector.value;
-                const result = this.saveFireworkType(selectedType);
-                
-                if (result.success) {
-                    // Track firework type change
-                    this.trackEvent('firework_type_changed', {
-                        'firework_type': selectedType,
-                        'auto_saved': true
-                    });
-                }
-            });
-        }
+        // Auto-save firework type on change - REMOVED (setting deleted)
 
-        // Firework launch interval slider
-        const launchIntervalSlider = document.getElementById('fireworkLaunchIntervalInput');
-        if (launchIntervalSlider) {
-            launchIntervalSlider.addEventListener('input', (e) => {
-                const intervalMs = parseInt(e.target.value, 10);
-                this.updateFireworkLaunchIntervalDisplay(intervalMs);
-            });
-            
-            launchIntervalSlider.addEventListener('change', (e) => {
-                const intervalMs = parseInt(e.target.value, 10);
-                
-                const result = this.saveFireworkLaunchInterval(intervalMs);
-                
-                if (result.success) {
-                    // Track launch interval change
-                    this.trackEvent('firework_launch_interval_changed', {
-                        'interval_ms': intervalMs,
-                        'interval_seconds': intervalMs / 1000
-                    });
-                }
-            });
-        }
+        // Firework launch interval slider - REMOVED (setting deleted)
 
         // Sort by selector
         const sortBySelector = document.getElementById('sortBySelector');
@@ -5087,22 +5107,7 @@ class MuseumCheckApp {
             });
         }
 
-        // Guide button visibility toggle
-        const showGuideButtonToggle = document.getElementById('showGuideButtonToggle');
-        if (showGuideButtonToggle) {
-            showGuideButtonToggle.addEventListener('change', (e) => {
-                const showGuideButton = e.target.checked;
-                const result = this.saveGuideButtonVisibility(showGuideButton);
-                
-                if (result.success) {
-                    // Track guide button visibility change
-                    this.trackEvent('guide_button_visibility_changed', {
-                        'show_guide_button': showGuideButton,
-                        'auto_saved': true
-                    });
-                }
-            });
-        }
+        // Guide button visibility toggle - REMOVED (setting deleted)
 
         // Show only museums with collections toggle
         const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
@@ -5153,41 +5158,13 @@ class MuseumCheckApp {
             this.clearAllData();
         });
 
-        // Data tier priority selector
-        const dataTierSelector = document.getElementById('dataTierPrioritySelector');
-        if (dataTierSelector) {
-            dataTierSelector.addEventListener('change', (e) => {
-                const priority = e.target.value.split('-');
-                if (window.museumDataLoader) {
-                    window.museumDataLoader.updatePrioritySettings(priority);
-                    this.showNotification('数据优先级已更新', 2000);
-                }
-            });
-        }
+        // Data tier priority selector - REMOVED (setting deleted)
 
-        // Open data manager button
-        const openDataManagerBtn = document.getElementById('openDataManagerButton');
-        if (openDataManagerBtn) {
-            openDataManagerBtn.addEventListener('click', () => {
-                window.open('museum-data-manager.html', '_blank');
-            });
-        }
+        // Open data manager button - REMOVED (setting deleted)
 
-        // Open fireworks admin button
-        const openFireworksAdminBtn = document.getElementById('openFireworksAdminButton');
-        if (openFireworksAdminBtn) {
-            openFireworksAdminBtn.addEventListener('click', () => {
-                window.open('admin-fireworks.html?admin=1', '_blank');
-            });
-        }
+        // Open fireworks admin button - REMOVED (setting deleted)
 
-        // Open leaderboard admin button
-        const openLeaderboardAdminBtn = document.getElementById('openLeaderboardAdminButton');
-        if (openLeaderboardAdminBtn) {
-            openLeaderboardAdminBtn.addEventListener('click', () => {
-                window.open('admin-leaderboard.html?admin=1', '_blank');
-            });
-        }
+        // Open leaderboard admin button - REMOVED (setting deleted)
 
         // Open treasures page button
         const openTreasuresBtn = document.getElementById('openTreasuresButton');
@@ -5229,14 +5206,20 @@ class MuseumCheckApp {
         */
 
         // Fireworks button - opens fireworks wall page showing all museum achievements
-        document.getElementById('fireworksButton').addEventListener('click', () => {
-            window.open('fireworks-wall.html', '_blank');
-        });
+        const fireworksButton = document.getElementById('fireworksButton');
+        if (fireworksButton) {
+            fireworksButton.addEventListener('click', () => {
+                window.open('fireworks-wall.html', '_blank');
+            });
+        }
 
         // Fireworks modal close
-        document.querySelector('#fireworksModal .close').addEventListener('click', () => {
-            this.closeFireworksModal();
-        });
+        const fireworksModalClose = document.querySelector('#fireworksModal .close');
+        if (fireworksModalClose) {
+            fireworksModalClose.addEventListener('click', () => {
+                this.closeFireworksModal();
+            });
+        }
 
         // Click outside fireworks modal to close
         document.getElementById('fireworksModal').addEventListener('click', (e) => {
@@ -5271,6 +5254,52 @@ class MuseumCheckApp {
                 refreshLeaderboardBtn.textContent = '🔄 刷新排行榜';
                 
                 this.trackEvent('leaderboard_refreshed');
+            });
+        }
+        
+        // HomepageAdapter event listeners (Phase 2.5)
+        if (this.homepageAdapter && typeof window.eventBus !== 'undefined') {
+            const syncFilteredFromAdapter = (label) => {
+                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                this.renderMuseums();
+                if (label) {
+                    console.log(`[Phase 2.5] ${label}: ${this.filteredMuseums.length}`);
+                }
+            };
+
+            window.eventBus.on('homepage:museums:loaded', () => {
+                syncFilteredFromAdapter('Museums loaded via adapter');
+            });
+            
+            window.eventBus.on('homepage:search', () => {
+                syncFilteredFromAdapter('Search completed');
+            });
+            
+            // CRITICAL FIX: homepage:sorted is emitted AFTER adapter.sort() completes
+            // We should NOT call renderMuseums() (which calls sortMuseums() again)
+            // Instead, just sync the already-sorted museums and update stats
+            window.eventBus.on('homepage:sorted', () => {
+                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                this.updateStats();
+                if (console && console.log) {
+                    console.log(`[Phase 2.5] Museums sorted: ${this.filteredMuseums.length}`);
+                }
+            });
+            
+            window.eventBus.on('homepage:filter:location', () => {
+                syncFilteredFromAdapter('Location filter applied');
+            });
+            
+            window.eventBus.on('homepage:filter:tags', () => {
+                syncFilteredFromAdapter('Tag filter applied');
+            });
+            
+            window.eventBus.on('homepage:filter:collections', () => {
+                syncFilteredFromAdapter('Collections filter applied');
+            });
+            
+            window.eventBus.on('homepage:filters:cleared', () => {
+                syncFilteredFromAdapter('Filters cleared');
             });
         }
     }
@@ -5312,6 +5341,54 @@ class MuseumCheckApp {
 
     // Search functionality methods
     filterMuseums() {
+        // Phase 2.5: Use HomepageAdapter if available
+        if (this.homepageAdapter) {
+            // Apply search
+            if (this.searchQuery) {
+                this.homepageAdapter.search(this.searchQuery);
+            } else {
+                this.homepageAdapter.clearFilters();
+                
+                // No search query - show only visited/favorited/browsed museums
+                // Get IDs of museums to display
+                const relevantMuseumIds = new Set();
+                
+                // Add visited museums
+                this.visitedMuseums.forEach(id => relevantMuseumIds.add(id));
+                
+                // Add favorited museums
+                this.favoriteMuseums.forEach(id => relevantMuseumIds.add(id));
+                
+                // Add browsed museums
+                Object.keys(this.browsedMuseums).forEach(id => relevantMuseumIds.add(id));
+                
+                // If user has relevant museums, filter to show only those
+                if (relevantMuseumIds.size > 0) {
+                    const allMuseums = this.homepageAdapter.getFilteredMuseums();
+                    this.filteredMuseums = allMuseums.filter(museum => relevantMuseumIds.has(museum.id));
+                    
+                    // Sort by recency (most recently browsed first)
+                    this.filteredMuseums.sort((a, b) => {
+                        const timeA = this.browsedMuseums[a.id] || 0;
+                        const timeB = this.browsedMuseums[b.id] || 0;
+                        return timeB - timeA; // Most recent first
+                    });
+                } else {
+                    // No relevant museums, show all
+                    this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                }
+            }
+            
+            // Apply collection filter if enabled
+            if (this.showOnlyMuseumsWithCollections) {
+                this.homepageAdapter.filterByCollections(true);
+                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+            }
+            
+            return;
+        }
+        
+        // Fallback: Original MUSEUMS array logic (backward compatibility)
         // If there's a search query, filter museums by search criteria (all museums)
         if (this.searchQuery) {
             const query = this.searchQuery.toLowerCase();
@@ -5915,85 +5992,15 @@ class MuseumCheckApp {
         }
     }
 
-    saveFireworksRetentionTime(retentionTimeMs) {
-        try {
-            // Validate retention time (1 minute to 1 day)
-            const minTime = 60000; // 1 minute
-            const maxTime = 86400000; // 1 day
-            
-            if (retentionTimeMs < minTime || retentionTimeMs > maxTime) {
-                console.warn('Invalid retention time, using default');
-                retentionTimeMs = 60000;
-            }
-            
-            localStorage.setItem('fireworksRetentionTime', retentionTimeMs.toString());
-            
-            return { success: true, message: '烟花留存时间已保存' };
-        } catch (error) {
-            console.error('Failed to save fireworks retention time:', error);
-            return { success: false, message: '保存失败，请重试' };
-        }
-    }
+    // saveFireworksRetentionTime - REMOVED (setting deleted)
 
-    loadFireworkType() {
-        try {
-            const saved = localStorage.getItem('fireworkType');
-            // Default to 'heart' if not saved
-            return saved || 'heart';
-        } catch (error) {
-            console.error('Failed to load firework type:', error);
-            return 'heart'; // Default to heart shape
-        }
-    }
+    // loadFireworkType - REMOVED (setting deleted)
 
-    saveFireworkType(fireworkType) {
-        try {
-            // Validate firework type - includes all 11 types available in the UI
-            const validTypes = ['heart', 'circle', 'star', 'diamond', 'spiral', 'butterfly', 'rose', 'sunburst', 'cascade', 'ring', 'crosshatch'];
-            if (!validTypes.includes(fireworkType)) {
-                console.warn('Invalid firework type, using default');
-                fireworkType = 'heart';
-            }
-            
-            localStorage.setItem('fireworkType', fireworkType);
-            
-            return { success: true, message: '烟花类型已保存' };
-        } catch (error) {
-            console.error('Failed to save firework type:', error);
-            return { success: false, message: '保存失败，请重试' };
-        }
-    }
+    // saveFireworkType - REMOVED (setting deleted)
 
-    loadFireworkLaunchInterval() {
-        try {
-            const saved = localStorage.getItem('fireworkLaunchInterval');
-            // Default to 1000ms (1 second)
-            return saved ? parseInt(saved, 10) : 1000;
-        } catch (error) {
-            console.error('Failed to load firework launch interval:', error);
-            return 1000; // Default 1 second
-        }
-    }
+    // loadFireworkLaunchInterval - REMOVED (setting deleted)
 
-    saveFireworkLaunchInterval(intervalMs) {
-        try {
-            // Validate interval (0.5 seconds to 5 seconds)
-            const minInterval = 500;  // 0.5 seconds
-            const maxInterval = 5000; // 5 seconds
-            
-            if (intervalMs < minInterval || intervalMs > maxInterval) {
-                console.warn('Invalid launch interval, using default');
-                intervalMs = 1000;
-            }
-            
-            localStorage.setItem('fireworkLaunchInterval', intervalMs.toString());
-            
-            return { success: true, message: '烟花发射间隔已保存' };
-        } catch (error) {
-            console.error('Failed to save firework launch interval:', error);
-            return { success: false, message: '保存失败，请重试' };
-        }
-    }
+    // saveFireworkLaunchInterval - REMOVED (setting deleted)
 
     loadAssessmentVisibility() {
         try {
@@ -7052,6 +7059,19 @@ class MuseumCheckApp {
 
     // Sort museums based on current sort preference
     sortMuseums(museums) {
+        // Phase 2.5: Use HomepageAdapter if available
+        if (this.homepageAdapter) {
+            // Sync visited/favorite museums to adapter before sorting
+            // (Adapter needs these for default sort strategy)
+            this.homepageAdapter.visitedMuseums = this.visitedMuseums || [];
+            this.homepageAdapter.favoriteMuseums = this.favoriteMuseums || [];
+            
+            // Let adapter handle sorting
+            this.homepageAdapter.sort(this.sortBy || 'default');
+            return this.homepageAdapter.getFilteredMuseums();
+        }
+        
+        // Fallback: Original sorting logic (backward compatibility)
         const sorted = [...museums]; // Create a copy to avoid mutating original
         
         if (this.sortBy === 'default') {
@@ -7135,10 +7155,18 @@ class MuseumCheckApp {
         try {
             const grid = document.getElementById('museumGrid');
             const loadingIndicator = document.getElementById('loadingIndicator');
-            // Hide loading indicator
+            
+            // Hide loading indicator immediately
             if (loadingIndicator) {
                 loadingIndicator.style.display = 'none';
             }
+            
+            // Ensure grid exists before clearing
+            if (!grid) {
+                console.error('renderMuseums: museumGrid element not found');
+                return;
+            }
+            
             grid.innerHTML = '';
 
             // Determine if user is new (no visited museums, no search, no favorites, no filters)
@@ -7147,6 +7175,12 @@ class MuseumCheckApp {
                 && (!this.lastSearchQuery || this.lastSearchQuery.trim() === '')
                 && (!this.showOnlyMuseumsWithCollections);
 
+            // Ensure filteredMuseums is always an array
+            if (!Array.isArray(this.filteredMuseums)) {
+                console.warn('[Defensive Guard] filteredMuseums is not an array:', typeof this.filteredMuseums, this.filteredMuseums);
+                this.filteredMuseums = MUSEUMS || [];
+            }
+            
             let museumsToRender = this.filteredMuseums;
             if (this.showOnlyMuseumsWithCollections) {
                 museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
@@ -7649,24 +7683,11 @@ class MuseumCheckApp {
     }
 
     updateStats() {
-        const visitedCount = this.visitedMuseums.length;
-        const totalCount = MUSEUMS.length;
-        // Fix percentage display: use one decimal place to show meaningful progress for small percentages
-        const percentage = totalCount > 0 
-            ? (visitedCount > 0 ? Math.round((visitedCount / totalCount) * 100 * 10) / 10 : 0)
-            : 0;
-
-        document.getElementById('visitedCount').textContent = visitedCount;
-        document.getElementById('totalCount').textContent = totalCount;
-        const percentageElement = document.getElementById('visitedPercentage');
-        if (percentageElement) {
-            percentageElement.textContent = percentage;
-        }
-        
-        // Update Minecraft-style progress bar
-        this.updateMinecraftProgressBar(percentage);
+        // Progress statistics feature removed per user request
+        // Keep only essential updates for other features
         
         // Update achievements
+        const visitedCount = this.visitedMuseums.length;
         this.updateAchievements(visitedCount);
         
         // Update fireworks count
@@ -7674,46 +7695,10 @@ class MuseumCheckApp {
         if (fireworksCountElement) {
             fireworksCountElement.textContent = this.fireworks.length;
         }
-        
-        // 🐛 Fix: Update main page assessment scores on initialization
-        this.updateMainPageAssessmentScores();
     }
 
-    // 🐛 Fix: Method to update main page assessment scores during initialization
-    updateMainPageAssessmentScores() {
-        try {
-            // getAssessmentResults() now returns an array (sorted by date, newest first)
-            const sortedResults = this.getAssessmentResults();
-            
-            // Calculate scores (same logic as updateHistorySummary)
-            const totalAssessments = sortedResults.length;
-            const averageScore = totalAssessments > 0 
-                ? Math.round(sortedResults.reduce((sum, r) => sum + r.score, 0) / totalAssessments)
-                : 0;
-            const latestScore = totalAssessments > 0 ? sortedResults[0].score : 0;
-            
-            // Update main page display elements
-            const mainAverageScore = document.getElementById('mainAverageScore');
-            const mainLatestScore = document.getElementById('mainLatestScore');
-            if (mainAverageScore) {
-                mainAverageScore.textContent = averageScore;
-            }
-            if (mainLatestScore) {
-                mainLatestScore.textContent = latestScore;
-            }
-        } catch (error) {
-            console.warn('Failed to update main page assessment scores:', error);
-            // Ensure scores show 0 if there's an error
-            const mainAverageScore = document.getElementById('mainAverageScore');
-            const mainLatestScore = document.getElementById('mainLatestScore');
-            if (mainAverageScore) {
-                mainAverageScore.textContent = '0';
-            }
-            if (mainLatestScore) {
-                mainLatestScore.textContent = '0';
-            }
-        }
-    }
+    // 🐛 Fix: Method to update main page assessment scores during initialization - REMOVED
+    // Progress statistics feature removed per user request
 
     updateDynamicMuseumCounts() {
         // Update all dynamic museum count displays with the actual count
@@ -8130,25 +8115,7 @@ class MuseumCheckApp {
         return achievements;
     }
     
-    updateMinecraftProgressBar(percentage) {
-        // Update the Minecraft-styled progress bar
-        const progressFill = document.getElementById('minecraftProgressFill');
-        const progressBlocks = document.getElementById('minecraftProgressBlocks');
-        
-        if (progressFill) {
-            progressFill.style.width = percentage + '%';
-        }
-        
-        // Add pixel blocks based on percentage
-        if (progressBlocks) {
-            const blockCount = Math.floor(percentage / 5); // One block every 5%
-            let blocksHTML = '';
-            for (let i = 0; i < blockCount; i++) {
-                blocksHTML += '<span class="pixel-block"></span>';
-            }
-            progressBlocks.innerHTML = blocksHTML;
-        }
-    }
+    // updateMinecraftProgressBar removed - progress statistics feature removed per user request
     
     updateAchievements(visitedCount) {
         const achievements = this.calculateAchievements(visitedCount);
@@ -8162,42 +8129,6 @@ class MuseumCheckApp {
         
         // Store achievements for poster generation
         this.currentAchievements = achievements;
-    }
-
-    // Dynamically ensure full museums data is loaded (Option B)
-    ensureFullMuseumsData() {
-        if (this._fullMuseumsLoaded) return Promise.resolve(true);
-        if (this._fullMuseumsLoadingPromise) return this._fullMuseumsLoadingPromise;
-        this._fullMuseumsLoadingPromise = new Promise((resolve, reject) => {
-            try {
-                // If museums-data already present, mark as loaded
-                if (Array.isArray(window.MUSEUMS) && window.MUSEUMS.length && window.MUSEUMS[0].checklists) {
-                    this._fullMuseumsLoaded = true;
-                    return resolve(true);
-                }
-                const script = document.createElement('script');
-                script.src = 'museums-data.js';
-                script.async = true;
-                script.onload = () => {
-                    try {
-                        // Adopt global MUSEUMS into app state
-                        if (Array.isArray(window.MUSEUMS) && window.MUSEUMS.length) {
-                            this._fullMuseumsLoaded = true;
-                            // Reset filtered dataset so subsequent lookups include checklists
-                            this.filteredMuseums = window.MUSEUMS;
-                            resolve(true);
-                        } else {
-                            reject(new Error('museums-data.js loaded but MUSEUMS missing'));
-                        }
-                    } catch (e) { reject(e); }
-                };
-                script.onerror = () => reject(new Error('Failed to load museums-data.js'));
-                document.head.appendChild(script);
-            } catch (e) {
-                reject(e);
-            }
-        });
-        return this._fullMuseumsLoadingPromise;
     }
 
     openMuseumModal(museum, activeTab = 'parent') {
@@ -8249,25 +8180,15 @@ class MuseumCheckApp {
         // This allows updated data from KV store to override static data
         this.getMuseumByIdWithLoader(museum.id, false).then(loadedMuseum => {
             const museumToUse = loadedMuseum || museum;
-            
-            // If current museum lacks checklists (meta dataset), load full data then reopen
-            try {
-                const noChecklist = !(museumToUse && museumToUse.checklists && museumToUse.checklists.parent && museumToUse.checklists.child);
-                if (noChecklist) {
-                    this.ensureFullMuseumsData().then(() => {
-                        const full = (typeof this.getMuseumById === 'function') ? this.getMuseumById(museumToUse.id) : (window.MUSEUMS || []).find(m=>m.id===museumToUse.id) || museumToUse;
-                        if (full && full.checklists && full.checklists.parent && full.checklists.child) {
-                            // Merge dynamic data (like images) with checklist data
-                            const merged = { ...full, ...loadedMuseum };
-                            this.renderMuseumModalContent(merged, activeTab, safeGuidance, mi, ageLabels);
-                        }
-                    }).catch(() => {
-                        // failed to load: keep placeholder; user can close modal
-                    });
-                    return;
+            const hasChecklists = !!(museumToUse && museumToUse.checklists && museumToUse.checklists.parent && museumToUse.checklists.child);
+
+            if (!hasChecklists) {
+                if (content) {
+                    content.innerHTML = '<div class="load-error">⚠️ 暂时无法加载参观指南，请检查网络后重试。</div>';
                 }
-            } catch (e) { /* ignore */ }
-            
+                return;
+            }
+
             // Render with loaded museum data (includes any KV store updates)
             this.renderMuseumModalContent(museumToUse, activeTab, safeGuidance, mi, ageLabels);
         }).catch(error => {
@@ -10008,6 +9929,97 @@ class MuseumCheckApp {
         document.getElementById('settingsModal').classList.add('hidden');
     }
 
+    // 汉堡菜单方法
+    openMobileMenu() {
+        const modal = document.getElementById('mobileMenuModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // P0: Trigger open animation (slide-up + fade-in)
+            const content = modal.querySelector('.mobile-menu-content');
+            if (content) {
+                content.classList.remove('closing');
+                content.classList.add('open');
+            }
+            
+            // 同步烟花按钮显示状态到菜单
+            this.updateMobileMenuFireworksVisibility();
+            
+            // Track mobile menu opened
+            this.trackEvent('mobile_menu_opened', {
+                screen_width: window.innerWidth
+            });
+        }
+    }
+
+    closeMobileMenu() {
+        const modal = document.getElementById('mobileMenuModal');
+        if (modal) {
+            // P0: Trigger close animation (slide-down + fade-out, 200ms)
+            const content = modal.querySelector('.mobile-menu-content');
+            if (content) {
+                content.classList.remove('open');
+                content.classList.add('closing');
+                
+                // Wait for animation to complete before hiding modal
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    content.classList.remove('closing');
+                }, 200);
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+    }
+
+    handleMobileMenuAction(action) {
+        // P0: Auto-close menu after 200ms delay to allow animation completion
+        setTimeout(() => {
+            this.closeMobileMenu();
+        }, 200);
+        
+        // 执行对应功能
+        switch(action) {
+            case 'achievements':
+                window.location.href = 'achievements.html';
+                break;
+            case 'leaderboard':
+                this.showLeaderboardModal();
+                break;
+            case 'quiz':
+                window.location.href = 'quiz/index.html';
+                break;
+            case 'nationalTreasures':
+                window.open('survey/national-treasures/index.html', '_blank');
+                break;
+            case 'eventWall':
+                window.open('event-wall.html', '_blank');
+                break;
+            case 'fireworks':
+                // 烟花功能 - 根据现有实现调整
+                // 这里假设有一个烟花墙页面
+                window.location.href = 'fireworks-wall.html';
+                break;
+        }
+        
+        // Track menu item clicked
+        this.trackEvent('mobile_menu_item_clicked', {
+            action: action,
+            screen_width: window.innerWidth
+        });
+    }
+
+    updateMobileMenuFireworksVisibility() {
+        // 同步桌面端烟花按钮的显示状态到移动菜单
+        const desktopFireworks = document.getElementById('fireworksButton');
+        const mobileFireworks = document.getElementById('mobileMenuFireworks');
+        
+        if (desktopFireworks && mobileFireworks) {
+            const isVisible = desktopFireworks.style.display !== 'none';
+            mobileFireworks.style.display = isVisible ? 'block' : 'none';
+        }
+    }
+
     initializeCollapsibleSections() {
         const settingsSections = document.querySelectorAll('.settings-section');
         
@@ -10572,12 +10584,7 @@ class MuseumCheckApp {
             nicknameInput.value = this.childNickname;
         }
         
-        // Update DeepSeek API Key input
-        const deepseekApiKeyInput = document.getElementById('deepseekApiKeyInput');
-        if (deepseekApiKeyInput) {
-            const apiKey = localStorage.getItem('deepseekApiKey') || '';
-            deepseekApiKeyInput.value = apiKey;
-        }
+        // Update DeepSeek API Key input - REMOVED (setting deleted)
         
         // Update current age group display
         const ageGroupDisplay = document.getElementById('currentAgeGroupDisplay');
@@ -10596,15 +10603,9 @@ class MuseumCheckApp {
             ageGroupSelector.value = this.currentAge;
         }
         
-        // Update data tier priority selector
-        const dataTierSelector = document.getElementById('dataTierPrioritySelector');
-        if (dataTierSelector && window.museumDataLoader) {
-            const priority = window.museumDataLoader.getPrioritySettings();
-            dataTierSelector.value = priority.join('-');
-        }
+        // Update data tier priority selector - REMOVED (setting deleted)
         
-        // Update fireworks retention time slider
-        const retentionSlider = document.getElementById('fireworksRetentionInput');
+        // Update fireworks retention time slider - REMOVED (setting deleted)
         
         // Update gamification stats display
         this.updateGamificationStatsDisplay();
@@ -10634,31 +10635,11 @@ class MuseumCheckApp {
     }
 
     renderSettingsInfoComplete() {
-        // Update fireworks retention time slider
-        const retentionSlider = document.getElementById('fireworksRetentionInput');
-        const retentionDisplay = document.getElementById('fireworksRetentionDisplay');
-        if (retentionSlider && retentionDisplay) {
-            const retentionMs = this.loadFireworksRetentionTime();
-            const retentionMinutes = Math.round(retentionMs / 60000);
-            retentionSlider.value = retentionMinutes;
-            this.updateFireworksRetentionDisplay(retentionMinutes);
-        }
+        // Update fireworks retention time slider - REMOVED (setting deleted)
         
-        // Update firework type selector
-        const fireworkTypeSelector = document.getElementById('fireworkTypeSelector');
-        if (fireworkTypeSelector) {
-            const currentType = this.loadFireworkType();
-            fireworkTypeSelector.value = currentType;
-        }
+        // Update firework type selector - REMOVED (setting deleted)
         
-        // Update firework launch interval slider
-        const launchIntervalSlider = document.getElementById('fireworkLaunchIntervalInput');
-        const launchIntervalDisplay = document.getElementById('fireworkLaunchIntervalDisplay');
-        if (launchIntervalSlider && launchIntervalDisplay) {
-            const intervalMs = this.loadFireworkLaunchInterval();
-            launchIntervalSlider.value = intervalMs;
-            this.updateFireworkLaunchIntervalDisplay(intervalMs);
-        }
+        // Update firework launch interval slider - REMOVED (setting deleted)
         
         // Update sort by selector
         const sortBySelector = document.getElementById('sortBySelector');
@@ -10678,11 +10659,7 @@ class MuseumCheckApp {
             showManageButtonToggle.checked = !this.manageButtonHidden;
         }
 
-        // Update guide button visibility toggle
-        const showGuideButtonToggle = document.getElementById('showGuideButtonToggle');
-        if (showGuideButtonToggle) {
-            showGuideButtonToggle.checked = !this.guideButtonHidden;
-        }
+        // Update guide button visibility toggle - REMOVED (setting deleted)
 
         // Update child mode toggle
         const childModeToggle = document.getElementById('childModeToggle');
@@ -10697,27 +10674,9 @@ class MuseumCheckApp {
         }
     }
 
-    updateFireworksRetentionDisplay(minutes) {
-        const display = document.getElementById('fireworksRetentionDisplay');
-        if (!display) return;
-        
-        if (minutes < 60) {
-            display.textContent = `${minutes} 分钟`;
-        } else if (minutes < 1440) {
-            const hours = Math.round(minutes / 60 * 10) / 10;
-            display.textContent = `${hours} 小时`;
-        } else {
-            display.textContent = '1 天';
-        }
-    }
+    // updateFireworksRetentionDisplay - REMOVED (setting deleted)
 
-    updateFireworkLaunchIntervalDisplay(intervalMs) {
-        const display = document.getElementById('fireworkLaunchIntervalDisplay');
-        if (!display) return;
-        
-        const seconds = intervalMs / 1000;
-        display.textContent = `${seconds.toFixed(1)} 秒`;
-    }
+    // updateFireworkLaunchIntervalDisplay - REMOVED (setting deleted)
 
     // Fireworks Modal Functions
     showFireworksModal(museumId = null) {
@@ -14990,16 +14949,22 @@ class MuseumCheckApp {
     }
     
     setupHistoryEventListeners() {
-        // Museum filter change
-        document.getElementById('historyMuseumFilter').addEventListener('change', () => {
-            const results = this.getAssessmentResults();
-            this.renderHistoryList(results);
-        });
+        // Assessment history feature removed - these elements no longer exist
+        const historyMuseumFilter = document.getElementById('historyMuseumFilter');
+        if (historyMuseumFilter) {
+            historyMuseumFilter.addEventListener('change', () => {
+                const results = this.getAssessmentResults();
+                this.renderHistoryList(results);
+            });
+        }
         
         // Export button
-        document.getElementById('exportHistoryButton').addEventListener('click', () => {
-            this.exportAssessmentHistory();
-        });
+        const exportHistoryButton = document.getElementById('exportHistoryButton');
+        if (exportHistoryButton) {
+            exportHistoryButton.addEventListener('click', () => {
+                this.exportAssessmentHistory();
+            });
+        }
     }
     
     exportAssessmentHistory() {
@@ -15459,4 +15424,22 @@ class MuseumCheckApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new MuseumCheckApp();
     try { window.museumCheck = window.app; } catch(e) {}
+    
+    // 响应式更新汉堡菜单显示状态
+    function updateMobileMenuVisibility() {
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        if (mobileMenuButton) {
+            const isMobile = window.innerWidth <= 768;
+            mobileMenuButton.style.display = isMobile ? 'flex' : 'none';
+        }
+        
+        // 同步烟花按钮状态
+        if (window.app && window.app.updateMobileMenuFireworksVisibility) {
+            window.app.updateMobileMenuFireworksVisibility();
+        }
+    }
+    
+    // 初始化和窗口 resize 时更新
+    updateMobileMenuVisibility();
+    window.addEventListener('resize', updateMobileMenuVisibility);
 });

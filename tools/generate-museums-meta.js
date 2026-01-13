@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /*
  Generates museums-meta.js from museums-data.js
+ 
+ Note: museums-data.js is deprecated for runtime use but retained as the canonical
+ source for generating museums-meta.js and as test data. This tool extracts metadata
+ to create the lightweight listing used by the homepage.
+ 
  Output format: window.MUSEUMS_META = [{ id, name, location, tags, image }];
 */
 const fs = require('fs');

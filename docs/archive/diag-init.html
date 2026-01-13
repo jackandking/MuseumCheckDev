@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MuseumCheck - Diagnostic Check</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        window.initDiagnostics = {
+            messages: [],
+            startTime: Date.now(),
+            log: function(type, msg) {
+                this.messages.push({
+                    type,
+                    msg,
+                    time: Date.now() - this.startTime
+                });
+                console.log(`[${type}]`, msg);
+            }
+        };
+        window.initDiagnostics.log('INFO', 'Diagnostics initialized');
+    </script>
+</head>
+<body>
+    <div id="diagnostic-panel" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 10000; overflow: auto; padding: 20px; font-family: monospace; font-size: 12px;">
+        <h2>MuseumCheck 初始化诊断</h2>
+        <button onclick="location.href='/';" style="padding: 10px 20px; font-size: 14px; margin-bottom: 20px;">返回主页</button>
+        
+        <h3>加载中的关键资源...</h3>
+        <div id="loadStatus" style="border: 1px solid #ccc; padding: 10px; background: #f9f9f9; margin-bottom: 20px; min-height: 200px;">
+            <p id="loadStatus-detail">检查中...</p>
+        </div>
+        
+        <h3>诊断消息</h3>
+        <pre id="messages" style="border: 1px solid #ccc; padding: 10px; background: #f9f9f9; min-height: 300px; max-height: 600px; overflow: auto;"></pre>
+    </div>
+    
+    <!-- 这里加载所有必要的脚本 -->
+    <script src="debug-mode.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'debug-mode.js loaded');
+    </script>
+    
+    <script src="museum-data-loader.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'museum-data-loader.js loaded');
+        window.initDiagnostics.log('CHECK', 'window.museumDataLoader exists: ' + !!window.museumDataLoader);
+    </script>
+    
+    <script src="museums-meta.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'museums-meta.js loaded');
+        window.initDiagnostics.log('CHECK', 'window.MUSEUMS_META length: ' + (window.MUSEUMS_META ? window.MUSEUMS_META.length : 'undefined'));
+    </script>
+    
+    <script>
+        if(!window.MUSEUMS && window.MUSEUMS_META){ 
+            window.MUSEUMS = window.MUSEUMS_META;
+            window.initDiagnostics.log('ADOPT', 'MUSEUMS adopted from MUSEUMS_META');
+        }
+        window.initDiagnostics.log('CHECK', 'window.MUSEUMS length: ' + (window.MUSEUMS ? window.MUSEUMS.length : 'undefined'));
+    </script>
+    
+    <script src="core/event-bus.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'core/event-bus.js loaded');
+        window.initDiagnostics.log('CHECK', 'EventBus available: ' + (typeof EventBus !== 'undefined'));
+    </script>
+    
+    <script src="core/data-manager.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'core/data-manager.js loaded');
+        window.initDiagnostics.log('CHECK', 'DataManager available: ' + (typeof DataManager !== 'undefined'));
+    </script>
+    
+    <script src="core/version-manager.js"></script>
+    <script src="core/overlay-manager.js"></script>
+    <script src="core/storage/storage-adapter-base.js"></script>
+    <script src="core/storage/local-storage-adapter.js"></script>
+    <script src="core/storage/kv-storage-adapter.js"></script>
+    <script src="core/storage/sql-storage-adapter.js"></script>
+    <script src="core/storage/file-storage-adapter.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'All core storage adapters loaded');
+    </script>
+    
+    <script src="core/adapters/homepage-adapter.js"></script>
+    <script>
+        window.initDiagnostics.log('LOAD', 'core/adapters/homepage-adapter.js loaded');
+        window.initDiagnostics.log('CHECK', 'HomepageAdapter available: ' + (typeof HomepageAdapter !== 'undefined'));
+    </script>
+    
+    <script>
+        // Initialize Phase 2 core systems
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+            window.eventBus = new EventBus();
+            window.dataManager = new DataManager(window.eventBus);
+            window.initDiagnostics.log('INIT', 'Phase 2 core systems initialized');
+        } else {
+            window.initDiagnostics.log('ERROR', 'Failed to initialize Phase 2 - missing dependencies');
+        }
+    </script>
+    
+    <script>
+        // Final status check
+        setTimeout(() => {
+            const status = document.getElementById('loadStatus-detail');
+            const checks = [
+                { name: 'MUSEUMS_META', value: window.MUSEUMS_META && window.MUSEUMS_META.length },
+                { name: 'MUSEUMS', value: window.MUSEUMS && window.MUSEUMS.length },
+                { name: 'EventBus', value: !!window.eventBus },
+                { name: 'DataManager', value: !!window.dataManager },
+                { name: 'MuseumDataLoader', value: !!window.museumDataLoader },
+                { name: 'HomepageAdapter', value: typeof HomepageAdapter !== 'undefined' }
+            ];
+            
+            let html = '<div style="padding: 10px;">';
+            checks.forEach(c => {
+                const ok = !!c.value;
+                const color = ok ? 'green' : 'red';
+                const val = typeof c.value === 'number' ? c.value + '个' : (c.value ? '✓' : '✗');
+                html += `<div style="color: ${color}; margin: 5px 0;">✓ ${c.name}: ${val}</div>`;
+            });
+            html += '</div>';
+            
+            status.innerHTML = html;
+            
+            // Display all diagnostic messages
+            const msgDiv = document.getElementById('messages');
+            msgDiv.textContent = window.initDiagnostics.messages
+                .map(m => `[${m.time.toString().padStart(5)}ms] [${m.type.padEnd(6)}] ${m.msg}`)
+                .join('\n');
+        }, 1000);
+    </script>
+</body>
+</html>

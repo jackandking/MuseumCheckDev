@@ -18,8 +18,14 @@
     "export:kvstore:force": "node tools/export-kvstore-to-static.js --all --force",
     "mcp:start": "node museum-mcp-server.js",
     "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui"
-    ,"verify:everyone":"bash tools/verify_everyone_with_curl.sh"
+    "e2e:ui": "playwright test --ui",
+    "verify:everyone": "bash tools/verify_everyone_with_curl.sh",
+    "prepare": "git config core.hooksPath .husky || true",
+    "test:sanity": "node scripts/run-sanity-agent.js default",
+    "test:sanity:watch": "node scripts/run-sanity-agent.js watch",
+    "test:sanity:ci": "node scripts/run-sanity-agent.js ci",
+    "test:sanity:mobile": "node scripts/run-sanity-agent.js mobile",
+    "test:sanity:quick": "node scripts/run-sanity-agent.js quick"
   },
   "keywords": [
     "museum",

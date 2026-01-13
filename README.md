@@ -1,7 +1,19 @@
 # 博物馆打卡 (MuseumCheck)
 
 <div align="center">
-  <img src="MuseumCheck_logo.jpg" alt="MuseumCheck Logo" width="200" height="200">
+  <img src="assets/images/MuseumCheck_logo.jpg" alt="MuseumCheck Logo" width="200" height="200">
+  
+  <p>
+    <a href="https://github.com/jackandking/MuseumCheck/actions/workflows/test.yml">
+      <img src="https://github.com/jackandking/MuseumCheck/actions/workflows/test.yml/badge.svg" alt="Tests">
+    </a>
+    <a href="https://github.com/jackandking/MuseumCheck/actions/workflows/data-quality.yml">
+      <img src="https://github.com/jackandking/MuseumCheck/actions/workflows/data-quality.yml/badge.svg" alt="Data Quality">
+    </a>
+    <a href="https://codecov.io/gh/jackandking/MuseumCheck">
+      <img src="https://codecov.io/gh/jackandking/MuseumCheck/branch/dev/graph/badge.svg" alt="Coverage">
+    </a>
+  </p>
 </div>
 
 一个帮助中国家庭规划博物馆参观的互动应用，让孩子爱上博物馆之旅。
@@ -42,19 +54,21 @@ https://museumcheck.cn/
 - 无需注册账号，隐私友好
 - 数据持久保存，支持多次访问
 
-### 🔧 三级数据管理系统 (新功能)
-灵活的博物馆数据加载机制，支持开发调试和稳定发布：
+### 🔧 单源 + 缓存数据架构
+简化的数据管理策略，单一数据源保证内容一致性：
 
-- **Tier 1 - 静态文件**：单个博物馆的静态 JSON 文件 (`/museums/{museum-id}.json`)，用于稳定发布的内容
-- **Tier 2 - 远程存储**：云端 KV 存储中的博物馆数据，用于开发调试和快速迭代
-- **Tier 3 - 内置数据**：应用默认的完整博物馆数据 (`museums-data.js`)，保证离线可用
+- **KV Store (AWS Lambda)**：唯一数据源，保证内容最新最准确
+- **浏览器缓存 (localStorage)**：7天过期策略，支持离线访问已浏览博物馆
+- **元数据 (museums-meta.js)**：轻量级首页列表（~50KB），快速加载
 
-**特性**：
-- 可配置的加载优先级（默认：静态文件 → 远程存储 → 内置数据）
-- 智能缓存机制，提升加载性能
-- 远程数据管理界面，支持在线编辑、上传、删除博物馆数据
-- 无缝降级：任何层级失败自动切换到下一优先级
-- 详细文档：参见下方"开发者指南"
+**优势**：
+- 单一数据源，无需维护多个副本
+- 按需加载，用户只下载访问过的博物馆数据
+- 智能缓存，离线也能查看已访问的博物馆
+- 成本友好，当前流量完全在 AWS 免费额度内
+- 未来可扩展：流量增长时可引入 CDN 优化
+
+**详细说明**：参见 [简化架构文档](docs/SIMPLIFIED_ARCHITECTURE.md)
 
 ### 🎯 博物馆专用打卡页面
 专为博物馆现场体验设计的独立页面：
@@ -63,7 +77,7 @@ https://museumcheck.cn/
 - **渐进式UX**：完成任务后自然引导家长了解更多功能
 - **可嵌入**：支持嵌入博物馆官网
 - **编辑模式**：博物馆工作人员可在线编辑任务内容
-- 详细文档：[Museum Check-in Documentation](MUSEUM_CHECKIN_DOC.md)
+- 详细文档：[Museum Check-in Documentation](docs/features/museum-checkin.md)
 
 ## 技术特点
 
@@ -332,7 +346,7 @@ https://museumcheck.cn/
 - **集中管理模式** (推荐) - 所有博物馆数据（包括工作流）集中在单个文件中
   - 示例：`museums/pinghu-museum.js`（平湖博物馆）
   - 优势：易于维护，内容创作更高效
-  - 详见 **[CENTRALIZED_DATA_PATTERN.md](CENTRALIZED_DATA_PATTERN.md)** 完整说明
+  - 详见 **[CENTRALIZED_DATA_PATTERN.md](docs/architecture/centralized-data-pattern.md)** 完整说明
 
 - **分离管理模式** (兼容) - 工作流数据在 `workflows-data.js` 中统一管理
   - 适用于已有的博物馆
@@ -383,7 +397,7 @@ node tools/test-mcp-museum-search.js
 - 获取真实的博物馆统计数据（藏品数量、参观人数、质量等级等）
 - 与 GitHub Copilot 无缝集成，辅助开发过程
 
-**详细文档：** 参见 **[MCP_SETUP.md](MCP_SETUP.md)** 了解配置和使用方法
+**详细文档：** 参见 **[MCP_SETUP.md](docs/guides/mcp-setup.md)** 了解配置和使用方法
 
 ## 🔧 开发者指南 - 三级数据管理系统
 
@@ -416,21 +430,21 @@ node tools/export-kvstore-to-static.js --museum forbidden-city
 4. 提交静态文件到版本控制
 
 **完整文档：**
-- [三级数据管理系统](MUSEUM_DATA_MANAGEMENT.md)
+- [三级数据管理系统](docs/reports/data-management.md)
 - [导出工具使用指南](tools/README_EXPORT_KVSTORE.md)
 - [数据管理界面](museum-data-manager.html)
 
 ### 系统架构
 
-MuseumCheck 使用灵活的三级数据管理架构，支持开发调试和稳定发布：
+MuseumCheck 采用动态优先的两级数据架构，已移除对 Tier 3（museums-data.js）运行时依赖：
 
 ```
-Tier 1: 静态文件 (/museums/{museum-id}.json)
-   ↓ (未找到)
-Tier 2: 远程存储 (KV Store)
-   ↓ (未找到)
-Tier 3: 内置数据 (museums-data.js)
+Tier 2: 远程存储 (KV Store)  ← 优先
+  ↓
+Tier 1: 静态文件 (/museums/{museum-id}.json)  ← 回退/发布路径
 ```
+
+首页列表使用 `museums-meta.js` 轻量元数据；博物馆详情始终通过数据加载器按 Tier 2 → Tier 1 获取，缺失时提示网络问题而不再回退到单体数据文件。
 
 ### 使用场景
 
@@ -463,26 +477,16 @@ Tier 3: 内置数据 (museums-data.js)
   2. 上传/编辑/删除博物馆数据
   3. 设置过期时间（开发数据建议 1-7 天）
 
-#### Tier 3 - 内置数据（保底方案）
-- **用途**：默认数据、离线支持
-- **位置**：`museums-data.js`（全量数据）和 `museums-meta.js`（元数据）
-- **优势**：保证离线可用、首次加载快速
+#### Tier 3 - 内置数据（已弃用）
+- **状态**：`museums-data.js` 已移除运行时依赖，仅保留为历史产物，后续将删除
+- **替代**：首页用 `museums-meta.js`，详情用 Tier 2 → Tier 1 加载；离线场景会提示网络问题而非回退到陈旧数据
 
 ### 配置数据加载优先级
 
-用户可以在设置中调整加载优先级：
+优先级固定为 **远程存储 → 静态文件**（Tier 2 → Tier 1）。
 
-1. **默认模式**（推荐）：静态文件 → 远程存储 → 内置数据
-   - 适合普通用户
-   - 优先使用稳定的静态文件
-
-2. **开发模式**：远程存储 → 静态文件 → 内置数据
-   - 适合内容开发者
-   - 优先使用最新的远程数据
-
-3. **离线模式**：内置数据 → 静态文件 → 远程存储
-   - 适合网络不稳定环境
-   - 优先使用本地数据
+- 设置里即使选择包含 `tier3`，加载器也会自动过滤，确保不回退到过时的单体数据。
+- 离线场景：首页可凭 `museums-meta.js` 显示列表，但详情会提示检查网络或使用已缓存的数据。
 
 ### 开发工作流
 
@@ -497,8 +501,7 @@ Tier 3: 内置数据 (museums-data.js)
 # 步骤 3：稳定后发布为静态文件
 # 将数据导出为 JSON 文件，保存到 /museums/ 目录
 
-# 步骤 4：更新到内置数据（可选）
-# 将数据添加到 museums-data.js 以支持离线使用
+# 步骤 4：如需发布，导出静态文件并提交 /museums/{id}.json；不再更新 museums-data.js
 ```
 
 #### 场景 2：更新现有博物馆
@@ -512,8 +515,7 @@ Tier 3: 内置数据 (museums-data.js)
 # 步骤 3：同步到静态文件
 # 更新对应的 JSON 文件
 
-# 步骤 4：更新内置数据
-# 同步到 museums-data.js
+# 步骤 4：无需更新 museums-data.js；保持 Tier 2 → Tier 1 流程
 ```
 
 ### API 使用示例

@@ -140,12 +140,12 @@ describe('Museum QR Code URLs', () => {
 
     describe('QR Code Image Files', () => {
         test('Zhaoyuan Hengli Watch Museum QR code file should exist', () => {
-            const qrCodePath = path.join(__dirname, '..', 'MuseumCheck_QRCode_ZhaoyuanHengliWatchMuseum.png');
+            const qrCodePath = path.join(__dirname, '..', 'assets', 'qrcodes', 'MuseumCheck_QRCode_ZhaoyuanHengliWatchMuseum.png');
             expect(fs.existsSync(qrCodePath)).toBe(true);
         });
 
         test('Forbidden City QR code file should exist', () => {
-            const qrCodePath = path.join(__dirname, '..', 'MuseumCheck_QRCode_ForbiddenCity.png');
+            const qrCodePath = path.join(__dirname, '..', 'assets', 'qrcodes', 'MuseumCheck_QRCode_ForbiddenCity.png');
             expect(fs.existsSync(qrCodePath)).toBe(true);
         });
 

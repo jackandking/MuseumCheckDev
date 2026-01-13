@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新架构测试 - MuseumCheck</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏛️ MuseumCheck 新架构测试</h1>
+    
+    <div class="test-section">
+        <h2>📊 架构信息</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">架构版本</div>
+                <div class="stat-number">2.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">数据源</div>
+                <div class="stat-number">单源</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">缓存策略</div>
+                <div class="stat-number">7天</div>
+            </div>
+        </div>
+        <div class="test-result info">
+            <strong>当前架构：</strong> KV Store (唯一数据源) + 浏览器 localStorage 缓存<br>
+            <strong>已移除：</strong> Tier 1 静态 JSON 文件回退机制<br>
+            <strong>首页数据：</strong> museums-meta.js 轻量级元数据
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 核心功能测试</h2>
+        <button onclick="testMetaData()">1. 测试元数据加载</button>
+        <button onclick="testDataLoader()">2. 测试数据加载器</button>
+        <button onclick="testCache()">3. 测试缓存机制</button>
+        <button onclick="testKVStore()">4. 测试 KV Store 加载</button>
+        <button onclick="runAllTests()">运行所有测试</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>💾 缓存管理</h2>
+        <button onclick="showCache()">查看缓存</button>
+        <button onclick="clearAllCache()">清除所有缓存</button>
+        <div id="cache-info"></div>
+    </div>
+
+    <script src="js/museums-meta.js"></script>
+    <script src="js/museum-data-loader.js"></script>
+    <script>
+        const results = document.getElementById('test-results');
+        const cacheInfo = document.getElementById('cache-info');
+
+        function logResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+        }
+
+        async function testMetaData() {
+            clearResults();
+            logResult('⏳ 测试元数据加载...', 'info');
+            
+            try {
+                if (typeof MUSEUMS_META === 'undefined') {
+                    logResult('❌ MUSEUMS_META 未定义', 'error');
+                    return;
+                }
+
+                const count = MUSEUMS_META.length;
+                logResult(`✓ MUSEUMS_META 已加载，包含 ${count} 个博物馆`, 'success');
+
+                // 检查数据结构
+                const sample = MUSEUMS_META[0];
+                if (sample.id && sample.name && sample.location) {
+                    logResult(`✓ 数据结构正确: { id, name, location, tags, ... }`, 'success');
+                    logResult(`示例: ${sample.name} (${sample.location})`, 'info');
+                } else {
+                    logResult('❌ 数据结构不完整', 'error');
+                }
+            } catch (error) {
+                logResult(`❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDataLoader() {
+            clearResults();
+            logResult('⏳ 测试数据加载器...', 'info');
+            
+            try {
+                if (typeof museumDataLoader === 'undefined') {
+                    logResult('❌ museumDataLoader 未定义', 'error');
+                    return;
+                }
+
+                logResult('✓ museumDataLoader 已初始化', 'success');
+                
+                // 测试加载所有博物馆
+                const museums = await museumDataLoader.loadAllMuseums();
+                logResult(`✓ loadAllMuseums() 返回 ${museums.length} 个博物馆`, 'success');
+
+                // 测试缓存过期时间
+                const days = museumDataLoader.cacheExpirationDays;
+                logResult(`✓ 缓存过期时间: ${days} 天`, 'success');
+
+                // 测试 KV Store 端点
+                const endpoint = museumDataLoader.kvStoreEndpoint;
+                logResult(`✓ KV Store 端点: ${endpoint}`, 'info');
+
+            } catch (error) {
+                logResult(`❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCache() {
+            clearResults();
+            logResult('⏳ 测试缓存机制...', 'info');
+            
+            try {
+                // 创建测试数据
+                const testId = 'test-museum';
+                const testData = {
+                    id: testId,
+                    name: '测试博物馆',
+                    location: '测试城市'
+                };
+
+                // 测试写入缓存
+                museumDataLoader.setCachedToStorage(testId, testData);
+                logResult('✓ 写入缓存成功', 'success');
+
+                // 测试读取缓存
+                const cached = museumDataLoader.getCachedFromStorage(testId);
+                if (cached && cached.name === testData.name) {
+                    logResult('✓ 读取缓存成功', 'success');
+                    logResult(`✓ 数据一致性验证通过`, 'success');
+                } else {
+                    logResult('❌ 缓存数据不匹配', 'error');
+                }
+
+                // 清理测试数据
+                localStorage.removeItem(`museum-cache-${testId}`);
+                logResult('✓ 测试数据已清理', 'info');
+
+            } catch (error) {
+                logResult(`❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKVStore() {
+            clearResults();
+            logResult('⏳ 测试 KV Store 加载...', 'info');
+            logResult('提示: 这将尝试从远程 KV Store 加载真实数据', 'info');
+            
+            try {
+                // 尝试加载故宫数据
+                const museumId = 'forbidden-city';
+                logResult(`正在加载: ${museumId}`, 'info');
+                
+                const data = await museumDataLoader.loadMuseum(museumId, false);
+                
+                if (data) {
+                    logResult(`✓ 成功从 KV Store 加载: ${data.name}`, 'success');
+                    logResult(`✓ 数据包含: ${Object.keys(data).join(', ')}`, 'info');
+                    
+                    // 检查缓存
+                    const cached = museumDataLoader.getCachedFromStorage(museumId);
+                    if (cached) {
+                        logResult('✓ 数据已自动缓存到 localStorage', 'success');
+                    }
+                } else {
+                    logResult('⚠️ 无法加载数据（可能是网络问题或数据不存在）', 'error');
+                    logResult('这是正常的 - 新架构会明确返回 null 而不是使用过时数据', 'info');
+                }
+
+            } catch (error) {
+                logResult(`❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            clearResults();
+            logResult('🚀 开始运行所有测试...', 'info');
+            
+            await testMetaData();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testDataLoader();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testCache();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testKVStore();
+            
+            logResult('✅ 所有测试完成', 'success');
+        }
+
+        function showCache() {
+            cacheInfo.innerHTML = '';
+            
+            const cacheKeys = Object.keys(localStorage)
+                .filter(key => key.startsWith('museum-cache-'));
+            
+            if (cacheKeys.length === 0) {
+                cacheInfo.innerHTML = '<div class="test-result info">当前没有缓存数据</div>';
+                return;
+            }
+
+            let html = `<div class="test-result success">找到 ${cacheKeys.length} 个缓存项:</div>`;
+            
+            cacheKeys.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    const museumId = key.replace('museum-cache-', '');
+                    const age = Math.floor((Date.now() - data.timestamp) / (1000 * 60 * 60 * 24));
+                    
+                    html += `<div class="test-result info">
+                        <strong>${museumId}</strong><br>
+                        名称: ${data.data.name || 'N/A'}<br>
+                        缓存时间: ${age} 天前<br>
+                        状态: ${age < 7 ? '✓ 有效' : '⚠️ 已过期'}
+                    </div>`;
+                } catch (error) {
+                    html += `<div class="test-result error">解析失败: ${key}</div>`;
+                }
+            });
+            
+            cacheInfo.innerHTML = html;
+        }
+
+        function clearAllCache() {
+            const cacheKeys = Object.keys(localStorage)
+                .filter(key => key.startsWith('museum-cache-'));
+            
+            cacheKeys.forEach(key => localStorage.removeItem(key));
+            
+            cacheInfo.innerHTML = `<div class="test-result success">
+                已清除 ${cacheKeys.length} 个缓存项
+            </div>`;
+
+            // 同时清除内存缓存
+            if (typeof museumDataLoader !== 'undefined') {
+                museumDataLoader.clearCache();
+            }
+        }
+
+        // 页面加载时显示基本信息
+        window.addEventListener('load', () => {
+            logResult('✓ 页面加载完成', 'success');
+            logResult('点击上方按钮开始测试新架构功能', 'info');
+        });
+    </script>
+</body>
+</html>

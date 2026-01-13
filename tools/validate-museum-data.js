@@ -3,7 +3,11 @@
 /**
  * Museum Data Validation Tool
  * 
- * Comprehensive validation of museum data in script.js to detect:
+ * Validates museum data quality in museums-data.js (canonical source for tools/tests).
+ * Note: Runtime no longer depends on museums-data.js; it uses Tier2→Tier1 loader.
+ * This tool checks the source data that generates museums-meta.js and test fixtures.
+ * 
+ * Detects:
  * - Duplicate names and IDs
  * - Missing required fields
  * - Data integrity issues

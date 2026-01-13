@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>错题本 - 考一考</title>
+    <script src="../js/debug-mode.js"></script>
     <link rel="stylesheet" href="css/quiz-style.css">
     <style>
         .wrong-questions-container {
@@ -228,8 +229,19 @@
         </div>
     </div>
 
-    <!-- Load museum data first -->
-    <script src="../../museums-data.js"></script>
+    <!-- Phase 2 data/core for quiz (Tier2 -> Tier1) -->
+    <script src="../../museum-data-loader.js"></script>
+    <script src="../../museums-meta.js"></script>
+    <script src="../../core/event-bus.js"></script>
+    <script src="../../core/data-manager.js"></script>
+    <script src="../../core/version-manager.js"></script>
+    <script src="../../core/overlay-manager.js"></script>
+    <script src="../../core/storage/storage-adapter-base.js"></script>
+    <script src="../../core/storage/local-storage-adapter.js"></script>
+    <script src="../../core/storage/kv-storage-adapter.js"></script>
+    <script src="../../core/storage/sql-storage-adapter.js"></script>
+    <script src="../../core/storage/file-storage-adapter.js"></script>
+    <script src="../../core/adapters/quiz-adapter.js"></script>
     <!-- Then load quiz modules -->
     <script src="js/points-manager.js"></script>
     <script src="js/quiz-data.js"></script>
@@ -238,9 +250,19 @@
     <script src="js/quiz-ui.js"></script>
     <script>
         let currentFilter = 'all';
-        const engine = new QuizEngine();
+        (function() {
+            if (typeof EventBus !== 'undefined') {
+                window.eventBus = new EventBus();
+            }
+        })();
 
-        document.addEventListener('DOMContentLoaded', () => {
+        const quizAdapter = new QuizAdapter(window.museumDataLoader, window.eventBus);
+        const quizReadyPromise = QuizData.init(quizAdapter);
+        let engine;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await quizReadyPromise;
+            engine = new QuizEngine();
             setupFilters();
             displayWrongQuestions();
         });

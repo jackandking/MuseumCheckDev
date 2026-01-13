@@ -327,13 +327,12 @@
     </div>
   </div>
 
-  <script src="wikimedia-image-search.js"></script>
+  <script src="js/wikimedia-image-search.js"></script>
   <script src="baidu-image-search.js"></script>
   <script src="deepseek-api.js"></script>
   <script src="image-upload-util.js"></script>
-  <script src="museums-meta.js"></script>
-  <script src="museums-data.js"></script>
-  <script src="museum-data-loader.js"></script>
+  <script src="js/museums-meta.js"></script>
+  <script src="js/museum-data-loader.js"></script>
   <script>
     (function(){
       const loader = new MuseumDataLoader();
@@ -1182,7 +1181,7 @@
             return {
               label: 'Tier 3',
               badgeClass: 'tier-3',
-              description: '内置数据（museums-data.js）'
+              description: '静态缓存（已弃用）'
             };
           default:
             return {

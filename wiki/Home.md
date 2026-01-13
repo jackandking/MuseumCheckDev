@@ -21,7 +21,7 @@ MuseumCheck 是一个帮助中国家庭规划博物馆参观的互动应用，�
 ### 🛠️ 开发者文档
 - **[开发环境设置](Development-Setup.md)** - 本地开发环境配置
 - **[项目架构](Architecture.md)** - 技术架构和代码结构说明
-- **[测试指南](../TESTING_GUIDE.md)** - 单元测试和质量保证
+- **[测试指南](../docs/guides/testing.md)** - 单元测试和质量保证
 
 - **[贡献指南](Contributing.md)** - 如何参与项目开发
 
@@ -45,7 +45,7 @@ MuseumCheck 是一个帮助中国家庭规划博物馆参观的互动应用，�
 ### 对于开发者
 1. [环境设置](Development-Setup.md) - 5分钟配置开发环境
 2. [代码贡献](Contributing.md) - 提交代码的流程和规范
-3. [测试运行](../TESTING_GUIDE.md#setup-instructions) - 运行测试套件
+3. [测试运行](../docs/guides/testing.md#setup-instructions) - 运行测试套件
 
 ### 对于维护者
 1. [版本发布](Release-Process.md) - 如何发布新版本

@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# Pre-commit hook for MuseumCheck
+# Enforces quality standards for museum data changes
+#
+# This hook:
+# 1. Checks if any museum data files were modified
+# 2. Runs the museum verification tool on modified museums
+# 3. Prevents commits with unverified or low-quality museums (strict mode)
+
+set -e
+
+VERIFY_TOOL="node tools/verify-museum-official.js"
+SCRIPT_FILE="script.js"
+STAGED_SCRIPT=$(git diff --cached --name-only | grep "$SCRIPT_FILE" || true)
+
+if [ -z "$STAGED_SCRIPT" ]; then
+    exit 0
+fi
+
+echo "🔍 MuseumCheck Quality Gate: Verifying museum data..."
+
+# Extract newly added/modified museums from the staged changes
+ADDED_MUSEUMS=$(git diff --cached -- "$SCRIPT_FILE" | grep "^+.*name:" | sed 's/.*name:\s*['"'"'"]\([^'"'"'"]*\)['"'"'"].*/\1/' | sort | uniq)
+
+if [ -z "$ADDED_MUSEUMS" ]; then
+    exit 0
+fi
+
+echo "📋 Found modified museums:"
+echo "$ADDED_MUSEUMS" | while read -r museum; do
+    [ -n "$museum" ] && echo "  - $museum"
+done
+
+echo ""
+echo "⏳ Running official verification (strict mode)..."
+echo ""
+
+VERIFY_FAILED=0
+VERIFY_WARNED=0
+
+echo "$ADDED_MUSEUMS" | while read -r museum; do
+    if [ -z "$museum" ]; then
+        continue
+    fi
+    
+    # Run verification in strict mode
+    OUTPUT=$($VERIFY_TOOL "$museum" --strict 2>&1 || true)
+    EXIT_CODE=$?
+    
+    if [ $EXIT_CODE -eq 0 ]; then
+        echo "✅ $museum - Verified"
+    else
+        echo "⚠️  $museum - NOT verified (strict mode)"
+        VERIFY_FAILED=$((VERIFY_FAILED + 1))
+    fi
+done
+
+if [ $VERIFY_FAILED -gt 0 ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "❌ COMMIT BLOCKED: Museum verification failed in strict mode"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "To fix this, verify your museums match the official database:"
+    echo "  $VERIFY_TOOL \"Museum Name\" --strict --verbose"
+    echo ""
+    echo "Or bypass this check (NOT RECOMMENDED):"
+    echo "  git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "✅ All museums verified! Proceeding with commit..."
+exit 0

@@ -1,0 +1,326 @@
+/**
+ * 全局 UI 样式
+ * 所有页面共享的菜单和设置按钮样式
+ * 
+ * 在所有页面的 <head> 中引入：
+ * <link rel="stylesheet" href="css/global-ui.css">
+ */
+
+/* ============================================
+   全局头部容器
+   ============================================ */
+
+.global-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.page-title {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    color: #2c5aa0;
+    font-size: 1.8em;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================
+   菜单和设置按钮统一样式
+   ============================================ */
+
+.menu-button,
+.settings-button {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 1.2em;
+}
+
+.menu-button {
+    font-size: 24px;
+}
+
+.settings-button {
+    font-size: 20px;
+}
+
+.menu-button:hover:not(:disabled),
+.settings-button:hover:not(:disabled) {
+    background-color: rgba(79, 70, 229, 0.1);
+    transform: scale(1.05);
+}
+
+.menu-button:active:not(:disabled),
+.settings-button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   全局菜单模态框
+   ============================================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal.open {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    margin-top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #2c5aa0;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    border: none;
+    background: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close:hover {
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* ============================================
+   菜单项列表
+   ============================================ */
+
+.menu-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-items li {
+    margin: 0;
+}
+
+.menu-items a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.menu-items a:hover {
+    background-color: #f5f5f5;
+    color: #2c5aa0;
+    transform: translateX(8px);
+}
+
+.menu-items a:active {
+    background-color: #e8e8e8;
+}
+
+/* ============================================
+   设置模态框基础样式
+   ============================================ */
+
+#settingsModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#settingsModal.open {
+    display: flex;
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+
+@media (max-width: 768px) {
+    .global-header {
+        padding: 12px 15px;
+        gap: 12px;
+    }
+    
+    .page-title {
+        font-size: 1.4em;
+    }
+    
+    .menu-button,
+    .settings-button {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin-top: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .global-header {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    
+    .page-title {
+        font-size: 1.1em;
+    }
+    
+    .menu-button,
+    .settings-button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .modal-content {
+        width: 98%;
+        margin-top: 50px;
+        max-height: 70vh;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3em;
+    }
+    
+    .menu-items a {
+        padding: 12px 16px;
+        font-size: 1em;
+    }
+    
+    .close {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+}
+
+/* ============================================
+   无障碍性
+   ============================================ */
+
+.menu-button:focus,
+.settings-button:focus {
+    outline: 2px solid #2c5aa0;
+    outline-offset: 2px;
+}
+
+.modal {
+    /* 为屏幕阅读器提供支持 */
+}
+
+/* ============================================
+   打印样式
+   ============================================ */
+
+@media print {
+    .global-header,
+    .modal {
+        display: none !important;
+    }
+}

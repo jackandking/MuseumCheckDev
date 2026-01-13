@@ -11,17 +11,51 @@
 
 class QuizData {
     /**
+     * Initialize quiz data with adapter (Tier2 -> Tier1, meta-first)
+     * @param {QuizAdapter} adapter
+     * @returns {Promise<void>}
+     */
+    static async init(adapter) {
+        if (!adapter) {
+            throw new Error('QuizData.init requires adapter');
+        }
+        this.adapter = adapter;
+        if (!this.readyPromise) {
+            this.readyPromise = (async () => {
+                const museums = await this.adapter.init();
+                this.museumsMeta = Array.isArray(museums) ? museums : [];
+                this.museumCache = new Map();
+                this.museumsMeta.forEach(m => this.museumCache.set(m.id, m));
+
+                // Preload visited museums with full details for question generation
+                const visitedIds = this.getVisitedMuseums();
+                await this.adapter.preloadMuseums(visitedIds);
+                this.adapter.getMuseums().forEach(m => this.museumCache.set(m.id, m));
+            })();
+        }
+        return this.readyPromise;
+    }
+
+    static resetForTests() {
+        this.adapter = null;
+        this.readyPromise = null;
+        this.museumsMeta = [];
+        this.museumCache = new Map();
+    }
+
+    static ensureReady() {
+        if (!this.readyPromise) {
+            console.warn('QuizData used before initialization');
+        }
+    }
+
+    /**
      * Get all available museums from the main data source
      * @returns {Array} Array of museum objects
      */
     static getMuseums() {
-        // Try to get museums from global MUSEUMS array (from museums-data.js)
-        if (typeof MUSEUMS !== 'undefined') {
-            return MUSEUMS;
-        }
-        
-        console.warn('MUSEUMS data not available');
-        return [];
+        this.ensureReady();
+        return Array.from(this.museumCache.values());
     }
     
     /**
@@ -387,3 +421,9 @@ class QuizData {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = QuizData;
 }
+
+// Static state
+QuizData.adapter = null;
+QuizData.readyPromise = null;
+QuizData.museumCache = new Map();
+QuizData.museumsMeta = [];

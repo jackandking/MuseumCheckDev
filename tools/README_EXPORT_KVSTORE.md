@@ -331,7 +331,7 @@ jobs:
 
 ## 相关文档
 
-- [三级博物馆数据管理系统](../MUSEUM_DATA_MANAGEMENT.md)
+- [三级博物馆数据管理系统](../docs/reports/data-management.md)
 - [数据管理界面使用指南](../museum-data-manager.html)
 - [博物馆数据加载器](../museum-data-loader.js)
 

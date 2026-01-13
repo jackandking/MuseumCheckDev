@@ -54,7 +54,7 @@ MuseumCheck/
 ├── index.html             # 主HTML文件
 ├── script.js              # 核心JavaScript逻辑
 ├── style.css              # 样式表
-├── TESTING_GUIDE.md       # 测试指南
+├── docs/guides/testing.md # 测试指南
 ├── package.json           # Node.js依赖和脚本
 ├── .gitignore             # Git忽略文件
 ├── CNAME                  # GitHub Pages域名配置

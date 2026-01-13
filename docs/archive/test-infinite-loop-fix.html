@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>无限递归修复验证</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .log { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .error { background: #fee; border-left: 4px solid #f00; }
+        .success { background: #efe; border-left: 4px solid #0f0; }
+        .info { background: #eef; border-left: 4px solid #00f; }
+    </style>
+</head>
+<body>
+    <h1>🔍 无限递归修复验证</h1>
+    <div id="logs"></div>
+    
+    <script src="museum-data-loader.js"></script>
+    <script src="museums-meta.js"></script>
+    <script>
+        if (!window.MUSEUMS && window.MUSEUMS_META) { 
+            window.MUSEUMS = window.MUSEUMS_META; 
+        }
+    </script>
+    <script src="core/event-bus.js"></script>
+    <script src="core/data-manager.js"></script>
+    <script src="core/version-manager.js"></script>
+    <script src="core/overlay-manager.js"></script>
+    <script src="core/storage/storage-adapter-base.js"></script>
+    <script src="core/storage/local-storage-adapter.js"></script>
+    <script src="core/storage/kv-storage-adapter.js"></script>
+    <script src="core/storage/sql-storage-adapter.js"></script>
+    <script src="core/storage/file-storage-adapter.js"></script>
+    <script src="core/adapters/homepage-adapter.js"></script>
+    <script>
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+            window.eventBus = new EventBus();
+            window.dataManager = new DataManager(window.eventBus);
+        }
+    </script>
+
+    <script>
+        const logsDiv = document.getElementById('logs');
+        let sortCallCount = 0;
+        let renderCallCount = 0;
+        const maxCalls = 5;
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(div);
+            console.log(message);
+        }
+        
+        log('开始测试无限递归修复...', 'info');
+        
+        // Monitor homepage:sorted events
+        let sortedEventCount = 0;
+        window.eventBus.on('homepage:sorted', () => {
+            sortedEventCount++;
+            log(`homepage:sorted 事件触发 (第 ${sortedEventCount} 次)`, sortedEventCount > maxCalls ? 'error' : 'info');
+            
+            if (sortedEventCount > maxCalls) {
+                log(`❌ 错误：homepage:sorted 事件触发超过 ${maxCalls} 次！可能存在无限循环。`, 'error');
+            }
+        });
+        
+        // Create adapter and trigger sort
+        try {
+            const adapter = new HomepageAdapter(window.dataManager, window.eventBus, window.museumDataLoader);
+            
+            log('HomepageAdapter 创建成功', 'success');
+            
+            adapter.init().then(() => {
+                log('HomepageAdapter 初始化完成', 'success');
+                log(`加载了 ${adapter.getFilteredMuseums().length} 个博物馆`, 'info');
+                
+                // Test sorting - this should NOT cause infinite recursion
+                log('触发排序操作...', 'info');
+                adapter.sort('default');
+                
+                setTimeout(() => {
+                    if (sortedEventCount <= 1) {
+                        log(`✅ 成功：homepage:sorted 事件只触发了 ${sortedEventCount} 次`, 'success');
+                        log('✅ 无限递归问题已修复！', 'success');
+                    } else if (sortedEventCount <= maxCalls) {
+                        log(`⚠️ 警告：homepage:sorted 事件触发了 ${sortedEventCount} 次（预期 1 次）`, 'error');
+                    } else {
+                        log(`❌ 失败：检测到无限递归！`, 'error');
+                    }
+                }, 1000);
+            }).catch(err => {
+                log(`初始化失败: ${err.message}`, 'error');
+            });
+        } catch (err) {
+            log(`创建适配器失败: ${err.message}`, 'error');
+        }
+    </script>
+</body>
+</html>

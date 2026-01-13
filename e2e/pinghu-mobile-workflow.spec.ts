@@ -215,7 +215,7 @@ test.describe('Pinghu Museum Mobile Workflow', () => {
     
     // Complete first task
     const fileInput = page.locator('#sgWorkflowVisit input[type="file"]').first();
-    await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+    await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
     
     // Wait for task to be marked complete
     await page.waitForTimeout(1000);
@@ -318,7 +318,7 @@ test.describe('Pinghu Museum Mobile Workflow', () => {
       const fileInput = workflowVisit.locator('input[type="file"]').first();
       
       if (await fileInput.count() > 0) {
-        await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+        await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
         console.log(`  ✓ Task ${i + 1}/5 completed`);
       }
       
@@ -402,7 +402,7 @@ async function verifyAndCompletePhotoTask(page: any, expectedTitlePart: string, 
   // Check if file input is visible/enabled
   const fileInputCount = await fileInput.count();
   if (fileInputCount > 0) {
-    await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+    await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
     console.log(`  ✓ Photo uploaded`);
   }
   

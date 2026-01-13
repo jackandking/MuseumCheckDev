@@ -1,0 +1,66 @@
+/**
+ * PetRewardManager
+ * 提供宠物奖励的最小骨架：监听 checkin/achievement 事件，发放经验值。
+ */
+class PetRewardManager {
+  constructor({ eventBus } = {}) {
+    this.eventBus = eventBus || (typeof EventBus !== 'undefined' ? EventBus.getInstance() : null);
+    this.recentRewards = [];
+    this.maxHistory = 50;
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    if (!this.eventBus) return;
+
+    // 监听 checkin 完成事件
+    this.eventBus.on('checkin:completed', (evt) => {
+      if (!evt) return;
+      this.rewardForCheckin(evt);
+    });
+
+    // 监听成就达成事件（可选）
+    this.eventBus.on('achievement:earned', (evt) => {
+      if (!evt) return;
+      this.rewardForAchievement(evt);
+    });
+  }
+
+  rewardForCheckin({ museumId, points = 10, userId, timestamp = Date.now() } = {}) {
+    const reward = { type: 'checkin', museumId, points, userId, timestamp };
+    this._recordReward(reward);
+    if (this.eventBus) {
+      this.eventBus.emit('pet:xp:added', reward);
+    }
+    return reward;
+  }
+
+  rewardForAchievement({ achievementId, points = 20, userId, timestamp = Date.now() } = {}) {
+    const reward = { type: 'achievement', achievementId, points, userId, timestamp };
+    this._recordReward(reward);
+    if (this.eventBus) {
+      this.eventBus.emit('pet:xp:added', reward);
+    }
+    return reward;
+  }
+
+  _recordReward(reward) {
+    this.recentRewards.push(reward);
+    if (this.recentRewards.length > this.maxHistory) {
+      this.recentRewards.shift();
+    }
+  }
+
+  getRecentRewards() {
+    return [...this.recentRewards];
+  }
+}
+
+// 导出
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PetRewardManager;
+}
+
+if (typeof window !== 'undefined') {
+  window.PetRewardManager = PetRewardManager;
+}

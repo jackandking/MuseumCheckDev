@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页加载快速诊断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status.checking {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        .status.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        .status.error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #7f1d1d;
+        }
+        .status-icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+        .status-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+        .status-text strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+        .status-text small {
+            color: rgba(0,0,0,0.6);
+        }
+        .actions {
+            margin-top: 30px;
+            display: grid;
+            gap: 10px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 1px solid #d1d5db;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .info-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.6;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ccc;
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .code {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #d63384;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 主页加载诊断</h1>
+        <p class="subtitle">快速检查您的 MuseumCheck 应用是否正常加载</p>
+        
+        <div id="diagnostics"></div>
+        
+        <div class="actions">
+            <button class="btn-primary" onclick="runDiagnostics()">🔄 运行诊断</button>
+            <button class="btn-secondary" onclick="window.location.href='/'">➡️ 返回主页</button>
+            <button class="btn-secondary" onclick="openConsole()">📋 打开控制台</button>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 需要帮助？</strong><br>
+            1. 运行诊断检查您的应用状态<br>
+            2. 查看浏览器控制台查找错误信息<br>
+            3. 确保使用了最新的 loading 修复<br>
+            <div class="code">python3 -m http.server 8000</div>
+        </div>
+    </div>
+
+    <script>
+        const CHECKS = [
+            {
+                name: 'DOM 准备',
+                check: () => document.body !== null,
+                description: '检查 DOM 是否已准备'
+            },
+            {
+                name: '加载指示器',
+                check: () => document.getElementById('loadingIndicator') !== null,
+                description: '检查 loading indicator 元素是否存在'
+            },
+            {
+                name: '博物馆网格',
+                check: () => document.getElementById('museumGrid') !== null,
+                description: '检查博物馆列表容器是否存在'
+            },
+            {
+                name: 'MUSEUMS_META',
+                check: () => typeof window.MUSEUMS_META !== 'undefined' && window.MUSEUMS_META.length > 0,
+                description: `检查是否加载了博物馆元数据 (${window.MUSEUMS_META ? window.MUSEUMS_META.length : 0} 个)`
+            },
+            {
+                name: 'MUSEUMS',
+                check: () => typeof window.MUSEUMS !== 'undefined' && window.MUSEUMS.length > 0,
+                description: `检查是否加载了博物馆列表 (${window.MUSEUMS ? window.MUSEUMS.length : 0} 个)`
+            },
+            {
+                name: 'App 实例',
+                check: () => typeof window.app !== 'undefined',
+                description: '检查 MuseumCheckApp 实例是否已创建'
+            },
+            {
+                name: 'Init Promise',
+                check: () => window.app && typeof window.app.initPromise !== 'undefined',
+                description: '检查初始化 Promise 是否正在运行'
+            },
+            {
+                name: '博物馆渲染',
+                check: () => window.app && Array.isArray(window.app.filteredMuseums) && window.app.filteredMuseums.length > 0,
+                description: `检查是否已渲染博物馆 (${window.app && window.app.filteredMuseums ? window.app.filteredMuseums.length : 0} 个)`
+            },
+            {
+                name: 'EventBus',
+                check: () => typeof window.eventBus !== 'undefined',
+                description: '检查事件系统是否已初始化'
+            },
+            {
+                name: 'DataManager',
+                check: () => typeof window.dataManager !== 'undefined',
+                description: '检查数据管理器是否已初始化'
+            }
+        ];
+
+        async function runDiagnostics() {
+            const diagnosticsDiv = document.getElementById('diagnostics');
+            diagnosticsDiv.innerHTML = '';
+            
+            // 等待 app 初始化（最多 10 秒）
+            let appReady = false;
+            const startTime = Date.now();
+            
+            while (!window.app && (Date.now() - startTime) < 10000) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            if (window.app && window.app.initPromise) {
+                try {
+                    await Promise.race([
+                        window.app.initPromise,
+                        new Promise(resolve => setTimeout(resolve, 5000))
+                    ]);
+                    appReady = true;
+                } catch (e) {
+                    console.warn('Init promise failed or timed out:', e);
+                }
+            }
+            
+            // 运行所有检查
+            for (const check of CHECKS) {
+                const result = check.check();
+                const status = result ? 'success' : 'error';
+                const icon = result ? '✅' : '❌';
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.className = `status ${status}`;
+                statusDiv.innerHTML = `
+                    <div class="status-icon">${icon}</div>
+                    <div class="status-text">
+                        <strong>${check.name}</strong>
+                        <small>${check.description}</small>
+                    </div>
+                `;
+                diagnosticsDiv.appendChild(statusDiv);
+            }
+            
+            // 最终状态
+            const allChecks = CHECKS.every(c => c.check());
+            const finalDiv = document.createElement('div');
+            finalDiv.className = `status ${allChecks ? 'success' : 'error'}`;
+            finalDiv.innerHTML = `
+                <div class="status-icon">${allChecks ? '✨' : '⚠️'}</div>
+                <div class="status-text">
+                    <strong>${allChecks ? '诊断完成 - 应用正常！' : '诊断完成 - 发现问题'}</strong>
+                    <small>${allChecks ? '所有检查都通过，应用应该正常工作。' : '某些检查失败，请查看浏览器控制台了解详情。'}</small>
+                </div>
+            `;
+            diagnosticsDiv.appendChild(finalDiv);
+        }
+        
+        function openConsole() {
+            console.log('=== MuseumCheck 应用诊断信息 ===');
+            console.log('App 实例:', window.app);
+            console.log('Init Promise:', window.app?.initPromise);
+            console.log('MUSEUMS_META:', window.MUSEUMS_META?.length, '个');
+            console.log('MUSEUMS:', window.MUSEUMS?.length, '个');
+            console.log('filteredMuseums:', window.app?.filteredMuseums?.length, '个');
+            console.log('EventBus:', typeof window.eventBus);
+            console.log('DataManager:', typeof window.dataManager);
+            console.log('=====================');
+            alert('诊断信息已打印到浏览器控制台 (F12)');
+        }
+        
+        // 自动运行诊断
+        window.addEventListener('load', () => {
+            setTimeout(runDiagnostics, 500);
+        });
+    </script>
+</body>
+</html>

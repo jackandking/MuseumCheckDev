@@ -1,0 +1,19 @@
+# MuseumCheck architecture flow
+
+graph LR
+    accTitle: MuseumCheck high-level architecture
+    accDescr: High-level flow showing client, data, persistence, optional KV sync, image sources and CI
+
+    Browser[Browser (mobile-first SPA)] -->|GET assets| Static[Static Host (GitHub Pages)]
+    Static -->|serves| Assets[(index.html / script.js / style.css / museums-meta.js / museums/{id}.json)]
+    Browser -->|reads meta list| MuseumsMeta[Museum Metadata (museums-meta.js)]
+    Browser -->|loads details| MuseumJson[Per-museum JSON (/museums/{id}.json)]
+    Browser -->|read/write| LocalStorage[localStorage\nvisitedMuseums,\nmuseumChecklists]
+    Browser -->|optional sync| KV[Tier-2 KV / Letmetry API]
+    Browser -->|image requests| Images[Image Sources (Wikimedia Commons, proxy)]
+    CI[CI / Tests (Jest, Playwright)] -->|runs| Repo[Repository / data-quality tests]
+    Repo -->|blocks PRs on failures| Static
+
+    style Browser fill:#f9f,stroke:#333,stroke-width:1px
+    style KV fill:#ffe6a7,stroke:#333
+    style LocalStorage fill:#e6ffed,stroke:#333

@@ -382,6 +382,6 @@ node tools/test-mcp-museum-search.js
 - Annual visitor count
 
 **Related Documentation:**
-- See `MCP_SETUP.md` for MCP server configuration
+- See `../docs/guides/mcp-setup.md` for MCP server configuration
 - See `museum-mcp-server.js` for tool implementation
 - See `.copilot-mcp.json` for GitHub Copilot integration

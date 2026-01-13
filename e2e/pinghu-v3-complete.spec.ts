@@ -109,7 +109,7 @@ test.describe('Pinghu Museum v3 Complete Workflow', () => {
       
       if (fileInputCount > 0 && await fileInput.isVisible().catch(() => false)) {
         // Upload test image
-        await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+        await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
         console.log(`    ✓ Photo uploaded`);
         
         // Wait for task to process
@@ -284,7 +284,7 @@ test.describe('Pinghu Museum v3 Complete Workflow', () => {
     for (let i = 0; i < totalTasks; i++) {
       const fileInput = workflowVisit.locator('input[type="file"]').first();
       if (await fileInput.count() > 0) {
-        await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+        await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
         await page.waitForTimeout(600);
       }
     }
@@ -343,7 +343,7 @@ test.describe('Pinghu Museum v3 Complete Workflow', () => {
     for (let i = 0; i < 2; i++) {
       const fileInput = workflowVisit.locator('input[type="file"]').first();
       if (await fileInput.count() > 0) {
-        await fileInput.setInputFiles('MuseumCheck_logo.jpg');
+        await fileInput.setInputFiles('assets/images/MuseumCheck_logo.jpg');
         await page.waitForTimeout(800);
       }
     }

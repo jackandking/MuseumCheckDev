@@ -476,7 +476,7 @@ header {
     text-align: center;
     margin-bottom: 40px;
     position: relative;
-    padding: 40px 20px 20px;
+    padding: 20px;
     background: linear-gradient(180deg, rgba(44, 90, 160, 0.03) 0%, transparent 100%);
 }
 
@@ -487,16 +487,71 @@ header h1 {
     font-weight: 700;
     letter-spacing: -0.5px;
     line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+/* Menu and Settings buttons in header */
+.menu-button,
+.settings-button {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+    position: relative;
+    touch-action: manipulation;
+}
+
+.menu-button {
+    font-size: 24px;
+}
+
+.settings-button {
+    font-size: 20px;
+}
+
+.menu-button:hover:not(:disabled),
+.settings-button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+}
+
+.menu-button:active:not(:disabled),
+.settings-button:active:not(:disabled) {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+    transition: all 0.1s ease-out;
+}
+
+.menu-button:focus,
+.settings-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1), 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.menu-button:focus-visible,
+.settings-button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
 }
 
 .settings-icon {
     cursor: pointer;
     transition: transform 0.2s ease;
-    display: inline-block;
-}
-
-.settings-icon:hover {
-    transform: scale(1.1);
+    display: none;
 }
 
 .subtitle {
@@ -515,7 +570,39 @@ header h1 {
     padding: 0 20px;
 }
 
+/* Header responsive design */
+@media (max-width: 768px) {
+    header {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+        margin-bottom: 0;
+        gap: 8px;
+    }
+    
+    .menu-button,
+    .settings-button {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+}
 
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5em;
+    }
+    
+    .menu-button,
+    .settings-button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
 
 .info-icon {
     font-size: 0.7em;
@@ -1013,8 +1100,162 @@ header h1 {
 .icon-buttons-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     flex: 0 0 auto;
+    width: 100%;
+}
+
+/* 汉堡菜单按钮 - 左上角 */
+.mobile-menu-button {
+    display: flex; /* 始终显示 */
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 24px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    order: 1;
+}
+
+.mobile-menu-button:hover:not(:disabled) {
+    background-color: rgba(79, 70, 229, 0.1);
+    border-color: #4F46E5;
+    transform: scale(1.05);
+}
+
+/* 设置按钮 - 右上角 */
+.settings-button-icon {
+    order: 2;
+    margin-left: auto;
+}
+
+/* 桌面端专属按钮类 */
+.desktop-only {
+    display: flex; /* 桌面端显示 */
+}
+
+/* 汉堡菜单模态框内容 */
+.mobile-menu-content {
+    max-width: 400px;
+    width: 90vw;
+}
+
+.mobile-menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    text-align: left;
+    min-height: 52px; /* 确保足够的触摸目标 */
+}
+
+.mobile-menu-item:hover:not(:disabled) {
+    background-color: rgba(79, 70, 229, 0.05);
+    border-color: #4F46E5;
+    transform: translateX(4px);
+}
+
+.mobile-menu-item:active {
+    transform: translateX(4px) scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+/* P0: Menu open/close animations (250ms open, 200ms close) */
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDownFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+}
+
+/* Apply animations when menu opens/closes */
+.mobile-menu-content.open {
+    animation: slideUpFadeIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.mobile-menu-content.closing {
+    animation: slideDownFadeOut 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.mobile-menu-item .menu-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+}
+
+.mobile-menu-item .menu-text {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+/* P0: Touch feedback with visual feedback layer (scale 0.96 on touch) */
+.mobile-menu-item {
+    position: relative;
+}
+
+.mobile-menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(79, 70, 229, 0.1);
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.mobile-menu-item:active::before {
+    opacity: 1;
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-menu-item:active {
+        transform: translateX(4px) scale(0.96);
+    }
 }
 
 /* Icon Buttons with Special Hover Effects - Extends .btn-icon */
@@ -3204,11 +3445,31 @@ header h1 {
     }
     
     .icon-buttons-row {
-        gap: 6px;
+        gap: 12px; /* 增加间距防止误触 */
         flex: 0 0 auto;
     }
     
+    /* 移动端：隐藏低频按钮，显示汉堡菜单 */
+    .desktop-only {
+        display: none !important;
+    }
+    
+    .mobile-menu-button {
+        display: flex !important; /* 移动端显示汉堡菜单 */
+    }
+    
+    /* 移动端：增大保留按钮的触摸目标 */
     .achievement-button-icon,
+    .settings-button-icon,
+    .mobile-menu-button {
+        width: 44px; /* Apple HIG 标准 */
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        font-size: 22px;
+    }
+    
     .assessment-history-button-icon {
         width: 36px;
         height: 36px;
@@ -3446,6 +3707,52 @@ header h1 {
         font-family: inherit;
         text-align: center;
         outline: none;
+    }
+
+    .nickname-hint {
+        display: block;
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+
+    .nickname-hint.error {
+        color: #c2410c;
+    }
+
+    .nickname-hint.success {
+        color: #16a34a;
+    }
+
+    .nickname-tip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        background: #fff7e6;
+        border: 1px solid #f2c97d;
+        border-radius: 12px;
+        color: #b26b00;
+        font-size: 12px;
+        margin-left: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        animation: fadeIn 0.2s ease-out;
+        white-space: nowrap;
+    }
+
+    .nickname-tip .tip-close {
+        border: none;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 4px;
+    }
+
+    .nickname-tip .tip-close:hover {
+        color: #8c5a00;
     }
     
     .subtitle {
@@ -6278,6 +6585,61 @@ main[role="main"] {
     font-size: 12px;
     margin-top: 4px;
     font-style: italic;
+}
+
+.settings-inline-status {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #6c757d;
+    min-height: 16px;
+    opacity: 0;
+    transform: translateY(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.settings-inline-status::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    display: inline-block;
+}
+
+.settings-inline-status.visible {
+    opacity: 1;
+}
+
+.settings-inline-status.fade-out {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.settings-inline-status.success {
+    color: #15803d;
+}
+
+.settings-inline-status.success::before {
+    content: '✔';
+    color: #15803d;
+    background: none;
+    width: auto;
+    height: auto;
+}
+
+.settings-inline-status.error {
+    color: #c2410c;
+}
+
+.settings-inline-status.error::before {
+    content: '!';
+    color: #c2410c;
+    background: none;
+    width: auto;
+    height: auto;
 }
 
 /* Settings Checkbox */

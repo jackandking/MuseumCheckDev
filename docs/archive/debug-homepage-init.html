@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Homepage Initialization</title>
+    <script>
+        window.debugLogs = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            window.debugLogs.push({type: 'log', msg: args.join(' ')});
+            originalLog.apply(console, args);
+        };
+        console.error = function(...args) {
+            window.debugLogs.push({type: 'error', msg: args.join(' ')});
+            originalError.apply(console, args);
+        };
+        console.warn = function(...args) {
+            window.debugLogs.push({type: 'warn', msg: args.join(' ')});
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Homepage Debug Console</h2>
+    <div id="debug-output"></div>
+    
+    <!-- Scripts in same order as index.html -->
+    <script src="debug-mode.js"></script>
+    <script src="museum-data-loader.js"></script>
+    <script src="museums-meta.js"></script>
+    <script>
+        // Adopt meta as default dataset
+        if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; }
+    </script>
+    
+    <!-- Phase 2 Core -->
+    <script src="core/event-bus.js"></script>
+    <script src="core/data-manager.js"></script>
+    <script src="core/version-manager.js"></script>
+    <script src="core/overlay-manager.js"></script>
+    <script src="core/storage/storage-adapter-base.js"></script>
+    <script src="core/storage/local-storage-adapter.js"></script>
+    <script src="core/storage/kv-storage-adapter.js"></script>
+    <script src="core/storage/sql-storage-adapter.js"></script>
+    <script src="core/storage/file-storage-adapter.js"></script>
+    <script src="core/adapters/homepage-adapter.js"></script>
+    
+    <script>
+        // Initialize global core systems
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+          window.eventBus = new EventBus();
+          window.dataManager = new DataManager(window.eventBus);
+          console.log('[Phase 2] Core systems initialized');
+        }
+        
+        // Log initialization status after a brief delay
+        setTimeout(() => {
+            console.log('=== INITIALIZATION STATUS ===');
+            console.log('MUSEUMS_META available:', !!window.MUSEUMS_META);
+            console.log('MUSEUMS_META length:', window.MUSEUMS_META ? window.MUSEUMS_META.length : 0);
+            console.log('MUSEUMS available:', !!window.MUSEUMS);
+            console.log('MUSEUMS length:', window.MUSEUMS ? window.MUSEUMS.length : 0);
+            console.log('EventBus available:', !!window.eventBus);
+            console.log('DataManager available:', !!window.dataManager);
+            console.log('MuseumDataLoader available:', !!window.museumDataLoader);
+            console.log('HomepageAdapter available:', !!HomepageAdapter);
+            
+            // Display logs
+            const output = document.getElementById('debug-output');
+            const filteredLogs = window.debugLogs.filter(l => l.type === 'log' || l.type === 'error');
+            output.innerHTML = '<pre>' + filteredLogs.map(l => `[${l.type.toUpperCase()}] ${l.msg}`).join('\n') + '</pre>';
+        }, 2000);
+    </script>
+</body>
+</html>

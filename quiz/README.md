@@ -33,7 +33,7 @@ quiz/
 ## 🔗 External Dependencies
 
 This module depends on:
-- `../museums-data.js` - Museum metadata for question generation
+- `../museums-meta.js` / museum data loader - Museum metadata for question generation (runtime: uses Tier2→Tier1 loader; tests: may use museums-data.js)
 - `../achievement-gamification.js` - For XP/points integration (via PointsManager)
 
 ## 🎯 Module Entry Points
@@ -97,4 +97,4 @@ This module follows these architectural principles:
 
 ## 📚 API Reference
 
-See main `QUIZ_README.md` in the root directory for detailed API documentation.
+See main documentation in `../docs/features/quiz.md` for detailed API documentation.

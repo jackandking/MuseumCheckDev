@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>让孩子爱上博物馆 - 中国博物馆亲子参观指南 | MuseumCheck | 博物馆打卡</title>
+    <title>MuseumCheck - 让孩子爱上博物馆</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="通过博物馆亲子游改善亲子关系的专业指南应用。收录全国主要博物馆，提供分龄参观清单和亲子互动指导，让博物馆成为增进亲子感情的最佳场所。">
@@ -35,15 +35,20 @@
     <!-- Bing Site Verification -->
     <meta name="msvalidate.01" content="bing-verification-museum-check">
     
+    <!-- Google Fonts for educational UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Critical CSS - Load immediately for fast first paint -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     
     <!-- Non-critical CSS - Load asynchronously to avoid render blocking -->
-    <link rel="stylesheet" href="achievement-gamification.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="virtual-pet.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/achievement-gamification.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/virtual-pet.css" media="print" onload="this.media='all'">
     <noscript>
-        <link rel="stylesheet" href="achievement-gamification.css">
-        <link rel="stylesheet" href="virtual-pet.css">
+        <link rel="stylesheet" href="css/achievement-gamification.css">
+        <link rel="stylesheet" href="css/virtual-pet.css">
     </noscript>
     
     <!-- Performance: preconnect/dns-prefetch to CDN hosting images -->
@@ -54,7 +59,7 @@
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//hm.baidu.com">
     <script>window.performance && performance.mark && performance.mark('mc_head_loaded');</script>
-    <script src="debug-mode.js"></script>
+    <script src="js/debug-mode.js"></script>
     
     <!-- Cache busting meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -270,7 +275,18 @@
     <div class="container">
         <header>
             <h1>
-                <span id="settingsIcon" class="settings-icon" title="点击打开设置">🏛️</span> <span id="headerTitle"><span id="nicknameDisplay" class="nickname-display" title="点击修改昵称">小淘气</span>的博物馆之旅</span>
+                <button id="mobileMenuButton" class="menu-button" title="菜单">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="menu-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                <span id="headerTitle"><span id="nicknameDisplay" class="nickname-display" title="点击修改昵称">小淘气</span>的博物馆之旅</span>
+                <button id="settingsButton" class="settings-button" title="设置">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="settings-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </button>
             </h1>
         </header>
 
@@ -278,55 +294,13 @@
 
         <main role="main">
             <section class="museum-list" id="museums">
-                <div class="stats" role="status" aria-live="polite">
-                    <div class="progress-display">
-                        <div class="progress-text minecraft-themed" style="display: none;">
-                            <span class="minecraft-icon">⛏️</span>
-                            <span id="visitedCount">0</span>/<span id="totalCount">0</span>
-                        </div>
-                        <div class="icon-buttons-row">
-                            <button id="achievementButton" class="achievement-button-icon" title="我的成就">🏆</button>
-                            <button id="assessmentHistoryButton" class="assessment-history-button assessment-history-button-icon" title="测评历史">📊</button>
-                            <button id="leaderboardButton" class="leaderboard-button-icon" title="排行榜">🏅</button>
-                            <button id="quizButton" class="quiz-button-icon" title="考一考 - 博物馆知识测验">🎓</button>
-                            <button id="nationalTreasuresButton" class="national-treasures-button-icon" title="中国十大国宝，你见过几件？">🎁</button>
-                            <button id="eventWallButton" class="event-wall-button-icon" title="事件墙">🎯</button>
-                            <button id="fireworksButton" class="fireworks-button fireworks-button-icon" title="查看烟花记录" style="display: none;">🎆</button>
-                            <button id="settingsButton" class="settings-button-icon" title="设置">⚙️</button>
-                        </div>
-                    </div>
-                    <div class="minecraft-progress-bar" style="display: none;">
-                        <div class="minecraft-progress-fill" id="minecraftProgressFill" style="width: 0%;">
-                            <span class="minecraft-progress-blocks" id="minecraftProgressBlocks"></span>
-                        </div>
-                    </div>
-                    <div class="achievement-stats" style="display: none;">
-                        <div class="achievement-inline minecraft-achievements">
-                            <div class="achievement-text">
-                                <span class="minecraft-icon">💎</span> 获得成就: <span id="achievementCount">0</span>个
-                            </div>
-                        </div>
-                    </div>
-                    <div class="assessment-stats" style="display: none;">
-                        <div class="assessment-inline">
-                            <div class="assessment-scores">
-                                <div class="assessment-score-item">
-                                    <span class="score-value" id="mainAverageScore">0</span>
-                                    <span class="score-label">平均得分</span>
-                                </div>
-                                <div class="assessment-score-item">
-                                    <span class="score-value" id="mainLatestScore">0</span>
-                                    <span class="score-label">最新得分</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Search functionality -->
                 <div class="search-section">
                     <div class="search-container">
-                        <input type="text" id="museumSearch" class="search-input" placeholder="🔍 搜索博物馆名称、城市或标签..." aria-label="搜索博物馆">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                        <input type="text" id="museumSearch" class="search-input" placeholder="搜索博物馆名称、城市或标签..." aria-label="搜索博物馆">
                         <button id="clearSearch" class="clear-search-button" title="清空搜索" style="display: none;">✕</button>
                     </div>
                     <div class="search-results-info" id="searchResultsInfo" style="display: none;">
@@ -341,6 +315,16 @@
                     </div>
                     <!-- Museums will be populated by JavaScript -->
                 </div>
+                <script>
+                  // Safety: Hide loading indicator after 5 seconds if render didn't complete
+                  setTimeout(function() {
+                    const indicator = document.getElementById('loadingIndicator');
+                    if (indicator && indicator.style.display !== 'none') {
+                      console.warn('Loading indicator still visible after 5s timeout - hiding it');
+                      indicator.style.display = 'none';
+                    }
+                  }, 5000);
+                </script>
             </section>
         </main>
     </div>
@@ -394,45 +378,8 @@
         </div>
     </div>
 
-    <!-- Assessment History Modal -->
-    <div id="assessmentHistoryModal" class="modal assessment-history-modal hidden">
-        <div class="modal-content assessment-history-content">
-            <span class="close">&times;</span>
-            <h2>📊 亲子测评历史</h2>
-            <div class="assessment-history-summary">
-                <div class="history-overview">
-                    <div class="history-stat">
-                        <span class="stat-number" id="totalAssessments">0</span>
-                        <span class="stat-label">总测评次数</span>
-                    </div>
-                    <div class="history-stat">
-                        <span class="stat-number" id="averageScore">0</span>
-                        <span class="stat-label">平均得分</span>
-                    </div>
-                    <div class="history-stat">
-                        <span class="stat-number" id="latestScore">0</span>
-                        <span class="stat-label">最新得分</span>
-                    </div>
-                </div>
-                <div class="history-filters">
-                    <select id="historyMuseumFilter" class="filter-select">
-                        <option value="">所有博物馆</option>
-                    </select>
-                    <button id="exportHistoryButton" class="export-button" title="导出测评数据">📤 导出数据</button>
-                </div>
-            </div>
-            <div id="assessmentHistoryContent" class="assessment-history-content">
-                <div class="history-empty" id="historyEmptyState">
-                    <div class="empty-icon">📊</div>
-                    <p>您还没有任何测评记录</p>
-                    <p>完成一次亲子测评后，历史记录将显示在这里</p>
-                </div>
-                <div class="history-list" id="historyList" style="display: none;">
-                    <!-- History entries will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Assessment History Modal - REMOVED -->
+    <!-- Deprecated: Assessment history feature removed per user request -->
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal settings-modal hidden">
@@ -450,6 +397,7 @@
                     <div class="settings-input-group">
                         <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="小淘气">
                     </div>
+                    <div id="childNicknameStatus" class="settings-inline-status" aria-live="polite"></div>
                     <div class="settings-hint">最多5个中文字或10个英文字母，输入后自动保存</div>
                 </div>
                 <div class="settings-item">
@@ -486,49 +434,6 @@
                     <span class="settings-section-toggle">▶</span>
                 </h3>
                 <div class="settings-section-content" style="display: none;">
-                <div class="settings-item">
-                    <label class="settings-label" for="dataTierPrioritySelector">博物馆数据优先级：</label>
-                    <div class="settings-input-group">
-                        <select id="dataTierPrioritySelector" class="settings-input">
-                            <option value="tier2-tier1-tier3">远程存储 → 静态文件 → 内置数据（推荐，获取最新数据）</option>
-                            <option value="tier1-tier2-tier3">静态文件 → 远程存储 → 内置数据（稳定优先）</option>
-                            <option value="tier3-tier1-tier2">内置数据 → 静态文件 → 远程存储（离线优先）</option>
-                        </select>
-                    </div>
-                    <div class="settings-hint">
-                        选择博物馆数据加载的优先级顺序<br>
-                        • <strong>远程存储</strong>：动态数据，单馆页面可获取最新内容（云端KV存储）<br>
-                        • <strong>静态文件</strong>：稳定发布的单个博物馆数据文件<br>
-                        • <strong>内置数据</strong>：应用默认数据（离线可用）
-                    </div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label">高级数据管理：</label>
-                    <div class="settings-input-group">
-                        <button id="openDataManagerButton" class="settings-button">
-                            🔧 管理远程数据
-                        </button>
-                    </div>
-                    <div class="settings-hint">打开远程数据管理页面，可查看、上传、编辑、删除云端存储的博物馆数据</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label">烟花管理后台：</label>
-                    <div class="settings-input-group">
-                        <button id="openFireworksAdminButton" class="settings-button">
-                            🎆 烟花管理
-                        </button>
-                    </div>
-                    <div class="settings-hint">打开烟花管理后台，可查看、验证、删除远程和本地烟花数据</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label">排行榜管理后台：</label>
-                    <div class="settings-input-group">
-                        <button id="openLeaderboardAdminButton" class="settings-button">
-                            🏅 排行榜管理
-                        </button>
-                    </div>
-                    <div class="settings-hint">打开排行榜管理后台，可查看、编辑、导出、删除全网排行榜数据</div>
-                </div>
                 <div class="settings-item">
                     <label class="settings-label">清空所有数据：</label>
                     <div class="settings-input-group">
@@ -593,49 +498,6 @@
             
             <div class="settings-section" data-collapsed="true">
                 <h3 class="settings-section-header">
-                    <span>🎆 烟花设置</span>
-                    <span class="settings-section-toggle">▶</span>
-                </h3>
-                <div class="settings-section-content" style="display: none;">
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworksRetentionInput">烟花留存时间：</label>
-                    <div class="settings-input-group">
-                        <input type="range" id="fireworksRetentionInput" class="settings-slider" min="1" max="1440" value="1" step="1">
-                        <span class="settings-value" id="fireworksRetentionDisplay">1 分钟</span>
-                    </div>
-                    <div class="settings-hint">烟花成就的保存时长（1分钟 - 1天）</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworkTypeSelector">烟花类型：</label>
-                    <div class="settings-input-group">
-                        <select id="fireworkTypeSelector" class="settings-input">
-                            <option value="heart">❤️ 爱心</option>
-                            <option value="circle">⭕ 圆形</option>
-                            <option value="star">⭐ 星形</option>
-                            <option value="diamond">💎 菱形</option>
-                            <option value="spiral">🌀 螺旋</option>
-                            <option value="butterfly">🦋 蝴蝶</option>
-                            <option value="rose">🌹 玫瑰</option>
-                            <option value="sunburst">☀️ 太阳爆发</option>
-                            <option value="cascade">💧 瀑布</option>
-                            <option value="ring">⭕ 光环</option>
-                            <option value="crosshatch">🔲 网格</option>
-                        </select>
-                    </div>
-                    <div class="settings-hint">选择烟花绽放的形状，更改后立即生效</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label" for="fireworkLaunchIntervalInput">烟花发射间隔：</label>
-                    <div class="settings-input-group">
-                        <input type="range" id="fireworkLaunchIntervalInput" class="settings-slider" min="500" max="5000" value="1000" step="100">
-                        <span class="settings-value" id="fireworkLaunchIntervalDisplay">1.0 秒</span>
-                    </div>
-                    <div class="settings-hint">点击屏幕发射烟花的最小间隔（0.5秒 - 5秒）</div>
-                </div>
-                </div>
-            </div>
-            <div class="settings-section" data-collapsed="true">
-                <h3 class="settings-section-header">
                     <span>🔀 博物馆排序</span>
                     <span class="settings-section-toggle">▶</span>
                 </h3>
@@ -652,30 +514,6 @@
                         </select>
                     </div>
                     <div class="settings-hint">选择博物馆列表的排序方式，更改后立即生效</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label">综合排序规则：</label>
-                    <div class="settings-hint" style="margin-top: 0;">
-                        默认排序优先级：<br>
-                        1️⃣ 收藏的博物馆 → 2️⃣ 有烟花的博物馆 → 3️⃣ 未参观的博物馆 → 4️⃣ 离你较近的博物馆
-                    </div>
-                </div>
-                </div>
-            </div>
-            <div class="settings-section" data-collapsed="true">
-                <h3 class="settings-section-header">
-                    <span>🤖 AI 功能设置</span>
-                    <span class="settings-section-toggle">▶</span>
-                </h3>
-                <div class="settings-section-content" style="display: none;">
-                <div class="settings-item">
-                    <label class="settings-label" for="deepseekApiKeyInput">DeepSeek API Key：</label>
-                    <div class="settings-input-group">
-                        <input type="password" id="deepseekApiKeyInput" class="settings-input" placeholder="输入您的 DeepSeek API Key">
-                    </div>
-                    <div class="settings-hint">
-                        用于 AI 验证博物馆数据。获取 API Key：<a href="https://platform.deepseek.com" target="_blank" style="color:#2c5aa0; text-decoration:underline;">platform.deepseek.com</a>
-                    </div>
                 </div>
                 </div>
             </div>
@@ -698,13 +536,6 @@
                         <input type="checkbox" id="showManageButtonToggle" class="settings-checkbox">
                     </div>
                     <div class="settings-hint">控制是否在博物馆卡片上显示管理按钮（用于编辑博物馆数据）</div>
-                </div>
-                <div class="settings-item">
-                    <label class="settings-label" for="showGuideButtonToggle">显示导览按钮：</label>
-                    <div class="settings-input-group">
-                        <input type="checkbox" id="showGuideButtonToggle" class="settings-checkbox">
-                    </div>
-                    <div class="settings-hint">控制是否在博物馆卡片上显示导览按钮（用于进入单馆导览模式）</div>
                 </div>
                 <div class="settings-item">
                     <label class="settings-label" for="showOnlyMuseumsWithCollections">只显示有藏品信息的博物馆：</label>
@@ -927,21 +758,43 @@
       })();
     </script>
     <!-- Core data loading - must be synchronous for initial render -->
-    <script src="museum-data-loader.js"></script>
-    <script src="museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
+    <script src="js/museum-data-loader.js"></script>
+    <script src="js/museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
     <script>
       // Adopt meta as default dataset before main script executes
       (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
     </script>
+    
+    <!-- Phase 2 Core Architecture (DataManager + EventBus + Adapters) -->
+    <script src="core/event-bus.js"></script>
+    <script src="core/data-manager.js"></script>
+    <script src="core/version-manager.js"></script>
+    <script src="core/overlay-manager.js"></script>
+    <script src="core/storage/storage-adapter-base.js"></script>
+    <script src="core/storage/local-storage-adapter.js"></script>
+    <script src="core/storage/kv-storage-adapter.js"></script>
+    <script src="core/storage/sql-storage-adapter.js"></script>
+    <script src="core/storage/file-storage-adapter.js"></script>
+    <script src="core/adapters/homepage-adapter.js"></script>
+    <script>
+      // Initialize global core systems (Phase 2)
+      (function() {
+        if (typeof EventBus !== 'undefined' && typeof DataManager !== 'undefined') {
+          window.eventBus = new EventBus();
+          window.dataManager = new DataManager(window.eventBus);
+          console.log('[Phase 2] Core systems initialized');
+        }
+      })();
+    </script>
+    
     <!-- Event Wall Service (shared) -->
-    <script src="event-wall-service.js"></script>
+    <script src="js/event-wall-service.js"></script>
     <!-- Main application script - must run to render museum list -->
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
     <!-- Deferred feature scripts - non-critical, load after main app is interactive -->
-    <script src="firework.js" defer></script>
-    <script src="achievement-gamification.js" defer></script>
-    <script src="virtual-pet.js" defer></script>
-    <script src="snake-game-inline.js" defer></script>
+    <script src="js/firework.js" defer></script>
+    <script src="js/achievement-gamification.js" defer></script>
+    <script src="js/virtual-pet.js" defer></script>
     <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
     <span id="sectionMuseumCount" style="display:none"></span>
     <script>
@@ -951,34 +804,12 @@
           if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; }
         }
         adoptMeta();
-        let loaded=false; let loading=false;
-        async function ensureFull(){
-          if(loaded||loading) return; loading=true;
-          await new Promise((res,rej)=>{
-            const s=document.createElement('script');
-            s.src='museums-data.js'; s.defer=true; s.onload=()=>{ 
-              // Load treasure workflow generator after museums-data.js
-              const gen=document.createElement('script');
-              gen.src='treasure-workflow-generator.js'; 
-              gen.defer=true;
-              gen.onload=()=>{ loaded=true; res(); };
-              gen.onerror=()=>{ loaded=true; res(); }; // Continue even if generator fails
-              document.head.appendChild(gen);
-            };
-            s.onerror=()=>{ loading=false; rej(new Error('load museums-data.js failed')); };
-            document.head.appendChild(s);
-          }).catch(()=>{});
-        }
+        // No longer needed: treasure workflow generator is now in treasures.html with TreasuresAdapter
         const once = (type)=>{
-          const fn = async ()=>{ window.removeEventListener(type, fn, {capture:true}); await ensureFull(); };
+          const fn = async ()=>{ window.removeEventListener(type, fn, {capture:true}); };
           window.addEventListener(type, fn, { once:true, capture:true });
         };
         once('pointerdown'); once('keydown'); once('touchstart');
-        // Fallback: after modal is opened attempt ensure (script.js opens quickly after click)
-        document.addEventListener('click', (e)=>{
-          const card = e.target && (e.target.closest && e.target.closest('.museum-card, .sg-card'));
-          if(card) ensureFull();
-        }, true);
       })();
     </script>
 
@@ -995,5 +826,43 @@
             </p>
         </div>
     </footer>
+
+    <!-- 汉堡菜单模态框 -->
+    <div class="modal" id="mobileMenuModal" style="display: none;">
+        <div class="modal-content mobile-menu-content">
+            <div class="modal-header">
+                <h2 class="modal-title">功能菜单</h2>
+                <button class="close" id="closeMobileMenu" aria-label="关闭菜单">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="mobile-menu-items">
+                    <button class="mobile-menu-item" data-action="achievements">
+                        <span class="menu-icon">🏆</span>
+                        <span class="menu-text">我的成就</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="fireworks" id="mobileMenuFireworks" style="display: none;">
+                        <span class="menu-icon">🎆</span>
+                        <span class="menu-text">烟花记录</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="leaderboard">
+                        <span class="menu-icon">🏅</span>
+                        <span class="menu-text">排行榜</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="quiz">
+                        <span class="menu-icon">🎓</span>
+                        <span class="menu-text">考一考</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="nationalTreasures">
+                        <span class="menu-icon">🎁</span>
+                        <span class="menu-text">中国十大国宝</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="eventWall">
+                        <span class="menu-icon">🎯</span>
+                        <span class="menu-text">事件墙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
