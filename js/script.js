@@ -7297,8 +7297,17 @@ class MuseumCheckApp {
             
             let museumsToRender = this.filteredMuseums;
 
-            // Returning users: show browsed museums sorted by recent browse time
-            if (isReturningUser) {
+            // If there's a search query, use search results (takes priority over returning user filters)
+            if (this.searchQuery && this.searchQuery.trim() !== '') {
+                // Use filteredMuseums from search
+                museumsToRender = this.filteredMuseums;
+                console.log('🔍 [DEBUG] Showing search results:', {
+                    searchQuery: this.searchQuery,
+                    resultsCount: museumsToRender.length
+                });
+            }
+            // Returning users: show browsed museums sorted by recent browse time (only when NOT searching)
+            else if (isReturningUser) {
                 // Get visited museums (fully completed) - these come first (sorted by visitedMuseumsMeta)
                 const visitedMuseums = this.getVisitedMuseumsSorted();
                 

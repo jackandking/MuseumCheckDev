@@ -823,84 +823,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "dongguan-museum",
-    "name": "东莞市博物馆",
-    "location": "东莞",
-    "tags": [
-      "制造业文化",
-      "东莞历史",
-      "改革开放"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "foshan-museum",
-    "name": "佛山市博物馆",
-    "location": "佛山",
-    "tags": [
-      "岭南文化",
-      "武术文化",
-      "陶瓷文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "zhuhai-museum",
-    "name": "珠海博物馆",
-    "location": "珠海",
-    "tags": [
-      "海滨文化",
-      "珠海历史",
-      "经济特区"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "zhongshan-museum",
-    "name": "中山市博物馆",
-    "location": "中山",
-    "tags": [
-      "孙中山文化",
-      "革命文化",
-      "中山历史"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "shantou-museum",
-    "name": "汕头市博物馆",
-    "location": "汕头",
-    "tags": [
-      "潮汕文化",
-      "侨乡文化",
-      "商贸文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "zhanjiang-museum",
-    "name": "湛江市博物馆",
-    "location": "湛江",
-    "tags": [
-      "南海文化",
-      "海洋文化",
-      "雷州文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
     "id": "jiangmen-museum",
     "name": "江门市博物馆",
     "location": "江门",
@@ -925,19 +847,6 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": false,
     "level": "一级"
-  },
-  {
-    "id": "anshan-museum",
-    "name": "鞍山市博物馆",
-    "location": "鞍山",
-    "tags": [
-      "钢铁文化",
-      "工业文明",
-      "东北历史"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
   },
   {
     "id": "yichang-museum",
@@ -966,19 +875,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "xianning-museum",
-    "name": "咸宁市博物馆",
-    "location": "咸宁",
-    "tags": [
-      "鄂南文化",
-      "温泉文化",
-      "竹文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
     "id": "jingzhou-museum",
     "name": "荆州博物馆",
     "location": "荆州",
@@ -992,110 +888,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "changde-museum",
-    "name": "常德博物馆",
-    "location": "常德",
-    "tags": [
-      "沅澧文化",
-      "桃花源文化",
-      "常德历史"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "xiangtan-museum",
-    "name": "湘潭市博物馆",
-    "location": "湘潭",
-    "tags": [
-      "湘潭历史",
-      "湖湘文化",
-      "名人文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "chenzhou-museum",
-    "name": "郴州市博物馆",
-    "location": "郴州",
-    "tags": [
-      "湘南文化",
-      "郴州历史",
-      "矿物文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "hengyang-museum",
-    "name": "衡阳市博物馆",
-    "location": "衡阳",
-    "tags": [
-      "南岳文化",
-      "衡阳历史",
-      "宗教文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "shaoyang-museum",
-    "name": "邵阳市博物馆",
-    "location": "邵阳",
-    "tags": [
-      "湘西南文化",
-      "邵阳历史",
-      "民俗文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "三级"
-  },
-  {
-    "id": "yiyang-museum",
-    "name": "益阳市博物馆",
-    "location": "益阳",
-    "tags": [
-      "洞庭湖文化",
-      "益阳历史",
-      "水乡文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "huaihua-museum",
-    "name": "怀化市博物馆",
-    "location": "怀化",
-    "tags": [
-      "沅水文化",
-      "怀化历史",
-      "多民族文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "loudi-museum",
-    "name": "娄底市博物馆",
-    "location": "娄底",
-    "tags": [
-      "湘中文化",
-      "娄底历史",
-      "工业文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "三级"
-  },
-  {
     "id": "guilin-museum",
     "name": "桂林博物馆",
     "location": "桂林",
@@ -1107,136 +899,6 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": false,
     "level": "一级"
-  },
-  {
-    "id": "beihai-museum",
-    "name": "北海市博物馆",
-    "location": "北海",
-    "tags": [
-      "海洋文化",
-      "北部湾文化",
-      "港口文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "wuzhou-museum",
-    "name": "梧州市博物馆",
-    "location": "梧州",
-    "tags": [
-      "西江文化",
-      "梧州历史",
-      "骑楼文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "yulin-museum",
-    "name": "玉林市博物馆",
-    "location": "玉林",
-    "tags": [
-      "桂东南文化",
-      "玉林历史",
-      "民俗文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "baise-museum",
-    "name": "百色起义纪念馆",
-    "location": "百色",
-    "tags": [
-      "革命文化",
-      "百色起义",
-      "红色教育"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "laibin-museum",
-    "name": "来宾市博物馆",
-    "location": "来宾",
-    "tags": [
-      "桂中文化",
-      "来宾历史",
-      "民族融合"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "qinzhou-museum",
-    "name": "钦州市博物馆",
-    "location": "钦州",
-    "tags": [
-      "坭兴陶文化",
-      "钦州历史",
-      "陶瓷艺术"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "fangchenggang-museum",
-    "name": "防城港市博物馆",
-    "location": "防城港",
-    "tags": [
-      "边海文化",
-      "港口文化",
-      "京族文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "guigang-museum",
-    "name": "贵港市博物馆",
-    "location": "贵港",
-    "tags": [
-      "西江文化",
-      "贵港历史",
-      "内河港口"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "xinyu-museum",
-    "name": "新余市博物馆",
-    "location": "新余",
-    "tags": [
-      "钢铁文化",
-      "新余历史",
-      "工业文明"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "yingtan-museum",
-    "name": "鹰潭市博物馆",
-    "location": "鹰潭",
-    "tags": [
-      "道教文化",
-      "鹰潭历史",
-      "龙虎山文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
   },
   {
     "id": "jian-museum",
@@ -1304,32 +966,6 @@ window.MUSEUMS_META = [
     "level": "未定级"
   },
   {
-    "id": "shanghai-railway-museum",
-    "name": "上海铁路博物馆",
-    "location": "上海",
-    "tags": [
-      "铁路",
-      "交通",
-      "工业"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "guangzhou-maritime-museum",
-    "name": "广州海事博物馆",
-    "location": "广州",
-    "tags": [
-      "海事",
-      "丝绸之路",
-      "港口"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
     "id": "xian-tang-dynasty-museum",
     "name": "西安大唐西市博物馆",
     "location": "西安",
@@ -1354,19 +990,6 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": false,
     "level": "一级"
-  },
-  {
-    "id": "suzhou-garden-museum",
-    "name": "苏州园林博物馆",
-    "location": "苏州",
-    "tags": [
-      "园林艺术",
-      "造园文化",
-      "江南文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
   },
   {
     "id": "zhenjiang-museum",
@@ -1447,19 +1070,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "china-postal-museum",
-    "name": "中国邮政邮票博物馆",
-    "location": "北京",
-    "tags": [
-      "邮政历史",
-      "邮票文化",
-      "通信发展"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
     "id": "lu-xun-museum",
     "name": "鲁迅博物馆",
     "location": "北京",
@@ -1510,19 +1120,6 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": false,
     "level": "一级"
-  },
-  {
-    "id": "shanghai-world-expo-museum",
-    "name": "上海世博会博物馆",
-    "location": "上海",
-    "tags": [
-      "世博文化",
-      "国际交流",
-      "现代发展"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
   },
   {
     "id": "china-tea-museum",
@@ -1616,45 +1213,6 @@ window.MUSEUMS_META = [
     "level": "未定级"
   },
   {
-    "id": "fudan-museum",
-    "name": "复旦大学博物馆",
-    "location": "上海",
-    "tags": [
-      "大学博物馆",
-      "科学教育",
-      "文化展示"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "urumqi-museum-new",
-    "name": "乌鲁木齐市博物馆",
-    "location": "乌鲁木齐",
-    "tags": [
-      "西域文化",
-      "乌鲁木齐历史",
-      "丝路文明"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "三级"
-  },
-  {
-    "id": "haikou-museum-new",
-    "name": "海口市博物馆",
-    "location": "海口",
-    "tags": [
-      "椰城文化",
-      "海口历史",
-      "热带风情"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
     "id": "lanzhou-museum-new",
     "name": "兰州市博物馆",
     "location": "兰州",
@@ -1668,19 +1226,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "xining-museum-new",
-    "name": "西宁市博物馆",
-    "location": "西宁",
-    "tags": [
-      "高原文化",
-      "西宁历史",
-      "青藏门户"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
     "id": "taiyuan-museum-new",
     "name": "太原市博物馆",
     "location": "太原",
@@ -1692,58 +1237,6 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": false,
     "level": "一级"
-  },
-  {
-    "id": "shijiazhuang-museum-new",
-    "name": "石家庄市博物馆",
-    "location": "石家庄",
-    "tags": [
-      "燕赵文化",
-      "石家庄历史",
-      "庄园文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "harbin-museum-new",
-    "name": "哈尔滨市博物馆",
-    "location": "哈尔滨",
-    "tags": [
-      "冰城文化",
-      "哈尔滨历史",
-      "中俄文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "nanchang-museum-new",
-    "name": "南昌市博物馆",
-    "location": "南昌",
-    "tags": [
-      "红色文化",
-      "南昌历史",
-      "英雄城市"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
-  },
-  {
-    "id": "fuzhou-museum-new",
-    "name": "福州市博物馆",
-    "location": "福州",
-    "tags": [
-      "闽都文化",
-      "福州历史",
-      "榕城风韵"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "二级"
   },
   {
     "id": "china-printing-museum",
@@ -1811,32 +1304,6 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "china-tobacco-museum",
-    "name": "中国烟草博物馆",
-    "location": "上海",
-    "tags": [
-      "烟草历史",
-      "传统文化",
-      "健康教育"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
-    "id": "shanghai-auto-museum",
-    "name": "上海汽车博物馆",
-    "location": "上海",
-    "tags": [
-      "汽车文化",
-      "交通发展",
-      "工业设计"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
     "id": "xian-banpo-museum",
     "name": "西安半坡博物馆",
     "location": "西安",
@@ -1902,34 +1369,8 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
-    "id": "pinghu-lishu-memorial",
-    "name": "浙江平湖李叔同纪念馆",
-    "location": "平湖",
-    "tags": [
-      "人物纪念",
-      "艺术教育",
-      "佛教文化"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": null
-  },
-  {
-    "id": "zhaoyuan-hengli-watch-museum",
-    "name": "招远恒利钟表博物馆",
-    "location": "招远",
-    "tags": [
-      "钟表文化",
-      "科技互动",
-      "精密制造"
-    ],
-    "image": "",
-    "hasCollections": false,
-    "level": "未定级"
-  },
-  {
     "id": "pinghu-museum",
-    "name": "平湖博物馆",
+    "name": "平湖市博物馆",
     "location": "平湖",
     "tags": [
       "历史",
@@ -1938,7 +1379,7 @@ window.MUSEUMS_META = [
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG",
     "hasCollections": false,
-    "level": null
+    "level": "三级"
   },
   {
     "id": "china-archaeology-museum",
@@ -1955,7 +1396,7 @@ window.MUSEUMS_META = [
   },
   {
     "id": "china-ancient-architecture-museum",
-    "name": "中国古代建筑博物馆",
+    "name": "北京古代建筑博物馆",
     "location": "北京",
     "tags": [
       "建筑",
@@ -1965,7 +1406,7 @@ window.MUSEUMS_META = [
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/5/5d/%E5%8C%97%E4%BA%AC%E5%85%88%E5%86%9C%E5%9D%9B%E6%8B%9C%E6%AE%BF2021.jpg",
     "hasCollections": false,
-    "level": null
+    "level": "二级"
   }
 ];
 
