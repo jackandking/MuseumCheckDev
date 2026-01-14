@@ -10,24 +10,7 @@
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG",
     "hasCollections": true,
-    "level": "一级",
-    "collections": [
-      {
-        "name": "《清明上河图》",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Qingming_Scroll_2008x5605_mt.jpg",
-        "description": "北宋张择端绘制的社会风俗画，宽25.2厘米，长528.7厘米"
-      },
-      {
-        "name": "青花瓷瓶",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg/640px-Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg",
-        "description": "清代康熙年间制造的精美青花瓷器，反映了当时的工艺水平"
-      },
-      {
-        "name": "铜镀金佛像",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Met_07.228.117_view4.jpg",
-        "description": "明代铜镀金佛像，高约30厘米，工艺精湛"
-      }
-    ]
+    "level": "一级"
   },
   {
     "id": "national-museum",
@@ -40,24 +23,7 @@
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/8/8b/%E4%B8%AD%E5%9B%BD%E5%9B%BD%E5%AE%B6%E5%8D%9A%E7%89%A9%E9%A6%86.JPG",
     "hasCollections": true,
-    "level": "一级",
-    "collections": [
-      {
-        "name": "后母戊鼎",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Simuwu_ding.jpg/640px-Simuwu_ding.jpg",
-        "description": "商代晚期青铜器，中国古代最著名的器物之一"
-      },
-      {
-        "name": "人头壶",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Pot_with_human_faces%2C_Yangshao_culture.jpg",
-        "description": "新石器时代彩陶，距今约7000年"
-      },
-      {
-        "name": "唐三彩马",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Tang_Dynasty_tomb_pottery_3_color_horse.jpg",
-        "description": "唐代陶制骏马，彩釉工艺完美"
-      }
-    ]
+    "level": "一级"
   },
   {
     "id": "shanghai-museum",
@@ -69,9 +35,8 @@
       "收藏"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/3a/%E4%B8%8A%E6%B5%B7%E5%8D%9A%E7%89%A9%E9%A6%86%E4%B8%9C%E9%A6%86_161003.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "terracotta-warriors",
@@ -83,9 +48,8 @@
       "世界遗产"
     ],
     "image": "https://img0.baidu.com/it/u=394895228,4120900227&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "nanjing-museum",
@@ -97,9 +61,8 @@
       "民俗"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/31/Nanjing_Museum1.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "hubei-museum",
@@ -111,9 +74,8 @@
       "青铜器"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Hubei_Provincial_Museum.JPG",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "shaanxi-history",
@@ -125,9 +87,8 @@
       "古代文明"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/35/%E9%99%95%E8%A5%BF%E5%8E%86%E5%8F%B2%E5%8D%9A%E7%89%A9%E9%A6%86.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "suzhou-museum",
@@ -139,9 +100,8 @@
       "江南文化"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Suzhou_Museum_-_new_buildings.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "zhejiang-museum",
@@ -153,9 +113,8 @@
       "江南"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/d/d0/%E6%B5%99%E6%B1%9F%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_-_panoramio.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "guangdong-museum",
@@ -167,9 +126,8 @@
       "文物"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Guangdong_Museum.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "sichuan-museum",
@@ -181,9 +139,8 @@
       "民俗"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E5%9B%9B%E5%B7%9D%E5%8D%9A%E7%89%A9%E9%99%A2.JPG",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "henan-museum",
@@ -195,9 +152,8 @@
       "历史"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/74/%E6%B2%B3%E5%8D%97%E5%8D%9A%E7%89%A9%E9%99%A2_-_Henan_Museum_-_2014.03_-_panoramio.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "liaoning-museum",
@@ -208,9 +164,8 @@
       "考古",
       "历史"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "shandong-museum",
@@ -221,9 +176,8 @@
       "孔子",
       "历史"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "tianjin-museum",
@@ -234,9 +188,8 @@
       "文化",
       "天津"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "china-art-museum",
@@ -247,9 +200,8 @@
       "艺术",
       "绘画"
     ],
-    "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "hasCollections": true,
+    "level": "未定级"
   },
   {
     "id": "tibet-museum",
@@ -260,9 +212,8 @@
       "雪域高原",
       "佛教"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "xinjiang-museum",
@@ -273,9 +224,8 @@
       "多民族",
       "西域文化"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "yunnan-museum",
@@ -286,9 +236,8 @@
       "西南文化",
       "边疆历史"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "inner-mongolia-museum",
@@ -299,9 +248,8 @@
       "蒙古族",
       "游牧文明"
     ],
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "chongqing-three-gorges-museum",
@@ -314,8 +262,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "qinghai-museum",
@@ -328,8 +275,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "heilongjiang-museum",
@@ -342,8 +288,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "beijing-capital-museum",
@@ -355,9 +300,8 @@
       "民俗"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "china-military-museum",
@@ -369,9 +313,8 @@
       "国防教育"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "beijing-natural-history-museum",
@@ -383,9 +326,8 @@
       "古生物"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": null,
-    "collections": []
+    "hasCollections": true,
+    "level": null
   },
   {
     "id": "china-railway-museum",
@@ -397,9 +339,8 @@
       "工业发展"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "beijing-planetarium",
@@ -411,9 +352,8 @@
       "科普教育"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "shanghai-science-technology-museum",
@@ -426,8 +366,7 @@
     ],
     "image": "https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "guangzhou-museum",
@@ -440,8 +379,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shenzhen-museum",
@@ -454,8 +392,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "xian-museum",
@@ -468,8 +405,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "chengdu-jinsha-museum",
@@ -482,8 +418,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "nanjing-massacre-memorial",
@@ -496,8 +431,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "hangzhou-museum",
@@ -510,8 +444,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "ningbo-museum",
@@ -524,8 +457,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "wuxi-museum",
@@ -538,8 +470,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "changzhou-museum",
@@ -552,8 +483,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "yangzhou-museum",
@@ -566,8 +496,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "hefei-museum",
@@ -580,8 +509,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "nanchang-museum",
@@ -594,8 +522,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "jinan-museum",
@@ -608,8 +535,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "qingdao-museum",
@@ -622,8 +548,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "zhengzhou-museum",
@@ -636,8 +561,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "wuhan-museum",
@@ -650,8 +574,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "kunming-museum",
@@ -664,8 +587,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "guiyang-museum",
@@ -678,8 +600,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "fuzhou-museum",
@@ -692,8 +613,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "nanning-museum",
@@ -706,8 +626,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "haikou-museum",
@@ -720,8 +639,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shijiazhuang-museum",
@@ -734,8 +652,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "taiyuan-museum",
@@ -748,8 +665,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "hohhot-museum",
@@ -762,8 +678,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "lanzhou-museum",
@@ -775,9 +690,8 @@
       "敦煌文化"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "xining-museum",
@@ -790,8 +704,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "yantai-museum",
@@ -804,8 +717,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "linyi-museum",
@@ -818,8 +730,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "wenzhou-museum",
@@ -832,8 +743,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shaoxing-museum",
@@ -846,8 +756,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "jiaxing-museum",
@@ -860,8 +769,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "jingdezhen-museum",
@@ -874,8 +782,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "quanzhou-museum",
@@ -888,8 +795,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "xiamen-museum",
@@ -902,8 +808,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "dongguan-museum",
@@ -916,8 +821,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "foshan-museum",
@@ -930,8 +834,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "zhuhai-museum",
@@ -944,8 +847,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "zhongshan-museum",
@@ -958,8 +860,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "shantou-museum",
@@ -972,8 +873,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "zhanjiang-museum",
@@ -986,8 +886,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "jiangmen-museum",
@@ -1000,8 +899,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "baotou-museum",
@@ -1014,8 +912,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "anshan-museum",
@@ -1028,8 +925,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "yichang-museum",
@@ -1042,8 +938,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "luoyang-museum",
@@ -1056,8 +951,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "xianning-museum",
@@ -1070,8 +964,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "jingzhou-museum",
@@ -1084,8 +977,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "changde-museum",
@@ -1098,8 +990,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "xiangtan-museum",
@@ -1112,8 +1003,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "chenzhou-museum",
@@ -1126,8 +1016,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "hengyang-museum",
@@ -1140,8 +1029,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "shaoyang-museum",
@@ -1154,8 +1042,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "三级",
-    "collections": []
+    "level": "三级"
   },
   {
     "id": "yiyang-museum",
@@ -1168,8 +1055,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "huaihua-museum",
@@ -1182,8 +1068,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "loudi-museum",
@@ -1196,8 +1081,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "三级",
-    "collections": []
+    "level": "三级"
   },
   {
     "id": "guilin-museum",
@@ -1210,8 +1094,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "beihai-museum",
@@ -1224,8 +1107,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "wuzhou-museum",
@@ -1238,8 +1120,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "yulin-museum",
@@ -1252,8 +1133,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "baise-museum",
@@ -1266,8 +1146,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "laibin-museum",
@@ -1280,8 +1159,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "qinzhou-museum",
@@ -1294,8 +1172,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "fangchenggang-museum",
@@ -1308,8 +1185,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "guigang-museum",
@@ -1322,8 +1198,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "xinyu-museum",
@@ -1336,8 +1211,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "yingtan-museum",
@@ -1350,8 +1224,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "jian-museum",
@@ -1364,8 +1237,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shangrao-museum",
@@ -1378,8 +1250,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "ganzhou-museum",
@@ -1392,8 +1263,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "jiujiang-museum",
@@ -1406,8 +1276,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "beijing-art-museum",
@@ -1419,9 +1288,8 @@
       "雕塑"
     ],
     "image": "",
-    "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "hasCollections": true,
+    "level": "未定级"
   },
   {
     "id": "shanghai-railway-museum",
@@ -1434,8 +1302,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "guangzhou-maritime-museum",
@@ -1448,8 +1315,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "xian-tang-dynasty-museum",
@@ -1462,8 +1328,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "nanchang-august-first-museum",
@@ -1476,8 +1341,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "suzhou-garden-museum",
@@ -1490,8 +1354,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "zhenjiang-museum",
@@ -1504,8 +1367,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "xuzhou-museum",
@@ -1518,8 +1380,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "qingdao-beer-museum",
@@ -1532,8 +1393,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "zhoushan-museum",
@@ -1546,8 +1406,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "anqing-museum",
@@ -1560,8 +1419,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-geology-museum",
@@ -1574,8 +1432,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-postal-museum",
@@ -1588,8 +1445,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "lu-xun-museum",
@@ -1602,8 +1458,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "jilin-museum",
@@ -1616,8 +1471,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-aviation-museum",
@@ -1630,8 +1484,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-film-museum",
@@ -1644,8 +1497,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shanghai-world-expo-museum",
@@ -1658,8 +1510,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "china-tea-museum",
@@ -1672,8 +1523,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-silk-museum",
@@ -1686,8 +1536,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-porcelain-museum",
@@ -1700,8 +1549,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-sports-museum",
@@ -1714,8 +1562,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "china-agriculture-museum",
@@ -1728,8 +1575,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "tsinghua-museum",
@@ -1742,8 +1588,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "peking-university-museum",
@@ -1756,8 +1601,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "fudan-museum",
@@ -1770,8 +1614,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "urumqi-museum-new",
@@ -1784,8 +1627,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "三级",
-    "collections": []
+    "level": "三级"
   },
   {
     "id": "haikou-museum-new",
@@ -1798,8 +1640,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "lanzhou-museum-new",
@@ -1812,8 +1653,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "xining-museum-new",
@@ -1826,8 +1666,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "taiyuan-museum-new",
@@ -1840,8 +1679,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "shijiazhuang-museum-new",
@@ -1854,8 +1692,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "harbin-museum-new",
@@ -1868,8 +1705,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "nanchang-museum-new",
@@ -1882,8 +1718,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "fuzhou-museum-new",
@@ -1896,8 +1731,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "二级",
-    "collections": []
+    "level": "二级"
   },
   {
     "id": "china-printing-museum",
@@ -1910,8 +1744,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-science-technology-museum",
@@ -1923,9 +1756,8 @@
       "创新发展"
     ],
     "image": "http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85",
-    "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "hasCollections": true,
+    "level": "一级"
   },
   {
     "id": "china-women-children-museum",
@@ -1938,8 +1770,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-ethnic-museum",
@@ -1952,8 +1783,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "china-coal-museum",
@@ -1966,8 +1796,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-tobacco-museum",
@@ -1980,8 +1809,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "shanghai-auto-museum",
@@ -1994,8 +1822,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "xian-banpo-museum",
@@ -2008,8 +1835,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "tianjin-natural-history-museum",
@@ -2022,8 +1848,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "wuhan-revolution-museum",
@@ -2036,8 +1861,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "suzhou-silk-museum",
@@ -2050,8 +1874,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "china-water-museum",
@@ -2064,8 +1887,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "一级",
-    "collections": []
+    "level": "一级"
   },
   {
     "id": "pinghu-lishu-memorial",
@@ -2078,8 +1900,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": null,
-    "collections": []
+    "level": null
   },
   {
     "id": "zhaoyuan-hengli-watch-museum",
@@ -2092,8 +1913,7 @@
     ],
     "image": "",
     "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "level": "未定级"
   },
   {
     "id": "pinghu-museum",
@@ -2105,9 +1925,8 @@
       "文化"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG",
-    "hasCollections": false,
-    "level": null,
-    "collections": []
+    "hasCollections": true,
+    "level": null
   },
   {
     "id": "china-archaeology-museum",
@@ -2119,9 +1938,8 @@
       "科学研究"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg/800px-%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg",
-    "hasCollections": false,
-    "level": "未定级",
-    "collections": []
+    "hasCollections": true,
+    "level": "未定级"
   },
   {
     "id": "china-ancient-architecture-museum",
@@ -2134,8 +1952,7 @@
       "北京"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/5/5d/%E5%8C%97%E4%BA%AC%E5%85%88%E5%86%9C%E5%9D%9B%E6%8B%9C%E6%AE%BF2021.jpg",
-    "hasCollections": false,
-    "level": null,
-    "collections": []
+    "hasCollections": true,
+    "level": null
   }
 ]

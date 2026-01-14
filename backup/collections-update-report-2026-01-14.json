@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-01-14T01:57:34.346Z",
+  "totalMuseums": 151,
+  "updated": 151,
+  "failed": 0,
+  "byCollectionCount": {
+    "0": 149,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "more": 0
+  },
+  "summary": [
+    {
+      "id": "forbidden-city",
+      "name": "故宫博物院",
+      "collectionsCount": 3,
+      "kvUpdated": true
+    },
+    {
+      "id": "national-museum",
+      "name": "中国国家博物馆",
+      "collectionsCount": 3,
+      "kvUpdated": true
+    },
+    {
+      "id": "shanghai-museum",
+      "name": "上海博物馆",
+      "collectionsCount": 0,
+      "kvUpdated": true
+    },
+    {
+      "id": "terracotta-warriors",
+      "name": "秦始皇帝陵博物院",
+      "collectionsCount": 0,
+      "kvUpdated": true
+    },
+    {
+      "id": "nanjing-museum",
+      "name": "南京博物院",
+      "collectionsCount": 0,
+      "kvUpdated": true
+    }
+  ]
+}
