@@ -3999,7 +3999,6 @@ class MuseumCheckApp {
         this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
         this.guideButtonHidden = !this.loadGuideButtonVisibility(); // Load from settings, default to hidden
         this.childModeEnabled = this.loadChildModeEnabled(); // Load child mode setting
-        this.showOnlyMuseumsWithCollections = this.loadShowOnlyMuseumsWithCollections(); // Load from settings, default to true
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
         this.isDouyinAffiliate = false; // Flag to track Douyin affiliate mode
         this.favoriteMuseums = this.loadFavoriteMuseums(); // Load favorite museums
@@ -5148,23 +5147,8 @@ class MuseumCheckApp {
 
         // Guide button visibility toggle - REMOVED (setting deleted)
 
-        // Show only museums with collections toggle
-        const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
-        if (showOnlyMuseumsWithCollections) {
-            showOnlyMuseumsWithCollections.addEventListener('change', (e) => {
-                const showOnlyWithCollections = e.target.checked;
-                const result = this.saveShowOnlyMuseumsWithCollections(showOnlyWithCollections);
-                
-                if (result.success) {
-                    // Track setting change
-                    this.trackEvent('show_only_museums_with_collections_changed', {
-                        'show_only_with_collections': showOnlyWithCollections,
-                        'auto_saved': true
-                    });
-                }
-            });
-        }
-
+        // Show only museums with collections feature removed
+        
         // Child mode toggle
         const childModeToggle = document.getElementById('childModeToggle');
         if (childModeToggle) {
@@ -5380,6 +5364,12 @@ class MuseumCheckApp {
 
     // Search functionality methods
     filterMuseums() {
+        console.log('🔍 [DEBUG] filterMuseums called:', {
+            searchQuery: this.searchQuery,
+            hasHomepageAdapter: !!this.homepageAdapter,
+            browsedMuseumsCount: Object.keys(this.browsedMuseums || {}).length
+        });
+        
         // Phase 2.5: Use HomepageAdapter if available
         if (this.homepageAdapter) {
             // Apply search
@@ -5388,23 +5378,14 @@ class MuseumCheckApp {
             } else {
                 this.homepageAdapter.clearFilters();
                 
-                // No search query - show only visited/favorited/browsed museums
-                // Get IDs of museums to display
-                const relevantMuseumIds = new Set();
+                // No search query - show only browsed museums (by viewing history)
+                // Get IDs of museums to display from browsing history
+                const browsedIds = Object.keys(this.browsedMuseums);
                 
-                // Add visited museums
-                this.visitedMuseums.forEach(id => relevantMuseumIds.add(id));
-                
-                // Add favorited museums
-                this.favoriteMuseums.forEach(id => relevantMuseumIds.add(id));
-                
-                // Add browsed museums
-                Object.keys(this.browsedMuseums).forEach(id => relevantMuseumIds.add(id));
-                
-                // If user has relevant museums, filter to show only those
-                if (relevantMuseumIds.size > 0) {
+                // If user has browsing history, filter to show only those
+                if (browsedIds.length > 0) {
                     const allMuseums = this.homepageAdapter.getFilteredMuseums();
-                    this.filteredMuseums = allMuseums.filter(museum => relevantMuseumIds.has(museum.id));
+                    this.filteredMuseums = allMuseums.filter(museum => this.browsedMuseums.hasOwnProperty(museum.id));
                     
                     // Sort by recency (most recently browsed first)
                     this.filteredMuseums.sort((a, b) => {
@@ -5412,16 +5393,18 @@ class MuseumCheckApp {
                         const timeB = this.browsedMuseums[b.id] || 0;
                         return timeB - timeA; // Most recent first
                     });
+                    
+                    console.log('🔍 [DEBUG] filterMuseums (HomepageAdapter) - browsed:', {
+                        filteredCount: this.filteredMuseums.length,
+                        filteredIds: this.filteredMuseums.map(m => m.id)
+                    });
                 } else {
-                    // No relevant museums, show all
+                    // No browsing history, show all
                     this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                    console.log('🔍 [DEBUG] filterMuseums (HomepageAdapter) - no browsed, showing all:', {
+                        totalCount: this.filteredMuseums.length
+                    });
                 }
-            }
-            
-            // Apply collection filter if enabled
-            if (this.showOnlyMuseumsWithCollections) {
-                this.homepageAdapter.filterByCollections(true);
-                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
             }
             
             return;
@@ -5446,27 +5429,27 @@ class MuseumCheckApp {
             return;
         }
         
-        // No search query - show only visited/favorited/browsed museums
-        // Get IDs of museums to display
-        const relevantMuseumIds = new Set();
+        // No search query - show only browsed museums (by viewing history)
+        // Get IDs of museums to display from browsing history
+        const browsedIds = Object.keys(this.browsedMuseums);
         
-        // Add visited museums
-        this.visitedMuseums.forEach(id => relevantMuseumIds.add(id));
+        console.log('🔍 [DEBUG] filterMuseums (fallback MUSEUMS):', {
+            browsedIds: browsedIds,
+            browsedMuseumsCount: browsedIds.length,
+            totalMUSEUMS: MUSEUMS.length
+        });
         
-        // Add favorited museums
-        this.favoriteMuseums.forEach(id => relevantMuseumIds.add(id));
-        
-        // Add browsed museums
-        Object.keys(this.browsedMuseums).forEach(id => relevantMuseumIds.add(id));
-        
-        // If user has no relevant museums, show all museums
-        if (relevantMuseumIds.size === 0) {
+        // If user has no browsing history, show all museums
+        if (browsedIds.length === 0) {
             this.filteredMuseums = MUSEUMS;
+            console.log('🔍 [DEBUG] No browsing history, showing all:', {
+                filteredCount: this.filteredMuseums.length
+            });
             return;
         }
         
-        // Filter to only show relevant museums
-        this.filteredMuseums = MUSEUMS.filter(museum => relevantMuseumIds.has(museum.id));
+        // Filter to only show browsed museums
+        this.filteredMuseums = MUSEUMS.filter(museum => this.browsedMuseums.hasOwnProperty(museum.id));
         
         // Sort by recency (most recently browsed first)
         this.filteredMuseums.sort((a, b) => {
@@ -5474,12 +5457,17 @@ class MuseumCheckApp {
             const timeB = this.browsedMuseums[b.id] || 0;
             return timeB - timeA; // Most recent first
         });
+        
+        console.log('🔍 [DEBUG] filterMuseums (fallback) - filtered:', {
+            filteredCount: this.filteredMuseums.length,
+            filteredIds: this.filteredMuseums.map(m => m.id)
+        });
     }
     
     clearSearch() {
         this.searchQuery = '';
         document.getElementById('museumSearch').value = '';
-        // Apply default filtering (shows visited/favorited/browsed museums)
+        // Apply default filtering (shows browsed museums by viewing history)
         this.filterMuseums();
         this.renderMuseums();
         this.toggleClearButton();
@@ -5597,8 +5585,16 @@ class MuseumCheckApp {
         if (!museumId) return;
         
         // Record current timestamp for this museum
-        this.browsedMuseums[museumId] = Date.now();
+        const timestamp = Date.now();
+        this.browsedMuseums[museumId] = timestamp;
         this.saveBrowsedMuseums();
+        
+        console.log('🔍 [DEBUG] markMuseumAsBrowsed called:', {
+            museumId: museumId,
+            timestamp: timestamp,
+            allBrowsed: this.browsedMuseums,
+            savedToStorage: localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.BROWSED_MUSEUMS)
+        });
     }
 
     loadMuseumChecklists() {
@@ -6631,30 +6627,6 @@ class MuseumCheckApp {
         }
     }
 
-    loadShowOnlyMuseumsWithCollections() {
-        try {
-            const saved = localStorage.getItem('showOnlyMuseumsWithCollections');
-            // Default to false (show all museums) if not saved
-            return saved === null ? false : saved === 'true';
-        } catch (error) {
-            console.error('Failed to load show only museums with collections setting:', error);
-            return false; // Default to showing all museums
-        }
-    }
-
-    saveShowOnlyMuseumsWithCollections(showOnlyWithCollections) {
-        try {
-            localStorage.setItem('showOnlyMuseumsWithCollections', showOnlyWithCollections ? 'true' : 'false');
-            this.showOnlyMuseumsWithCollections = showOnlyWithCollections;
-            // Re-render museums to apply the filter
-            this.renderMuseums();
-            return { success: true, message: '显示设置已保存' };
-        } catch (error) {
-            console.error('Failed to save show only museums with collections setting:', error);
-            return { success: false, message: '保存失败，请重试' };
-        }
-    }
-
     saveChildNickname(nickname) {
         try {
             // Validate nickname
@@ -7186,14 +7158,16 @@ class MuseumCheckApp {
     sortMuseums(museums) {
         // Phase 2.5: Use HomepageAdapter if available
         if (this.homepageAdapter) {
-            // Sync visited/favorite museums to adapter before sorting
-            // (Adapter needs these for default sort strategy)
-            this.homepageAdapter.visitedMuseums = this.visitedMuseums || [];
-            this.homepageAdapter.favoriteMuseums = this.favoriteMuseums || [];
+            // IMPORTANT: Use the provided museums parameter, not all museums from adapter
+            // This ensures we sort ONLY the museums passed in (e.g., browsed museums for returning users)
+            console.log('🔍 [DEBUG] sortMuseums with HomepageAdapter:', {
+                museumsToSortCount: museums ? museums.length : 0,
+                adapterTotalCount: this.homepageAdapter.getFilteredMuseums().length
+            });
             
-            // Let adapter handle sorting
-            this.homepageAdapter.sort(this.sortBy || 'default');
-            return this.homepageAdapter.getFilteredMuseums();
+            // Fallback to manual sorting with the provided museums array
+            // instead of using adapter's getFilteredMuseums() which returns ALL museums
+            // Continue to fallback logic below
         }
         
         // Fallback: Original sorting logic (backward compatibility)
@@ -7298,11 +7272,22 @@ class MuseumCheckApp {
             const isNewUser = (!this.visitedMuseums || this.visitedMuseums.length === 0)
                 && (!this.favoriteMuseums || this.favoriteMuseums.length === 0)
                 && (!this.lastSearchQuery || this.lastSearchQuery.trim() === '')
-                && (!this.showOnlyMuseumsWithCollections);
+                && (!this.browsedMuseums || Object.keys(this.browsedMuseums).length === 0)
+                ;
 
-            // Determine returning user simplified: user has visited (checked-in) any museum
+            // Determine returning user: user has visited (checked-in) any museum OR browsed any museum
             const isReturningUser = (Array.isArray(this.visitedMuseums) && this.visitedMuseums.length > 0)
-                || (Object.keys(this.loadVisitedMuseumsMeta() || {}).length > 0);
+                || (Object.keys(this.loadVisitedMuseumsMeta() || {}).length > 0)
+                || (Object.keys(this.browsedMuseums || {}).length > 0);
+            
+            console.log('🔍 [DEBUG] renderMuseums - User Status:', {
+                isNewUser,
+                isReturningUser,
+                visitedMuseumsCount: this.visitedMuseums ? this.visitedMuseums.length : 0,
+                visitedMetaCount: Object.keys(this.loadVisitedMuseumsMeta() || {}).length,
+                browsedMuseumsCount: Object.keys(this.browsedMuseums || {}).length,
+                browsedMuseumsData: this.browsedMuseums
+            });
 
             // Ensure filteredMuseums is always an array
             if (!Array.isArray(this.filteredMuseums)) {
@@ -7311,13 +7296,36 @@ class MuseumCheckApp {
             }
             
             let museumsToRender = this.filteredMuseums;
-            if (this.showOnlyMuseumsWithCollections) {
-                museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
-            }
 
-            // Returning users: only show visited museums sorted by recent visit
+            // Returning users: show browsed museums sorted by recent browse time
             if (isReturningUser) {
-                museumsToRender = this.getVisitedMuseumsSorted();
+                // Get visited museums (fully completed) - these come first (sorted by visitedMuseumsMeta)
+                const visitedMuseums = this.getVisitedMuseumsSorted();
+                
+                // Get browsed museums (just clicked the card) - these come after, sorted by browse time
+                const browsedMuseumIds = Object.keys(this.browsedMuseums);
+                const browsedMuseumsNotVisited = browsedMuseumIds
+                    .filter(id => !this.visitedMuseums.includes(id))
+                    .map(id => MUSEUMS.find(m => m.id === id))
+                    .filter(m => m) // Remove any undefined
+                    .sort((a, b) => {
+                        const timeA = this.browsedMuseums[a.id] || 0;
+                        const timeB = this.browsedMuseums[b.id] || 0;
+                        return timeB - timeA; // Most recent first
+                    });
+                
+                // Combine: visited museums (fully completed) first, then browsed (partial)
+                museumsToRender = [...visitedMuseums, ...browsedMuseumsNotVisited];
+                
+                console.log('🔍 [DEBUG] Returning User Display:', {
+                    visitedMuseumsCount: visitedMuseums.length,
+                    visitedMuseumIds: visitedMuseums.map(m => m.id),
+                    browsedMuseumIds: browsedMuseumIds,
+                    browsedMuseumsNotVisitedCount: browsedMuseumsNotVisited.length,
+                    browsedMuseumsNotVisitedIds: browsedMuseumsNotVisited.map(m => m.id),
+                    totalToRender: museumsToRender.length,
+                    totalInMUSEUMS: MUSEUMS.length
+                });
             }
 
             // For new users, show museums from their city (if location available), else fallback to Beijing/popular museums
@@ -10762,11 +10770,7 @@ class MuseumCheckApp {
             childModeToggle.checked = this.childModeEnabled;
         }
 
-        // Update show only museums with collections toggle
-        const showOnlyMuseumsWithCollections = document.getElementById('showOnlyMuseumsWithCollections');
-        if (showOnlyMuseumsWithCollections) {
-            showOnlyMuseumsWithCollections.checked = this.showOnlyMuseumsWithCollections;
-        }
+        // Update show only museums with collections toggle - feature removed
     }
 
     // updateFireworksRetentionDisplay - REMOVED (setting deleted)
