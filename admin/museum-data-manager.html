@@ -151,13 +151,18 @@
     <div class="card">
       <div class="section-title">加载博物馆数据</div>
       <div class="form-group">
-        <label for="quickLoadMuseumId">快速加载（选择博物馆）</label>
+        <label for="quickLoadMuseumId">快速加载（搜索博物馆）</label>
         <div style="display: flex; gap: 10px; align-items: flex-start;">
           <div style="flex: 1;">
-            <select id="quickLoadMuseumId">
-              <option value="">-- 选择要加载的博物馆 --</option>
-            </select>
-            <div class="hint">从列表选择博物馆可快速加载</div>
+            <input 
+              type="search" 
+              id="quickLoadMuseumId" 
+              placeholder="搜索博物馆名称或 ID（如：故宫、自然、beijing）"
+              list="quickLoadMuseumsList"
+              style="width: 100%;"
+            />
+            <datalist id="quickLoadMuseumsList"></datalist>
+            <div class="hint">输入博物馆名称、ID 或位置进行搜索</div>
           </div>
           <button id="quickLoadBtn" class="btn btn-primary" style="margin-top: 0;">🔍 加载</button>
         </div>
@@ -175,15 +180,28 @@
     </div>
 
     <div class="card" id="uploadCard" style="display:none;">
+      <div id="statusMsg" style="margin-bottom: 16px;"></div>
       <div class="section-title">上传/编辑博物馆数据</div>
       
+      <div id="editStatusInfo" style="display:none; background: #e3f2fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #2196f3;">
+        <strong>ℹ️ 编辑信息：</strong>
+        <div id="editStatusText" style="margin-top: 8px; font-size: 14px;"></div>
+      </div>
+      
       <div class="form-group">
-        <label for="museumIdSelect">选择博物馆 *</label>
-        <select id="museumIdSelect">
-          <option value="">-- 选择已有博物馆或新建 --</option>
-          <option value="__new__">➕ 创建新博物馆</option>
-        </select>
-        <div class="hint">从列表选择博物馆将自动加载现有数据</div>
+        <label for="museumIdSelect">选择或搜索博物馆 *</label>
+        <div style="display: flex; gap: 8px;">
+          <input 
+            type="search" 
+            id="museumIdSelect" 
+            placeholder="搜索博物馆名称或 ID（如：故宫、北京、beijing）"
+            list="museumSearchList"
+            style="flex: 1;"
+          />
+          <button type="button" id="newMuseumBtn" class="btn btn-secondary" style="white-space: nowrap;">➕ 新建</button>
+        </div>
+        <datalist id="museumSearchList"></datalist>
+        <div class="hint">搜索现有博物馆或点击"新建"创建新博物馆</div>
       </div>
 
       <div class="form-group" id="customIdGroup" style="display:none;">
@@ -338,51 +356,85 @@
       let currentMuseums = [];
       let currentData = null;
 
-      // Initialize museum ID selectors
+      // Initialize museum ID selectors with datalist
       async function initMuseumSelector() {
-        const uploadSelect = document.getElementById('museumIdSelect');
-        const quickLoadSelect = document.getElementById('quickLoadMuseumId');
-        
         try {
           // Load museums from JSON
           const response = await fetch('/data/museums-meta.json');
           const museums = await response.json();
           
+          // Populate datalists for both search inputs
+          const museumSearchList = document.getElementById('museumSearchList');
+          const quickLoadMuseumsList = document.getElementById('quickLoadMuseumsList');
+          
+          // Clear existing options
+          museumSearchList.innerHTML = '';
+          quickLoadMuseumsList.innerHTML = '';
+          
           museums.forEach(museum => {
-            // Add to upload selector
+            // Create option for upload selector datalist
             const uploadOption = document.createElement('option');
-            uploadOption.value = museum.id;
-            uploadOption.textContent = `${museum.name} (${museum.id})`;
-            uploadSelect.appendChild(uploadOption);
+            uploadOption.value = `${museum.name} (${museum.id})`;
+            uploadOption.dataset.id = museum.id;
+            museumSearchList.appendChild(uploadOption);
             
-            // Add to quick load selector
+            // Create option for quick load selector datalist
             const quickLoadOption = document.createElement('option');
-            quickLoadOption.value = museum.id;
-            quickLoadOption.textContent = `${museum.name} (${museum.id})`;
-            quickLoadSelect.appendChild(quickLoadOption);
+            quickLoadOption.value = `${museum.name} (${museum.id})`;
+            quickLoadOption.dataset.id = museum.id;
+            quickLoadMuseumsList.appendChild(quickLoadOption);
           });
+          
+          // Store museums for searching
+          window.allMuseums = museums;
         } catch (error) {
           console.error('Failed to load museums metadata:', error);
         }
-        }
       }
 
-      // Handle museum selection
+      // Handle museum selection in edit form
       document.getElementById('museumIdSelect').addEventListener('change', async function(e) {
-        const museumId = e.target.value;
+        const input = e.target.value.trim();
         const customIdGroup = document.getElementById('customIdGroup');
         
-        if (museumId === '__new__') {
-          customIdGroup.style.display = 'block';
+        if (!input) {
+          customIdGroup.style.display = 'none';
           clearEditorsData();
-        } else if (museumId) {
+          return;
+        }
+        
+        // Find museum by name or ID
+        let museumId = null;
+        if (window.allMuseums) {
+          const museum = window.allMuseums.find(m => 
+            m.name === input || 
+            m.id === input ||
+            input.includes(m.id) ||
+            `${m.name} (${m.id})` === input
+          );
+          
+          if (museum) {
+            museumId = museum.id;
+          }
+        }
+        
+        if (museumId) {
+          document.getElementById('museumIdSelect').value = museumId;
           customIdGroup.style.display = 'none';
           await loadMuseumData(museumId);
         } else {
-          customIdGroup.style.display = 'none';
+          customIdGroup.style.display = 'block';
           clearEditorsData();
         }
       });
+      
+      // Handle 'New Museum' button
+      document.getElementById('newMuseumBtn').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('museumIdSelect').value = '';
+        document.getElementById('customIdGroup').style.display = 'block';
+        clearEditorsData();
+      };
 
       // Tab switching
       document.querySelectorAll('.tab').forEach(tab => {
@@ -409,39 +461,68 @@
         showStatus('正在加载博物馆数据...', 'info');
         
         try {
-          const data = await loader.loadMuseum(museumId, false);
+          // First, always load meta information for basic fields
+          let metaInfo = null;
+          try {
+            const response = await fetch('/data/museums-meta.json');
+            const museums = await response.json();
+            metaInfo = museums.find(m => m.id === museumId);
+          } catch (error) {
+            console.error('Failed to load metadata:', error);
+          }
           
-          if (!data) {
-            showStatus('未找到博物馆数据，将创建新数据', 'info');
+          // Try to load detailed data from KV Store
+          const kvData = await loader.loadFromTier2(museumId);
+          
+          // Merge: KV Store data + Meta information
+          // Priority: KV Store > Meta (for overlapping fields)
+          if (kvData) {
+            // Data exists in KV Store - use it as base
+            currentData = kvData;
             
-            // Look up meta information from JSON to pre-populate fields
-            let metaInfo = null;
-            try {
-              const response = await fetch('/data/museums-meta.json');
-              const museums = await response.json();
-              metaInfo = museums.find(m => m.id === museumId);
-            } catch (error) {
-              console.error('Failed to load metadata:', error);
-            }
+            // Ensure all required fields exist, fill missing ones from meta
+            if (!currentData.id) currentData.id = museumId;
+            if (!currentData.name && metaInfo) currentData.name = metaInfo.name;
+            if (!currentData.location && metaInfo) currentData.location = metaInfo.location;
+            if (!currentData.tags && metaInfo) currentData.tags = metaInfo.tags;
+            if (!currentData.image && metaInfo) currentData.image = metaInfo.image;
             
+            // Ensure arrays/objects exist
+            if (!currentData.collections) currentData.collections = [];
+            if (!currentData.workflows) currentData.workflows = [];
+            if (!currentData.checklists) currentData.checklists = { parent: {}, child: {} };
+            
+            showStatus(`✅ 成功加载博物馆数据: ${currentData.name}（来自 KV Store）`, 'success');
+          } else if (metaInfo) {
+            // No KV data, create from meta information
             currentData = {
               id: museumId,
-              name: metaInfo?.name || '',
-              location: metaInfo?.location || '',
+              name: metaInfo.name || '',
+              location: metaInfo.location || '',
               description: '',
-              tags: metaInfo?.tags || [],
-              image: metaInfo?.image || '',
+              tags: metaInfo.tags || [],
+              image: metaInfo.image || '',
               collections: [],
               workflows: [],
               checklists: { parent: {}, child: {} }
             };
             
-            if (metaInfo) {
-              showStatus(`从 Meta 数据自动填充博物馆信息: ${metaInfo.name}`, 'success');
-            }
+            showStatus(`📋 从元数据填充: ${metaInfo.name}（未在 KV Store 中找到，可编辑并保存）`, 'info');
           } else {
-            currentData = data;
-            showStatus(`成功加载博物馆数据: ${data.name}`, 'success');
+            // Neither KV nor meta data available
+            currentData = {
+              id: museumId,
+              name: '',
+              location: '',
+              description: '',
+              tags: [],
+              image: '',
+              collections: [],
+              workflows: [],
+              checklists: { parent: {}, child: {} }
+            };
+            
+            showStatus(`⚠️ 无数据找到，创建新博物馆（请填写信息）`, 'warning');
           }
           
           populateEditors(currentData);
@@ -1077,7 +1158,7 @@
 
         listDiv.innerHTML = currentMuseums.map(m => {
           const tierInfo = getTierInfo(m.tier);
-          const isEditable = m.tier === 'tier2';
+          const isEditable = m.tier === 'kv' || m.tier === 'meta'; // Both KV and meta data can be edited and saved
           const data = m.data || {};
           
           // Build data preview sections
@@ -1175,12 +1256,27 @@
       
       // Get tier information for display
       function getTierInfo(tier) {
-        // Simplified: KV Store is the only data source
-        return {
-          label: 'KV Store',
-          badgeClass: 'tier-2',
-          description: '远程存储（可编辑）'
-        };
+        // Handle different data sources
+        switch(tier) {
+          case 'kv':
+            return {
+              label: 'KV Store',
+              badgeClass: 'tier-2',
+              description: '远程存储（✓ 可编辑）'
+            };
+          case 'meta':
+            return {
+              label: '元数据',
+              badgeClass: 'tier-3',
+              description: '元数据库（✓ 可编辑并保存到 KV Store）'
+            };
+          default:
+            return {
+              label: '其他',
+              badgeClass: 'tier-1',
+              description: '其他数据源'
+            };
+        }
       }
 
       // View museum data
@@ -1252,10 +1348,30 @@
 
       // Quick load function - load specific museum by ID from all tiers
       async function quickLoadMuseum() {
-        const museumId = document.getElementById('quickLoadMuseumId').value;
+        let input = document.getElementById('quickLoadMuseumId').value.trim();
+        
+        if (!input) {
+          showStatus('请搜索或选择博物馆', 'error');
+          return;
+        }
+
+        // Extract museum ID from input
+        let museumId = null;
+        if (window.allMuseums) {
+          const museum = window.allMuseums.find(m => 
+            m.name === input || 
+            m.id === input ||
+            input.includes(m.id) ||
+            `${m.name} (${m.id})` === input
+          );
+          
+          if (museum) {
+            museumId = museum.id;
+          }
+        }
         
         if (!museumId) {
-          showStatus('请选择博物馆', 'error');
+          showStatus('未找到匹配的博物馆', 'error');
           return;
         }
 
@@ -1263,38 +1379,65 @@
         listDiv.innerHTML = '<div class="loading">正在加载博物馆数据...</div>';
 
         try {
-          // Try to load from all tiers
-          const tier1Data = await loader.loadFromTier1(museumId);
+          // Load meta information
+          let metaInfo = null;
+          try {
+            const response = await fetch('/data/museums-meta.json');
+            const museums = await response.json();
+            metaInfo = museums.find(m => m.id === museumId);
+          } catch (error) {
+            console.error('Failed to load metadata:', error);
+          }
+          
+          // Load from KV Store
           const tier2Data = await loader.loadFromTier2(museumId);
-          const tier3Data = await loader.loadFromTier3(museumId);
           
           currentMuseums = [];
           
-          // Load from KV Store only (simplified architecture)
+          // If found in KV Store
           if (tier2Data) {
+            // Merge with meta information
+            const mergedData = {
+              ...metaInfo,
+              ...tier2Data
+            };
+            
             currentMuseums.push({
               id: museumId,
-              name: tier2Data.name || museumId,
-              location: tier2Data.location || '未知位置',
+              name: tier2Data.name || metaInfo?.name || museumId,
+              location: tier2Data.location || metaInfo?.location || '未知位置',
               tier: 'kv',
               hasData: true,
-              data: tier2Data
+              data: mergedData,
+              dataSource: 'KV Store'
             });
-          }
-          
-          if (currentMuseums.length > 0) {
+            
             renderMuseumList();
-            showStatus(`成功加载博物馆: ${currentMuseums[0].name}（来自KV Store）`, 'success');
+            showStatus(`✅ 成功加载博物馆: ${currentMuseums[0].name}（来自 KV Store）`, 'success');
+          } else if (metaInfo) {
+            // Found in metadata only
+            currentMuseums.push({
+              id: museumId,
+              name: metaInfo.name,
+              location: metaInfo.location,
+              tier: 'meta',
+              hasData: false,
+              data: metaInfo,
+              dataSource: '元数据'
+            });
+            
+            renderMuseumList();
+            showStatus(`📋 在元数据中找到: ${metaInfo.name}（KV Store 无此数据，可编辑后保存）`, 'info');
           } else {
-            // Not found in KV Store
+            // Not found anywhere
             listDiv.innerHTML = `
               <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
-                <div>博物馆 "${museumId}" 在KV Store中未找到</div>
-                <div class="hint">可以点击"上传新数据"按钮添加到KV Store</div>
+                <div>博物馆 "${museumId}" 在所有数据源中未找到</div>
+                <div class="hint">可以创建新博物馆或检查 ID 是否正确</div>
               </div>
             `;
-            showStatus(`博物馆 "${museumId}" 在所有数据源（T1/T2/T3）中未找到`, 'info');
+            showStatus(`博物馆 "${museumId}" 未找到`, 'error');
           }
         } catch (error) {
           console.error('Error loading museum:', error);

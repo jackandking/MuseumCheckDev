@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KV Store 数据诊断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: #f7f9fb;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .title { font-size: 28px; font-weight: 800; margin-bottom: 20px; color: #2c3e50; }
+        .results { 
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            max-height: 600px;
+            overflow-y: auto;
+            border-left: 3px solid #2196f3;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        .info { color: #2196f3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="title">🔍 KV Store 数据诊断</div>
+            <p>检查 KV Store 中有哪些博物馆数据...</p>
+            <div id="results" class="results">加载中...</div>
+        </div>
+    </div>
+
+    <script src="/js/museum-data-loader.js"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+        let output = '';
+
+        function log(text, type = 'info') {
+            const className = `${type}`;
+            output += `<span class="${className}">${text}</span>\n`;
+        }
+
+        async function diagnose() {
+            try {
+                const loader = new MuseumDataLoader();
+                log(`KV Store 端点: ${loader.kvStoreEndpoint}`, 'info');
+                log(`\n开始检查所有博物馆...`, 'info');
+
+                // 加载所有博物馆元数据
+                const response = await fetch('/data/museums-meta.json');
+                const allMuseums = await response.json();
+                log(`\n发现 ${allMuseums.length} 个博物馆在元数据中`, 'info');
+
+                let kvCount = 0;
+                let metaOnlyCount = 0;
+                const kvMuseums = [];
+                const missingMuseums = [];
+
+                log(`\n开始逐个检查博物馆数据...`, 'info');
+                log(`(这可能需要一段时间)\n`, 'warning');
+
+                for (let i = 0; i < allMuseums.length; i++) {
+                    const museum = allMuseums[i];
+                    const data = await loader.loadFromTier2(museum.id);
+
+                    if (data) {
+                        kvCount++;
+                        kvMuseums.push({
+                            id: museum.id,
+                            name: museum.name,
+                            hasCollections: !!data.collections && data.collections.length > 0,
+                            collectionCount: data.collections ? data.collections.length : 0,
+                            hasChecklists: !!(data.checklists && (data.checklists.parent || data.checklists.child)),
+                        });
+                    } else {
+                        metaOnlyCount++;
+                        missingMuseums.push({
+                            id: museum.id,
+                            name: museum.name
+                        });
+                    }
+
+                    // Show progress
+                    if ((i + 1) % 10 === 0) {
+                        log(`已检查: ${i + 1}/${allMuseums.length}`, 'info');
+                    }
+                }
+
+                log(`\n=== 诊断结果 ===\n`, 'info');
+                log(`✅ KV Store 中有完整数据的博物馆: ${kvCount}`, kvCount > 0 ? 'success' : 'error');
+                log(`⚠️  仅在元数据中的博物馆: ${metaOnlyCount}`, metaOnlyCount > 0 ? 'warning' : 'info');
+
+                if (kvMuseums.length > 0) {
+                    log(`\n=== KV Store 中的博物馆 ===\n`, 'success');
+                    kvMuseums.forEach(m => {
+                        log(`• ${m.name} (${m.id})`, 'success');
+                        log(`  - 馆藏: ${m.collectionCount} 件`, m.hasCollections ? 'success' : 'warning');
+                        log(`  - 清单: ${m.hasChecklists ? '有' : '无'}`, m.hasChecklists ? 'success' : 'warning');
+                    });
+                }
+
+                if (missingMuseums.length > 0) {
+                    log(`\n=== 仅在元数据中的博物馆 (${missingMuseums.length} 个) ===\n`, 'warning');
+                    log(`这些博物馆没有在 KV Store 中保存完整数据。\n可以使用编辑功能添加数据。\n`, 'warning');
+                    missingMuseums.slice(0, 10).forEach(m => {
+                        log(`• ${m.name} (${m.id})`, 'warning');
+                    });
+                    if (missingMuseums.length > 10) {
+                        log(`\n... 还有 ${missingMuseums.length - 10} 个博物馆`, 'warning');
+                    }
+                }
+
+                log(`\n=== 建议 ===\n`, 'info');
+                if (kvCount === 0) {
+                    log(`❌ KV Store 中没有任何博物馆数据！`, 'error');
+                    log(`您可以：`, 'info');
+                    log(`1. 在编辑器中为每个博物馆添加馆藏、清单等详细数据`, 'info');
+                    log(`2. 使用批量导入工具`, 'info');
+                    log(`3. 从备份恢复数据`, 'info');
+                } else if (kvCount < allMuseums.length / 2) {
+                    log(`⚠️  大部分博物馆数据未在 KV Store 中。`, 'warning');
+                    log(`考虑：`, 'warning');
+                    log(`1. 对缺失的博物馆进行数据录入`, 'warning');
+                    log(`2. 使用 AI 辅助生成镇馆之宝数据`, 'warning');
+                } else {
+                    log(`✅ KV Store 数据量足够`, 'success');
+                }
+
+                resultsDiv.innerHTML = output;
+            } catch (error) {
+                log(`\n❌ 诊断过程出错: ${error.message}`, 'error');
+                log(`\n${error.stack}`, 'error');
+                resultsDiv.innerHTML = output;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', diagnose);
+    </script>
+</body>
+</html>

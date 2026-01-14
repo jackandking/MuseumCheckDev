@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Museum Data Manager - 功能验证</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: #f7f9fb;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .title { font-size: 28px; font-weight: 800; margin-bottom: 20px; color: #2c3e50; }
+        .test-section { margin-bottom: 16px; }
+        .test-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: #2c3e50; }
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px;
+            border-radius: 4px;
+            color: #1b5e20;
+        }
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            border-radius: 4px;
+            color: #b71c1c;
+        }
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            border-radius: 4px;
+            color: #0d47a1;
+        }
+        select, input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            margin: 10px 0;
+        }
+        select { width: 100%; max-width: 500px; }
+        button {
+            padding: 10px 20px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        button:hover { background: #1976d2; }
+        .results { 
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .stat-box {
+            background: #f0f7ff;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #2196f3;
+        }
+        .stat-value { font-size: 24px; font-weight: 800; color: #2196f3; }
+        .stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="title">🔧 Museum Data Manager - 功能完整性验证</div>
+            
+            <div class="test-section">
+                <div class="test-title">✅ 测试 1: 检查 museum-data-manager.html 是否可访问</div>
+                <div id="test1"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">✅ 测试 2: 加载博物馆元数据</div>
+                <div id="test2"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">✅ 测试 3: 初始化 MuseumDataLoader</div>
+                <div id="test3"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">✅ 测试 4: 模拟博物馆选择下拉菜单初始化</div>
+                <label>快速加载博物馆（模拟）:</label>
+                <select id="testDropdown">
+                    <option value="">-- 加载博物馆列表 --</option>
+                </select>
+                <button onclick="populateTestDropdown()">加载下拉菜单</button>
+                <div id="test4"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">📊 统计信息</div>
+                <div class="stats" id="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-value" id="museum-count">0</div>
+                        <div class="stat-label">博物馆总数</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="dropdown-options">0</div>
+                        <div class="stat-label">下拉菜单选项</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-title">🔗 快速链接</div>
+                <ul style="list-style: none;">
+                    <li><a href="/admin/museum-data-manager.html" target="_blank" style="color: #2196f3; text-decoration: none;">📋 打开 Museum Data Manager</a></li>
+                    <li><a href="/admin/index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🏠 打开 Admin 首页</a></li>
+                    <li><a href="/index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🎯 打开 MuseumCheck 主应用</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/museum-data-loader.js"></script>
+    <script>
+        async function test1() {
+            try {
+                const response = await fetch('/admin/museum-data-manager.html');
+                if (response.ok) {
+                    document.getElementById('test1').innerHTML = '<div class="success">✓ museum-data-manager.html 可访问 (HTTP 200)</div>';
+                    return true;
+                } else {
+                    document.getElementById('test1').innerHTML = `<div class="error">✗ HTTP ${response.status} - 页面无法访问</div>`;
+                    return false;
+                }
+            } catch (error) {
+                document.getElementById('test1').innerHTML = `<div class="error">✗ 网络错误: ${error.message}</div>`;
+                return false;
+            }
+        }
+
+        async function test2() {
+            try {
+                const response = await fetch('/data/museums-meta.json');
+                const museums = await response.json();
+                
+                if (Array.isArray(museums) && museums.length > 0) {
+                    const count = museums.length;
+                    const cities = new Set(museums.map(m => m.location)).size;
+                    
+                    document.getElementById('test2').innerHTML = `
+                        <div class="success">✓ 成功加载 ${count} 个博物馆的元数据</div>
+                        <div class="results">
+                            • 总数: ${count} 个博物馆
+                            • 城市: ${cities} 个不同城市
+                            • 样本数据: 
+                            ${museums.slice(0, 3).map(m => `  - ${m.name} (${m.location})`).join('\n')}
+                        </div>
+                    `;
+                    document.getElementById('museum-count').textContent = count;
+                    return museums;
+                } else {
+                    document.getElementById('test2').innerHTML = '<div class="error">✗ 博物馆数据格式不正确</div>';
+                    return null;
+                }
+            } catch (error) {
+                document.getElementById('test2').innerHTML = `<div class="error">✗ 加载失败: ${error.message}</div>`;
+                return null;
+            }
+        }
+
+        function test3() {
+            try {
+                const loader = new MuseumDataLoader();
+                
+                const hasLoadMethods = 
+                    typeof loader.loadFromTier1 === 'function' &&
+                    typeof loader.loadFromTier2 === 'function' &&
+                    typeof loader.loadFromTier3 === 'function' &&
+                    typeof loader.loadMuseum === 'function';
+                
+                if (hasLoadMethods) {
+                    document.getElementById('test3').innerHTML = `
+                        <div class="success">✓ MuseumDataLoader 初始化成功</div>
+                        <div class="results">
+                            • loadFromTier1(): ${typeof loader.loadFromTier1}
+                            • loadFromTier2(): ${typeof loader.loadFromTier2}
+                            • loadFromTier3(): ${typeof loader.loadFromTier3}
+                            • loadMuseum(): ${typeof loader.loadMuseum}
+                        </div>
+                    `;
+                    return loader;
+                } else {
+                    document.getElementById('test3').innerHTML = '<div class="error">✗ MuseumDataLoader 方法不完整</div>';
+                    return null;
+                }
+            } catch (error) {
+                document.getElementById('test3').innerHTML = `<div class="error">✗ 初始化失败: ${error.message}</div>`;
+                return null;
+            }
+        }
+
+        async function populateTestDropdown() {
+            try {
+                const dropdown = document.getElementById('testDropdown');
+                const response = await fetch('/data/museums-meta.json');
+                const museums = await response.json();
+                
+                // Clear existing options
+                dropdown.innerHTML = '<option value="">-- 选择博物馆 --</option>';
+                
+                // Add museums
+                museums.forEach(museum => {
+                    const option = document.createElement('option');
+                    option.value = museum.id;
+                    option.textContent = `${museum.name} (${museum.location})`;
+                    dropdown.appendChild(option);
+                });
+                
+                document.getElementById('test4').innerHTML = `
+                    <div class="success">✓ 下拉菜单成功加载 ${museums.length} 个博物馆</div>
+                    <div class="results">选择一个博物馆试试...</div>
+                `;
+                document.getElementById('dropdown-options').textContent = dropdown.options.length - 1;
+            } catch (error) {
+                document.getElementById('test4').innerHTML = `<div class="error">✗ 加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // Run tests on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await test1();
+            const museums = await test2();
+            test3();
+            
+            // Auto-populate test dropdown if museums loaded
+            if (museums) {
+                await populateTestDropdown();
+            }
+        });
+    </script>
+</body>
+</html>
