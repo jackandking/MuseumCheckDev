@@ -154,14 +154,18 @@
 ## 后续建议
 
 ### 质量保证
-1. ✅ 在 CI/CD 流程中添加 JavaScript 语法检查
-2. 使用 ESLint 或 JSLint 进行代码检查
-3. 添加单元测试验证 initMuseumSelector() 功能
+1. ✅ 在 CI/CD 流程中添加 JavaScript 语法检查 — Status: in-progress
+2. 使用 ESLint 或 JSLint 进行代码检查 — Status: in-progress
+3. 添加单元测试验证 initMuseumSelector() 功能 — Status: in-progress
 
 ### 防止类似问题
-1. 使用 IDE 的括号匹配提示功能
-2. 启用代码格式化工具（Prettier）
-3. 定期运行代码质量检查
+1. 使用 IDE 的括号匹配提示功能 — Status: in-progress
+2. 启用代码格式化工具（Prettier） — Status: in-progress
+3. 定期运行代码质量检查 — Status: in-progress
+
+### 其他建议
+7. 添加回滚和部署验证脚本 — Status: not-started
+8. 更新变更日志并通知相关团队 — Status: not-started
 
 ## 相关链接
 

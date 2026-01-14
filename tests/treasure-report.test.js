@@ -186,7 +186,7 @@ describe('Admin Treasure Reports Page', () => {
     beforeAll(() => {
         // Load the admin-treasure-reports.html file
         adminHtmlContent = fs.readFileSync(
-            path.join(__dirname, '..', 'admin-treasure-reports.html'),
+            path.join(__dirname, '..', 'admin', 'admin-treasure-reports.html'),
             'utf8'
         );
     });
@@ -304,7 +304,7 @@ describe('Admin Navigation Updates', () => {
 
     test('admin-fireworks.html should link to treasure reports', () => {
         const content = fs.readFileSync(
-            path.join(__dirname, '..', 'admin-fireworks.html'),
+            path.join(__dirname, '..', 'admin', 'admin-fireworks.html'),
             'utf8'
         );
         expect(content).toContain('admin-treasure-reports.html?admin=1');
@@ -312,7 +312,7 @@ describe('Admin Navigation Updates', () => {
 
     test('admin-leaderboard.html should link to treasure reports', () => {
         const content = fs.readFileSync(
-            path.join(__dirname, '..', 'admin-leaderboard.html'),
+            path.join(__dirname, '..', 'admin', 'admin-leaderboard.html'),
             'utf8'
         );
         expect(content).toContain('admin-treasure-reports.html?admin=1');
@@ -386,7 +386,7 @@ describe('Auto-Delete Treasures with 5+ Reports (Issue: 纠错)', () => {
             'utf8'
         );
         adminHtmlContent = fs.readFileSync(
-            path.join(__dirname, '..', 'admin-treasure-reports.html'),
+            path.join(__dirname, '..', 'admin', 'admin-treasure-reports.html'),
             'utf8'
         );
     });

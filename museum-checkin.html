@@ -6467,6 +6467,31 @@
             }
 
             // Check if game should be shown (has photo and setting enabled)
+            // Ensure we process any pending file selected in the input but not yet stored
+            try {
+                const photoInputEl = document.getElementById('taskPhotoInput');
+                if (!taskPhotos[currentTaskIndex] && photoInputEl && photoInputEl.files && photoInputEl.files[0]) {
+                    // If user selected a file but FileReader/compression hasn't finished yet,
+                    // synchronously compress and read it here so the completion flow sees the photo.
+                    try {
+                        const compressedFile = await compressPhoto(photoInputEl.files[0]);
+                        const reader = new FileReader();
+                        const dataUrl = await new Promise((resolve, reject) => {
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = () => reject(new Error('读取图片失败'));
+                            reader.readAsDataURL(compressedFile);
+                        });
+                        taskPhotos[currentTaskIndex] = dataUrl;
+                        savePhotos();
+                        displayPhotoPreview(dataUrl);
+                    } catch (e) {
+                        console.warn('未能在完成前处理选中的照片：', e);
+                    }
+                }
+            } catch (e) {
+                console.error('处理待处理照片时出错：', e);
+            }
+
             const hasPhoto = !!taskPhotos[currentTaskIndex];
             const puzzleEnabled = loadPuzzleGameSetting();
             const showGame = hasPhoto && puzzleEnabled;

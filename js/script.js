@@ -60,6 +60,7 @@ const DOM_SELECTORS = {
 const APP_CONFIG = {
     LOCAL_STORAGE_KEYS: {
         VISITED_MUSEUMS: 'visitedMuseums',
+        VISITED_MUSEUMS_META: 'visitedMuseumsMeta', // Map of museumId -> lastVisited timestamp (ms)
         MUSEUM_CHECKLISTS: 'museumChecklists',
         CURRENT_AGE: 'currentAge',
         ASSESSMENT_HISTORY: 'museumCheckAssessmentHistory',
@@ -5508,6 +5509,40 @@ class MuseumCheckApp {
         }
     }
 
+    loadVisitedMuseumsMeta() {
+        try {
+            const saved = localStorage.getItem(APP_CONFIG.LOCAL_STORAGE_KEYS.VISITED_MUSEUMS_META);
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.error('Failed to load visitedMuseumsMeta:', error);
+            return {};
+        }
+    }
+
+    saveVisitedMuseumsMeta(meta = null) {
+        try {
+            const toSave = meta || this.visitedMuseumsMeta || {};
+            localStorage.setItem(APP_CONFIG.LOCAL_STORAGE_KEYS.VISITED_MUSEUMS_META, JSON.stringify(toSave));
+        } catch (error) {
+            console.error('Failed to save visitedMuseumsMeta:', error);
+        }
+    }
+
+    getVisitedMuseumsSorted() {
+        // Return array of museum objects sorted by lastVisited desc
+        const meta = this.loadVisitedMuseumsMeta() || {};
+        const entries = Object.entries(meta || {});
+        if (entries.length > 0) {
+            entries.sort((a, b) => b[1] - a[1]);
+            return entries.map(([id]) => MUSEUMS.find(m => m.id === id)).filter(Boolean);
+        }
+        // fallback: use this.visitedMuseums array order (most recent first)
+        if (Array.isArray(this.visitedMuseums) && this.visitedMuseums.length > 0) {
+            return [...this.visitedMuseums].map(id => MUSEUMS.find(m => m.id === id)).filter(Boolean).reverse();
+        }
+        return [];
+    }
+
     saveVisitedMuseums() {
         try {
             localStorage.setItem('visitedMuseums', JSON.stringify(this.visitedMuseums));
@@ -7265,6 +7300,10 @@ class MuseumCheckApp {
                 && (!this.lastSearchQuery || this.lastSearchQuery.trim() === '')
                 && (!this.showOnlyMuseumsWithCollections);
 
+            // Determine returning user simplified: user has visited (checked-in) any museum
+            const isReturningUser = (Array.isArray(this.visitedMuseums) && this.visitedMuseums.length > 0)
+                || (Object.keys(this.loadVisitedMuseumsMeta() || {}).length > 0);
+
             // Ensure filteredMuseums is always an array
             if (!Array.isArray(this.filteredMuseums)) {
                 console.warn('[Defensive Guard] filteredMuseums is not an array:', typeof this.filteredMuseums, this.filteredMuseums);
@@ -7276,8 +7315,13 @@ class MuseumCheckApp {
                 museumsToRender = this.filteredMuseums.filter(museum => this.museumHasCollections(museum));
             }
 
+            // Returning users: only show visited museums sorted by recent visit
+            if (isReturningUser) {
+                museumsToRender = this.getVisitedMuseumsSorted();
+            }
+
             // For new users, show museums from their city (if location available), else fallback to Beijing/popular museums
-            if (isNewUser) {
+            else if (isNewUser) {
                 let displayMuseums = [];
                 let notificationMessage = '';
                 
@@ -7366,13 +7410,8 @@ class MuseumCheckApp {
                 card.innerHTML = `
                     ${museumImageHtml}
                     <div class="museum-header">
-                        <input type="checkbox" class="visit-checkbox" ${isVisited ? 'checked' : ''} 
-                               ${checkboxDisabled ? 'disabled' : ''}
-                               data-museum="${museum.id}"
-                               title="${isVisited ? '取消打卡' : '完成任务后自动打卡'}">
                         <div class="museum-info">
                             <h3>
-                                <button class="favorite-button" data-museum="${museum.id}" title="${isFavorite ? '取消收藏' : '收藏博物馆'}">${isFavorite ? '⭐' : '☆'}</button>
                                 ${museum.name}
                                 <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
                                 ${isVisited && !this.assessmentHidden 
@@ -7383,6 +7422,7 @@ class MuseumCheckApp {
                             </h3>
                             <div class="museum-location">📍 ${locText}</div>
                         </div>
+                        ${isVisited ? '<div class="visit-tag">已打卡</div>' : ''}
                     </div>
                     ${descHtml}
                     ${tagsHtml}
@@ -7405,28 +7445,20 @@ class MuseumCheckApp {
                     }
                 });
 
-                // Add favorite button event
-                const favoriteButton = card.querySelector('.favorite-button');
-                if (favoriteButton) {
-                    favoriteButton.addEventListener('click', (e) => {
+                // Favorite button removed (soft-deleted from UI)
+
+                // Checkbox removed; keep safe event wiring if present
+                const checkbox = card.querySelector('.visit-checkbox');
+                if (checkbox) {
+                    checkbox.addEventListener('change', (e) => {
                         e.stopPropagation();
-                        this.toggleFavorite(museum.id);
+                        const wasChecked = checkbox.checked;
+                        const result = this.toggleMuseumVisit(museum.id);
+                        if (result === 'cancelled') {
+                            checkbox.checked = !wasChecked;
+                        }
                     });
                 }
-
-                // Add checkbox event
-                const checkbox = card.querySelector('.visit-checkbox');
-                checkbox.addEventListener('change', (e) => {
-                    e.stopPropagation();
-                    const wasChecked = checkbox.checked;
-                    const result = this.toggleMuseumVisit(museum.id);
-                    
-                    // If toggleMuseumVisit indicates the action was cancelled (user went to modal),
-                    // revert the checkbox state since the museum wasn't actually marked as visited
-                    if (result === 'cancelled') {
-                        checkbox.checked = !wasChecked;
-                    }
-                });
 
                 // Add assessment button event (only for clickable buttons)
                 const assessmentButton = card.querySelector('.assessment-button');
@@ -7498,6 +7530,13 @@ class MuseumCheckApp {
         if (index > -1) {
             this.visitedMuseums.splice(index, 1);
             this.saveVisitedMuseums();
+            try {
+                const meta = this.loadVisitedMuseumsMeta() || {};
+                if (meta[museumId]) {
+                    delete meta[museumId];
+                    this.saveVisitedMuseumsMeta(meta);
+                }
+            } catch (e) { console.warn('Error removing visitedMuseumsMeta entry:', e); }
             // Re-filter museums to update display (in case no search is active)
             this.filterMuseums();
             this.renderMuseums();
@@ -7563,6 +7602,15 @@ class MuseumCheckApp {
         
         // Add museum to visited list
         this.visitedMuseums.push(museumId);
+
+        // Write lastVisited timestamp for ordering (visitedMuseumsMeta)
+        try {
+            const meta = this.loadVisitedMuseumsMeta() || {};
+            meta[museumId] = Date.now();
+            this.saveVisitedMuseumsMeta(meta);
+        } catch (e) {
+            console.warn('Could not write visitedMuseumsMeta:', e);
+        }
         
         // ===== ACHIEVEMENT GAMIFICATION HOOKS (same as manual check-in) =====
         if (this.achievementGamification) {

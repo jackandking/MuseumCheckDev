@@ -36,6 +36,20 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 });
 
+class DataTransferMock {
+  constructor() {
+    this.files = [];
+    this.items = {
+      add: (file) => {
+        this.files.push(file);
+      }
+    };
+  }
+}
+
+global.DataTransfer = DataTransferMock;
+window.DataTransfer = DataTransferMock;
+
 const sampleMuseums = [
   {
     id: 'forbidden-city',
