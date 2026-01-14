@@ -1,23 +1,29 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 
 # Sitemap
 Sitemap: https://museumcheck.cn/sitemap.xml
 
-# Allow all search engines to crawl
+# Allow all search engines to crawl (except admin)
 User-agent: Baiduspider
 Allow: /
+Disallow: /admin/
 
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
 
 User-agent: YandexBot
 Allow: /
+Disallow: /admin/
 
 User-agent: Sogou web spider
+Disallow: /admin/
 Allow: /
 
 # Crawl delay for Baidu

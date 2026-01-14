@@ -327,11 +327,11 @@
     </div>
   </div>
 
-  <script src="js/wikimedia-image-search.js"></script>
-  <script src="baidu-image-search.js"></script>
-  <script src="deepseek-api.js"></script>
-  <script src="image-upload-util.js"></script>
-  <script src="js/museum-data-loader.js"></script>
+  <script src="../js/wikimedia-image-search.js"></script>
+  <script src="../js/baidu-image-search.js"></script>
+  <script src="../js/deepseek-api.js"></script>
+  <script src="../js/image-upload-util.js"></script>
+  <script src="../js/museum-data-loader.js"></script>
   <script>
     (function(){
       const loader = new MuseumDataLoader();
@@ -1175,50 +1175,21 @@
       
       // Get tier information for display
       function getTierInfo(tier) {
-        switch(tier) {
-          case 'tier1':
-            return {
-              label: 'Tier 1',
-              badgeClass: 'tier-1',
-              description: '静态文件（/museums/*.json）'
-            };
-          case 'tier2':
-            return {
-              label: 'Tier 2',
-              badgeClass: 'tier-2',
-              description: '远程存储（KV Store，可编辑）'
-            };
-          case 'tier3':
-            return {
-              label: 'Tier 3',
-              badgeClass: 'tier-3',
-              description: '静态缓存（已弃用）'
-            };
-          default:
-            return {
-              label: 'Unknown',
-              badgeClass: 'tier-3',
-              description: '未知数据源'
-            };
-        }
+        // Simplified: KV Store is the only data source
+        return {
+          label: 'KV Store',
+          badgeClass: 'tier-2',
+          description: '远程存储（可编辑）'
+        };
       }
 
       // View museum data
       window.viewMuseum = async function(museumId, tier) {
         try {
           let data = null;
-          let tierName = '';
           
-          if (tier === 'tier1') {
-            data = await loader.loadFromTier1(museumId);
-            tierName = 'Tier 1 (静态文件)';
-          } else if (tier === 'tier2') {
-            data = await loader.loadFromTier2(museumId);
-            tierName = 'Tier 2 (远程存储)';
-          } else if (tier === 'tier3') {
-            data = await loader.loadFromTier3(museumId);
-            tierName = 'Tier 3 (内置数据)';
-          }
+          // Load from KV Store only
+          data = await loader.loadFromTier2(museumId);
           
           if (data) {
             const formatted = JSON.stringify(data, null, 2);
@@ -1226,7 +1197,7 @@
             const displayText = formatted.length > maxLength 
               ? formatted.substring(0, maxLength) + '\n\n...(数据已截断，完整数据 ' + formatted.length + ' 字符)'
               : formatted;
-            alert(`博物馆数据 [${tierName}]:\n\n${displayText}`);
+            alert(`博物馆数据 [KV Store]:\n\n${displayText}`);
           } else {
             showStatus('未找到该博物馆数据', 'error');
           }
@@ -1299,55 +1270,28 @@
           
           currentMuseums = [];
           
-          // Add data from each tier that has it
-          if (tier1Data) {
-            currentMuseums.push({
-              id: museumId,
-              name: tier1Data.name || museumId,
-              location: tier1Data.location || '未知位置',
-              tier: 'tier1',
-              hasData: true,
-              data: tier1Data
-            });
-          }
-          
+          // Load from KV Store only (simplified architecture)
           if (tier2Data) {
             currentMuseums.push({
               id: museumId,
               name: tier2Data.name || museumId,
               location: tier2Data.location || '未知位置',
-              tier: 'tier2',
+              tier: 'kv',
               hasData: true,
               data: tier2Data
             });
           }
           
-          if (tier3Data) {
-            currentMuseums.push({
-              id: museumId,
-              name: tier3Data.name || museumId,
-              location: tier3Data.location || '未知位置',
-              tier: 'tier3',
-              hasData: true,
-              data: tier3Data
-            });
-          }
-          
           if (currentMuseums.length > 0) {
             renderMuseumList();
-            const tierNames = currentMuseums.map(m => {
-              if (m.tier === 'tier1') return 'Tier 1 (静态文件)';
-              if (m.tier === 'tier2') return 'Tier 2 (远程存储)';
-              return 'Tier 3 (内置数据)';
-            }).join(', ');
-            showStatus(`成功加载博物馆: ${currentMuseums[0].name}，数据源: ${tierNames}`, 'success');
+            showStatus(`成功加载博物馆: ${currentMuseums[0].name}（来自KV Store）`, 'success');
           } else {
-            // Not found in any tier
+            // Not found in KV Store
             listDiv.innerHTML = `
               <div class="empty-state">
                 <div class="empty-state-icon">❌</div>
-                <div>博物馆 "${museumId}" 在所有数据源中未找到</div>
-                <div class="hint">可以点击"上传新数据"按钮添加到远程存储（Tier 2）</div>
+                <div>博物馆 "${museumId}" 在KV Store中未找到</div>
+                <div class="hint">可以点击"上传新数据"按钮添加到KV Store</div>
               </div>
             `;
             showStatus(`博物馆 "${museumId}" 在所有数据源（T1/T2/T3）中未找到`, 'info');

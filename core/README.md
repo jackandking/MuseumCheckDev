@@ -185,3 +185,62 @@ npm test
 ## License
 
 MIT
+
+## 多云配置
+
+### 架构设计
+
+MuseumCheck 采用**多云适配器架构**，支持在多个云服务提供商间灵活切换，同时保持统一的API接口。当前系统使用：
+
+- **主存储**：AWS Lambda KV Store（生产环境）
+- **备用方案**：支持接入Cloudflare Workers KV、阿里云、腾讯云等
+
+### 当前配置（AWS Lambda）
+
+```javascript
+// 默认配置 - AWS Lambda KV Store
+const defaultKVConfig = {
+  endpoint: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
+  timeout: 5000,
+  defaultExpireAt: 4866674732 // Year 2124
+};
+```
+
+### 切换到其他KV提供商
+
+#### 方案1：环境变量配置
+
+```javascript
+// core/multi-cloud-config.js
+const config = {
+  provider: process.env.KV_PROVIDER || 'aws',
+  
+  // AWS Lambda
+  aws: {
+    kvEndpoint: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore'
+  },
+  
+  // Cloudflare Workers KV
+  cloudflare: {
+    kvEndpoint: 'https://api.cloudflare.com/client/v4/accounts/{account-id}/storage/kv',
+    accountId: process.env.CF_ACCOUNT_ID,
+    apiToken: process.env.CF_API_TOKEN
+  }
+};
+```
+
+#### 方案2：运行时覆盖配置
+
+```javascript
+const customConfig = {
+  endpoint: 'https://your-custom-kv-provider.com/api/kv'
+};
+
+const adapter = new KVAdapter(customConfig);
+```
+
+### 配置优先级
+
+1. **显式配置**：直接传入的 `config.endpoint`（最高优先级）
+2. **环境变量**：`process.env.KV_STORE_ENDPOINT`
+3. **默认配置**：AWS Lambda endpoint（最低优先级）

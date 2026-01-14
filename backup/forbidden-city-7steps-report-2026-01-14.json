@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-01-14T05:09:32.121Z",
+  "museumId": "forbidden-city",
+  "steps": {
+    "official": {
+      "status": "ok",
+      "success": true,
+      "count": 2,
+      "best": {
+        "sequenceNumber": "350",
+        "province": "北京市",
+        "name": "故宫博物院",
+        "nature": "文化文物系统国有博物馆",
+        "qualityGrade": "一级",
+        "freeAdmission": "否",
+        "collectionCount": "1950828",
+        "preciousArtifactsCount": "1053272",
+        "exhibitionsCount": "78",
+        "educationalActivitiesCount": "1634",
+        "visitorCount": "1762.4483"
+      }
+    },
+    "headChecks": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG",
+        "ok": true
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Qingming_Scroll_2008x5605_mt.jpg",
+        "ok": false
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg/640px-Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg",
+        "ok": false
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Met_07.228.117_view4.jpg",
+        "ok": false
+      }
+    ],
+    "kvBefore": {
+      "status": 200,
+      "json": {
+        "value": "{\"id\":\"forbidden-city\",\"name\":\"故宫博物院\",\"location\":\"北京\",\"tags\":[\"历史\",\"建筑\",\"文物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG\",\"level\":\"一级\",\"hasCollections\":true,\"collections\":[{\"name\":\"《清明上河图》\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/e/e0/Qingming_Scroll_2008x5605_mt.jpg\",\"description\":\"北宋张择端绘制的社会风俗画，宽25.2厘米，长528.7厘米\"},{\"name\":\"青花瓷瓶\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg/640px-Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg\",\"description\":\"清代康熙年间制造的精美青花瓷器，反映了当时的工艺水平\"},{\"name\":\"铜镀金佛像\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/4/4c/Met_07.228.117_view4.jpg\",\"description\":\"明代铜镀金佛像，高约30厘米，工艺精湛\"}],\"timestamp\":\"2026-01-14T01:56:33.235Z\"}"
+      }
+    },
+    "kvAfter": {
+      "status": 200,
+      "json": {
+        "value": "{\"id\":\"forbidden-city\",\"name\":\"故宫博物院\",\"location\":\"北京\",\"tags\":[\"历史\",\"建筑\",\"文物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG\",\"level\":\"一级\",\"hasCollections\":true,\"collections\":[{\"name\":\"《清明上河图》\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/e/e0/Qingming_Scroll_2008x5605_mt.jpg\",\"description\":\"北宋张择端绘制的社会风俗画，宽25.2厘米，长528.7厘米\"},{\"name\":\"青花瓷瓶\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg/640px-Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg\",\"description\":\"清代康熙年间制造的精美青花瓷器，反映了当时的工艺水平\"},{\"name\":\"铜镀金佛像\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/4/4c/Met_07.228.117_view4.jpg\",\"description\":\"明代铜镀金佛像，高约30厘米，工艺精湛\"}],\"timestamp\":\"2026-01-14T01:56:33.235Z\"}"
+      }
+    },
+    "meta": {
+      "ok": true,
+      "changed": true
+    }
+  }
+}

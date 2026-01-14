@@ -12,7 +12,7 @@ class KVAdapter extends StorageAdapter {
       ...config
     });
     
-    this.endpoint = config.endpoint || 'https://letmetry.cloud/kv';
+    this.endpoint = config.endpoint || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
     this.timeout = config.timeout || 5000; // 5秒超时
     this.defaultExpireAt = config.defaultExpireAt || (Date.now() + 365 * 24 * 60 * 60 * 1000); // 1年
   }

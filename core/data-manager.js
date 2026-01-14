@@ -45,7 +45,7 @@ class DataManager {
       },
       kvStore: {
         enabled: true,
-        endpoint: 'https://letmetry.cloud/kv'
+        endpoint: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore'
       },
       mysql: {
         enabled: true,

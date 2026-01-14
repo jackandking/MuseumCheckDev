@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-01-14T05:32:23.956Z",
+  "museumId": "beijing-natural-history-museum",
+  "steps": {
+    "official": {
+      "status": "ok",
+      "success": true,
+      "count": 1,
+      "best": {
+        "sequenceNumber": "356",
+        "province": "北京市",
+        "name": "国家自然博物馆",
+        "nature": "其他行业国有博物馆",
+        "qualityGrade": "一级",
+        "freeAdmission": "是",
+        "collectionCount": "434900",
+        "preciousArtifactsCount": "0",
+        "exhibitionsCount": "22",
+        "educationalActivitiesCount": "3177",
+        "visitorCount": "133"
+      }
+    },
+    "headChecks": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Beijing_Museum_of_Natural_History_2.jpg",
+        "ok": true
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/26/%E5%A4%A9%E6%B4%A5%E8%87%AA%E7%84%B6%E5%8D%9A%E7%89%A9%E9%A6%86%E7%9A%84%E5%8C%97%E4%BA%AC%E4%BA%BA%E5%A4%B4%E9%AA%A8.jpg",
+        "ok": true
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Bufonaria_rana_IMG_5355_Beijing_Museum_of_Natural_History_-_NHM_of_Guangxi_-_Gulf_of_Tonkin_collection_-_Copy.jpg",
+        "ok": true
+      },
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Bmnh_2006.jpg",
+        "ok": true
+      }
+    ],
+    "kvBefore": {
+      "ok": true,
+      "status": 200,
+      "data": {
+        "value": "{\"id\":\"beijing-natural-history-museum\",\"name\":\"国家自然博物馆\",\"location\":\"北京\",\"tags\":[\"自然科学\",\"生物进化\",\"古生物\"],\"image\":\"\",\"level\":null,\"hasCollections\":false,\"collections\":[{\"name\":\"黄河象化石\",\"imageUrl\":\"\",\"description\":\"更新世中期大象化石，展现古代生命的宏伟\"},{\"name\":\"恐龙骨骼\",\"imageUrl\":\"\",\"description\":\"侏罗纪至白垩纪恐龙化石标本\"},{\"name\":\"古人类化石\",\"imageUrl\":\"\",\"description\":\"人类进化历程的重要证据\"}],\"timestamp\":\"2026-01-14T05:30:56.162Z\"}"
+      },
+      "backupPath": "/workspaces/MuseumCheck/backup/kvstore-read-beijing-natural-history-museum-2026-01-14_05:32:28.json"
+    },
+    "kvWrite": {
+      "ok": true,
+      "status": 200,
+      "text": "{\"message\": \"Item created successfully\"}",
+      "backupPath": "/workspaces/MuseumCheck/backup/kvstore-write-beijing-natural-history-museum-2026-01-14_05:32:28.json"
+    },
+    "kvAfter": {
+      "ok": true,
+      "status": 200,
+      "data": {
+        "value": "{\"id\":\"beijing-natural-history-museum\",\"name\":\"国家自然博物馆\",\"location\":\"北京\",\"tags\":[\"自然科学\",\"生物进化\",\"古生物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/4/4a/Beijing_Museum_of_Natural_History_2.jpg\",\"level\":null,\"hasCollections\":true,\"collections\":[{\"name\":\"古人类化石 - 北京人头骨\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/2/26/%E5%A4%A9%E6%B4%A5%E8%87%AA%E7%84%B6%E5%8D%9A%E7%89%A9%E9%A6%86%E7%9A%84%E5%8C%97%E4%BA%AC%E4%BA%BA%E5%A4%B4%E9%AA%A8.jpg\",\"description\":\"50万年前北京人的头骨化石，极为珍贵的人类进化证据\"},{\"name\":\"生物演化展品 - 海洋生物化石\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/4/48/Bufonaria_rana_IMG_5355_Beijing_Museum_of_Natural_History_-_NHM_of_Guangxi_-_Gulf_of_Tonkin_collection_-_Copy.jpg\",\"description\":\"古代海洋生物化石标本，展现生命进化的多样性\"},{\"name\":\"恐龙骨骼 - 侏罗纪时期\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/d/dc/Bmnh_2006.jpg\",\"description\":\"侏罗纪至白垩纪时期的恐龙骨骼化石，见证地球的沧桑变化\"}],\"timestamp\":\"2026-01-14T05:32:28.300Z\"}"
+      },
+      "backupPath": "/workspaces/MuseumCheck/backup/kvstore-read-beijing-natural-history-museum-2026-01-14_05:32:29.json"
+    },
+    "meta": {
+      "ok": true,
+      "changed": true
+    }
+  },
+  "warnings": []
+}

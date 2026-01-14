@@ -24,7 +24,7 @@ class MultiCloudConfig {
     return {
       primary: {
         name: 'Letmetry',
-        kvEndpoint: config.letmetryKV || 'https://letmetry.cloud/kv',
+        kvEndpoint: config.letmetryKV || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
         mysqlEndpoint: config.letmetryMySQL || 'https://letmetry.cloud/mysql',
         fileEndpoint: config.letmetryFile || 'https://letmetry.cloud/image/upload',
         cdnBaseUrl: config.letmetryCDN || 'https://letmetry.cloud/cdn',

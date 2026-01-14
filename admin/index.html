@@ -124,6 +124,56 @@
     .nav-links a:hover {
       text-decoration: underline;
     }
+    /* Admin Dashboard Card Grid */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .admin-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    .admin-card-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .admin-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #111;
+    }
+    .admin-card-desc {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+    .admin-card-badge {
+      font-size: 12px;
+      background: #f0f9ff;
+      color: #0369a1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 12px;
+      width: fit-content;
+    }
     .description {
       font-size: 13px;
       color: #6b7280;
@@ -142,93 +192,52 @@
 </head>
 <body>
   <h1>🛠️ 网站管理后台</h1>
-  <div class="nav-links">
-    其他管理页面: 
-    <a href="admin-fireworks.html?admin=1">🎆 烟花管理</a>
-    <a href="admin-leaderboard.html?admin=1">🏅 排行榜管理</a>
-    <a href="admin-treasure-reports.html?admin=1">⚠️ 镇馆之宝报告</a>
-    <a href="museum-data-manager.html">📚 博物馆数据</a>
-  </div>
   
-  <div id="unauthorized" class="unauthorized" style="display:none">
-    <div style="font-weight:600; margin-bottom: 6px;">未授权访问</div>
-    <div class="muted">请使用 URL 携带参数 <span class="mono">?admin=1</span> 访问此页面。例如：<span class="mono">/admin.html?admin=1</span></div>
+  <!-- Admin Navigation Cards -->
+  <div class="admin-grid">
+    <a href="museum-data-manager.html" class="admin-card">
+      <div class="admin-card-icon">📚</div>
+      <div class="admin-card-title">博物馆数据管理</div>
+      <div class="admin-card-desc">编辑博物馆信息、镇馆之宝、收藏品和图片。所有修改直接保存到KV Store。</div>
+      <div class="admin-card-badge">核心工具</div>
+    </a>
+    
+    <a href="admin-everyone-achievements.html?admin=1" class="admin-card">
+      <div class="admin-card-icon">🏆</div>
+      <div class="admin-card-title">成就管理</div>
+      <div class="admin-card-desc">管理用户成就和荣誉，查看全站成就统计，发布成就公告。</div>
+      <div class="admin-card-badge">常用工具</div>
+    </a>
+    
+    <a href="admin-leaderboard.html?admin=1" class="admin-card">
+      <div class="admin-card-icon">🏅</div>
+      <div class="admin-card-title">排行榜管理</div>
+      <div class="admin-card-desc">查看用户排名，编辑排行榜规则，管理荣誉排行榜数据。</div>
+      <div class="admin-card-badge">常用工具</div>
+    </a>
+    
+    <a href="admin-fireworks.html?admin=1" class="admin-card">
+      <div class="admin-card-icon">🎆</div>
+      <div class="admin-card-title">烟花墙管理</div>
+      <div class="admin-card-desc">管理用户在烟花墙上的庆贺信息，审核、编辑或删除用户提交的烟花消息。</div>
+      <div class="admin-card-badge">常用工具</div>
+    </a>
+    
+    <a href="admin-treasure-reports.html?admin=1" class="admin-card">
+      <div class="admin-card-icon">⚠️</div>
+      <div class="admin-card-title">镇馆之宝报告</div>
+      <div class="admin-card-desc">查看所有博物馆镇馆之宝的统计信息，发现缺失的图片和信息。</div>
+      <div class="admin-card-badge">分析工具</div>
+    </a>
+    
+    <a href="admin-records.html?admin=1" class="admin-card" style="opacity: 0.6;">
+      <div class="admin-card-icon">📝</div>
+      <div class="admin-card-title">访问记录</div>
+      <div class="admin-card-desc">查看用户访问日志和操作记录，分析用户行为数据。</div>
+      <div class="admin-card-badge">计划中</div>
+    </a>
   </div>
 
-  <div id="app" style="display:none">
-    <div class="panel sticky-actions">
-      <div class="row">
-        <button id="reload" class="primary">🔄 重新加载配置</button>
-        <span id="status" class="muted"></span>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <span>📋 Affiliate 路由配置</span>
-      </div>
-      <div class="description">
-        配置不同 affiliate 参数时显示的页面内容。当用户访问 <span class="mono">https://museumcheck.cn?affiliate=XXX</span> 时，
-        根据此配置决定显示 index.html（完整功能）还是 simple.html（简化页面）。<br>
-        <strong>使用场景：</strong>小程序上线审核期间，可临时将某些 affiliate 配置为显示 simple 页面以避免审核问题。
-      </div>
-      
-      <div class="add-form">
-        <div class="form-group">
-          <label for="newAffiliate">Affiliate 代码</label>
-          <input type="text" id="newAffiliate" placeholder="例如: KS, DY, WX" maxlength="20">
-        </div>
-        <div class="form-group">
-          <label for="newTarget">目标页面</label>
-          <select id="newTarget">
-            <option value="index">index.html (完整功能)</option>
-            <option value="simple">simple.html (简化页面)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="newDescription">描述（可选）</label>
-          <input type="text" id="newDescription" placeholder="例如: 快手小程序" style="width: 180px;">
-        </div>
-        <button id="addConfig" class="success">➕ 添加配置</button>
-      </div>
-
-      <div style="overflow:auto; max-height: 50vh; border:1px solid #eee; border-radius:8px;">
-        <table id="configTable">
-          <thead>
-            <tr>
-              <th style="width: 120px;">Affiliate 代码</th>
-              <th style="width: 150px;">目标页面</th>
-              <th style="width: 180px;">描述</th>
-              <th style="width: 100px;">状态</th>
-              <th style="width: 180px;">最后更新</th>
-              <th style="width: 150px;">预览</th>
-              <th style="width: 120px;">操作</th>
-            </tr>
-          </thead>
-          <tbody id="configTableBody">
-            <tr>
-              <td colspan="7" style="text-align: center; padding: 40px;">
-                <div class="muted">加载中...</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <span>📖 使用说明</span>
-      </div>
-      <div class="description">
-        <strong>1. 添加配置：</strong>输入 affiliate 代码（如 KS、DY），选择目标页面，点击"添加配置"。<br>
-        <strong>2. 生效机制：</strong>配置保存后立即生效，用户访问带有对应 affiliate 参数的链接时会自动显示配置的页面。<br>
-        <strong>3. 删除配置：</strong>删除配置后，该 affiliate 将显示默认页面（index.html）。<br>
-        <strong>4. 默认行为：</strong>未配置的 affiliate 默认显示 index.html。没有 affiliate 参数时显示"网站建设中"页面。
-      </div>
-    </div>
-  </div>
-
-  <script src="./admin.js"></script>
+  <script src="../js/admin.js"></script>
 </body>
 </html>

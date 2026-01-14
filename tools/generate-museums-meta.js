@@ -5,6 +5,10 @@
  Note: museums-data.js is deprecated for runtime use but retained as the canonical
  source for generating museums-meta.json and as test data. This tool extracts metadata
  to create the lightweight listing used by the homepage.
+
+ IMPORTANT: museums-meta.json only contains base fields for listing purposes.
+ Full museum details (collections and other extended data) live in KV store;
+ never overwrite KV entries with this lightweight meta snapshot or data will be lost.
  
  Output format: JSON array with { id, name, location, tags, image, hasCollections }
 */

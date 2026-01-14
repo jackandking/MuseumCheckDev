@@ -6,7 +6,7 @@
         "museum-mcp-server.js"
       ],
       "env": {
-        "KV_STORE_ENDPOINT": "https://letmetry.cloud/kv"
+        "KV_STORE_ENDPOINT": "https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore"
       },
       "description": "Museum search and data management MCP server for accessing official Chinese museum information"
     }

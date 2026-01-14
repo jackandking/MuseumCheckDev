@@ -588,3 +588,87 @@ npm run test:coverage
 6. 参与代码审查
 
 详见 **[wiki/Contributing.md](wiki/Contributing.md)**
+
+## 项目结构
+
+```
+/workspaces/MuseumCheck/
+├── 📱 核心应用（根目录 - 用户可访问）
+│   ├── index.html              # 主应用首页
+│   ├── script.js               # 主应用逻辑
+│   ├── style.css               # 应用样式
+│   ├── museum-checkin.html     # 博物馆签到页面
+│   ├── achievements.html       # 用户成就页面
+│   ├── treasures.html          # 镇馆之宝展示页面
+│   ├── settings.html           # 设置页面
+│   ├── event-wall.html         # 事件墙/社区页面
+│   └── fireworks-wall.html     # 烟花墙页面
+│
+├── 🛠️ /admin/                   # 管理后台（不需搜索引擎索引）
+│   ├── index.html              # 管理后台首页（导航卡片菜单）
+│   ├── museum-data-manager.html # 博物馆数据管理工具
+│   ├── admin-everyone-achievements.html # 成就管理
+│   ├── admin-leaderboard.html  # 排行榜管理
+│   ├── admin-fireworks.html    # 烟花墙管理
+│   └── admin-treasure-reports.html # 镇馆之宝报告
+│
+├── 📚 /js/                      # JavaScript模块
+│   ├── museum-data-loader.js   # 数据加载器（KV Store）
+│   ├── wikimedia-image-search.js # 维基百科图片搜索
+│   ├── baidu-image-search.js   # 百度图片搜索
+│   ├── image-upload-util.js    # 图片上传工具
+│   └── ... 其他模块
+│
+├── 🎨 /css/                     # 样式文件
+│   ├── style.css               # 主样式
+│   └── ... 其他主题
+│
+├── 🔧 /core/                    # 核心数据管理层
+│   ├── data-manager.js         # 统一数据管理器
+│   ├── multi-cloud-config.js   # 多云配置
+│   └── storage/                # 存储适配器
+│
+├── 🧪 /tests/                   # 测试文件
+│   └── pages/                  # 测试页面
+│
+├── 📜 /scripts/                 # 构建/部署脚本
+│   ├── migrate.sh              # 数据迁移脚本
+│   └── setup-tech-spec-and-testing.sh # 环境配置脚本
+│
+├── 🔨 /tools/                   # 开发工具
+│   ├── batch-process-museums.js # 批量处理博物馆
+│   └── ... 其他工具
+│
+├── 📚 /docs/                    # 文档（已整理）
+│   ├── SIMPLIFIED_ARCHITECTURE.md # 架构文档
+│   ├── api/                    # API文档
+│   └── guides/                 # 开发指南
+│
+├── 📊 /data/                    # 数据文件
+│   └── museums-meta.json       # 博物馆元数据
+│
+├── 📦 /backup/                  # 备份文件
+│   └── archive-2026-01-14.tar.gz # 历史备份（压缩）
+│
+├── 📋 package.json             # 项目依赖配置
+├── 📋 robots.txt               # 搜索引擎爬虫规则
+└── 🤖 CNAME                     # GitHub Pages自定义域名
+```
+
+### 主要变更（2026-01-14 重构）
+
+**✅ 已完成的重构**：
+1. **统一AWS KV端点**：所有配置默认使用AWS Lambda KV Store，保留多云架构能力
+2. **创建/admin/目录**：所有管理后台页面集中到 `/admin/` 目录，robots.txt屏蔽索引
+3. **重设计数据管理器**：修复脚本路径，简化为KV-Only架构，移除Tier 1/3遗留代码
+4. **整理根目录**：脚本移至 `scripts/`，工具移至 `tools/`，测试页面移至 `tests/pages/`
+5. **压缩备份**：历史JSON文件压缩为 `archive-2026-01-14.tar.gz`
+6. **添加多云文档**：在 `core/README.md` 添加多云配置说明
+7. **更新robots.txt**：屏蔽 `/admin/` 目录，防止搜索引擎索引管理后台
+
+**📋 项目结构优化**：
+- 根目录精简：仅保留用户应用文件和配置文件
+- 后台文件集中：所有管理工具统一在 `/admin/` 目录
+- 开发文件规整：脚本、工具、测试分别放在对应目录
+- 访问权限明确：通过目录结构和robots.txt明确界定公开和私有内容
+

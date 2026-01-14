@@ -337,7 +337,7 @@
       {
             "id": "treasure-discovery",
             "name": "镇馆之宝探索",
-            "description": "围绕北京自然博物馆的三大镇馆之宝的亲子探索路线",
+            "description": "围绕国家自然博物馆的三大镇馆之宝的亲子探索路线",
             "ages": [
                   "3-6",
                   "7-12",
@@ -349,7 +349,7 @@
                         "role": "parent",
                         "type": "photo",
                         "title": "门口打卡",
-                        "subtitle": "在北京自然博物馆门口拍一张照片",
+                        "subtitle": "在国家自然博物馆门口拍一张照片",
                         "ages": [
                               "3-6",
                               "7-12",
