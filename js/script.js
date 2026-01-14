@@ -7421,28 +7421,31 @@ class MuseumCheckApp {
                 const museumImageHtml = museum.image 
                     ? `<div class="museum-image">
                          <img src="${museum.image}" alt="${museum.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                         ${isVisited ? '<div class="visit-tag">已打卡</div>' : ''}
                        </div>`
                     : '';
                 
                 card.innerHTML = `
                     ${museumImageHtml}
-                    <div class="museum-header">
-                        <div class="museum-info">
-                            <h3>
-                                ${museum.name}
-                                <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
-                                ${isVisited && !this.assessmentHidden 
-                                    ? (hasAssessment 
-                                        ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
-                                        : '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>') 
-                                    : ''}
-                            </h3>
-                            <div class="museum-location">📍 ${locText}</div>
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>
+                                    ${museum.name}
+                                    <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
+                                    ${isVisited && !this.assessmentHidden 
+                                        ? (hasAssessment 
+                                            ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
+                                            : '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>') 
+                                        : ''}
+                                </h3>
+                                <div class="museum-location">📍 ${locText}</div>
+                            </div>
+                            ${!museum.image && isVisited ? '<div class="visit-tag">已打卡</div>' : ''}
                         </div>
-                        ${isVisited ? '<div class="visit-tag">已打卡</div>' : ''}
+                        ${descHtml}
+                        ${tagsHtml}
                     </div>
-                    ${descHtml}
-                    ${tagsHtml}
                 `;
 
                 // Add click event for the card (excluding checkbox, buttons)

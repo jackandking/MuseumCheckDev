@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museum Cards Test - 博物馆卡片测试</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #0d9488;
+            padding-bottom: 10px;
+        }
+        .museum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .museum-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 style="text-align: center; color: #0d9488;">🏛️ 博物馆卡片 UI/UX 测试</h1>
+        
+        <div class="test-section">
+            <h2>✅ 已打卡博物馆（带图片）- Checked-in Museums with Images</h2>
+            <div class="museum-grid">
+                <!-- Card 1: 国家自然博物馆 with image and visited -->
+                <div class="museum-card visited">
+                    <div class="museum-image">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Beijing_Museum_of_Natural_History_2.jpg" alt="国家自然博物馆" loading="lazy">
+                        <div class="visit-tag">已打卡</div>
+                    </div>
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>国家自然博物馆</h3>
+                                <div class="museum-location">📍 北京</div>
+                            </div>
+                        </div>
+                        <p class="museum-description">中国第一座自然科学博物馆，收藏古生物、动物、植物和人类学等多个领域的标本</p>
+                        <div class="museum-tags">
+                            <span class="tag">自然科学</span>
+                            <span class="tag">生物进化</span>
+                            <span class="tag">古生物</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2: 故宫博物院 with image and visited -->
+                <div class="museum-card visited">
+                    <div class="museum-image">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Forbidden_City_Beijing_Shenwumen_Gate.JPG/1200px-Forbidden_City_Beijing_Shenwumen_Gate.JPG" alt="故宫博物院" loading="lazy">
+                        <div class="visit-tag">已打卡</div>
+                    </div>
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>故宫博物院</h3>
+                                <div class="museum-location">📍 北京</div>
+                            </div>
+                        </div>
+                        <p class="museum-description">世界上现存规模最大、保存最为完整的木质结构古建筑群</p>
+                        <div class="museum-tags">
+                            <span class="tag">历史</span>
+                            <span class="tag">建筑</span>
+                            <span class="tag">文物</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📍 未打卡博物馆（带图片）- Museums with Images (Not Visited)</h2>
+            <div class="museum-grid">
+                <!-- Card 3: Museum with image, not visited -->
+                <div class="museum-card">
+                    <div class="museum-image">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/National_Museum_of_China.jpg/1200px-National_Museum_of_China.jpg" alt="中国国家博物馆" loading="lazy">
+                    </div>
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>中国国家博物馆</h3>
+                                <div class="museum-location">📍 北京</div>
+                            </div>
+                        </div>
+                        <p class="museum-description">世界上单体建筑面积最大的博物馆，集文物征集、收藏、保护、修复、研究、展览、教育为一体</p>
+                        <div class="museum-tags">
+                            <span class="tag">历史</span>
+                            <span class="tag">艺术</span>
+                            <span class="tag">考古</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎨 无图片博物馆 - Museums without Images</h2>
+            <div class="museum-grid">
+                <!-- Card 4: No image, visited -->
+                <div class="museum-card visited">
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>上海博物馆</h3>
+                                <div class="museum-location">📍 上海</div>
+                            </div>
+                            <div class="visit-tag">已打卡</div>
+                        </div>
+                        <p class="museum-description">中国四大博物馆之一，以收藏、研究、展示中国古代艺术品为主</p>
+                        <div class="museum-tags">
+                            <span class="tag">艺术</span>
+                            <span class="tag">文物</span>
+                            <span class="tag">陶瓷</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 5: No image, not visited -->
+                <div class="museum-card">
+                    <div class="museum-card-content">
+                        <div class="museum-header">
+                            <div class="museum-info">
+                                <h3>湖北省博物馆</h3>
+                                <div class="museum-location">📍 武汉</div>
+                            </div>
+                        </div>
+                        <p class="museum-description">以楚文化为主要特色，收藏有曾侯乙编钟等国宝级文物</p>
+                        <div class="museum-tags">
+                            <span class="tag">楚文化</span>
+                            <span class="tag">青铜器</span>
+                            <span class="tag">历史</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📱 移动端测试 - Mobile Test (Resize window to < 768px)</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                调整浏览器窗口大小到移动设备尺寸，查看响应式效果<br>
+                Resize browser window to mobile device size to see responsive design
+            </p>
+        </div>
+    </div>
+</body>
+</html>
