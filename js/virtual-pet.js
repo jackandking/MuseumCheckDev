@@ -531,6 +531,11 @@ class VirtualPet {
         }
 
         const now = Date.now();
+        
+        // Check if there's inherited data from a previous pet
+        const inherited = this.inheritedPetData || {};
+        const hasInheritedData = Object.keys(inherited).length > 0;
+        
         this.petData = {
             adopted: true,
             pet: {
@@ -541,23 +546,28 @@ class VirtualPet {
                 adoptedAt: now,
                 lastFed: now,
                 hunger: VirtualPet.MAX_HUNGER,
-                attack: 10,
-                defense: 10,
-                intelligence: 1,
-                totalTasksCompleted: 0,
-                totalPhotosUploaded: 0,
-                totalGamesCompleted: 0,  // NEW: Track game completions
-                totalXPSpent: 0,         // NEW: Track XP spent (determines pet level)
+                attack: inherited.attack || 10,
+                defense: inherited.defense || 10,
+                intelligence: inherited.intelligence || 1,
+                totalTasksCompleted: inherited.totalTasksCompleted || 0,
+                totalPhotosUploaded: inherited.totalPhotosUploaded || 0,
+                totalGamesCompleted: inherited.totalGamesCompleted || 0,
+                totalXPSpent: inherited.totalXPSpent || 0,
                 isDead: false,
                 deathDate: null
             }
         };
+        
+        // Clear inherited data after use
+        const hadInheritedData = hasInheritedData;
+        this.inheritedPetData = null;
 
         this.savePetData();
         this.updateUI();
         this.showPetAnimation('adopted');
 
-        return { success: true, message: `恭喜你领养了${petTypeInfo.name}！` };
+        const inheritMsg = hadInheritedData ? `（继承了之前宠物的所有成长数据，当前等级 ${this.getPetLevel()}）` : '';
+        return { success: true, message: `恭喜你领养了${petTypeInfo.name}！${inheritMsg}` };
     }
 
     feedPet(points) {
@@ -709,8 +719,20 @@ class VirtualPet {
             return { success: false, message: `积分不足，当前积分: ${points}，换宠物需要 ${VirtualPet.RESET_COST} 积分` };
         }
 
+        // Save inherited data from old pet before clearing
+        const oldPet = this.petData.pet;
+        const oldPetName = oldPet.name;
+        this.inheritedPetData = {
+            attack: oldPet.attack || 10,
+            defense: oldPet.defense || 10,
+            intelligence: oldPet.intelligence || 1,
+            totalTasksCompleted: oldPet.totalTasksCompleted || 0,
+            totalPhotosUploaded: oldPet.totalPhotosUploaded || 0,
+            totalGamesCompleted: oldPet.totalGamesCompleted || 0,
+            totalXPSpent: oldPet.totalXPSpent || 0
+        };
+
         // Clear current pet data to allow adopting a new one
-        const oldPetName = this.petData.pet.name;
         this.petData = {
             adopted: false,
             pet: null
@@ -721,7 +743,7 @@ class VirtualPet {
 
         return { 
             success: true, 
-            message: `已与${oldPetName}告别，现在可以领养新宠物了！`,
+            message: `已与${oldPetName}告别，新宠物将继承所有成长数据！`,
             pointsUsed: VirtualPet.RESET_COST
         };
     }
@@ -1131,7 +1153,7 @@ class VirtualPet {
                         🔄 换宠物 (${VirtualPet.RESET_COST}积分)
                     </button>
                 </div>
-                <div class="pet-dead-note">复活当前宠物或换一只新宠物</div>
+                <div class="pet-dead-note">复活当前宠物或换一只新宠物（继承成长数据）</div>
             </div>
         `;
     }
@@ -1225,7 +1247,7 @@ class VirtualPet {
                     <button class="pet-action-btn reset-btn" id="resetPetBtn">
                         🔄 换宠物 (${VirtualPet.RESET_COST})
                     </button>
-                    <div class="pet-reset-note">换一只新宠物重新开始</div>
+                    <div class="pet-reset-note">换一只新宠物，继承所有成长数据</div>
                 </div>
                 
                 <div class="pet-message" id="petMessage"></div>

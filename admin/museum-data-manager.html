@@ -16,165 +16,284 @@
     })();
   </script>
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Helvetica,Arial; background:#f7f9fb; color:#2c3e50; margin:0; padding:0;}
-    .wrap{max-width:1400px;margin:0 auto;padding:16px}
-    .header{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:20px;margin-bottom:16px}
-    .title{font-size:24px;font-weight:800;margin:0 0 8px}
-    .subtitle{font-size:14px;color:#667;margin:0}
-    .card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:20px;margin-bottom:16px}
-    .section-title{font-size:18px;font-weight:700;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid #eef2f6}
-    .actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-    .btn{padding:10px 16px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s}
-    .btn-primary{background:linear-gradient(135deg,#2c5aa0,#5b8bd9);color:#fff}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(44,90,160,0.3)}
-    .btn-secondary{background:#eef2f6;color:#2c3e50}
-    .btn-secondary:hover{background:#dde5ed}
-    .btn-danger{background:linear-gradient(135deg,#dc3545,#e74c3c);color:#fff}
-    .btn-danger:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,53,69,0.3)}
-    .btn-success{background:linear-gradient(135deg,#28a745,#5cb85c);color:#fff}
-    .btn-success:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(40,167,69,0.3)}
-    .btn-sm{padding:6px 12px;font-size:13px}
-    .museum-list{display:grid;gap:12px}
-    .museum-item{background:#f8f9fa;border-radius:10px;padding:16px;transition:all 0.2s}
-    .museum-item:hover{background:#e9ecef}
-    .museum-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .museum-info{flex:1}
-    .museum-name{font-size:16px;font-weight:600;color:#2c3e50;margin:0 0 4px}
-    .museum-meta{font-size:13px;color:#667}
-    .museum-actions{display:flex;gap:8px;flex-shrink:0}
-    .museum-data-preview{margin-top:12px;padding-top:12px;border-top:1px solid #dee2e6}
-    .data-field{margin-bottom:8px;font-size:13px}
-    .data-field-label{font-weight:600;color:#2c3e50;display:inline-block;min-width:80px}
-    .data-field-value{color:#667}
-    .data-tag{display:inline-block;background:#e9ecef;padding:2px 8px;border-radius:4px;font-size:12px;margin-right:4px;margin-bottom:4px}
-    .data-count{display:inline-block;background:#fff3cd;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:8px;color:#856404}
-    .data-description{color:#667;font-size:13px;line-height:1.5;margin:8px 0;max-height:60px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
-    .form-group{margin-bottom:16px}
-    label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;color:#2c3e50}
-    input, select, textarea{width:100%;padding:10px;border-radius:10px;border:2px solid #dee2e6;font-size:14px;font-family:inherit;box-sizing:border-box}
-    textarea{min-height:400px;font-family:monospace;font-size:13px}
-    .hint{font-size:13px;color:#667;margin-top:6px}
-    .status{padding:8px 12px;border-radius:8px;font-size:13px;margin-bottom:16px}
-    .status-success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-    .status-error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
-    .status-info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
-    .loading{text-align:center;padding:40px;color:#667}
-    .tier-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px}
-    .tier-1{background:#d4edda;color:#155724}
-    .tier-2{background:#fff3cd;color:#856404}
-    .tier-3{background:#d1ecf1;color:#0c5460}
-    .empty-state{text-align:center;padding:60px 20px;color:#667}
-    .empty-state-icon{font-size:48px;margin-bottom:16px}
-    .tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid #eef2f6}
-    .tab{padding:10px 20px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:600;color:#667;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
-    .tab.active{color:#2c5aa0;border-bottom-color:#2c5aa0}
-    .tab:hover{color:#2c5aa0}
-    .tab-content{display:none}
-    .tab-content.active{display:block}
-    .editor-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .preview-section{background:#f8f9fa;padding:16px;border-radius:10px}
-    .preview-title{font-size:16px;font-weight:600;margin:0 0 12px;color:#2c3e50}
-    .preview-image{max-width:100%;height:auto;border-radius:8px;margin:8px 0}
-    .collection-item{background:#fff;padding:12px;border-radius:8px;margin-bottom:12px}
-    .collection-name{font-weight:600;margin:0 0 8px}
-    .structured-editor{display:block}
-    .field-row{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:start;margin-bottom:12px}
-    .field-label{font-weight:600;padding-top:10px}
-    .array-item{background:#f8f9fa;padding:12px;border-radius:8px;margin-bottom:8px;position:relative}
-    .array-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .remove-btn{padding:4px 8px;font-size:12px;background:#dc3545;color:#fff;border:none;border-radius:4px;cursor:pointer}
-    .add-btn{padding:8px 16px;font-size:13px;background:#28a745;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:8px}
-    .input-with-search{display:flex;gap:8px;align-items:center}
-    .input-with-search input{flex:1}
-    .search-image-btn{padding:8px 12px;background:#5b8bd9;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap}
-    .search-image-btn:hover{background:#4a7bc8}
-    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.6);overflow:auto}
-    .modal.active{display:block}
-    .modal-content{background:#fff;margin:40px auto;padding:0;border-radius:14px;max-width:900px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
-    .modal-header{padding:20px;border-bottom:2px solid #eef2f6;display:flex;justify-content:space-between;align-items:center}
-    .modal-title{font-size:20px;font-weight:700;margin:0}
-    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:#667;padding:0;width:32px;height:32px;line-height:1}
-    .modal-close:hover{color:#2c3e50}
-    .modal-body{padding:20px;overflow-y:auto;flex:1}
-    .search-form{margin-bottom:20px}
-    .search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-    .result-item{border:2px solid #dee2e6;border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.2s}
-    .result-item:hover{border-color:#2c5aa0;transform:translateY(-2px);box-shadow:0 4px 12px rgba(44,90,160,0.2)}
-    .result-item.selected{border-color:#28a745;background:#f0f8f5}
-    .result-image{width:100%;height:180px;object-fit:cover;background:#f8f9fa}
-    .result-info{padding:12px}
-    .result-name{font-size:13px;font-weight:600;margin:0 0 8px;color:#2c3e50;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-    .result-meta{font-size:12px;color:#667}
-    .loading-spinner{text-align:center;padding:40px;color:#667}
-    .loading-spinner::after{content:"🔄";font-size:48px;display:block;animation:spin 1s linear infinite}
-    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    .no-results{text-align:center;padding:60px 20px;color:#667}
-    .no-results-icon{font-size:48px;margin-bottom:16px}
-    @media (max-width: 1200px) {
-      .editor-layout{grid-template-columns:1fr}
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
     }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); color: var(--gray-800); margin: 0; padding: 0; min-height: 100vh; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+    
+    /* Header */
+    .header { background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%); border-radius: var(--radius); padding: 32px; margin-bottom: 24px; color: #fff; position: relative; overflow: hidden; }
+    .header::before { content: ''; position: absolute; top: -50%; right: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); }
+    .header-content { position: relative; z-index: 1; }
+    .title { font-size: 28px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px; }
+    .subtitle { font-size: 15px; opacity: 0.9; margin: 0; }
+    .header-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .header-actions .btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); }
+    .header-actions .btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+    
+    /* Cards */
+    .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; border: 1px solid var(--gray-100); }
+    .section-title { font-size: 18px; font-weight: 700; margin: 0 0 20px; color: var(--gray-800); display: flex; align-items: center; gap: 10px; }
+    .section-title::before { content: ''; width: 4px; height: 20px; background: linear-gradient(180deg, var(--primary), #7c3aed); border-radius: 2px; }
+    
+    /* Buttons */
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+    .btn-primary:hover { box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); transform: translateY(-1px); }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+    .btn-secondary:hover { background: var(--gray-200); }
+    .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: #fff; }
+    .btn-danger:hover { box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4); transform: translateY(-1px); }
+    .btn-success { background: linear-gradient(135deg, var(--success), #059669); color: #fff; }
+    .btn-success:hover { box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); transform: translateY(-1px); }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; }
+    
+    /* Custom Autocomplete Search */
+    .search-container { position: relative; }
+    .search-box { display: flex; gap: 12px; align-items: stretch; }
+    .search-input-wrapper { flex: 1; position: relative; }
+    .search-input { width: 100%; padding: 14px 16px 14px 48px; border: 2px solid var(--gray-200); border-radius: 10px; font-size: 15px; transition: all 0.2s; background: var(--gray-50); }
+    .search-input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    .search-input::placeholder { color: var(--gray-400); }
+    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 18px; pointer-events: none; }
+    .search-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: var(--gray-200); border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 12px; color: var(--gray-500); }
+    .search-clear:hover { background: var(--gray-300); }
+    .search-input:not(:placeholder-shown) ~ .search-clear { display: flex; }
+    
+    /* Autocomplete Dropdown */
+    .autocomplete-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); border: 1px solid var(--gray-200); max-height: 400px; overflow-y: auto; z-index: 100; display: none; }
+    .autocomplete-dropdown.active { display: block; animation: dropdownFade 0.2s ease; }
+    @keyframes dropdownFade { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .autocomplete-header { padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; background: var(--gray-50); border-bottom: 1px solid var(--gray-100); position: sticky; top: 0; }
+    .autocomplete-item { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.15s; border-bottom: 1px solid var(--gray-100); }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.highlighted { background: var(--gray-50); }
+    .autocomplete-item.highlighted { background: rgba(37, 99, 235, 0.08); }
+    .autocomplete-icon { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, var(--primary-light), #7c3aed); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .autocomplete-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .autocomplete-info { flex: 1; min-width: 0; }
+    .autocomplete-name { font-weight: 600; color: var(--gray-800); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .autocomplete-name mark { background: rgba(37, 99, 235, 0.2); color: var(--primary-dark); padding: 0 2px; border-radius: 2px; }
+    .autocomplete-meta { font-size: 13px; color: var(--gray-500); display: flex; align-items: center; gap: 8px; }
+    .autocomplete-tag { font-size: 11px; padding: 2px 8px; background: var(--gray-100); border-radius: 4px; color: var(--gray-600); }
+    .autocomplete-empty { padding: 32px 16px; text-align: center; color: var(--gray-500); }
+    .autocomplete-empty-icon { font-size: 32px; margin-bottom: 8px; }
+    
+    /* Museum List */
+    .museum-list { display: grid; gap: 12px; }
+    .museum-item { background: var(--gray-50); border-radius: 10px; padding: 16px; transition: all 0.2s; border: 1px solid transparent; }
+    .museum-item:hover { background: #fff; border-color: var(--gray-200); box-shadow: var(--shadow-sm); }
+    .museum-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .museum-info { flex: 1; }
+    .museum-name { font-size: 16px; font-weight: 600; color: var(--gray-800); margin: 0 0 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .museum-meta { font-size: 13px; color: var(--gray-500); }
+    .museum-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .museum-data-preview { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-200); }
+    .data-field { margin-bottom: 8px; font-size: 13px; }
+    .data-field-label { font-weight: 600; color: var(--gray-700); display: inline-block; min-width: 70px; }
+    .data-field-value { color: var(--gray-600); }
+    .data-tag { display: inline-block; background: var(--gray-200); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 4px; margin-bottom: 4px; color: var(--gray-600); }
+    .data-count { display: inline-block; background: #fef3c7; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; color: #92400e; }
+    .data-description { color: var(--gray-600); font-size: 13px; line-height: 1.5; margin: 8px 0; max-height: 60px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    
+    /* Form Elements */
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--gray-700); }
+    input, select, textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 2px solid var(--gray-200); font-size: 14px; font-family: inherit; box-sizing: border-box; transition: all 0.2s; background: #fff; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+    textarea { min-height: 400px; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 13px; }
+    .hint { font-size: 13px; color: var(--gray-500); margin-top: 6px; }
+    
+    /* Status Messages */
+    .status { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+    .status-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .status-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .status-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    
+    /* Badges */
+    .tier-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .tier-1 { background: #d1fae5; color: #065f46; }
+    .tier-2 { background: #fef3c7; color: #92400e; }
+    .tier-3 { background: #dbeafe; color: #1e40af; }
+    
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state-icon { font-size: 56px; margin-bottom: 16px; filter: grayscale(0.3); }
+    .empty-state-title { font-size: 18px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; }
+    .empty-state-desc { color: var(--gray-500); font-size: 14px; }
+    
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--gray-100); padding: 4px; border-radius: 10px; }
+    .tab { flex: 1; padding: 10px 16px; border: none; background: transparent; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--gray-600); border-radius: 8px; transition: all 0.2s; text-align: center; }
+    .tab.active { background: #fff; color: var(--primary); box-shadow: var(--shadow-sm); }
+    .tab:hover:not(.active) { color: var(--gray-800); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* Editor Styles */
+    .structured-editor { display: block; }
+    .editor-section { margin-bottom: 32px; }
+    .editor-section h3 { font-size: 16px; font-weight: 600; color: var(--gray-800); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200); }
+    .field-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; margin-bottom: 16px; }
+    .field-label { font-weight: 600; padding-top: 12px; font-size: 14px; color: var(--gray-700); }
+    .array-item { background: var(--gray-50); padding: 16px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--gray-200); }
+    .array-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .remove-btn { padding: 6px 12px; font-size: 12px; background: var(--danger); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .remove-btn:hover { background: #dc2626; }
+    .add-btn { padding: 10px 20px; font-size: 14px; background: var(--success); color: #fff; border: none; border-radius: 8px; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+    .add-btn:hover { background: #059669; }
+    .input-with-search { display: flex; gap: 8px; align-items: center; }
+    .input-with-search input { flex: 1; }
+    .search-image-btn { padding: 10px 14px; background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; transition: all 0.2s; }
+    .search-image-btn:hover { background: var(--primary-dark); }
+    
+    /* Preview Section */
+    .preview-section { background: var(--gray-50); padding: 20px; border-radius: 10px; border: 1px solid var(--gray-200); }
+    .preview-title { font-size: 18px; font-weight: 600; margin: 0 0 16px; color: var(--gray-800); }
+    .preview-image { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+    .collection-item { background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--gray-200); }
+    .collection-name { font-weight: 600; margin: 0 0 8px; color: var(--gray-800); }
+    
+    /* Image Preview */
+    .image-preview-container { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .image-preview-thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 2px solid var(--gray-200); background: var(--gray-100); }
+    .image-preview-thumb.loading { opacity: 0.5; }
+    .image-preview-placeholder { width: 72px; height: 72px; border-radius: 8px; border: 2px dashed var(--gray-300); background: var(--gray-50); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--gray-400); text-align: center; padding: 4px; }
+    .input-wrapper { flex: 1; min-width: 0; }
+    .image-selected-feedback { animation: pulse 0.3s ease-in-out; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); background: #d1fae5; } }
+    
+    /* Modal */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); overflow: auto; }
+    .modal.active { display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; }
+    .modal-content { background: #fff; border-radius: var(--radius); max-width: 900px; width: 100%; max-height: calc(100vh - 80px); overflow: hidden; display: flex; flex-direction: column; animation: modalSlide 0.3s ease; }
+    @keyframes modalSlide { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 18px; font-weight: 700; margin: 0; color: var(--gray-800); }
+    .modal-close { background: var(--gray-100); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: var(--gray-500); font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .modal-close:hover { background: var(--gray-200); color: var(--gray-700); }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+    
+    /* Search Results */
+    .search-form { margin-bottom: 24px; }
+    .search-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .result-item { border: 2px solid var(--gray-200); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: #fff; }
+    .result-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .result-item.selected { border-color: var(--success); background: #f0fdf4; }
+    .result-image { width: 100%; height: 160px; object-fit: cover; background: var(--gray-100); }
+    .result-info { padding: 12px; }
+    .result-name { font-size: 13px; font-weight: 600; margin: 0 0 4px; color: var(--gray-800); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .result-meta { font-size: 12px; color: var(--gray-500); }
+    
+    /* Loading & Spinner */
+    .loading { text-align: center; padding: 48px; color: var(--gray-500); }
+    .loading-spinner { text-align: center; padding: 48px; }
+    .loading-spinner::after { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto 16px; border: 3px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .no-results { text-align: center; padding: 48px 20px; color: var(--gray-500); }
+    .no-results-icon { font-size: 48px; margin-bottom: 12px; }
+    
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--gray-800); color: #fff; padding: 14px 24px; border-radius: 10px; box-shadow: var(--shadow-lg); z-index: 2000; animation: toastSlide 0.3s ease; font-weight: 500; }
+    @keyframes toastSlide { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    
+    /* Responsive */
     @media (max-width: 768px) {
-      .field-row{grid-template-columns:1fr;gap:6px}
-      .field-label{padding-top:0;font-size:13px}
-      .input-with-search{flex-direction:column;align-items:stretch}
-      .search-image-btn{margin-top:8px;width:100%}
+      .wrap { padding: 16px 12px; }
+      .header { padding: 24px 20px; }
+      .title { font-size: 22px; }
+      .card { padding: 20px 16px; }
+      .search-box { flex-direction: column; }
+      .search-box .btn { width: 100%; justify-content: center; }
+      .field-row { grid-template-columns: 1fr; gap: 6px; }
+      .field-label { padding-top: 0; font-size: 13px; }
+      .input-with-search { flex-direction: column; align-items: stretch; }
+      .search-image-btn { width: 100%; justify-content: center; }
+      .museum-item-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .museum-actions { width: 100%; }
+      .museum-actions .btn { flex: 1; justify-content: center; }
+      .tabs { flex-direction: column; }
     }
-    .image-preview-container{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .image-preview-thumb{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid #dee2e6;background:#f8f9fa}
-    .image-preview-thumb.loading{opacity:0.5}
-    .image-preview-placeholder{width:80px;height:80px;border-radius:8px;border:2px dashed #dee2e6;background:#f8f9fa;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999;text-align:center;padding:4px}
-    .input-wrapper{flex:1;min-width:0}
-    .image-selected-feedback{animation:pulse 0.3s ease-in-out}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05);background:#f0f8f5}}
-    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#28a745;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:2000;animation:slideUp 0.3s ease-out}
-    @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- Header -->
     <div class="header">
-      <h1 class="title">博物馆数据管理</h1>
-      <p class="subtitle">查看所有博物馆数据（T1/T2/T3），编辑远程存储（Tier 2）中的数据</p>
-    </div>
-
-    <div class="card">
-      <div class="section-title">快速操作</div>
-      <div class="actions">
-        <button id="uploadBtn" class="btn btn-success">📤 上传新数据</button>
-        <button id="backToHomeBtn" class="btn btn-secondary">🏠 返回主页</button>
-        <button id="backBtn" class="btn btn-secondary">← 返回设置</button>
+      <div class="header-content">
+        <h1 class="title">🏛️ 博物馆数据管理</h1>
+        <p class="subtitle">查看、编辑和上传博物馆数据，支持 KV Store 远程存储</p>
+        <div class="header-actions">
+          <button id="uploadBtn" class="btn">📤 上传新数据</button>
+          <button id="backToHomeBtn" class="btn">🏠 返回主页</button>
+          <button id="backBtn" class="btn">← 返回设置</button>
+        </div>
       </div>
     </div>
 
     <div id="statusMsg"></div>
 
+    <!-- Search Card -->
     <div class="card">
-      <div class="section-title">加载博物馆数据</div>
-      <div class="form-group">
-        <label for="quickLoadMuseumId">快速加载（搜索博物馆）</label>
-        <div style="display: flex; gap: 10px; align-items: flex-start;">
-          <div style="flex: 1;">
+      <div class="section-title">搜索博物馆</div>
+      <div class="search-container">
+        <div class="search-box">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
             <input 
-              type="search" 
+              type="text" 
               id="quickLoadMuseumId" 
-              placeholder="搜索博物馆名称或 ID（如：故宫、自然、beijing）"
-              list="quickLoadMuseumsList"
-              style="width: 100%;"
+              class="search-input"
+              placeholder="输入博物馆名称、ID 或城市..."
+              autocomplete="off"
             />
-            <datalist id="quickLoadMuseumsList"></datalist>
-            <div class="hint">输入博物馆名称、ID 或位置进行搜索</div>
+            <button type="button" class="search-clear" id="searchClearBtn">✕</button>
+            <!-- Custom Autocomplete Dropdown -->
+            <div class="autocomplete-dropdown" id="autocompleteDropdown">
+              <div class="autocomplete-header">搜索结果</div>
+              <div id="autocompleteResults"></div>
+            </div>
           </div>
-          <button id="quickLoadBtn" class="btn btn-primary" style="margin-top: 0;">🔍 加载</button>
+          <button id="quickLoadBtn" class="btn btn-primary">加载数据</button>
         </div>
+        <div class="hint" style="margin-top: 10px;">� 支持模糊搜索：博物馆名称、ID、城市、标签</div>
       </div>
     </div>
 
+    <!-- Museum List Card -->
     <div class="card">
-      <div class="section-title">所有博物馆数据（Tier 1 + Tier 2 + Tier 3）</div>
+      <div class="section-title">博物馆数据</div>
       <div id="museumList" class="museum-list">
         <div class="empty-state">
-          <div class="empty-state-icon">🔍</div>
-          <div>使用上方的快速加载输入框指定博物馆 ID</div>
+          <div class="empty-state-icon">🏛️</div>
+          <div class="empty-state-title">搜索博物馆开始</div>
+          <div class="empty-state-desc">在上方搜索框中输入博物馆名称或选择一个博物馆</div>
         </div>
       </div>
     </div>
@@ -355,42 +474,239 @@
       const loader = new MuseumDataLoader();
       let currentMuseums = [];
       let currentData = null;
+      let highlightedIndex = -1;
+      let autocompleteResults = [];
 
-      // Initialize museum ID selectors with datalist
+      // Initialize museum selector with custom autocomplete
       async function initMuseumSelector() {
         try {
           // Load museums from JSON
           const response = await fetch('/data/museums-meta.json');
           const museums = await response.json();
           
-          // Populate datalists for both search inputs
-          const museumSearchList = document.getElementById('museumSearchList');
-          const quickLoadMuseumsList = document.getElementById('quickLoadMuseumsList');
-          
-          // Clear existing options
-          museumSearchList.innerHTML = '';
-          quickLoadMuseumsList.innerHTML = '';
-          
-          museums.forEach(museum => {
-            // Create option for upload selector datalist
-            const uploadOption = document.createElement('option');
-            uploadOption.value = `${museum.name} (${museum.id})`;
-            uploadOption.dataset.id = museum.id;
-            museumSearchList.appendChild(uploadOption);
-            
-            // Create option for quick load selector datalist
-            const quickLoadOption = document.createElement('option');
-            quickLoadOption.value = `${museum.name} (${museum.id})`;
-            quickLoadOption.dataset.id = museum.id;
-            quickLoadMuseumsList.appendChild(quickLoadOption);
-          });
-          
           // Store museums for searching
           window.allMuseums = museums;
+          
+          // Setup custom autocomplete for quick load search
+          setupAutocomplete();
+          
+          console.log(`✅ 已加载 ${museums.length} 个博物馆数据`);
         } catch (error) {
           console.error('Failed to load museums metadata:', error);
         }
       }
+
+      // Fuzzy search function - matches name, id, location, tags
+      function fuzzySearch(query, museums) {
+        if (!query || query.length < 1) return [];
+        
+        const q = query.toLowerCase().trim();
+        const results = [];
+        
+        museums.forEach(museum => {
+          let score = 0;
+          let matchType = '';
+          
+          // Exact match on name (highest priority)
+          if (museum.name && museum.name.toLowerCase() === q) {
+            score = 100;
+            matchType = 'name';
+          }
+          // Name starts with query
+          else if (museum.name && museum.name.toLowerCase().startsWith(q)) {
+            score = 90;
+            matchType = 'name';
+          }
+          // Name contains query
+          else if (museum.name && museum.name.toLowerCase().includes(q)) {
+            score = 80;
+            matchType = 'name';
+          }
+          // ID exact match
+          else if (museum.id && museum.id.toLowerCase() === q) {
+            score = 75;
+            matchType = 'id';
+          }
+          // ID contains query
+          else if (museum.id && museum.id.toLowerCase().includes(q)) {
+            score = 70;
+            matchType = 'id';
+          }
+          // Location match
+          else if (museum.location && museum.location.toLowerCase().includes(q)) {
+            score = 60;
+            matchType = 'location';
+          }
+          // Tag match
+          else if (museum.tags && museum.tags.some(tag => tag.toLowerCase().includes(q))) {
+            score = 50;
+            matchType = 'tag';
+          }
+          
+          if (score > 0) {
+            results.push({ ...museum, score, matchType });
+          }
+        });
+        
+        // Sort by score descending, limit to 10 results
+        return results.sort((a, b) => b.score - a.score).slice(0, 10);
+      }
+
+      // Highlight matched text
+      function highlightMatch(text, query) {
+        if (!text || !query) return escapeHtml(text || '');
+        const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+        return escapeHtml(text).replace(regex, '<mark>$1</mark>');
+      }
+
+      function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      // Setup autocomplete for search input
+      function setupAutocomplete() {
+        const input = document.getElementById('quickLoadMuseumId');
+        const dropdown = document.getElementById('autocompleteDropdown');
+        const resultsContainer = document.getElementById('autocompleteResults');
+        const clearBtn = document.getElementById('searchClearBtn');
+
+        // Input event - show autocomplete
+        input.addEventListener('input', function() {
+          const query = this.value.trim();
+          
+          if (query.length < 1) {
+            hideAutocomplete();
+            return;
+          }
+          
+          autocompleteResults = fuzzySearch(query, window.allMuseums || []);
+          highlightedIndex = -1;
+          renderAutocomplete(query);
+        });
+
+        // Focus event - show dropdown if has value
+        input.addEventListener('focus', function() {
+          const query = this.value.trim();
+          if (query.length >= 1 && autocompleteResults.length > 0) {
+            dropdown.classList.add('active');
+          }
+        });
+
+        // Keyboard navigation
+        input.addEventListener('keydown', function(e) {
+          if (!dropdown.classList.contains('active')) return;
+          
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            highlightedIndex = Math.min(highlightedIndex + 1, autocompleteResults.length - 1);
+            updateHighlight();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            highlightedIndex = Math.max(highlightedIndex - 1, -1);
+            updateHighlight();
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && autocompleteResults[highlightedIndex]) {
+              selectMuseum(autocompleteResults[highlightedIndex]);
+            } else if (autocompleteResults.length > 0) {
+              selectMuseum(autocompleteResults[0]);
+            } else {
+              quickLoadMuseum();
+            }
+          } else if (e.key === 'Escape') {
+            hideAutocomplete();
+            input.blur();
+          }
+        });
+
+        // Clear button
+        clearBtn.addEventListener('click', function() {
+          input.value = '';
+          hideAutocomplete();
+          input.focus();
+        });
+
+        // Click outside to close
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('.search-input-wrapper')) {
+            hideAutocomplete();
+          }
+        });
+      }
+
+      function renderAutocomplete(query) {
+        const dropdown = document.getElementById('autocompleteDropdown');
+        const resultsContainer = document.getElementById('autocompleteResults');
+        
+        if (autocompleteResults.length === 0) {
+          resultsContainer.innerHTML = `
+            <div class="autocomplete-empty">
+              <div class="autocomplete-empty-icon">🔍</div>
+              <div>未找到匹配的博物馆</div>
+              <div style="font-size: 12px; margin-top: 4px;">尝试其他关键词</div>
+            </div>
+          `;
+          dropdown.classList.add('active');
+          return;
+        }
+        
+        resultsContainer.innerHTML = autocompleteResults.map((museum, index) => {
+          const icon = museum.image 
+            ? `<img src="${escapeHtml(museum.image)}" alt="" onerror="this.parentElement.innerHTML='🏛️'" />`
+            : '🏛️';
+          
+          return `
+            <div class="autocomplete-item ${index === highlightedIndex ? 'highlighted' : ''}" 
+                 data-index="${index}" 
+                 onclick="window.selectAutocompleteItem(${index})">
+              <div class="autocomplete-icon">${icon}</div>
+              <div class="autocomplete-info">
+                <div class="autocomplete-name">${highlightMatch(museum.name, query)}</div>
+                <div class="autocomplete-meta">
+                  <span>📍 ${highlightMatch(museum.location, query)}</span>
+                  ${museum.matchType === 'tag' ? `<span class="autocomplete-tag">${museum.tags.find(t => t.toLowerCase().includes(query.toLowerCase()))}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        dropdown.classList.add('active');
+      }
+
+      function updateHighlight() {
+        const items = document.querySelectorAll('.autocomplete-item');
+        items.forEach((item, index) => {
+          item.classList.toggle('highlighted', index === highlightedIndex);
+        });
+        
+        // Scroll highlighted item into view
+        if (highlightedIndex >= 0 && items[highlightedIndex]) {
+          items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+        }
+      }
+
+      function hideAutocomplete() {
+        const dropdown = document.getElementById('autocompleteDropdown');
+        dropdown.classList.remove('active');
+        highlightedIndex = -1;
+      }
+
+      function selectMuseum(museum) {
+        const input = document.getElementById('quickLoadMuseumId');
+        input.value = museum.name;
+        hideAutocomplete();
+        
+        // Trigger load
+        quickLoadMuseum(museum.id);
+      }
+
+      // Expose for onclick
+      window.selectAutocompleteItem = function(index) {
+        if (autocompleteResults[index]) {
+          selectMuseum(autocompleteResults[index]);
+        }
+      };
 
       // Handle museum selection in edit form
       document.getElementById('museumIdSelect').addEventListener('change', async function(e) {
@@ -1347,32 +1663,36 @@
       };
 
       // Quick load function - load specific museum by ID from all tiers
-      async function quickLoadMuseum() {
-        let input = document.getElementById('quickLoadMuseumId').value.trim();
+      async function quickLoadMuseum(directMuseumId = null) {
+        let museumId = directMuseumId;
         
-        if (!input) {
-          showStatus('请搜索或选择博物馆', 'error');
-          return;
-        }
-
-        // Extract museum ID from input
-        let museumId = null;
-        if (window.allMuseums) {
-          const museum = window.allMuseums.find(m => 
-            m.name === input || 
-            m.id === input ||
-            input.includes(m.id) ||
-            `${m.name} (${m.id})` === input
-          );
-          
-          if (museum) {
-            museumId = museum.id;
-          }
-        }
-        
+        // If no direct ID provided, try to extract from input
         if (!museumId) {
-          showStatus('未找到匹配的博物馆', 'error');
-          return;
+          const input = document.getElementById('quickLoadMuseumId').value.trim();
+          
+          if (!input) {
+            showStatus('请搜索或选择博物馆', 'error');
+            return;
+          }
+
+          // Extract museum ID from input
+          if (window.allMuseums) {
+            const museum = window.allMuseums.find(m => 
+              m.name === input || 
+              m.id === input ||
+              input.includes(m.id) ||
+              `${m.name} (${m.id})` === input
+            );
+            
+            if (museum) {
+              museumId = museum.id;
+            }
+          }
+          
+          if (!museumId) {
+            showStatus('未找到匹配的博物馆', 'error');
+            return;
+          }
         }
 
         const listDiv = document.getElementById('museumList');
@@ -1447,14 +1767,9 @@
       }
 
       // Quick load button
-      document.getElementById('quickLoadBtn').onclick = quickLoadMuseum;
-      
-      // Allow dropdown change to trigger quick load (optional convenience)
-      document.getElementById('quickLoadMuseumId').addEventListener('change', function(e) {
-        if (e.target.value) {
-          quickLoadMuseum();
-        }
-      });
+      document.getElementById('quickLoadBtn').onclick = function() {
+        quickLoadMuseum();
+      };
 
       // Back button
       document.getElementById('backBtn').onclick = function() {
