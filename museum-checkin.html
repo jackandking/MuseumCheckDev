@@ -314,19 +314,49 @@
             max-width: 800px;
             margin-bottom: 20px;
             text-align: center;
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .progress-text {
-            font-size: 18px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .progress-stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .progress-star {
+            font-size: 28px;
+            transition: all 0.3s ease;
+            filter: grayscale(100%) opacity(0.3);
+        }
+
+        .progress-star.completed {
+            filter: none;
+            animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0.5); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
         }
 
         .progress-bar {
             width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
+            height: 14px;
+            background: #e5e7eb;
+            border-radius: 7px;
             overflow: hidden;
         }
 
@@ -420,11 +450,11 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 16px 20px;
             max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
+            width: 92%;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -445,30 +475,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .modal-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
         }
 
         .close-button {
-            font-size: 28px;
+            font-size: 24px;
             color: #999;
             cursor: pointer;
             border: none;
             background: transparent;
-            padding: 8px;
-            width: 48px;
-            height: 48px;
+            padding: 6px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: all 0.2s ease;
-            margin-right: -8px;
+            margin-right: -6px;
         }
 
         .close-button:hover {
@@ -542,49 +572,55 @@
         }
 
         .task-detail-icon {
-            font-size: 80px;
+            font-size: 48px;
             text-align: center;
-            margin: 20px 0;
+            margin: 8px 0;
         }
 
         .task-detail-title {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .task-detail-description {
-            font-size: 16px;
+            font-size: 14px;
             color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            line-height: 1.5;
+            margin-bottom: 12px;
         }
 
         .task-image {
             width: 100%;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 12px;
         }
 
         .action-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 12px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 8px 0;
         }
 
         .button {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: none;
-            border-radius: 16px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             touch-action: manipulation;
-            min-height: 48px;
+            min-height: 44px;
         }
 
         .button-primary {
@@ -685,17 +721,17 @@
 
         /* Photo capture styles */
         .photo-section {
-            margin: 20px 0;
-            padding: 20px;
+            margin: 10px 0;
+            padding: 12px;
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 10px;
         }
 
         .photo-label {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: block;
         }
 
@@ -703,50 +739,64 @@
             position: relative;
         }
 
-        .photo-input {
-            display: block;
+        .photo-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            border: 3px dashed #667eea;
-            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #667eea;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
             background-color: #f0f0ff;
             cursor: pointer;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
         }
 
-        .photo-input::-webkit-file-upload-button {
-            display: none;
+        .photo-upload-label:hover {
+            background-color: #e8e8ff;
+            border-color: #5a6fd6;
         }
 
-        .photo-input::file-selector-button {
-            display: none;
+        .photo-upload-label:active {
+            transform: scale(0.98);
+        }
+
+        .photo-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
         }
 
         .photo-preview {
-            margin-top: 12px;
+            margin-top: 8px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .photo-preview img {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #e9ecef;
         }
 
         .retake-button {
-            margin-top: 10px;
-            padding: 10px 20px;
+            margin-top: 8px;
+            padding: 8px 16px;
             background: #f0f0f0;
             color: #333;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
         }
 
@@ -4414,8 +4464,11 @@
     <div class="museum-name" id="museumName">加载中...</div>
 
     <div class="progress-container">
-        <div class="progress-text">
-            已完成 <span id="completedCount">0</span>/<span id="totalCount">0</span> 个任务
+        <div class="progress-text" id="progressText">
+            已完成 <span id="completedCount">0</span> 个任务
+        </div>
+        <div class="progress-stars" id="progressStars">
+            <!-- Stars will be generated by JS -->
         </div>
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
@@ -4544,8 +4597,10 @@
 
             <!-- Photo capture section -->
             <div class="photo-section" id="photoSection">
-                <label class="photo-label">📸 上传照片（可选）</label>
                 <div class="photo-input-wrapper">
+                    <label class="photo-upload-label" for="taskPhotoInput">
+                        📷 点击上传照片（可选）
+                    </label>
                     <input type="file" id="taskPhotoInput" class="photo-input" accept="image/*" aria-label="选择照片">
                 </div>
                 <div class="photo-preview" id="photoPreview"></div>
@@ -6904,9 +6959,32 @@
             const total = childTasks.length;
             const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
+            // Update text
             document.getElementById('completedCount').textContent = completed;
-            document.getElementById('totalCount').textContent = total;
+            
+            // Update progress bar
             document.getElementById('progressFill').style.width = percentage + '%';
+            
+            // Update stars display
+            const starsContainer = document.getElementById('progressStars');
+            if (starsContainer && total > 0) {
+                let starsHTML = '';
+                for (let i = 0; i < total; i++) {
+                    const isCompleted = i < completed;
+                    starsHTML += `<span class="progress-star ${isCompleted ? 'completed' : ''}">⭐</span>`;
+                }
+                starsContainer.innerHTML = starsHTML;
+            }
+            
+            // Update text based on completion
+            const progressText = document.getElementById('progressText');
+            if (progressText) {
+                if (completed === total && total > 0) {
+                    progressText.innerHTML = '🎉 太棒了！全部完成！';
+                } else {
+                    progressText.innerHTML = `已完成 <span id="completedCount">${completed}</span> 个任务`;
+                }
+            }
         }
 
         // Save completed tasks to local storage
