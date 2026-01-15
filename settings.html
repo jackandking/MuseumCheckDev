@@ -258,15 +258,6 @@
     </div>
 
     <div class="card">
-      <div class="title" style="font-size:18px">AI 功能设置</div>
-      <div class="row">
-        <label for="deepseekApiKey">DeepSeek API Key</label>
-        <input type="password" id="deepseekApiKey" placeholder="输入您的 DeepSeek API Key" style="padding:12px;border-radius:12px;border:2px solid #dee2e6;font-size:16px;width:100%;box-sizing:border-box;" />
-        <div class="hint">用于 AI 验证博物馆数据。获取 API Key：<a href="https://platform.deepseek.com" target="_blank" style="color:#2c5aa0">platform.deepseek.com</a></div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="title" style="font-size:18px">博物馆数据源优先级</div>
       <div class="row">
         <label for="dataPriority">数据加载优先级</label>
@@ -302,10 +293,6 @@
           document.getElementById('ageGroup').value = age;
           document.getElementById('caregiverRole').value = role;
           
-          // Load DeepSeek API Key
-          const deepseekApiKey = localStorage.getItem('deepseekApiKey') || '';
-          document.getElementById('deepseekApiKey').value = deepseekApiKey;
-          
           // Load data priority setting
           const prioritySettings = localStorage.getItem('museumDataTierPriority');
           let priorityValue = 'tier2-tier1-tier3'; // default: dynamic data first for single museum pages
@@ -326,14 +313,6 @@
           const role = document.getElementById('caregiverRole').value;
           localStorage.setItem('ageGroup', age);
           localStorage.setItem('caregiverRole', role);
-          
-          // Save DeepSeek API Key
-          const deepseekApiKey = document.getElementById('deepseekApiKey').value.trim();
-          if (deepseekApiKey) {
-            localStorage.setItem('deepseekApiKey', deepseekApiKey);
-          } else {
-            localStorage.removeItem('deepseekApiKey');
-          }
           
           // Save data priority setting
           const priorityValue = document.getElementById('dataPriority').value;
