@@ -1173,41 +1173,51 @@ header h1 {
 
 /* 汉堡菜单模态框内容 */
 .mobile-menu-content {
-    max-width: 400px;
-    width: 90vw;
+    max-width: 90vw;
+    width: 360px;
 }
 
+/* Grid layout for menu items - compact cards that fit in one screen */
 .mobile-menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 8px 0;
 }
 
 .mobile-menu-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 8px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 16px;
-    text-align: left;
-    min-height: 52px; /* 确保足够的触摸目标 */
+    text-align: center;
+    min-height: 80px;
 }
 
 .mobile-menu-item:hover:not(:disabled) {
-    background-color: rgba(79, 70, 229, 0.05);
-    border-color: #4F46E5;
-    transform: translateX(4px);
+    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
 }
 
 .mobile-menu-item:active {
-    transform: translateX(4px) scale(0.98);
+    transform: scale(0.95);
     transition: transform 0.1s ease;
+}
+
+/* Responsive: 2 columns on very narrow screens */
+@media (max-width: 320px) {
+    .mobile-menu-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* P0: Menu open/close animations (250ms open, 200ms close) */
@@ -1243,45 +1253,21 @@ header h1 {
 }
 
 .mobile-menu-item .menu-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-    width: 32px;
-    text-align: center;
+    font-size: 28px;
+    line-height: 1;
 }
 
 .mobile-menu-item .menu-text {
-    flex: 1;
-    font-weight: 500;
-    color: #333;
-}
-
-/* P0: Touch feedback with visual feedback layer (scale 0.96 on touch) */
-.mobile-menu-item {
-    position: relative;
-}
-
-.mobile-menu-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(79, 70, 229, 0.1);
-    border-radius: 12px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-}
-
-.mobile-menu-item:active::before {
-    opacity: 1;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    line-height: 1.2;
 }
 
 /* Touch device optimization */
 @media (hover: none) and (pointer: coarse) {
     .mobile-menu-item:active {
-        transform: translateX(4px) scale(0.96);
+        transform: scale(0.92);
     }
 }
 

@@ -68,7 +68,7 @@ body:not(.child-mode) .virtual-pet-container {
     position: absolute;
     bottom: 70px;
     right: 0;
-    width: 280px;
+    width: min(340px, calc(100vw - 40px));
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -77,6 +77,8 @@ body:not(.child-mode) .virtual-pet-container {
     visibility: hidden;
     transform: translateY(20px) scale(0.95);
     transition: all 0.3s ease;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
 .virtual-pet-container.show-panel .virtual-pet-panel {
@@ -305,28 +307,28 @@ body:not(.child-mode) .virtual-pet-container {
     color: #333;
 }
 
-/* Pet Actions */
+/* Pet Actions - Grid layout for compact display */
 .pet-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 10px;
 }
 
 .pet-action-btn {
-    flex: 1;
-    min-width: calc(50% - 4px);
-    padding: 10px 8px;
+    padding: 8px 6px;
     border: none;
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 2px;
+    min-height: 50px;
 }
 
 .pet-action-btn.feed-btn {
@@ -347,7 +349,7 @@ body:not(.child-mode) .virtual-pet-container {
 .pet-action-btn.revive-btn {
     background: linear-gradient(135deg, #9c27b0, #e91e63);
     color: white;
-    width: 100%;
+    grid-column: span 3;
 }
 
 .pet-action-btn.reset-btn {
@@ -999,7 +1001,7 @@ body:not(.child-mode) .virtual-pet-container {
     }
 
     .virtual-pet-panel {
-        width: 260px;
+        width: min(320px, calc(100vw - 30px));
         bottom: 65px;
     }
 
@@ -1008,7 +1010,11 @@ body:not(.child-mode) .virtual-pet-container {
     }
 
     .pet-options {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .pet-actions {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -1028,15 +1034,24 @@ body:not(.child-mode) .virtual-pet-container {
     }
 
     .virtual-pet-panel {
-        width: calc(100vw - 40px);
-        max-width: 280px;
+        width: calc(100vw - 20px);
+        max-width: 340px;
         right: 0;
         bottom: 60px;
     }
 
     .pet-action-btn {
-        font-size: 11px;
-        padding: 8px 6px;
+        font-size: 10px;
+        padding: 6px 4px;
+        min-height: 44px;
+    }
+    
+    .pet-content {
+        padding: 12px;
+    }
+    
+    .pet-stat {
+        margin-bottom: 6px;
     }
 }
 
