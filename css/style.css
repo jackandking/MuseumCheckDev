@@ -4050,6 +4050,54 @@ main[role="main"] {
     background-color: #1e4085;
 }
 
+/* No Search Results Message Styles */
+.no-results-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    min-height: 200px;
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.no-results-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.no-results-message p {
+    color: #4a5568;
+    font-size: 1.1em;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.no-results-hint {
+    color: #718096;
+    font-size: 0.9em !important;
+    margin-bottom: 20px !important;
+}
+
+.clear-search-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.clear-search-btn:hover {
+    background-color: #1e4085;
+}
+
 /* Checklist Header Styles */
 .checklist-header {
     display: flex;

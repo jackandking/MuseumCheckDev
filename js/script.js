@@ -7514,9 +7514,14 @@ class MuseumCheckApp {
             // Update fireworks button visibility for all museum cards
             this.updateFireworksButtonVisibility();
             
-            // If no museums were rendered, show error message
+            // If no museums were rendered, show appropriate message
             if (grid.children.length === 0) {
-                this.showError('博物馆数据载入失败，请刷新页面重试');
+                // Check if it's a search with no results vs actual data loading failure
+                if (this.searchQuery && this.searchQuery.trim() !== '') {
+                    this.showNoSearchResults(this.searchQuery);
+                } else {
+                    this.showError('博物馆数据载入失败，请刷新页面重试');
+                }
             }
         } catch (error) {
             console.error('Error rendering museums:', error);
@@ -7538,6 +7543,25 @@ class MuseumCheckApp {
                 <div class="error-icon">⚠️</div>
                 <p>${message}</p>
                 <button onclick="location.reload()" class="retry-button">重新载入</button>
+            </div>
+        `;
+    }
+    
+    showNoSearchResults(query) {
+        const grid = document.getElementById('museumGrid');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // Hide loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        grid.innerHTML = `
+            <div class="no-results-message">
+                <div class="no-results-icon">🔍</div>
+                <p>没有找到包含 "<strong>${query}</strong>" 的博物馆</p>
+                <p class="no-results-hint">试试其他关键词，如城市名、博物馆名称或标签</p>
+                <button onclick="app.clearSearch()" class="clear-search-btn">清空搜索</button>
             </div>
         `;
     }
