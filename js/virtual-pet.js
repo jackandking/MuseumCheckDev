@@ -1033,13 +1033,15 @@ class VirtualPet {
 
     getPetHTML() {
         return `
-            <div class="virtual-pet-panel">
-                <div class="pet-header">
-                    <span class="pet-title">🐾 我的宠物</span>
-                    <button class="pet-close-btn" id="petCloseBtn">×</button>
-                </div>
-                <div class="pet-content" id="petContent">
-                    <!-- Content will be populated dynamically -->
+            <div class="virtual-pet-panel" id="petPanelOverlay">
+                <div class="virtual-pet-panel-inner">
+                    <div class="pet-header">
+                        <span class="pet-title">🐾 我的宠物</span>
+                        <button class="pet-close-btn" id="petCloseBtn">×</button>
+                    </div>
+                    <div class="pet-content" id="petContent">
+                        <!-- Content will be populated dynamically -->
+                    </div>
                 </div>
             </div>
             <div class="pet-floating" id="petFloating">
@@ -1058,7 +1060,21 @@ class VirtualPet {
         // Floating pet click to open panel
         const floating = document.getElementById('petFloating');
         if (floating) {
-            floating.addEventListener('click', () => this.togglePetPanel());
+            floating.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.togglePetPanel();
+            });
+        }
+        
+        // Click overlay background to close panel
+        const overlay = document.getElementById('petPanelOverlay');
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                // Only close if clicking the overlay itself, not the inner content
+                if (e.target === overlay) {
+                    this.hidePetPanel();
+                }
+            });
         }
     }
 
