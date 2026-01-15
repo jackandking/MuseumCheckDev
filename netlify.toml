@@ -1,0 +1,43 @@
+# Netlify configuration for MuseumCheck
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  publish = "."
+
+# Enable asset optimization (Gzip/Brotli compression is automatic on Netlify)
+# Add cache headers for static assets
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML files should revalidate
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

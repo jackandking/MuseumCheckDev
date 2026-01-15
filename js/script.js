@@ -8752,7 +8752,7 @@ class MuseumCheckApp {
                         </label>
                         <input type="file" id="photo-${itemId}" accept="image/*" class="photo-input" 
                                data-task-key="${photoKey}" style="display: none;">
-                        ${hasPhoto ? `<img src="${hasPhoto}" class="task-photo" alt="任务照片">` : ''}
+                        ${hasPhoto ? `<img src="${hasPhoto}" class="task-photo" alt="任务照片" loading="lazy">` : ''}
                     </div>
                 `;
             }
@@ -11579,7 +11579,7 @@ class MuseumCheckApp {
             const posterItem = document.createElement('div');
             posterItem.className = 'poster-gallery-item';
             posterItem.innerHTML = `
-                <img src="${posterInfo.dataURL}" alt="${posterInfo.museumName}" class="poster-thumbnail">
+                <img src="${posterInfo.dataURL}" alt="${posterInfo.museumName}" class="poster-thumbnail" loading="lazy">
                 <div class="poster-info">
                     <div class="poster-museum-name">${posterInfo.museumName}</div>
                     <div class="poster-date">${posterInfo.date}</div>
@@ -12041,7 +12041,7 @@ class MuseumCheckApp {
                 </label>
                 <input type="file" id="photo-${itemId}" accept="image/*" class="photo-input" 
                        data-task-key="${photoKey}" style="display: none;">
-                ${hasPhoto ? `<img src="${hasPhoto}" class="task-photo" alt="任务照片">` : ''}
+                ${hasPhoto ? `<img src="${hasPhoto}" class="task-photo" alt="任务照片" loading="lazy">` : ''}
             </div>
         `;
         

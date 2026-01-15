@@ -791,10 +791,35 @@
     <script src="js/event-wall-service.js"></script>
     <!-- Main application script - must run to render museum list -->
     <script src="js/script.js"></script>
-    <!-- Deferred feature scripts - non-critical, load after main app is interactive -->
-    <script src="js/firework.js" defer></script>
-    <script src="js/achievement-gamification.js" defer></script>
-    <script src="js/virtual-pet.js" defer></script>
+    <!-- Non-critical scripts loaded dynamically after first user interaction -->
+    <script>
+      // Lazy load non-critical scripts after first user interaction
+      (function() {
+        const lazyScripts = [
+          'js/firework.js',
+          'js/virtual-pet.js',
+          'js/achievement-gamification.js'
+        ];
+        let loaded = false;
+        
+        function loadScripts() {
+          if (loaded) return;
+          loaded = true;
+          lazyScripts.forEach(src => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            document.body.appendChild(script);
+          });
+        }
+        
+        // Load on first interaction or after 3 seconds (whichever comes first)
+        ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+          window.addEventListener(event, loadScripts, { once: true, passive: true });
+        });
+        setTimeout(loadScripts, 3000);
+      })();
+    </script>
     <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
     <span id="sectionMuseumCount" style="display:none"></span>
     <script>
