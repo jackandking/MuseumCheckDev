@@ -293,13 +293,9 @@ describe('Admin Treasure Reports Page', () => {
 });
 
 describe('Admin Navigation Updates', () => {
-    test('main admin.html should link to treasure reports', () => {
-        const content = fs.readFileSync(
-            path.join(__dirname, '..', 'admin.html'),
-            'utf8'
-        );
-        expect(content).toContain('admin-treasure-reports.html?admin=1');
-        expect(content).toContain('镇馆之宝报告');
+    // admin.html has been removed - admin pages are now in admin/ folder
+    test('admin pages should be in admin folder', () => {
+        expect(fs.existsSync(path.join(__dirname, '..', 'admin', 'admin-treasure-reports.html'))).toBe(true);
     });
 
     test('admin-fireworks.html should link to treasure reports', () => {

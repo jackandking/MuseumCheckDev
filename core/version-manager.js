@@ -7,12 +7,37 @@ class VersionManager {
   constructor(config = {}) {
     this.config = config;
     this.currentVersion = null;
-    this.metaEndpoint = config.metaEndpoint || '/data/museums-meta.json';
+    this.metaEndpoint = config.metaEndpoint || this._getDefaultMetaEndpoint();
     this.checkInterval = config.checkInterval || 3600000; // 1小时检查一次
     this.checkTimer = null;
     
     // 初始化版本
     this._initialize();
+  }
+
+  /**
+   * 获取默认的 meta endpoint（支持子目录部署）
+   */
+  _getDefaultMetaEndpoint() {
+    if (typeof window === 'undefined') return '/data/museums-meta.json';
+    
+    // 获取当前页面的基础路径
+    const path = window.location.pathname;
+    const pathParts = path.split('/').filter(p => p);
+    
+    // 检测是否在子目录下（如 /MuseumCheckDev/）
+    // 如果路径以已知的页面文件结尾，移除它
+    let basePath = '';
+    if (pathParts.length > 0) {
+      // 检查第一个路径段是否是项目子目录（不是 html 文件）
+      const firstPart = pathParts[0];
+      if (!firstPart.endsWith('.html') && 
+          !['admin', 'quiz', 'survey', 'tests', 'core', 'js', 'css', 'data'].includes(firstPart)) {
+        basePath = '/' + firstPart;
+      }
+    }
+    
+    return basePath + '/data/museums-meta.json';
   }
 
   /**

@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <script src="/js/museum-data-loader.js"></script>
+    <script src="../../js/museum-data-loader.js"></script>
     <script>
         const resultsDiv = document.getElementById('results');
         let output = '';
@@ -65,7 +65,7 @@
                 log(`\n开始检查所有博物馆...`, 'info');
 
                 // 加载所有博物馆元数据
-                const response = await fetch('/data/museums-meta.json');
+                const response = await fetch('../../data/museums-meta.json');
                 const allMuseums = await response.json();
                 log(`\n发现 ${allMuseums.length} 个博物馆在元数据中`, 'info');
 

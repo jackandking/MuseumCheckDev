@@ -485,7 +485,7 @@
       async function initMuseumSelector() {
         try {
           // Load museums from JSON
-          const response = await fetch('/data/museums-meta.json');
+          const response = await fetch('../data/museums-meta.json');
           const museums = await response.json();
           
           // Store museums for searching
@@ -784,7 +784,7 @@
           // First, always load meta information for basic fields
           let metaInfo = null;
           try {
-            const response = await fetch('/data/museums-meta.json');
+            const response = await fetch('../data/museums-meta.json');
             const museums = await response.json();
             metaInfo = museums.find(m => m.id === museumId);
           } catch (error) {
@@ -1706,7 +1706,7 @@
           // Load meta information
           let metaInfo = null;
           try {
-            const response = await fetch('/data/museums-meta.json');
+            const response = await fetch('../data/museums-meta.json');
             const museums = await response.json();
             metaInfo = museums.find(m => m.id === museumId);
           } catch (error) {

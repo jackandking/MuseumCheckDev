@@ -56,8 +56,8 @@ describe('Museum Check-in Page', () => {
 
         test('should have progress tracking elements', () => {
             expect(htmlContent).toContain('id="completedCount"');
-            expect(htmlContent).toContain('id="totalCount"');
             expect(htmlContent).toContain('id="progressFill"');
+            expect(htmlContent).toContain('id="progressStars"');
         });
     });
 
@@ -70,7 +70,8 @@ describe('Museum Check-in Page', () => {
 
         test('should have menu modal for navigation', () => {
             expect(htmlContent).toContain('id="menuModal"');
-            expect(htmlContent).toContain('id="viewFireworks"');
+            // Fireworks menu items are now handled by SharedMenu component
+            expect(htmlContent).toContain('SharedMenu.init');
         });
 
         test('should have parent hint section in task modal', () => {
@@ -245,7 +246,8 @@ describe('Museum Check-in Page', () => {
 
         test('should navigate back to main application', () => {
             expect(htmlContent).toContain('index.html');
-            expect(htmlContent).toContain('backToHome');
+            // Navigation is handled by SharedMenu component
+            expect(htmlContent).toContain('SharedMenu');
         });
 
         test('should provide link to parent tasks from hint', () => {

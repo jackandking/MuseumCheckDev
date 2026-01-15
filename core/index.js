@@ -3,6 +3,27 @@
  * 导入并初始化所有核心模块
  */
 
+/**
+ * 获取默认的 meta endpoint（支持子目录部署）
+ */
+function getDefaultMetaEndpoint() {
+  if (typeof window === 'undefined') return '/data/museums-meta.json';
+  
+  const path = window.location.pathname;
+  const pathParts = path.split('/').filter(p => p);
+  
+  let basePath = '';
+  if (pathParts.length > 0) {
+    const firstPart = pathParts[0];
+    if (!firstPart.endsWith('.html') && 
+        !['admin', 'quiz', 'survey', 'tests', 'core', 'js', 'css', 'data'].includes(firstPart)) {
+      basePath = '/' + firstPart;
+    }
+  }
+  
+  return basePath + '/data/museums-meta.json';
+}
+
 // 导入适配器基类
 if (typeof StorageAdapter === 'undefined') {
   console.error('[Core] StorageAdapter not loaded');
@@ -96,7 +117,7 @@ async function initializeMuseumCheckCore(config = {}) {
     
     // 5. 初始化版本管理器
     const versionManager = new VersionManager({
-      metaEndpoint: config.metaEndpoint || '/data/museums-meta.json',
+      metaEndpoint: config.metaEndpoint || getDefaultMetaEndpoint(),
       autoCheck: config.autoVersionCheck !== false
     });
     

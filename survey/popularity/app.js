@@ -82,14 +82,14 @@ function showError(message) {
 async function loadMuseumsData() {
     // Try to fetch museums metadata from JSON endpoint (primary source)
     try {
-        const response = await fetch('/data/museums-meta.json');
+        const response = await fetch('../../data/museums-meta.json');
         if (response.ok) {
             allMuseums = (await response.json()).filter(m => m && m.id && m.name);
-            console.log('Loaded museums from /data/museums-meta.json:', allMuseums.length);
+            console.log('Loaded museums from museums-meta.json:', allMuseums.length);
             return;
         }
     } catch (error) {
-        console.error('Failed to fetch /data/museums-meta.json:', error);
+        console.error('Failed to fetch museums-meta.json:', error);
     }
     
     // Try legacy MUSEUMS_META global (backward compatibility)

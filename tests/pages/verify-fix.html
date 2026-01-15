@@ -136,19 +136,19 @@
             <div class="test-section">
                 <div class="test-title">🔗 快速链接</div>
                 <ul style="list-style: none;">
-                    <li><a href="/admin/museum-data-manager.html" target="_blank" style="color: #2196f3; text-decoration: none;">📋 打开 Museum Data Manager</a></li>
-                    <li><a href="/admin/index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🏠 打开 Admin 首页</a></li>
-                    <li><a href="/index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🎯 打开 MuseumCheck 主应用</a></li>
+                    <li><a href="../../admin/museum-data-manager.html" target="_blank" style="color: #2196f3; text-decoration: none;">📋 打开 Museum Data Manager</a></li>
+                    <li><a href="../../admin/index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🏠 打开 Admin 首页</a></li>
+                    <li><a href="../../index.html" target="_blank" style="color: #2196f3; text-decoration: none;">🎯 打开 MuseumCheck 主应用</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <script src="/js/museum-data-loader.js"></script>
+    <script src="../../js/museum-data-loader.js"></script>
     <script>
         async function test1() {
             try {
-                const response = await fetch('/admin/museum-data-manager.html');
+                const response = await fetch('../../admin/museum-data-manager.html');
                 if (response.ok) {
                     document.getElementById('test1').innerHTML = '<div class="success">✓ museum-data-manager.html 可访问 (HTTP 200)</div>';
                     return true;
@@ -164,7 +164,7 @@
 
         async function test2() {
             try {
-                const response = await fetch('/data/museums-meta.json');
+                const response = await fetch('../../data/museums-meta.json');
                 const museums = await response.json();
                 
                 if (Array.isArray(museums) && museums.length > 0) {
@@ -226,7 +226,7 @@
         async function populateTestDropdown() {
             try {
                 const dropdown = document.getElementById('testDropdown');
-                const response = await fetch('/data/museums-meta.json');
+                const response = await fetch('../../data/museums-meta.json');
                 const museums = await response.json();
                 
                 // Clear existing options
