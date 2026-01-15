@@ -13,6 +13,10 @@
  *   node tools/search-museum-complete.js "浙江省博物馆" "杭州"
  */
 
+// 尝试加载集中配置
+let API_ENDPOINTS;
+try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+
 // ============================================================================
 // 权威媒体搜索模块
 // ============================================================================
@@ -137,7 +141,8 @@ async function searchWithLetmetry(museumName, location) {
     for (const keyword of searchTerms) {
       console.log(`   📝 关键词: "${keyword}"`);
       
-      const response = await fetch('https://letmetry.cloud/image/search', {
+      const endpoint = API_ENDPOINTS ? API_ENDPOINTS.IMAGE.SEARCH : 'https://letmetry.cloud/image/search';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyword, count: 10 })
@@ -154,7 +159,7 @@ async function searchWithLetmetry(museumName, location) {
         console.log(`   ✅ 找到 ${data.images.length} 张图片`);
         return {
           source: 'letmetry-api',
-          sourceUrl: 'https://letmetry.cloud',
+          sourceUrl: API_ENDPOINTS ? API_ENDPOINTS.BASE_URL : 'https://letmetry.cloud',
           imageUrls: data.images,
           description: 'Letmetry API搜索结果'
         };

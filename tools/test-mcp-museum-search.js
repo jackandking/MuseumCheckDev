@@ -5,6 +5,10 @@
  * Tests the search_official_museums tool to verify it works correctly
  */
 
+// 尝试加载集中配置
+let API_ENDPOINTS;
+try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+
 async function testMuseumSearch() {
   console.log('🧪 Testing Museum Search API...\n');
   
@@ -19,7 +23,8 @@ async function testMuseumSearch() {
     console.log(`   Query: ${testCase.name}`);
     
     try {
-      const response = await fetch('https://letmetry.cloud/museum/search', {
+      const endpoint = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://letmetry.cloud/museum/search';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ museumName: testCase.name }),

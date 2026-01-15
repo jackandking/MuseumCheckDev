@@ -25,12 +25,12 @@ class MultiCloudConfig {
       primary: {
         name: 'Letmetry',
         kvEndpoint: config.letmetryKV || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
-        mysqlEndpoint: config.letmetryMySQL || 'https://letmetry.cloud/mysql',
-        fileEndpoint: config.letmetryFile || 'https://letmetry.cloud/image/upload',
-        cdnBaseUrl: config.letmetryCDN || 'https://letmetry.cloud/cdn',
+        mysqlEndpoint: config.letmetryMySQL || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.MYSQL.BASE : 'https://letmetry.cloud/mysql'),
+        fileEndpoint: config.letmetryFile || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload'),
+        cdnBaseUrl: config.letmetryCDN || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.CDN.BASE : 'https://letmetry.cloud/cdn'),
         priority: 1,
         enabled: config.enableLetmetry !== false,
-        healthCheck: async () => this.checkHealth('https://letmetry.cloud/health')
+        healthCheck: async () => this.checkHealth(typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.HEALTH : 'https://letmetry.cloud/health')
       },
       secondary: {
         name: 'Cloudflare',

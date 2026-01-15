@@ -41,7 +41,7 @@
         if (typeof LetmetryAPI !== 'undefined' && typeof LetmetryAPI.updateRecord === 'function'){
           await LetmetryAPI.updateRecord('achievement_posters', id, data);
         } else {
-          await fetch('https://letmetry.cloud/mysql/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ table:'achievement_posters', id, data })});
+          await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.UPDATE : 'https://letmetry.cloud/mysql/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ table:'achievement_posters', id, data })});
         }
         showMessage('保存成功');
         loadList();
@@ -55,7 +55,7 @@
         if (typeof LetmetryAPI !== 'undefined' && typeof LetmetryAPI.deleteRecord === 'function'){
           await LetmetryAPI.deleteRecord('achievement_posters', id);
         } else {
-          await fetch('https://letmetry.cloud/mysql/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ table:'achievement_posters', id })});
+          await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.DELETE : 'https://letmetry.cloud/mysql/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ table:'achievement_posters', id })});
         }
         showMessage('删除成功');
         loadList();
@@ -75,7 +75,7 @@
       if (typeof LetmetryAPI !== 'undefined' && typeof LetmetryAPI.queryMysql === 'function'){
         rows = await LetmetryAPI.queryMysql(sql, []);
       } else {
-        const resp = await fetch('https://letmetry.cloud/mysql/query', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sql, params: [] }) });
+        const resp = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.QUERY : 'https://letmetry.cloud/mysql/query', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sql, params: [] }) });
         rows = await resp.json();
         if (rows && rows.rows) rows = rows.rows;
       }

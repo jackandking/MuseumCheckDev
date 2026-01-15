@@ -35,7 +35,7 @@ describe('Treasure Contributor Feature', () => {
                 // TREASURE_CONTRIBUTOR config should be defined
                 if (APP_CONFIG.TREASURE_CONTRIBUTOR) {
                     expect(APP_CONFIG.TREASURE_CONTRIBUTOR.REQUIRED_TREASURES).toBe(3);
-                    expect(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT).toBe('https://letmetry.cloud/image/upload');
+                    expect(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT).toContain('image/upload');
                     expect(APP_CONFIG.TREASURE_CONTRIBUTOR.MAX_FILE_SIZE_MB).toBe(10);
                 } else {
                     // Skip if not loaded - this is acceptable in unit tests
@@ -187,8 +187,8 @@ describe('Treasure Contributor Feature', () => {
                 expect(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT).toContain('letmetry.cloud');
             } else {
                 // Just validate the expected configuration value
-                const expectedEndpoint = 'https://letmetry.cloud/image/upload';
-                expect(expectedEndpoint).toContain('letmetry.cloud');
+                const expectedEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload';
+                expect(expectedEndpoint).toContain('image/upload');
             }
         });
         

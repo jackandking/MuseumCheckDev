@@ -12,7 +12,7 @@
 class BaiduImageSearch {
   constructor() {
     // API endpoint for Baidu image search
-    this.apiEndpoint = 'https://letmetry.cloud/image/search';
+    this.apiEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.SEARCH : 'https://letmetry.cloud/image/search';
     this.defaultImageCount = 10;
   }
 

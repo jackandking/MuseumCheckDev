@@ -83,7 +83,7 @@ const APP_CONFIG = {
     // Treasure Contributor Configuration
     TREASURE_CONTRIBUTOR: {
         REQUIRED_TREASURES: 3,              // Default number of treasures required to complete
-        FILE_UPLOAD_ENDPOINT: 'https://letmetry.cloud/image/upload',  // File upload API
+        FILE_UPLOAD_ENDPOINT: (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload',  // File upload API
         MAX_FILE_SIZE_MB: 10                // Maximum file size in MB
     },
     

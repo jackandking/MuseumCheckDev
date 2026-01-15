@@ -2,7 +2,8 @@
 // Supports configurable base URL and optional API key stored in localStorage under 'letmetry_api_key'
 
 const LetmetryAPI = (function(){
-  const DEFAULT_BASE = 'https://letmetry.cloud';
+  // 使用集中配置，如果可用
+  const DEFAULT_BASE = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.BASE_URL : 'https://letmetry.cloud';
   let base = DEFAULT_BASE;
   let apiKey = (typeof window !== 'undefined') ? (localStorage.getItem('letmetry_api_key') || window.LETMETRY_API_KEY || '') : '';
 
@@ -181,7 +182,7 @@ const LetmetryAPI = (function(){
     }
 
     try {
-      const response = await fetch('https://letmetry.cloud/museum/search', {
+      const response = await fetch(base + '/museum/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ museumName: museumName.trim() })

@@ -8,6 +8,10 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 
+// 尝试加载集中配置
+let API_ENDPOINTS;
+try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+
 // KV Store 配置
 const KV_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
 const EXPIRY = 4866674732;
@@ -32,7 +36,8 @@ async function validateUrl(url, timeout = 8000) {
 
 async function searchImages(keyword, count = 5) {
   try {
-    const res = await fetch('https://letmetry.cloud/image/search', {
+    const endpoint = API_ENDPOINTS ? API_ENDPOINTS.IMAGE.SEARCH : 'https://letmetry.cloud/image/search';
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ keyword, count })

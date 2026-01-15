@@ -8,7 +8,7 @@
 class ImageUploader {
     constructor(config = {}) {
         this.config = {
-            endpoint: config.endpoint || 'https://letmetry.cloud/image/upload',
+            endpoint: config.endpoint || ((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload'),
             maxFileSizeMB: config.maxFileSizeMB || 10,
             // Compression settings optimized for mobile display
             targetWidth: config.targetWidth || 1200,   // Max width for mobile

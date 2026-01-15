@@ -11,7 +11,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERIFY_ENDPOINT = 'https://letmetry.cloud/museum/search';
+// 尝试加载集中配置
+let API_ENDPOINTS;
+try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+
+const VERIFY_ENDPOINT = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://letmetry.cloud/museum/search';
 const KV_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
 
 const colors = {
