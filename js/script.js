@@ -5375,6 +5375,15 @@ class MuseumCheckApp {
             // Apply search
             if (this.searchQuery) {
                 this.homepageAdapter.search(this.searchQuery);
+                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                
+                // Sort search results by recency (most recently browsed first)
+                this.filteredMuseums.sort((a, b) => {
+                    const timeA = this.browsedMuseums[a.id] || 0;
+                    const timeB = this.browsedMuseums[b.id] || 0;
+                    return timeB - timeA; // Most recent first
+                });
+                return;
             } else {
                 this.homepageAdapter.clearFilters();
                 
@@ -5425,6 +5434,13 @@ class MuseumCheckApp {
                        location.toLowerCase().includes(query) ||
                        description.toLowerCase().includes(query) ||
                        tags.some(tag => (tag || '').toLowerCase().includes(query));
+            });
+            
+            // Sort search results by recency (most recently browsed first)
+            this.filteredMuseums.sort((a, b) => {
+                const timeA = this.browsedMuseums[a.id] || 0;
+                const timeB = this.browsedMuseums[b.id] || 0;
+                return timeB - timeA; // Most recent first
             });
             return;
         }
@@ -7173,8 +7189,22 @@ class MuseumCheckApp {
         // Fallback: Original sorting logic (backward compatibility)
         const sorted = [...museums]; // Create a copy to avoid mutating original
         
+        // When searching, always sort by recency (most recently browsed first)
+        if (this.searchQuery) {
+            sorted.sort((a, b) => {
+                const timeA = this.browsedMuseums[a.id] || 0;
+                const timeB = this.browsedMuseums[b.id] || 0;
+                if (timeA !== timeB) {
+                    return timeB - timeA; // Most recent first
+                }
+                // Fallback: alphabetical by name
+                return a.name.localeCompare(b.name, 'zh-CN');
+            });
+            return sorted;
+        }
+        
         if (this.sortBy === 'default') {
-            // Comprehensive sorting: representative todos > favorites > fireworks > unvisited > distance
+            // Comprehensive sorting: representative todos > favorites > fireworks > recency > unvisited > distance
             sorted.sort((a, b) => {
                 // Priority -1: Museums with representative to-dos first
                 const aHasTodos = this.hasRepresentativeTodos(a.id);
@@ -7196,14 +7226,21 @@ class MuseumCheckApp {
                     return bHasFireworks ? 1 : -1;
                 }
                 
-                // Priority 2: Unvisited museums first
+                // Priority 2: Sort by recency (most recently browsed first)
+                const timeA = this.browsedMuseums[a.id] || 0;
+                const timeB = this.browsedMuseums[b.id] || 0;
+                if (timeA !== timeB) {
+                    return timeB - timeA; // Most recent first
+                }
+                
+                // Priority 3: Unvisited museums first
                 const aVisited = this.visitedMuseums.includes(a.id);
                 const bVisited = this.visitedMuseums.includes(b.id);
                 if (aVisited !== bVisited) {
                     return aVisited ? 1 : -1;
                 }
                 
-                // Priority 3: Closer museums first (if location available)
+                // Priority 4: Closer museums first (if location available)
                 if (this.userLocation) {
                     const aDist = this.getMuseumDistance(a);
                     const bDist = this.getMuseumDistance(b);
@@ -10149,14 +10186,12 @@ class MuseumCheckApp {
     }
 
     updateMobileMenuFireworksVisibility() {
-        // 同步桌面端烟花按钮的显示状态到移动菜单
-        const desktopFireworks = document.getElementById('fireworksButton');
-        const mobileFireworks = document.getElementById('mobileMenuFireworks');
+        // 烟花菜单项只在debug模式下显示
+        const isDebugMode = window.MC_debugMode && window.MC_debugMode.isEnabled();
         
-        if (desktopFireworks && mobileFireworks) {
-            const isVisible = desktopFireworks.style.display !== 'none';
-            mobileFireworks.style.display = isVisible ? 'block' : 'none';
-        }
+        document.querySelectorAll('.fireworks-menu-item').forEach(item => {
+            item.style.display = isDebugMode ? 'flex' : 'none';
+        });
     }
 
     initializeCollapsibleSections() {

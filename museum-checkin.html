@@ -88,7 +88,11 @@
             flex-shrink: 0;
         }
 
-        .menu-button { font-size: 24px; }
+        .menu-button .menu-icon {
+            width: 24px;
+            height: 24px;
+            color: #4a5568;
+        }
         .settings-button { font-size: 20px; }
 
         .menu-button:hover:not(:disabled),
@@ -430,6 +434,52 @@
 
         .close-button:active {
             transform: scale(0.95);
+        }
+
+        /* Mobile Menu Styles */
+        .mobile-menu-content {
+            max-width: 400px;
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mobile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: left;
+        }
+
+        .mobile-menu-item:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+
+        .mobile-menu-item:active {
+            transform: scale(0.98);
+        }
+
+        .mobile-menu-item .menu-icon {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .mobile-menu-item .menu-text {
+            font-size: 16px;
+            color: #334155;
+            font-weight: 500;
         }
 
         .task-detail-icon {
@@ -4281,7 +4331,11 @@
     </div>
 
     <div class="header">
-        <button class="menu-button" id="menuButton" title="菜单">☰</button>
+        <button class="menu-button" id="menuButton" title="菜单">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="menu-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
         <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
     </div>
 
@@ -4507,15 +4561,46 @@
 
     <!-- Menu modal -->
     <div class="modal" id="menuModal">
-        <div class="modal-content">
+        <div class="modal-content mobile-menu-content">
             <div class="modal-header">
-                <h2 class="modal-title">菜单</h2>
+                <h2 class="modal-title">功能菜单</h2>
                 <button class="close-button" id="closeMenu">&times;</button>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="button button-secondary" id="viewMuseumFireworks">🎆 查看本馆烟花墙</button>
-                <button class="button button-secondary" id="viewFireworks">查看总烟花墙</button>
-                <button class="button button-secondary" id="backToHome">返回主页</button>
+            <div class="modal-body">
+                <div class="mobile-menu-items">
+                    <button class="mobile-menu-item" data-action="achievements">
+                        <span class="menu-icon">🏆</span>
+                        <span class="menu-text">我的成就</span>
+                    </button>
+                    <button class="mobile-menu-item fireworks-menu-item" data-action="museumFireworks" id="viewMuseumFireworks" style="display: none;">
+                        <span class="menu-icon">🎆</span>
+                        <span class="menu-text">本馆烟花墙</span>
+                    </button>
+                    <button class="mobile-menu-item fireworks-menu-item" data-action="fireworks" id="viewFireworks" style="display: none;">
+                        <span class="menu-icon">🎇</span>
+                        <span class="menu-text">总烟花墙</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="leaderboard">
+                        <span class="menu-icon">🏅</span>
+                        <span class="menu-text">排行榜</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="quiz">
+                        <span class="menu-icon">🎓</span>
+                        <span class="menu-text">考一考</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="nationalTreasures">
+                        <span class="menu-icon">🎁</span>
+                        <span class="menu-text">中国十大国宝</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="eventWall">
+                        <span class="menu-icon">🎯</span>
+                        <span class="menu-text">事件墙</span>
+                    </button>
+                    <button class="mobile-menu-item" data-action="home" id="backToHome">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">返回主页</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -5670,6 +5755,13 @@
             setupEventListeners();
             loadCompletedTasks();
             loadPhotos(); // Load saved photos
+            
+            // Show fireworks menu items only in debug mode
+            if (window.MC_debugMode && window.MC_debugMode.isEnabled()) {
+                document.querySelectorAll('.fireworks-menu-item').forEach(item => {
+                    item.style.display = 'flex';
+                });
+            }
             // Re-render after loading persisted completion state so counts and badges reflect correctly
             renderTasks();
             updateProgress();
@@ -8623,18 +8715,40 @@
                 });
             }
 
-            // Menu actions
-            document.getElementById('viewMuseumFireworks').onclick = () => {
-                window.location.href = `fireworks-wall.html?museum=${museumId}`;
-            };
-
-            document.getElementById('viewFireworks').onclick = () => {
-                window.location.href = `fireworks-wall.html`;
-            };
-
-            document.getElementById('backToHome').onclick = () => {
-                window.location.href = 'index.html';
-            };
+            // Menu actions - handle all mobile menu items
+            document.querySelectorAll('.mobile-menu-item').forEach(item => {
+                item.onclick = () => {
+                    const action = item.getAttribute('data-action');
+                    document.getElementById('menuModal').classList.remove('show');
+                    
+                    switch(action) {
+                        case 'achievements':
+                            window.location.href = 'achievements.html';
+                            break;
+                        case 'museumFireworks':
+                            window.location.href = `fireworks-wall.html?museum=${museumId}`;
+                            break;
+                        case 'fireworks':
+                            window.location.href = 'fireworks-wall.html';
+                            break;
+                        case 'leaderboard':
+                            window.location.href = 'leaderboard.html';
+                            break;
+                        case 'quiz':
+                            window.location.href = 'quiz/';
+                            break;
+                        case 'nationalTreasures':
+                            window.location.href = 'survey/national-treasures/';
+                            break;
+                        case 'eventWall':
+                            window.location.href = 'event-wall.html';
+                            break;
+                        case 'home':
+                            window.location.href = 'index.html';
+                            break;
+                    }
+                };
+            });
 
             document.getElementById('parentTasksLink').onclick = (e) => {
                 e.preventDefault();
