@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>考一考 - 博物馆知识测验</title>
     <script src="../js/debug-mode.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/global-ui.css">
     <link rel="stylesheet" href="css/quiz-style.css">
 </head>
 <body>
     <div class="quiz-container">
         <header class="quiz-header">
-            <h1>🎓 考一考</h1>
+            <div class="quiz-header-top">
+                <button class="menu-button quiz-back-btn" onclick="goHome()" title="返回首页">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1>🎓 考一考</h1>
+                <div style="width: 44px;"></div>
+            </div>
             <div class="user-stats">
                 <span class="points">积分: <strong id="totalPoints">0</strong></span>
                 <span class="daily-limit">今日: <span id="dailyCount">0</span>/<span id="dailyLimit">30</span>题</span>

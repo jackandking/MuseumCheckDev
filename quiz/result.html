@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>答题结果 - 考一考</title>
     <script src="../js/debug-mode.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/global-ui.css">
     <link rel="stylesheet" href="css/quiz-style.css">
     <style>
         .result-container {
@@ -107,7 +109,7 @@
         }
 
         .achievement-unlocked {
-            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            background: linear-gradient(135deg, var(--quiz-primary) 0%, #667eea 100%);
             color: white;
             padding: 20px;
             border-radius: 12px;
@@ -325,7 +327,7 @@
         }
 
         function goHome() {
-            window.location.href = '../../index.html';
+            window.location.href = '../index.html';
         }
     </script>
 </body>

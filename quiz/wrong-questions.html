@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>错题本 - 考一考</title>
     <script src="../js/debug-mode.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/global-ui.css">
     <link rel="stylesheet" href="css/quiz-style.css">
     <style>
         .wrong-questions-container {
@@ -14,7 +16,7 @@
         }
 
         .wrong-questions-header {
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            background: linear-gradient(135deg, var(--quiz-primary) 0%, #667eea 100%);
             color: white;
             padding: 30px 20px;
             border-radius: 16px;
@@ -23,14 +25,17 @@
         }
 
         .wrong-questions-header h1 {
-            margin: 0 0 12px 0;
-            font-size: 28px;
+            margin: 0;
+            font-size: 24px;
+            flex: 1;
+            text-align: center;
         }
 
         .wrong-questions-header p {
-            margin: 0;
+            margin: 12px 0 0 0;
             font-size: 16px;
             opacity: 0.9;
+            text-align: center;
         }
 
         .filter-bar {
@@ -211,7 +216,15 @@
 <body>
     <div class="wrong-questions-container">
         <header class="wrong-questions-header">
-            <h1>📖 错题本</h1>
+            <div class="quiz-header-top">
+                <button class="menu-button quiz-back-btn" onclick="goToQuizHome()" title="返回考一考">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1>📖 错题本</h1>
+                <div style="width: 44px;"></div>
+            </div>
             <p>温故而知新，复习错题是进步的捷径！</p>
         </header>
 

@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>答题中 - 考一考</title>
     <script src="../js/debug-mode.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/global-ui.css">
     <link rel="stylesheet" href="css/quiz-style.css">
 </head>
 <body class="quiz-session-body">
     <div class="session-container">
         <header class="session-header">
-            <div class="museum-name" id="museumName"></div>
+            <div class="session-header-top">
+                <button class="menu-button quiz-back-btn" onclick="confirmExit()" title="退出答题">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <div class="museum-name" id="museumName"></div>
+                <div style="width: 44px;"></div>
+            </div>
             <div class="question-progress">
                 第 <span id="currentIndex">1</span>/<span id="totalQuestions">10</span> 题
             </div>
@@ -294,6 +304,12 @@
             const streak = engine.currentSession.streak;
             const streakDisplay = document.getElementById('streakDisplay');
             streakDisplay.textContent = '⭐'.repeat(Math.min(streak, 10));
+        }
+
+        function confirmExit() {
+            if (confirm('确定要退出答题吗？当前进度不会保存。')) {
+                window.location.href = 'index.html';
+            }
         }
     </script>
 </body>

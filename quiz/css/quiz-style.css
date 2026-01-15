@@ -2,23 +2,24 @@
  * Quiz Feature Styles
  * 考一考功能样式
  * 适配7-12岁儿童的视觉设计
+ * 与主页风格保持一致
  */
 
-/* ===== Variables ===== */
+/* ===== Variables - 与主页style.css保持一致 ===== */
 :root {
-    --quiz-primary: #4F46E5;
-    --quiz-primary-hover: #4338CA;
-    --quiz-success: #10B981;
+    --quiz-primary: #2c5aa0;
+    --quiz-primary-hover: #1e4080;
+    --quiz-success: #28a745;
     --quiz-error: #EF4444;
     --quiz-warning: #F59E0B;
     --quiz-info: #3B82F6;
-    --quiz-bg: #F3F4F6;
+    --quiz-bg: #f8f9fa;
     --quiz-card-bg: #FFFFFF;
-    --quiz-text: #1F2937;
-    --quiz-text-light: #6B7280;
-    --quiz-border: #E5E7EB;
-    --quiz-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --quiz-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --quiz-text: #333;
+    --quiz-text-light: #666;
+    --quiz-border: #e5e7eb;
+    --quiz-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --quiz-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* ===== Global Styles ===== */
@@ -31,12 +32,39 @@
 }
 
 .quiz-header {
-    background: linear-gradient(135deg, var(--quiz-primary) 0%, #7C3AED 100%);
+    background: linear-gradient(135deg, var(--quiz-primary) 0%, #667eea 100%);
     color: white;
-    padding: 30px 20px;
+    padding: 20px;
     border-radius: 16px;
     margin-bottom: 24px;
     box-shadow: var(--quiz-shadow-lg);
+}
+
+.quiz-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.quiz-header-top h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+}
+
+.quiz-back-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+.quiz-back-btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.05);
 }
 
 .quiz-header h1 {
@@ -245,13 +273,26 @@ section h2 {
 }
 
 .session-header {
-    background: linear-gradient(135deg, var(--quiz-primary) 0%, #7C3AED 100%);
+    background: linear-gradient(135deg, var(--quiz-primary) 0%, #667eea 100%);
     color: white;
     padding: 20px;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: var(--quiz-shadow-lg);
+}
+
+.session-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.session-header-top .museum-name {
+    flex: 1;
+    text-align: center;
+    margin-bottom: 0;
 }
 
 .museum-name {
@@ -635,7 +676,7 @@ section h2 {
 }
 
 .progress-fill {
-    background: linear-gradient(90deg, var(--quiz-primary) 0%, #7C3AED 100%);
+    background: linear-gradient(90deg, var(--quiz-primary) 0%, #667eea 100%);
     height: 100%;
     transition: width 0.3s ease;
 }
