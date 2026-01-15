@@ -59,20 +59,60 @@
     <!-- Critical CSS - Minimal styles for fast first paint -->
     <style>
         /* Critical CSS for immediate paint - shows loading state quickly */
+        /* Color scheme aligned with main site (teal-based) */
+        :root {
+            --checkin-primary: #0D9488;
+            --checkin-secondary: #2DD4BF;
+            --checkin-bg-start: #F0FDFA;
+            --checkin-bg-mid: #CCFBF1;
+            --checkin-bg-end: #99F6E4;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #a8d8ea 0%, #7fc8dc 50%, #5ab4d1 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--checkin-bg-start) 0%, var(--checkin-bg-mid) 50%, var(--checkin-bg-end) 100%);
             min-height: 100vh;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .loading { text-align: center; color: white; font-size: 18px; padding: 40px; }
-        .loading-spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        .loading { text-align: center; color: var(--checkin-primary); font-size: 18px; padding: 40px; }
+        .loading-spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(13,148,136,.3); border-radius: 50%; border-top-color: var(--checkin-primary); animation: spin 1s linear infinite; margin-bottom: 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .header { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
+        
+        /* Unified header structure - matches main site */
+        .checkin-header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        .checkin-header h1 {
+            flex: 1;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--checkin-primary);
+            text-align: center;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .checkin-header .nickname-display {
+            cursor: pointer;
+            color: var(--checkin-primary);
+        }
+        .checkin-header .nickname-display:hover {
+            text-decoration: underline;
+        }
         .menu-button, .settings-button {
             width: 44px;
             height: 44px;
@@ -86,45 +126,50 @@
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
             transition: all 0.2s ease;
             flex-shrink: 0;
+            margin: 0 8px;
         }
-
         .menu-button .menu-icon {
             width: 24px;
             height: 24px;
             color: #4a5568;
         }
-        .settings-button { font-size: 20px; }
-
+        .settings-button .settings-icon {
+            width: 24px;
+            height: 24px;
+            color: #4a5568;
+        }
         .menu-button:hover:not(:disabled),
         .settings-button:hover:not(:disabled) {
             background-color: #f0f0f0;
             transform: scale(1.1);
-            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.2);
         }
-
         .menu-button:active,
         .settings-button:active {
             transform: scale(0.95);
         }
-        .title {
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            margin: 20px 0 30px 0;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            letter-spacing: 0.5px;
+        
+        /* Legacy .header support (hidden) */
+        .header { display: none; }
+        .title { display: none; }
+        
+        .museum-name { 
+            font-size: 18px; 
+            color: var(--checkin-primary); 
+            text-align: center; 
+            margin-bottom: 20px;
+            font-weight: 500;
         }
-        .museum-name { font-size: 18px; color: rgba(255, 255, 255, 0.9); text-align: center; margin-bottom: 30px; }
         .task-grid { width: 100%; max-width: 800px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding-bottom: 20px; }
         @media (max-width: 768px) { 
             .task-grid { grid-template-columns: repeat(2, 1fr); } 
-            .title { font-size: 28px; }
-            .menu-button, .settings-button { width: 44px; height: 44px; font-size: 18px; }
+            .checkin-header h1 { font-size: 1em; }
+            .menu-button, .settings-button { width: 44px; height: 44px; }
         }
         @media (max-width: 480px) {
-            .menu-button, .settings-button { width: 40px; height: 40px; font-size: 16px; }
+            .checkin-header { padding: 8px 0; }
+            .checkin-header h1 { font-size: 0.9em; }
+            .menu-button, .settings-button { width: 40px; height: 40px; margin: 0 4px; }
         }
     </style>
     
@@ -438,48 +483,62 @@
 
         /* Mobile Menu Styles */
         .mobile-menu-content {
-            max-width: 400px;
+            max-width: 90vw;
+            width: 360px;
         }
 
+        /* Grid layout for menu items - compact cards that fit in one screen */
         .mobile-menu-items {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 8px 0;
         }
 
         .mobile-menu-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 16px;
-            padding: 16px 20px;
-            background: #f8fafc;
-            border: none;
-            border-radius: 12px;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.2s ease;
-            width: 100%;
-            text-align: left;
+            text-align: center;
+            min-height: 80px;
         }
 
         .mobile-menu-item:hover {
-            background: #e2e8f0;
-            transform: translateX(4px);
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            border-color: var(--checkin-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
         }
 
         .mobile-menu-item:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
 
         .mobile-menu-item .menu-icon {
-            font-size: 24px;
-            width: 32px;
-            text-align: center;
+            font-size: 28px;
+            line-height: 1;
         }
 
         .mobile-menu-item .menu-text {
-            font-size: 16px;
+            font-size: 12px;
             color: #334155;
-            font-weight: 500;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        /* Responsive: 2 columns on very narrow screens */
+        @media (max-width: 320px) {
+            .mobile-menu-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .task-detail-icon {
@@ -4330,16 +4389,28 @@
         ✏️ 编辑模式
     </div>
 
-    <div class="header">
+    <!-- Unified header structure - matches main site -->
+    <header class="checkin-header">
         <button class="menu-button" id="menuButton" title="菜单">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="menu-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
-        <button class="settings-button" id="settingsButton" title="设置">⚙️</button>
-    </div>
+        <h1><span id="nicknameDisplay" class="nickname-display" title="点击修改昵称">小淘气</span>的孩子任务</h1>
+        <button class="settings-button" id="settingsButton" title="设置">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="settings-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+        </button>
+    </header>
 
-    <h1 class="title" id="pageTitle" title="点击修改昵称">孩子任务</h1>
+    <!-- Legacy elements (hidden, kept for JS compatibility) -->
+    <div class="header" style="display:none;">
+        <button class="menu-button" id="menuButtonLegacy" title="菜单"></button>
+        <button class="settings-button" id="settingsButtonLegacy" title="设置"></button>
+    </div>
+    <h1 class="title" id="pageTitle" title="点击修改昵称" style="display:none;">孩子任务</h1>
     <div class="museum-name" id="museumName">加载中...</div>
 
     <div class="progress-container">
@@ -4567,39 +4638,8 @@
                 <button class="close-button" id="closeMenu">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="mobile-menu-items">
-                    <button class="mobile-menu-item" data-action="achievements">
-                        <span class="menu-icon">🏆</span>
-                        <span class="menu-text">我的成就</span>
-                    </button>
-                    <button class="mobile-menu-item fireworks-menu-item" data-action="museumFireworks" id="viewMuseumFireworks" style="display: none;">
-                        <span class="menu-icon">🎆</span>
-                        <span class="menu-text">本馆烟花墙</span>
-                    </button>
-                    <button class="mobile-menu-item fireworks-menu-item" data-action="fireworks" id="viewFireworks" style="display: none;">
-                        <span class="menu-icon">🎇</span>
-                        <span class="menu-text">总烟花墙</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="leaderboard">
-                        <span class="menu-icon">🏅</span>
-                        <span class="menu-text">排行榜</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="quiz">
-                        <span class="menu-icon">🎓</span>
-                        <span class="menu-text">考一考</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="nationalTreasures">
-                        <span class="menu-icon">🎁</span>
-                        <span class="menu-text">中国十大国宝</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="eventWall">
-                        <span class="menu-icon">🎯</span>
-                        <span class="menu-text">事件墙</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="home" id="backToHome">
-                        <span class="menu-icon">🏠</span>
-                        <span class="menu-text">返回主页</span>
-                    </button>
+                <div class="mobile-menu-items" id="sharedMenuItems">
+                    <!-- Menu items injected by SharedMenu -->
                 </div>
             </div>
         </div>
@@ -5027,6 +5067,16 @@
     <script src="js/image-upload-util.js"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
     <script src="js/event-wall-service.js"></script>
+    <!-- Shared Menu Component -->
+    <script src="js/shared-menu.js"></script>
+    <script>
+        // Initialize shared menu after DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof SharedMenu !== 'undefined') {
+                SharedMenu.init({ showHome: true, showMuseumFireworks: true });
+            }
+        });
+    </script>
     
     <script>
         // Configuration
@@ -8510,7 +8560,16 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            // Set up inline nickname editing on page title click
+            // Set up inline nickname editing on new unified header nickname display
+            const nicknameDisplay = document.getElementById('nicknameDisplay');
+            if (nicknameDisplay) {
+                nicknameDisplay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startInlineNicknameEditOnTitle(nicknameDisplay);
+                });
+            }
+            
+            // Set up inline nickname editing on legacy page title click
             const pageTitleElement = document.getElementById('pageTitle');
             if (pageTitleElement) {
                 pageTitleElement.addEventListener('click', (e) => {
@@ -8715,39 +8774,10 @@
                 });
             }
 
-            // Menu actions - handle all mobile menu items
-            document.querySelectorAll('.mobile-menu-item').forEach(item => {
-                item.onclick = () => {
-                    const action = item.getAttribute('data-action');
-                    document.getElementById('menuModal').classList.remove('show');
-                    
-                    switch(action) {
-                        case 'achievements':
-                            window.location.href = 'achievements.html';
-                            break;
-                        case 'museumFireworks':
-                            window.location.href = `fireworks-wall.html?museum=${museumId}`;
-                            break;
-                        case 'fireworks':
-                            window.location.href = 'fireworks-wall.html';
-                            break;
-                        case 'leaderboard':
-                            window.location.href = 'leaderboard.html';
-                            break;
-                        case 'quiz':
-                            window.location.href = 'quiz/';
-                            break;
-                        case 'nationalTreasures':
-                            window.location.href = 'survey/national-treasures/';
-                            break;
-                        case 'eventWall':
-                            window.location.href = 'event-wall.html';
-                            break;
-                        case 'home':
-                            window.location.href = 'index.html';
-                            break;
-                    }
-                };
+            // Menu actions - 由 SharedMenu 组件处理
+            // 监听 SharedMenu 派发的本馆烟花墙事件
+            document.addEventListener('sharedmenu:museumFireworks', () => {
+                window.location.href = `fireworks-wall.html?museum=${museumId}`;
             });
 
             document.getElementById('parentTasksLink').onclick = (e) => {
@@ -9113,14 +9143,20 @@
             const nickname = loadChildNickname();
             const title = `${nickname}的任务`;
             
-            // Update h1 title
+            // Update new unified header nickname display
+            const nicknameDisplay = document.getElementById('nicknameDisplay');
+            if (nicknameDisplay) {
+                nicknameDisplay.textContent = nickname;
+            }
+            
+            // Update legacy h1 title (kept for compatibility)
             const pageTitleElement = document.getElementById('pageTitle');
             if (pageTitleElement) {
                 pageTitleElement.textContent = title;
             }
             
             // Update page title tag
-            document.title = `${title} - 博物馆打卡`;
+            document.title = `${nickname}的孩子任务 - 博物馆打卡`;
         }
 
         // Settings management functions
@@ -9199,9 +9235,12 @@
                 return;
             }
             
+            // Check if this is the new unified header nickname display (only shows nickname)
+            const isNicknameDisplayOnly = titleElement.id === 'nicknameDisplay';
+            
             const currentText = titleElement.textContent.trim();
-            // Extract nickname from "nickname的任务" format
-            const currentNickname = currentText.replace('的任务', '');
+            // Extract nickname - for nicknameDisplay it's just the text, for pageTitle it's "nickname的任务"
+            const currentNickname = isNicknameDisplayOnly ? currentText : currentText.replace('的任务', '');
             
             // Create input element
             const input = document.createElement('input');
@@ -9246,13 +9285,16 @@
             input.focus();
             input.select();
             
+            // Helper to format display text based on element type
+            const formatDisplay = (nickname) => isNicknameDisplayOnly ? nickname : `${nickname}的任务`;
+            
             // Handle save on Enter key
             const handleSave = () => {
                 const newNickname = input.value.trim();
                 
                 if (newNickname === '') {
                     // Restore original if empty
-                    titleElement.textContent = `${originalNickname}的任务`;
+                    titleElement.textContent = formatDisplay(originalNickname);
                     return;
                 }
                 
@@ -9262,7 +9304,10 @@
                     
                     if (result.success) {
                         // Update display
-                        titleElement.textContent = `${newNickname}的任务`;
+                        titleElement.textContent = formatDisplay(newNickname);
+                        
+                        // Also update page title
+                        updatePageTitle();
                         
                         // Show brief success feedback
                         titleElement.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
@@ -9272,17 +9317,17 @@
                     } else {
                         // Show error and restore original
                         alert(result.message);
-                        titleElement.textContent = `${originalNickname}的任务`;
+                        titleElement.textContent = formatDisplay(originalNickname);
                     }
                 } else {
                     // No change, just restore display
-                    titleElement.textContent = `${originalNickname}的任务`;
+                    titleElement.textContent = formatDisplay(originalNickname);
                 }
             };
             
             // Handle cancel on Escape key
             const handleCancel = () => {
-                titleElement.textContent = `${originalNickname}的任务`;
+                titleElement.textContent = formatDisplay(originalNickname);
             };
             
             // Event listeners

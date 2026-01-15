@@ -35,11 +35,6 @@
     <!-- Bing Site Verification -->
     <meta name="msvalidate.01" content="bing-verification-museum-check">
     
-    <!-- Google Fonts for educational UI -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Critical CSS - Load immediately for fast first paint -->
     <link rel="stylesheet" href="css/style.css">
     
@@ -789,8 +784,18 @@
     
     <!-- Event Wall Service (shared) -->
     <script src="js/event-wall-service.js"></script>
+    <!-- Shared Menu Component -->
+    <script src="js/shared-menu.js"></script>
     <!-- Main application script - must run to render museum list -->
     <script src="js/script.js"></script>
+    <script>
+      // Initialize shared menu after DOM ready
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof SharedMenu !== 'undefined') {
+          SharedMenu.init({ showHome: false });
+        }
+      });
+    </script>
     <!-- Non-critical scripts loaded dynamically after first user interaction -->
     <script>
       // Lazy load non-critical scripts after first user interaction
@@ -860,31 +865,8 @@
                 <button class="close" id="closeMobileMenu" aria-label="关闭菜单">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="mobile-menu-items">
-                    <button class="mobile-menu-item" data-action="achievements">
-                        <span class="menu-icon">🏆</span>
-                        <span class="menu-text">我的成就</span>
-                    </button>
-                    <button class="mobile-menu-item fireworks-menu-item" data-action="fireworks" id="mobileMenuFireworks" style="display: none;">
-                        <span class="menu-icon">🎆</span>
-                        <span class="menu-text">烟花记录</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="leaderboard">
-                        <span class="menu-icon">🏅</span>
-                        <span class="menu-text">排行榜</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="quiz">
-                        <span class="menu-icon">🎓</span>
-                        <span class="menu-text">考一考</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="nationalTreasures">
-                        <span class="menu-icon">🎁</span>
-                        <span class="menu-text">中国十大国宝</span>
-                    </button>
-                    <button class="mobile-menu-item" data-action="eventWall">
-                        <span class="menu-icon">🎯</span>
-                        <span class="menu-text">事件墙</span>
-                    </button>
+                <div class="mobile-menu-items" id="sharedMenuItems">
+                    <!-- Menu items injected by SharedMenu -->
                 </div>
             </div>
         </div>

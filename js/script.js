@@ -4811,14 +4811,14 @@ class MuseumCheckApp {
             });
         }
 
-        // 汉堡菜单项点击事件委托
-        const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
-        mobileMenuItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const action = e.currentTarget.getAttribute('data-action');
-                this.handleMobileMenuAction(action);
-            });
+        // 汉堡菜单项点击事件 - 由 SharedMenu 组件处理
+        // 监听 SharedMenu 派发的事件
+        document.addEventListener('sharedmenu:leaderboard', () => {
+            this.showLeaderboardModal();
         });
+        
+        // 暴露 showLeaderboardModal 供 SharedMenu 调用
+        window.showLeaderboardModal = () => this.showLeaderboardModal();
 
         // 汉堡菜单模态框外部点击关闭
         const mobileMenuModal = document.getElementById('mobileMenuModal');
@@ -10165,8 +10165,8 @@ class MuseumCheckApp {
             case 'quiz':
                 window.location.href = 'quiz/index.html';
                 break;
-            case 'nationalTreasures':
-                window.open('survey/national-treasures/index.html', '_blank');
+            case 'surveyIndex':
+                window.open('survey/index.html', '_blank');
                 break;
             case 'eventWall':
                 window.open('event-wall.html', '_blank');
