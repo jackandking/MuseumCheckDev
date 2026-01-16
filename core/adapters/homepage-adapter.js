@@ -280,28 +280,16 @@ class HomepageAdapter {
    * 默认排序策略
    */
   sortByDefaultStrategy() {
-    // 获取用户数据
-    const visited = this.getVisitedMuseums();
-    const favorites = this.getFavoriteMuseums();
-    const fireworks = this.getMuseumsWithFireworks();
+    // 获取最近访问记录
+    const recentVisits = this.getRecentVisits();
 
     this.filteredMuseums.sort((a, b) => {
-      // 1. 收藏的在前
-      const aFav = favorites.includes(a.id);
-      const bFav = favorites.includes(b.id);
-      if (aFav !== bFav) return aFav ? -1 : 1;
+      // 1. 最近访问的在前
+      const aTime = recentVisits[a.id] || 0;
+      const bTime = recentVisits[b.id] || 0;
+      if (aTime !== bTime) return bTime - aTime;
 
-      // 2. 有烟花的在前
-      const aFire = fireworks.includes(a.id);
-      const bFire = fireworks.includes(b.id);
-      if (aFire !== bFire) return aFire ? -1 : 1;
-
-      // 3. 未参观的在前
-      const aVisit = visited.includes(a.id);
-      const bVisit = visited.includes(b.id);
-      if (aVisit !== bVisit) return aVisit ? 1 : -1;
-
-      // 4. 最后按名称排序
+      // 2. 按名称排序
       return a.name.localeCompare(b.name, 'zh-CN');
     });
   }
@@ -335,6 +323,20 @@ class HomepageAdapter {
     } catch (error) {
       console.error('Error reading visitedMuseums:', error);
       return [];
+    }
+  }
+
+  /**
+   * 获取最近访问记录（博物馆ID -> 访问时间戳）
+   * @returns {Object<string, number>}
+   */
+  getRecentVisits() {
+    try {
+      const meta = localStorage.getItem('visitedMuseumsMeta');
+      return meta ? JSON.parse(meta) : {};
+    } catch (error) {
+      console.error('Error reading visitedMuseumsMeta:', error);
+      return {};
     }
   }
 

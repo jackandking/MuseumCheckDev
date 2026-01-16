@@ -7075,42 +7075,14 @@ class MuseumCheckApp {
         const sorted = [...museums]; // Create a copy to avoid mutating original
         
         if (this.sortBy === 'default') {
-            // Comprehensive sorting: representative todos > favorites > fireworks > unvisited > distance
+            // Sorting: recent visit > name
+            const visitMeta = this.loadVisitedMuseumsMeta() || {};
             sorted.sort((a, b) => {
-                // Priority -1: Museums with representative to-dos first
-                const aHasTodos = this.hasRepresentativeTodos(a.id);
-                const bHasTodos = this.hasRepresentativeTodos(b.id);
-                if (aHasTodos !== bHasTodos) {
-                    return bHasTodos ? 1 : -1;
-                }
-                // Priority 0: Favorite museums first
-                const aFavorite = this.favoriteMuseums.includes(a.id);
-                const bFavorite = this.favoriteMuseums.includes(b.id);
-                if (aFavorite !== bFavorite) {
-                    return bFavorite ? 1 : -1;
-                }
-                
-                // Priority 1: Museums with fireworks first
-                const aHasFireworks = this.hasFireworks(a.id);
-                const bHasFireworks = this.hasFireworks(b.id);
-                if (aHasFireworks !== bHasFireworks) {
-                    return bHasFireworks ? 1 : -1;
-                }
-                
-                // Priority 2: Unvisited museums first
-                const aVisited = this.visitedMuseums.includes(a.id);
-                const bVisited = this.visitedMuseums.includes(b.id);
-                if (aVisited !== bVisited) {
-                    return aVisited ? 1 : -1;
-                }
-                
-                // Priority 3: Closer museums first (if location available)
-                if (this.userLocation) {
-                    const aDist = this.getMuseumDistance(a);
-                    const bDist = this.getMuseumDistance(b);
-                    if (aDist !== bDist) {
-                        return aDist - bDist;
-                    }
+                // Priority 1: Most recently visited first
+                const timeA = visitMeta[a.id] || 0;
+                const timeB = visitMeta[b.id] || 0;
+                if (timeA !== timeB) {
+                    return timeB - timeA; // Most recent first
                 }
                 
                 // Fallback: alphabetical by name
