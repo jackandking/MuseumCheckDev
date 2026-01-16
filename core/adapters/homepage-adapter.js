@@ -280,18 +280,40 @@ class HomepageAdapter {
    * 默认排序策略
    */
   sortByDefaultStrategy() {
-    // 获取最近访问记录
+    this.filteredMuseums = this.sortMuseumsArray(this.filteredMuseums, 'default');
+  }
+
+  /**
+   * 排序任意博物馆数组（核心排序逻辑，唯一来源）
+   * @param {Array<Object>} museums - 要排序的博物馆数组
+   * @param {string} sortBy - 排序方式 ('default', 'name', 'location')
+   * @returns {Array<Object>} 排序后的数组
+   */
+  sortMuseumsArray(museums, sortBy = 'default') {
+    const sorted = [...museums];
     const recentVisits = this.getRecentVisits();
 
-    this.filteredMuseums.sort((a, b) => {
-      // 1. 最近访问的在前
-      const aTime = recentVisits[a.id] || 0;
-      const bTime = recentVisits[b.id] || 0;
-      if (aTime !== bTime) return bTime - aTime;
+    if (sortBy === 'default') {
+      sorted.sort((a, b) => {
+        // 1. 最近访问的在前
+        const aTime = recentVisits[a.id] || 0;
+        const bTime = recentVisits[b.id] || 0;
+        if (aTime !== bTime) return bTime - aTime;
 
-      // 2. 按名称排序
-      return a.name.localeCompare(b.name, 'zh-CN');
-    });
+        // 2. 按名称排序
+        return a.name.localeCompare(b.name, 'zh-CN');
+      });
+    } else if (sortBy === 'name') {
+      sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+    } else if (sortBy === 'location') {
+      sorted.sort((a, b) => {
+        const locCompare = (a.location || '').localeCompare(b.location || '', 'zh-CN');
+        if (locCompare !== 0) return locCompare;
+        return a.name.localeCompare(b.name, 'zh-CN');
+      });
+    }
+
+    return sorted;
   }
 
   /**

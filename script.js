@@ -7059,68 +7059,13 @@ class MuseumCheckApp {
 
     // Sort museums based on current sort preference
     sortMuseums(museums) {
-        // Phase 2.5: Use HomepageAdapter if available
+        // Delegate to HomepageAdapter (single source of truth for sorting)
         if (this.homepageAdapter) {
-            // Sync visited/favorite museums to adapter before sorting
-            // (Adapter needs these for default sort strategy)
-            this.homepageAdapter.visitedMuseums = this.visitedMuseums || [];
-            this.homepageAdapter.favoriteMuseums = this.favoriteMuseums || [];
-            
-            // Let adapter handle sorting
-            this.homepageAdapter.sort(this.sortBy || 'default');
-            return this.homepageAdapter.getFilteredMuseums();
+            return this.homepageAdapter.sortMuseumsArray(museums, this.sortBy || 'default');
         }
         
-        // Fallback: Original sorting logic (backward compatibility)
-        const sorted = [...museums]; // Create a copy to avoid mutating original
-        
-        if (this.sortBy === 'default') {
-            // Sorting: recent visit > name
-            const visitMeta = this.loadVisitedMuseumsMeta() || {};
-            sorted.sort((a, b) => {
-                // Priority 1: Most recently visited first
-                const timeA = visitMeta[a.id] || 0;
-                const timeB = visitMeta[b.id] || 0;
-                if (timeA !== timeB) {
-                    return timeB - timeA; // Most recent first
-                }
-                
-                // Fallback: alphabetical by name
-                return a.name.localeCompare(b.name, 'zh-CN');
-            });
-        } else if (this.sortBy === 'name') {
-            // Sort by name alphabetically
-            sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
-        } else if (this.sortBy === 'location') {
-            // Sort by location, then by name
-            sorted.sort((a, b) => {
-                const locCompare = a.location.localeCompare(b.location, 'zh-CN');
-                if (locCompare !== 0) return locCompare;
-                return a.name.localeCompare(b.name, 'zh-CN');
-            });
-        } else if (this.sortBy === 'visited') {
-            // Sort by visit status (unvisited first), then by name
-            sorted.sort((a, b) => {
-                const aVisited = this.visitedMuseums.includes(a.id);
-                const bVisited = this.visitedMuseums.includes(b.id);
-                if (aVisited !== bVisited) {
-                    return aVisited ? 1 : -1;
-                }
-                return a.name.localeCompare(b.name, 'zh-CN');
-            });
-        } else if (this.sortBy === 'distance') {
-            // Sort by distance (closest first), then by name
-            sorted.sort((a, b) => {
-                const aDist = this.getMuseumDistance(a);
-                const bDist = this.getMuseumDistance(b);
-                if (aDist !== bDist) {
-                    return aDist - bDist;
-                }
-                return a.name.localeCompare(b.name, 'zh-CN');
-            });
-        }
-        
-        return sorted;
+        // Fallback: simple alphabetical sort if adapter not available
+        return [...museums].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
     }
 
     renderMuseums() {
