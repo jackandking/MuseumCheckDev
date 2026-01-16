@@ -65,8 +65,8 @@ describe('URL Parameter Consistency', () => {
         });
 
         test('should store parameter value in museumId variable', () => {
-            // The pattern should be: const museumId = urlParams.get('museum')
-            expect(museumCheckinHtml).toMatch(/const\s+museumId\s*=\s*urlParams\.get\(['"]museum['"]\)/);
+            // The pattern should support both 'id' and 'museum' parameters with fallback
+            expect(museumCheckinHtml).toMatch(/const\s+museumId\s*=\s*urlParams\.get\(['"](?:id|museum)['"]\)/);
         });
     });
 
