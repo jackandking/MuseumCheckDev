@@ -10,6 +10,20 @@
 
 set -e
 
+# ====== Auto-sync museums-meta.json → museums-meta.js ======
+META_JSON="data/museums-meta.json"
+META_JS="js/museums-meta.js"
+STAGED_META_JSON=$(git diff --cached --name-only | grep "$META_JSON" || true)
+
+if [ -n "$STAGED_META_JSON" ]; then
+    echo "🔄 museums-meta.json changed, regenerating museums-meta.js..."
+    node tools/generate-museums-meta-js.js
+    git add "$META_JS"
+    echo "✅ museums-meta.js updated and staged"
+    echo ""
+fi
+
+# ====== Museum verification ======
 VERIFY_TOOL="node tools/verify-museum-official.js"
 SCRIPT_FILE="script.js"
 STAGED_SCRIPT=$(git diff --cached --name-only | grep "$SCRIPT_FILE" || true)
