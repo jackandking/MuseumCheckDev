@@ -96,6 +96,8 @@
             gap: 20px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+            /* Override sticky positioning from main CSS - not needed on achievements page */
+            position: static;
         }
 
         .stat-card {
@@ -477,7 +479,6 @@
         function loadPosters() {
             try {
                 const raw = localStorage.getItem('museumPosters');
-                console.debug('[achievements.loadPosters] raw museumPosters:', raw);
                 try {
                     postersData = raw ? JSON.parse(raw) : {};
                 } catch (e) {
@@ -485,14 +486,11 @@
                     postersData = {};
                 }
 
-                // Debug logging for troubleshooting
-                console.info('[achievements.loadPosters] ✅ Loaded posters from localStorage:', Object.keys(postersData).length, 'posters');
-                console.debug('[achievements.loadPosters] Poster keys:', Object.keys(postersData));
+                console.log('[achievements.loadPosters] ✅ Loaded:', Object.keys(postersData).length, 'posters');
 
                 // If no posters found, log available storage keys for debugging
                 if (Object.keys(postersData).length === 0) {
                     console.warn('[achievements.loadPosters] ⚠️ No posters found in localStorage');
-                    try { console.debug('[achievements.loadPosters] Available localStorage keys:', Object.keys(localStorage)); } catch(e) { console.debug('localStorage access error', e); }
                 }
             } catch (error) {
                 console.error('Error loading posters:', error);

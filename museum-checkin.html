@@ -8074,7 +8074,7 @@
                         ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
                         
                         // Update preview and SAVE TO GALLERY
-                        const posterDataURL = canvas.toDataURL('image/png');
+                        const posterDataURL = canvas.toDataURL('image/jpeg', 0.7);
                         preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
                         
                         // CRITICAL FIX: Save poster to localStorage for gallery view (was missing in async callback)
@@ -8090,7 +8090,7 @@
                         currentY += 40;
                         
                         // Update preview and SAVE TO GALLERY
-                        const posterDataURL = canvas.toDataURL('image/png');
+                        const posterDataURL = canvas.toDataURL('image/jpeg', 0.7);
                         preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
                         
                         // CRITICAL FIX: Save poster to localStorage for gallery view (was missing in error callback)
@@ -8131,7 +8131,7 @@
                 ctx.fillText(`MuseumCheck · ${date}`, 40, currentY + 50);
                 
                 // Display preview - always update, even if no photos
-                const posterDataURL = canvas.toDataURL('image/png');
+                const posterDataURL = canvas.toDataURL('image/jpeg', 0.7);
                 preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
                 
                 // Save poster to localStorage for gallery view
@@ -8164,7 +8164,7 @@
                 ctx.fillText('🎉 恭喜完成所有任务！', 40, 250);
                 
                 // Display basic poster
-                const posterDataURL = canvas.toDataURL('image/png');
+                const posterDataURL = canvas.toDataURL('image/jpeg', 0.7);
                 preview.innerHTML = `<img src="${posterDataURL}" style="max-width:100%;border-radius:12px;">`;
                 
                 // Save poster to localStorage for gallery view
@@ -8177,7 +8177,6 @@
             try {
                 // Load existing posters
                 const raw = localStorage.getItem('museumPosters');
-                console.debug('[savePosterToGallery] raw localStorage museumPosters:', raw);
                 let postersData;
                 try {
                     postersData = JSON.parse(raw || '{}');
@@ -8202,43 +8201,82 @@
                 // Save to localStorage
                 try {
                     localStorage.setItem('museumPosters', JSON.stringify(postersData));
-                    // Debug logging
-                    console.info('[savePosterToGallery] ✅ Poster saved to gallery for:', museumName);
-                    console.info('[savePosterToGallery] 📊 Total posters in gallery:', Object.keys(postersData).length);
-                    console.info('[savePosterToGallery] 🎨 Poster metadata:', {
-                        museumId: museumId,
-                        museumName: museumName,
-                        ageGroup: ageGroup,
-                        timestamp: new Date().toLocaleString('zh-CN')
-                    });
-                    // Read-back verification
-                    try {
-                        const verify = JSON.parse(localStorage.getItem('museumPosters') || '{}');
-                        console.debug('[savePosterToGallery] verify readback keys:', Object.keys(verify));
-                    } catch (e) {
-                        console.warn('[savePosterToGallery] Readback verification failed', e);
-                    }
+                    console.log('[savePosterToGallery] ✅ Saved:', museumName, '| Total:', Object.keys(postersData).length);
                 } catch (e) {
                     throw e;
                 }
             } catch (error) {
                 console.error('Error saving poster to gallery:', error);
-                // If localStorage quota exceeded, try to remove old posters
+                // If localStorage quota exceeded, try to remove oldest posters first
                 if (error.name === 'QuotaExceededError') {
-                    console.warn('Storage quota exceeded, clearing old posters');
-                    // Keep only this poster
-                    const postersData = {};
-                    postersData[museumId] = {
-                        dataURL: posterDataURL,
-                        museumId: museumId,
-                        museumName: currentMuseum ? currentMuseum.name : '未知博物馆',
-                        ageGroup: ageGroup,
-                        timestamp: Date.now(),
-                        date: new Date().toLocaleDateString('zh-CN')
-                    };
+                    console.warn('Storage quota exceeded, trying to remove oldest posters');
                     try {
-                        localStorage.setItem('museumPosters', JSON.stringify(postersData));
-                        console.log('✅ Poster saved after clearing old data');
+                        // Load existing posters and sort by timestamp (oldest first)
+                        const raw = localStorage.getItem('museumPosters');
+                        let existingPosters = {};
+                        try {
+                            existingPosters = JSON.parse(raw || '{}');
+                        } catch (e) {
+                            existingPosters = {};
+                        }
+                        
+                        // Get entries sorted by timestamp (oldest first)
+                        const entries = Object.entries(existingPosters);
+                        entries.sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+                        
+                        // Try removing oldest posters one by one until we have space
+                        let saved = false;
+                        let removedCount = 0;
+                        const newPoster = {
+                            dataURL: posterDataURL,
+                            museumId: museumId,
+                            museumName: currentMuseum ? currentMuseum.name : '未知博物馆',
+                            ageGroup: ageGroup,
+                            timestamp: Date.now(),
+                            date: new Date().toLocaleDateString('zh-CN')
+                        };
+                        
+                        // Keep at least 5 recent posters (including the new one)
+                        const minToKeep = 4;
+                        
+                        while (entries.length > minToKeep && !saved) {
+                            // Remove oldest entry
+                            const removed = entries.shift();
+                            removedCount++;
+                            console.log('Removing oldest poster:', removed[0]);
+                            
+                            // Rebuild postersData
+                            const reducedPosters = {};
+                            entries.forEach(([key, value]) => {
+                                reducedPosters[key] = value;
+                            });
+                            reducedPosters[museumId] = newPoster;
+                            
+                            try {
+                                localStorage.setItem('museumPosters', JSON.stringify(reducedPosters));
+                                console.log('✅ Poster saved after removing oldest. Remaining:', Object.keys(reducedPosters).length);
+                                saved = true;
+                            } catch (e) {
+                                // Still not enough space, continue removing
+                                console.log('Still not enough space, continuing...');
+                            }
+                        }
+                        
+                        // Last resort: only keep this poster
+                        if (!saved) {
+                            const lastResort = {};
+                            lastResort[museumId] = newPoster;
+                            localStorage.setItem('museumPosters', JSON.stringify(lastResort));
+                            console.log('✅ Poster saved as only entry (last resort)');
+                            removedCount = entries.length; // All were removed
+                        }
+                        
+                        // Notify user about removed posters and suggest publishing
+                        if (removedCount > 0) {
+                            setTimeout(() => {
+                                alert(`📢 存储空间不足，已清理 ${removedCount} 张旧海报。\n\n💡 提示：点击"发布海报"可永久保存到云端，不受本地空间限制！`);
+                            }, 500);
+                        }
                     } catch (e) {
                         console.error('Still failed after clearing:', e);
                     }

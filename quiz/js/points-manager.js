@@ -22,8 +22,8 @@ class PointsManager {
             return window.achievementGamification.xpData.totalXP || 0;
         }
         
-        // Fallback to localStorage
-        const xpData = localStorage.getItem('achievementXP');
+        // Fallback to localStorage (use same key as main achievement system)
+        const xpData = localStorage.getItem('museumcheck_xp_data');
         if (xpData) {
             try {
                 const parsed = JSON.parse(xpData);
@@ -46,7 +46,7 @@ class PointsManager {
             return window.achievementGamification.xpData.lifetimeXP || 0;
         }
         
-        const xpData = localStorage.getItem('achievementXP');
+        const xpData = localStorage.getItem('museumcheck_xp_data');
         if (xpData) {
             try {
                 const parsed = JSON.parse(xpData);
@@ -82,9 +82,9 @@ class PointsManager {
             return true;
         }
         
-        // Fallback: manually update localStorage
+        // Fallback: manually update localStorage (use same key as main achievement system)
         let xpData = { totalXP: 0, lifetimeXP: 0, level: 1, sources: {} };
-        const stored = localStorage.getItem('achievementXP');
+        const stored = localStorage.getItem('museumcheck_xp_data');
         if (stored) {
             try {
                 xpData = JSON.parse(stored);
@@ -100,7 +100,7 @@ class PointsManager {
         xpData.sources = xpData.sources || {};
         xpData.sources[source] = (xpData.sources[source] || 0) + amount;
         
-        localStorage.setItem('achievementXP', JSON.stringify(xpData));
+        localStorage.setItem('museumcheck_xp_data', JSON.stringify(xpData));
         
         this.trackPointsSource(amount, source, metadata);
         

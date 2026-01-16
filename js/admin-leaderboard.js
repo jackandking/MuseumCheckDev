@@ -51,7 +51,7 @@
       
       if (!res.ok) throw new Error('Failed to fetch leaderboard: ' + res.status);
       const data = await res.json();
-      console.log('[Admin] Raw API response:', data);
+      console.log('[Admin] Leaderboard response received, entries:', Array.isArray(data) ? data.length : (data?.items?.length || 'N/A'));
       
       // Parse entries
       const entries = [];

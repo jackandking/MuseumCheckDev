@@ -64,7 +64,7 @@
       }
       
       const data = await res.json();
-      console.log('[Admin] Raw API response:', data);
+      console.log('[Admin] API response received, items:', Array.isArray(data) ? data.length : (data?.items?.length || 'N/A'));
       
       const configs = [];
       let itemsArray = null;
