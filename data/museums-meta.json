@@ -164,6 +164,7 @@
       "考古",
       "历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -176,6 +177,7 @@
       "孔子",
       "历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -188,6 +190,7 @@
       "文化",
       "天津"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -200,6 +203,7 @@
       "艺术",
       "绘画"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "未定级"
   },
@@ -212,6 +216,7 @@
       "雪域高原",
       "佛教"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -224,6 +229,7 @@
       "多民族",
       "西域文化"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -236,6 +242,7 @@
       "西南文化",
       "边疆历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -248,6 +255,7 @@
       "蒙古族",
       "游牧文明"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -947,9 +955,9 @@
     "tags": [
       "艺术",
       "绘画",
-      "雕塑"
+      "雕塞"
     ],
-    "image": "",
+    "image": "https://img1.baidu.com/it/u=486738805,1591484411&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=667",
     "hasCollections": false,
     "level": "未定级"
   },
@@ -1053,7 +1061,7 @@
       "矿物标本",
       "地球历史"
     ],
-    "image": "",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Geological_Museum_of_China.jpg",
     "hasCollections": false,
     "level": "一级"
   },
