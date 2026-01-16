@@ -1277,6 +1277,7 @@ class VirtualPet {
                 const result = this.revivePet(points);
                 if (result.success) {
                     this.deductPoints(result.pointsUsed);
+                    this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
                 } else {
                     alert(result.message);
@@ -1292,6 +1293,7 @@ class VirtualPet {
                     const result = this.resetPet(points);
                     if (result.success) {
                         this.deductPoints(result.pointsUsed);
+                        this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                         this.showPetMessage(result.message);
                     } else {
                         alert(result.message);
@@ -1312,9 +1314,10 @@ class VirtualPet {
                 const result = this.feedPet(points);
                 if (result.success) {
                     this.deductPoints(result.pointsUsed);
+                    this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
                 } else {
-                    alert(result.message);
+                    this.showInsufficientPointsPrompt(result.message);
                 }
             });
         }
@@ -1325,9 +1328,10 @@ class VirtualPet {
                 const result = this.upgradeAttack(points);
                 if (result.success) {
                     this.deductPoints(result.pointsUsed);
+                    this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
                 } else {
-                    alert(result.message);
+                    this.showInsufficientPointsPrompt(result.message);
                 }
             });
         }
@@ -1338,9 +1342,10 @@ class VirtualPet {
                 const result = this.upgradeDefense(points);
                 if (result.success) {
                     this.deductPoints(result.pointsUsed);
+                    this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
                 } else {
-                    alert(result.message);
+                    this.showInsufficientPointsPrompt(result.message);
                 }
             });
         }
@@ -1353,6 +1358,7 @@ class VirtualPet {
                     const result = this.resetPet(points);
                     if (result.success) {
                         this.deductPoints(result.pointsUsed);
+                        this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                         this.showPetMessage(result.message);
                     } else {
                         alert(result.message);
@@ -1636,6 +1642,71 @@ class VirtualPet {
         });
         
         adoptLaterBtn.addEventListener('click', closePrompt);
+        closeBtn.addEventListener('click', closePrompt);
+        
+        // Click outside to close
+        prompt.addEventListener('click', (e) => {
+            if (e.target === prompt) {
+                closePrompt();
+            }
+        });
+    }
+    
+    // Show insufficient points prompt with option to go quiz
+    showInsufficientPointsPrompt(message) {
+        // Remove any existing prompt
+        const existingPrompt = document.getElementById('pet-insufficient-points-prompt');
+        if (existingPrompt) {
+            existingPrompt.remove();
+        }
+        
+        const currentPoints = this.getCurrentPoints();
+        
+        // Create the prompt element
+        const prompt = document.createElement('div');
+        prompt.id = 'pet-insufficient-points-prompt';
+        prompt.className = 'pet-adoption-prompt'; // Reuse same styling
+        prompt.innerHTML = `
+            <div class="pet-adoption-prompt-content">
+                <button class="pet-adoption-prompt-close" aria-label="关闭">×</button>
+                <div class="pet-adoption-prompt-icon">💰</div>
+                <div class="pet-adoption-prompt-title">积分不足</div>
+                <div class="pet-adoption-prompt-message">
+                    当前积分: ${currentPoints}<br>
+                    去「考一考」答题可以快速获得积分哦！
+                </div>
+                <div class="pet-adoption-prompt-buttons">
+                    <button class="pet-adoption-prompt-btn primary" id="goQuizBtn">去答题</button>
+                    <button class="pet-adoption-prompt-btn secondary" id="stayHereBtn">稍后再说</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(prompt);
+        
+        // Show with animation
+        setTimeout(() => {
+            prompt.classList.add('show');
+        }, 10);
+        
+        const goQuizBtn = document.getElementById('goQuizBtn');
+        const stayHereBtn = document.getElementById('stayHereBtn');
+        const closeBtn = prompt.querySelector('.pet-adoption-prompt-close');
+        
+        const closePrompt = () => {
+            prompt.classList.remove('show');
+            setTimeout(() => {
+                prompt.remove();
+            }, 300);
+        };
+        
+        goQuizBtn.addEventListener('click', () => {
+            closePrompt();
+            // Navigate to quiz page
+            window.location.href = 'quiz/index.html';
+        });
+        
+        stayHereBtn.addEventListener('click', closePrompt);
         closeBtn.addEventListener('click', closePrompt);
         
         // Click outside to close

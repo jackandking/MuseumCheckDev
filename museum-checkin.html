@@ -5093,7 +5093,7 @@
 
         // Get museum ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const museumId = urlParams.get('museum') || 'forbidden-city';
+        const museumId = urlParams.get('id') || urlParams.get('museum') || 'forbidden-city';
         // Use saved age group from localStorage first, then URL parameter as fallback
         const savedAgeGroup = localStorage.getItem('ageGroup');
         const ageGroup = savedAgeGroup || urlParams.get('age') || '7-12';
