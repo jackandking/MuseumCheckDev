@@ -176,6 +176,7 @@ window.MUSEUMS_META = [
       "考古",
       "历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -188,6 +189,7 @@ window.MUSEUMS_META = [
       "孔子",
       "历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -200,6 +202,7 @@ window.MUSEUMS_META = [
       "文化",
       "天津"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -212,6 +215,7 @@ window.MUSEUMS_META = [
       "艺术",
       "绘画"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "未定级"
   },
@@ -224,6 +228,7 @@ window.MUSEUMS_META = [
       "雪域高原",
       "佛教"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -236,6 +241,7 @@ window.MUSEUMS_META = [
       "多民族",
       "西域文化"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -248,6 +254,7 @@ window.MUSEUMS_META = [
       "西南文化",
       "边疆历史"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -260,6 +267,7 @@ window.MUSEUMS_META = [
       "蒙古族",
       "游牧文明"
     ],
+    "image": "",
     "hasCollections": false,
     "level": "一级"
   },
@@ -324,7 +332,7 @@ window.MUSEUMS_META = [
       "革命历史",
       "国防教育"
     ],
-    "image": "",
+    "image": "https://img1.baidu.com/it/u=4286222987,673276445&fm=253&fmt=auto&app=138?f=JPEG?w=800&h=1067",
     "hasCollections": false,
     "level": "一级"
   },
@@ -959,9 +967,9 @@ window.MUSEUMS_META = [
     "tags": [
       "艺术",
       "绘画",
-      "雕塑"
+      "雕塞"
     ],
-    "image": "",
+    "image": "https://img1.baidu.com/it/u=486738805,1591484411&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=667",
     "hasCollections": false,
     "level": "未定级"
   },
@@ -1065,7 +1073,7 @@ window.MUSEUMS_META = [
       "矿物标本",
       "地球历史"
     ],
-    "image": "",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Geological_Museum_of_China.jpg",
     "hasCollections": false,
     "level": "一级"
   },
@@ -1404,7 +1412,7 @@ window.MUSEUMS_META = [
       "文化",
       "北京"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5d/%E5%8C%97%E4%BA%AC%E5%85%88%E5%86%9C%E5%9D%9B%E6%8B%9C%E6%AE%BF2021.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/96/North_gate_of_Xiannongtan_and_Beijing_Yucai_School_%2820221001165539%29.jpg",
     "hasCollections": false,
     "level": "二级"
   }
