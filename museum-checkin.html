@@ -10658,6 +10658,11 @@
             saveEnabledGames(enabledGames);
         }
 
+        // ===== Game Reward Tracking =====
+        // Prevents XP farming by only awarding XP once per task's game session
+        // Resets when a new game is initiated (from task completion), not on restart
+        let currentGameXPAwarded = false;
+
         // ===== Puzzle Game Logic =====
         let puzzleState = [];
         let puzzleMoves = 0;
@@ -10680,6 +10685,7 @@
 
         // Initialize the puzzle game with a photo and optional task index for difficulty
         function initPuzzleGame(imageUrl, taskIndex = 0) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             puzzleImageUrl = imageUrl;
             puzzleMoves = 0;
             document.getElementById('puzzleMoves').textContent = '0';
@@ -10878,23 +10884,26 @@
                     playFireworkSound();
                 }
                 
-                // Award XP for game completion - use VirtualPet constants if available
-                const gameXP = (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.puzzle) 
-                    ? VirtualPet.GAME_XP_REWARDS.puzzle.base 
-                    : 15;
-                if (window.achievementGamification) {
-                    window.achievementGamification.addXP(gameXP);
-                    window.achievementGamification.showXPGainNotification(gameXP, '拼图游戏通关');
-                }
-                
-                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-                if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-                }
-                
-                // Notify virtual pet about game completion
-                if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.notifyGameCompleted('puzzle', puzzleMoves, 0);
+                // Award XP for game completion - only once per task's game session
+                if (!currentGameXPAwarded) {
+                    const gameXP = (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.puzzle) 
+                        ? VirtualPet.GAME_XP_REWARDS.puzzle.base 
+                        : 15;
+                    if (window.achievementGamification) {
+                        window.achievementGamification.addXP(gameXP);
+                        window.achievementGamification.showXPGainNotification(gameXP, '拼图游戏通关');
+                    }
+                    currentGameXPAwarded = true; // Prevent XP farming on restart
+                    
+                    // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                    if (typeof VirtualPet !== 'undefined') {
+                        VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                    }
+                    
+                    // Notify virtual pet about game completion
+                    if (typeof VirtualPet !== 'undefined') {
+                        VirtualPet.notifyGameCompleted('puzzle', puzzleMoves, 0);
+                    }
                 }
                 
                 // Auto-close after delay
@@ -11018,6 +11027,7 @@
 
         // Initialize the maze game with optional task index for difficulty
         function initMazeGame(taskIndex = 0) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             mazeSteps = 0;
             document.getElementById('mazeSteps').textContent = '0';
             
@@ -11308,23 +11318,26 @@
                 playFireworkSound();
             }
             
-            // Award XP for game completion - use VirtualPet constants if available
-            const gameXP = (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.maze) 
-                ? VirtualPet.GAME_XP_REWARDS.maze.base 
-                : 20;
-            if (window.achievementGamification) {
-                window.achievementGamification.addXP(gameXP);
-                window.achievementGamification.showXPGainNotification(gameXP, '迷宫游戏通关');
-            }
-            
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about game completion
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.notifyGameCompleted('maze', mazeSteps, 0);
+            // Award XP for game completion - only once per task's game session
+            if (!currentGameXPAwarded) {
+                const gameXP = (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.maze) 
+                    ? VirtualPet.GAME_XP_REWARDS.maze.base 
+                    : 20;
+                if (window.achievementGamification) {
+                    window.achievementGamification.addXP(gameXP);
+                    window.achievementGamification.showXPGainNotification(gameXP, '迷宫游戏通关');
+                }
+                currentGameXPAwarded = true; // Prevent XP farming on restart
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
+                // Notify virtual pet about game completion
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.notifyGameCompleted('maze', mazeSteps, 0);
+                }
             }
             
             // Auto-close after delay
@@ -11411,6 +11424,7 @@
         
         // Initialize the shooting game
         function initShootingGame(taskIndex = 0) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             const settings = determineShootingDifficulty(taskIndex);
             
             shootingScore = 0;
@@ -11632,27 +11646,30 @@
             document.getElementById('finalScore').textContent = shootingScore;
             document.getElementById('shootingCompleteMessage').classList.add('show');
             
-            // Award XP for game completion (score-based) - use VirtualPet constants if available
-            let gameXP = 10;
-            if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.shooting) {
-                const reward = VirtualPet.GAME_XP_REWARDS.shooting;
-                gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(shootingScore / reward.divisor)));
-            } else {
-                gameXP = Math.max(10, Math.min(30, Math.floor(shootingScore / 10)));
-            }
-            if (window.achievementGamification) {
-                window.achievementGamification.addXP(gameXP);
-                window.achievementGamification.showXPGainNotification(gameXP, '射击游戏完成');
-            }
-            
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about game completion
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.notifyGameCompleted('shooting', shootingScore, 0);
+            // Award XP for game completion - only once per task's game session
+            if (!currentGameXPAwarded) {
+                let gameXP = 10;
+                if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.shooting) {
+                    const reward = VirtualPet.GAME_XP_REWARDS.shooting;
+                    gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(shootingScore / reward.divisor)));
+                } else {
+                    gameXP = Math.max(10, Math.min(30, Math.floor(shootingScore / 10)));
+                }
+                if (window.achievementGamification) {
+                    window.achievementGamification.addXP(gameXP);
+                    window.achievementGamification.showXPGainNotification(gameXP, '射击游戏完成');
+                }
+                currentGameXPAwarded = true; // Prevent XP farming on restart
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
+                // Notify virtual pet about game completion
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.notifyGameCompleted('shooting', shootingScore, 0);
+                }
             }
             
             // Auto-close after delay
@@ -11745,6 +11762,7 @@
         
         // Initialize Space Invaders game
         function initSpaceInvadersGame(taskIndex) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             siScore = 0;
             siLives = 5;                 // More lives for better sense of achievement
             siGameOver = false;
@@ -12019,27 +12037,30 @@
             document.getElementById('siFinalScore').textContent = siScore;
             document.getElementById('spaceInvadersCompleteMessage').classList.add('show');
             
-            // Award XP for game completion (score-based) - use VirtualPet constants if available
-            let gameXP = 15;
-            if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['space-invaders']) {
-                const reward = VirtualPet.GAME_XP_REWARDS['space-invaders'];
-                gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(siScore / reward.divisor)));
-            } else {
-                gameXP = Math.max(15, Math.min(30, Math.floor(siScore / 10)));
-            }
-            if (window.achievementGamification) {
-                window.achievementGamification.addXP(gameXP);
-                window.achievementGamification.showXPGainNotification(gameXP, '小蜜蜂游戏完成');
-            }
-            
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about game completion
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.notifyGameCompleted('space-invaders', siScore, 0);
+            // Award XP for game completion - only once per task's game session
+            if (!currentGameXPAwarded) {
+                let gameXP = 15;
+                if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['space-invaders']) {
+                    const reward = VirtualPet.GAME_XP_REWARDS['space-invaders'];
+                    gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(siScore / reward.divisor)));
+                } else {
+                    gameXP = Math.max(15, Math.min(30, Math.floor(siScore / 10)));
+                }
+                if (window.achievementGamification) {
+                    window.achievementGamification.addXP(gameXP);
+                    window.achievementGamification.showXPGainNotification(gameXP, '小蜜蜂游戏完成');
+                }
+                currentGameXPAwarded = true; // Prevent XP farming on restart
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
+                // Notify virtual pet about game completion
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.notifyGameCompleted('space-invaders', siScore, 0);
+                }
             }
         }
         
@@ -12197,6 +12218,7 @@
         
         // Initialize Tank Battle game
         function initTankBattleGame(taskIndex) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             tbScore = 0;
             tbLives = taskIndex === 0 ? 5 : 3;  // More lives for easier difficulty
             tbGameOver = false;
@@ -12698,27 +12720,30 @@
             document.getElementById('tbFinalScore').textContent = tbScore;
             document.getElementById('tankBattleCompleteMessage').classList.add('show');
             
-            // Award XP for game completion (score-based) - use VirtualPet constants if available
-            let gameXP = 20;
-            if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['tank-battle']) {
-                const reward = VirtualPet.GAME_XP_REWARDS['tank-battle'];
-                gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(tbScore / reward.divisor)));
-            } else {
-                gameXP = Math.max(20, Math.min(30, Math.floor(tbScore / 5)));
-            }
-            if (window.achievementGamification) {
-                window.achievementGamification.addXP(gameXP);
-                window.achievementGamification.showXPGainNotification(gameXP, '坦克大战完成');
-            }
-            
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about game completion
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.notifyGameCompleted('tank-battle', tbScore, 0);
+            // Award XP for game completion - only once per task's game session
+            if (!currentGameXPAwarded) {
+                let gameXP = 20;
+                if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['tank-battle']) {
+                    const reward = VirtualPet.GAME_XP_REWARDS['tank-battle'];
+                    gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(tbScore / reward.divisor)));
+                } else {
+                    gameXP = Math.max(20, Math.min(30, Math.floor(tbScore / 5)));
+                }
+                if (window.achievementGamification) {
+                    window.achievementGamification.addXP(gameXP);
+                    window.achievementGamification.showXPGainNotification(gameXP, '坦克大战完成');
+                }
+                currentGameXPAwarded = true; // Prevent XP farming on restart
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
+                // Notify virtual pet about game completion
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.notifyGameCompleted('tank-battle', tbScore, 0);
+                }
             }
         }
         
@@ -12869,6 +12894,7 @@
         let msFirstClick = true;
 
         function initMinesweeperGame(taskIndex = 0) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             // Adjust difficulty based on task
             if (taskIndex === 0) {
                 // Easier: 8x8 grid with 8 mines
@@ -13200,28 +13226,31 @@
                 msgEl.innerHTML = `🎉 胜利！用时：<span id="msFinalTime">${msTime}</span>秒`;
                 msgEl.classList.remove('lose');
                 
-                // Award XP for winning minesweeper (time-based bonus) - use VirtualPet constants if available
-                let gameXP = 10;
-                if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.minesweeper) {
-                    const reward = VirtualPet.GAME_XP_REWARDS.minesweeper;
-                    const bonusXP = Math.floor((100 - Math.min(msTime, 100)) * 0.3);
-                    gameXP = Math.max(reward.min, Math.min(reward.max, bonusXP));
-                } else {
-                    gameXP = Math.max(10, Math.min(25, Math.floor((100 - Math.min(msTime, 100)) * 0.3)));
-                }
-                if (window.achievementGamification) {
-                    window.achievementGamification.addXP(gameXP);
-                    window.achievementGamification.showXPGainNotification(gameXP, '扫雷游戏胜利');
-                }
-                
-                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-                if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-                }
-                
-                // Notify virtual pet about game completion
-                if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.notifyGameCompleted('minesweeper', 0, msTime);
+                // Award XP for winning minesweeper - only once per task's game session
+                if (!currentGameXPAwarded) {
+                    let gameXP = 10;
+                    if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS.minesweeper) {
+                        const reward = VirtualPet.GAME_XP_REWARDS.minesweeper;
+                        const bonusXP = Math.floor((100 - Math.min(msTime, 100)) * 0.3);
+                        gameXP = Math.max(reward.min, Math.min(reward.max, bonusXP));
+                    } else {
+                        gameXP = Math.max(10, Math.min(25, Math.floor((100 - Math.min(msTime, 100)) * 0.3)));
+                    }
+                    if (window.achievementGamification) {
+                        window.achievementGamification.addXP(gameXP);
+                        window.achievementGamification.showXPGainNotification(gameXP, '扫雷游戏胜利');
+                    }
+                    currentGameXPAwarded = true; // Prevent XP farming on restart
+                    
+                    // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                    if (typeof VirtualPet !== 'undefined') {
+                        VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                    }
+                    
+                    // Notify virtual pet about game completion
+                    if (typeof VirtualPet !== 'undefined') {
+                        VirtualPet.notifyGameCompleted('minesweeper', 0, msTime);
+                    }
                 }
             } else {
                 msgEl.innerHTML = `💥 踩雷了！用时：<span id="msFinalTime">${msTime}</span>秒`;
@@ -13266,6 +13295,7 @@
         const PA_CANVAS_ASPECT_RATIO = PA_DEFAULT_CANVAS_HEIGHT / PA_DEFAULT_CANVAS_WIDTH; // Height / Width
         
         function initPetAdventureGame(taskIndex = 0) {
+            currentGameXPAwarded = false; // Reset XP tracking for new game session
             // Show overlay
             document.getElementById('petAdventureOverlay').classList.add('show');
             try { const paDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('PetAdventure opened debug check:', paDebug); } catch(e){}
@@ -13542,31 +13572,34 @@
             document.getElementById('paFinalScore').textContent = paScore;
             document.getElementById('petAdventureCompleteMessage').classList.add('show');
             
-            // Award XP for game completion - use VirtualPet constants if available
-            let gameXP = 10;
-            if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['pet-adventure']) {
-                const reward = VirtualPet.GAME_XP_REWARDS['pet-adventure'];
-                gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(paScore / reward.divisor)));
-            } else {
-                gameXP = Math.max(10, Math.min(25, Math.floor(paScore / 10)));
-            }
-            
-            // Add XP to achievement system
-            if (window.achievementGamification) {
-                window.achievementGamification.addXP(gameXP);
-                setTimeout(() => {
-                    window.achievementGamification.showXPGainNotification(gameXP, '宠物冒险完成');
-                }, 500);
-            }
-            
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about game completion
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.notifyGameCompleted('pet-adventure', paScore, 0);
+            // Award XP for game completion - only once per task's game session
+            if (!currentGameXPAwarded) {
+                let gameXP = 10;
+                if (typeof VirtualPet !== 'undefined' && VirtualPet.GAME_XP_REWARDS && VirtualPet.GAME_XP_REWARDS['pet-adventure']) {
+                    const reward = VirtualPet.GAME_XP_REWARDS['pet-adventure'];
+                    gameXP = Math.max(reward.min, Math.min(reward.max, Math.floor(paScore / reward.divisor)));
+                } else {
+                    gameXP = Math.max(10, Math.min(25, Math.floor(paScore / 10)));
+                }
+                
+                // Add XP to achievement system
+                if (window.achievementGamification) {
+                    window.achievementGamification.addXP(gameXP);
+                    setTimeout(() => {
+                        window.achievementGamification.showXPGainNotification(gameXP, '宠物冒险完成');
+                    }, 500);
+                }
+                currentGameXPAwarded = true; // Prevent XP farming on restart
+                
+                // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
+                }
+                
+                // Notify virtual pet about game completion
+                if (typeof VirtualPet !== 'undefined') {
+                    VirtualPet.notifyGameCompleted('pet-adventure', paScore, 0);
+                }
             }
         }
         
