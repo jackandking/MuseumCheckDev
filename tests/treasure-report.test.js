@@ -8,11 +8,22 @@ const path = require('path');
 
 describe('Treasure Not-Found Reporting Feature', () => {
     let htmlContent;
+    let jsContent;
+    let cssContent;
     
     beforeAll(() => {
         // Load the museum-checkin.html file
         htmlContent = fs.readFileSync(
             path.join(__dirname, '..', 'museum-checkin.html'),
+            'utf8'
+        );
+        // Load the external JS file (CSS/JS refactored from museum-checkin.html)
+        jsContent = fs.readFileSync(
+            path.join(__dirname, '..', 'js', 'museum-checkin.js'),
+            'utf8'
+        );
+        cssContent = fs.readFileSync(
+            path.join(__dirname, '..', 'css', 'museum-checkin.css'),
             'utf8'
         );
     });
@@ -45,137 +56,137 @@ describe('Treasure Not-Found Reporting Feature', () => {
 
     describe('CSS Styles', () => {
         test('should have warning class for 3+ reports', () => {
-            expect(htmlContent).toContain('.task-card.treasure-warning');
-            expect(htmlContent).toContain('border: 3px solid #ffc107');
+            expect(cssContent).toContain('.task-card.treasure-warning');
+            expect(cssContent).toContain('border: 3px solid #ffc107');
         });
 
         test('should have unavailable class for 5+ reports', () => {
-            expect(htmlContent).toContain('.task-card.treasure-unavailable');
-            expect(htmlContent).toContain('border: 3px solid #dc3545');
+            expect(cssContent).toContain('.task-card.treasure-unavailable');
+            expect(cssContent).toContain('border: 3px solid #dc3545');
         });
 
         test('should have warning badge styles', () => {
-            expect(htmlContent).toContain('.treasure-warning-badge');
+            expect(cssContent).toContain('.treasure-warning-badge');
         });
 
         test('should have unavailable badge styles', () => {
-            expect(htmlContent).toContain('.treasure-unavailable-badge');
+            expect(cssContent).toContain('.treasure-unavailable-badge');
         });
     });
 
     describe('JavaScript Configuration', () => {
         test('should define TREASURE_REPORT_KEY constant', () => {
-            expect(htmlContent).toContain("TREASURE_REPORT_KEY: 'museumcheck-treasure-report'");
+            expect(jsContent).toContain("TREASURE_REPORT_KEY: 'museumcheck-treasure-report'");
         });
 
         test('should define WARNING_THRESHOLD constant (3)', () => {
-            expect(htmlContent).toContain('TREASURE_WARNING_THRESHOLD = 3');
+            expect(jsContent).toContain('TREASURE_WARNING_THRESHOLD = 3');
         });
 
         test('should define UNAVAILABLE_THRESHOLD constant (5)', () => {
-            expect(htmlContent).toContain('TREASURE_UNAVAILABLE_THRESHOLD = 5');
+            expect(jsContent).toContain('TREASURE_UNAVAILABLE_THRESHOLD = 5');
         });
     });
 
     describe('JavaScript Functions', () => {
         test('should have loadTreasureReports function', () => {
-            expect(htmlContent).toContain('async function loadTreasureReports()');
+            expect(jsContent).toContain('async function loadTreasureReports()');
         });
 
         test('should have getTreasureReportCount function', () => {
-            expect(htmlContent).toContain('function getTreasureReportCount(treasureName)');
+            expect(jsContent).toContain('function getTreasureReportCount(treasureName)');
         });
 
         test('should have reportTreasureNotFound function', () => {
-            expect(htmlContent).toContain('async function reportTreasureNotFound(treasureName)');
+            expect(jsContent).toContain('async function reportTreasureNotFound(treasureName)');
         });
 
         test('should have recordTreasurePhotoCheckin function', () => {
-            expect(htmlContent).toContain('async function recordTreasurePhotoCheckin(treasureName)');
+            expect(jsContent).toContain('async function recordTreasurePhotoCheckin(treasureName)');
         });
 
         test('should have isTreasureWarning function', () => {
-            expect(htmlContent).toContain('function isTreasureWarning(treasureName)');
+            expect(jsContent).toContain('function isTreasureWarning(treasureName)');
         });
 
         test('should have isTreasureUnavailable function', () => {
-            expect(htmlContent).toContain('function isTreasureUnavailable(treasureName)');
+            expect(jsContent).toContain('function isTreasureUnavailable(treasureName)');
         });
 
         test('should have hasUserReportedTreasure function', () => {
-            expect(htmlContent).toContain('function hasUserReportedTreasure(treasureName)');
+            expect(jsContent).toContain('function hasUserReportedTreasure(treasureName)');
         });
 
         test('should have getTreasureReportSortKey function', () => {
-            expect(htmlContent).toContain('function getTreasureReportSortKey(museumId, treasureName)');
+            expect(jsContent).toContain('function getTreasureReportSortKey(museumId, treasureName)');
         });
     });
 
     describe('Integration with Task Completion', () => {
         test('should record photo check-in for treasure tasks', () => {
             // Verify that completeTask function calls recordTreasurePhotoCheckin
-            expect(htmlContent).toContain('recordTreasurePhotoCheckin(treasureName)');
+            expect(jsContent).toContain('recordTreasurePhotoCheckin(treasureName)');
         });
 
         test('should check if task is treasure task before recording', () => {
-            expect(htmlContent).toMatch(/if.*title.*includes.*TREASURE_TASK_IDENTIFIER.*subtitle/s);
+            expect(jsContent).toMatch(/if.*title.*includes.*TREASURE_TASK_IDENTIFIER.*subtitle/s);
         });
         
         test('should define TREASURE_TASK_IDENTIFIER constant', () => {
-            expect(htmlContent).toContain("TREASURE_TASK_IDENTIFIER = '镇馆之宝'");
+            expect(jsContent).toContain("TREASURE_TASK_IDENTIFIER = '镇馆之宝'");
         });
     });
 
     describe('Treasure Selection Logic', () => {
         test('should filter out unavailable treasures by default', () => {
             // getSelectedTreasuresForMuseum should check report counts
-            expect(htmlContent).toContain('getTreasureReportCount(t.name)');
-            expect(htmlContent).toContain('TREASURE_UNAVAILABLE_THRESHOLD');
+            expect(jsContent).toContain('getTreasureReportCount(t.name)');
+            expect(jsContent).toContain('TREASURE_UNAVAILABLE_THRESHOLD');
         });
     });
 
     describe('Treasure Selection UI (Issue: 标识不存在镇馆之宝)', () => {
         test('should have CSS for red border on selected unavailable treasures', () => {
             // Verify the CSS class for red border on manually selected unavailable treasures
-            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-unavailable.selected');
-            expect(htmlContent).toContain('border-color: #dc3545 !important');
+            expect(cssContent).toContain('.treasure-checkbox-item.treasure-unavailable.selected');
+            expect(cssContent).toContain('border-color: #dc3545 !important');
         });
 
         test('should have CSS for warning style on treasures with 3-4 reports', () => {
             // Verify the CSS class for yellow border on warning treasures
-            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-warning');
-            expect(htmlContent).toContain('.treasure-checkbox-item.treasure-warning.selected');
+            expect(cssContent).toContain('.treasure-checkbox-item.treasure-warning');
+            expect(cssContent).toContain('.treasure-checkbox-item.treasure-warning.selected');
         });
 
         test('should have report count badge CSS styles', () => {
             // Verify the badge styles for report count
-            expect(htmlContent).toContain('.treasure-report-count-badge');
-            expect(htmlContent).toContain('.treasure-report-count-badge.unavailable');
-            expect(htmlContent).toContain('.treasure-report-count-badge.warning');
+            expect(cssContent).toContain('.treasure-report-count-badge');
+            expect(cssContent).toContain('.treasure-report-count-badge.unavailable');
+            expect(cssContent).toContain('.treasure-report-count-badge.warning');
         });
 
         test('should show report count badge in treasure selection list', () => {
             // Verify that renderV2TreasureConfigCheckboxes adds the report badge
-            expect(htmlContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge unavailable\">${reportCount}人报告不存在</span>`");
-            expect(htmlContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge warning\">${reportCount}人报告不存在</span>`");
+            expect(jsContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge unavailable\">${reportCount}人报告不存在</span>`");
+            expect(jsContent).toContain("reportBadgeHtml = `<span class=\"treasure-report-count-badge warning\">${reportCount}人报告不存在</span>`");
         });
 
         test('should add treasure-unavailable class to checkbox items with 5+ reports', () => {
             // Verify the JS logic adds the unavailable class
-            expect(htmlContent).toContain("if (isUnavailable) itemClasses += ' treasure-unavailable'");
+            expect(jsContent).toContain("if (isUnavailable) itemClasses += ' treasure-unavailable'");
         });
 
         test('should add treasure-warning class to checkbox items with 3-4 reports', () => {
             // Verify the JS logic adds the warning class
-            expect(htmlContent).toContain("else if (isWarning) itemClasses += ' treasure-warning'");
+            expect(jsContent).toContain("else if (isWarning) itemClasses += ' treasure-warning'");
         });
 
         test('should exclude unavailable treasures from default selection in checkbox list', () => {
             // Verify that the default selection logic in renderV2TreasureConfigCheckboxes
             // excludes treasures with 5+ reports
-            expect(htmlContent).toContain('const availableTreasures = allCollections.filter(t => {');
+            expect(jsContent).toContain('const availableTreasures = allCollections.filter(t => {');
             // This is inside the default selection block where we filter by report count
-            expect(htmlContent).toContain('return reportCount < TREASURE_UNAVAILABLE_THRESHOLD;');
+            expect(jsContent).toContain('return reportCount < TREASURE_UNAVAILABLE_THRESHOLD;');
         });
     });
 });
@@ -316,11 +327,11 @@ describe('Admin Navigation Updates', () => {
 });
 
 describe('Treasure Report Race Condition Fix', () => {
-    let htmlContent;
+    let jsContent;
     
     beforeAll(() => {
-        htmlContent = fs.readFileSync(
-            path.join(__dirname, '..', 'museum-checkin.html'),
+        jsContent = fs.readFileSync(
+            path.join(__dirname, '..', 'js', 'museum-checkin.js'),
             'utf8'
         );
     });
@@ -328,57 +339,57 @@ describe('Treasure Report Race Condition Fix', () => {
     describe('Fix: Fetch latest data from KV store before incrementing (Issue #735)', () => {
         test('should have fetchTreasureReportFromKV helper function', () => {
             // The fix adds a new function to fetch fresh data from KV store
-            expect(htmlContent).toContain('async function fetchTreasureReportFromKV(sortKey)');
+            expect(jsContent).toContain('async function fetchTreasureReportFromKV(sortKey)');
         });
 
         test('fetchTreasureReportFromKV should use correct API endpoint', () => {
             // Verify the function uses the correct URL pattern with key and sortKey
             // Check for endpoint usage
-            expect(htmlContent).toContain('REMOTE_STORAGE_CONFIG.API_ENDPOINT');
+            expect(jsContent).toContain('REMOTE_STORAGE_CONFIG.API_ENDPOINT');
             // Check that key parameter is encoded
-            expect(htmlContent).toContain('encodeURIComponent(REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY)');
+            expect(jsContent).toContain('encodeURIComponent(REMOTE_STORAGE_CONFIG.TREASURE_REPORT_KEY)');
             // Check that sortKey parameter is encoded
-            expect(htmlContent).toContain('encodeURIComponent(sortKey)');
+            expect(jsContent).toContain('encodeURIComponent(sortKey)');
         });
 
         test('fetchTreasureReportFromKV should handle 404 gracefully', () => {
             // Should return null for non-existent reports
-            expect(htmlContent).toMatch(/if\s*\(\s*response\.status\s*===\s*404\s*\)/);
+            expect(jsContent).toMatch(/if\s*\(\s*response\.status\s*===\s*404\s*\)/);
         });
 
         test('reportTreasureNotFound should fetch latest data before incrementing', () => {
             // The fix calls fetchTreasureReportFromKV before incrementing the count
             // This prevents race conditions when multiple users report simultaneously
-            expect(htmlContent).toContain('const latestReport = await fetchTreasureReportFromKV(sortKey);');
-            expect(htmlContent).toContain('const existingReport = latestReport || treasureReports[sortKey] || {};');
+            expect(jsContent).toContain('const latestReport = await fetchTreasureReportFromKV(sortKey);');
+            expect(jsContent).toContain('const existingReport = latestReport || treasureReports[sortKey] || {};');
         });
 
         test('reportTreasureNotFound should have comment explaining the fix', () => {
             // Verify there's a comment explaining why we fetch fresh data
-            expect(htmlContent).toContain('CRITICAL FIX: Fetch latest report from KV store to avoid race conditions');
+            expect(jsContent).toContain('CRITICAL FIX: Fetch latest report from KV store to avoid race conditions');
         });
 
         test('recordTreasurePhotoCheckin should also fetch latest data', () => {
             // The fix should also apply to the photo check-in function
             // to prevent race conditions when decrementing the count
             // Verify that recordTreasurePhotoCheckin calls fetchTreasureReportFromKV
-            expect(htmlContent).toContain('async function recordTreasurePhotoCheckin(treasureName)');
+            expect(jsContent).toContain('async function recordTreasurePhotoCheckin(treasureName)');
             // Check that it fetches latest report (appears after the function definition)
-            const funcStart = htmlContent.indexOf('async function recordTreasurePhotoCheckin');
-            const funcEnd = htmlContent.indexOf('async function', funcStart + 1);
-            const funcBody = htmlContent.substring(funcStart, funcEnd);
+            const funcStart = jsContent.indexOf('async function recordTreasurePhotoCheckin');
+            const funcEnd = jsContent.indexOf('async function', funcStart + 1);
+            const funcBody = jsContent.substring(funcStart, funcEnd);
             expect(funcBody).toContain('fetchTreasureReportFromKV(sortKey)');
         });
     });
 });
 
 describe('Auto-Delete Treasures with 5+ Reports (Issue: 纠错)', () => {
-    let htmlContent;
+    let jsContent;
     let adminHtmlContent;
     
     beforeAll(() => {
-        htmlContent = fs.readFileSync(
-            path.join(__dirname, '..', 'museum-checkin.html'),
+        jsContent = fs.readFileSync(
+            path.join(__dirname, '..', 'js', 'museum-checkin.js'),
             'utf8'
         );
         adminHtmlContent = fs.readFileSync(
@@ -387,56 +398,56 @@ describe('Auto-Delete Treasures with 5+ Reports (Issue: 纠错)', () => {
         );
     });
 
-    describe('Auto-Delete Function in museum-checkin.html', () => {
+    describe('Auto-Delete Function in museum-checkin.js', () => {
         test('should have autoDeleteTreasure function', () => {
-            expect(htmlContent).toContain('async function autoDeleteTreasure(treasureName)');
+            expect(jsContent).toContain('async function autoDeleteTreasure(treasureName)');
         });
 
         test('autoDeleteTreasure should load fresh museum data', () => {
-            expect(htmlContent).toContain('await window.museumDataLoader.loadMuseum(museumId, false)');
+            expect(jsContent).toContain('await window.museumDataLoader.loadMuseum(museumId, false)');
         });
 
         test('autoDeleteTreasure should filter out the treasure from collections', () => {
             // Check for filter operation to remove treasure
-            expect(htmlContent).toContain('museumData.collections.filter(t => t.name !== treasureName)');
+            expect(jsContent).toContain('museumData.collections.filter(t => t.name !== treasureName)');
         });
 
         test('autoDeleteTreasure should save updated museum data to KV store', () => {
-            expect(htmlContent).toContain('await window.museumDataLoader.saveToKVStore(museumId, museumData)');
+            expect(jsContent).toContain('await window.museumDataLoader.saveToKVStore(museumId, museumData)');
         });
 
         test('autoDeleteTreasure should log deletion for admin tracking', () => {
             // Check for deletion log creation
-            expect(htmlContent).toContain('treasureDeletionLogs');
-            expect(htmlContent).toContain('deletedAt: Date.now()');
-            expect(htmlContent).toContain("reason: 'auto-delete-5plus-reports'");
+            expect(jsContent).toContain('treasureDeletionLogs');
+            expect(jsContent).toContain('deletedAt: Date.now()');
+            expect(jsContent).toContain("reason: 'auto-delete-5plus-reports'");
         });
 
         test('autoDeleteTreasure should store deletion logs in localStorage', () => {
-            expect(htmlContent).toContain("localStorage.setItem('treasureDeletionLogs'");
-            expect(htmlContent).toContain("localStorage.getItem('treasureDeletionLogs'");
+            expect(jsContent).toContain("localStorage.setItem('treasureDeletionLogs'");
+            expect(jsContent).toContain("localStorage.getItem('treasureDeletionLogs'");
         });
 
         test('autoDeleteTreasure should limit deletion logs to 100 entries', () => {
             // Check for log size limit
-            expect(htmlContent).toContain('deletionLogs.length > 100');
-            expect(htmlContent).toContain('deletionLogs.shift()');
+            expect(jsContent).toContain('deletionLogs.length > 100');
+            expect(jsContent).toContain('deletionLogs.shift()');
         });
     });
 
     describe('Integration with reportTreasureNotFound', () => {
         test('should call autoDeleteTreasure when report count reaches threshold', () => {
-            expect(htmlContent).toContain('await autoDeleteTreasure(treasureName)');
+            expect(jsContent).toContain('await autoDeleteTreasure(treasureName)');
         });
 
         test('should check if report count >= TREASURE_UNAVAILABLE_THRESHOLD before auto-delete', () => {
             // Verify condition check before auto-delete
-            expect(htmlContent).toContain('newReportCount >= TREASURE_UNAVAILABLE_THRESHOLD');
+            expect(jsContent).toContain('newReportCount >= TREASURE_UNAVAILABLE_THRESHOLD');
         });
 
         test('should have comment explaining auto-delete feature', () => {
-            expect(htmlContent).toContain('AUTO-DELETE');
-            expect(htmlContent).toContain('automatically delete treasure');
+            expect(jsContent).toContain('AUTO-DELETE');
+            expect(jsContent).toContain('automatically delete treasure');
         });
     });
 

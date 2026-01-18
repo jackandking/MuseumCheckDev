@@ -11,6 +11,7 @@ const path = require('path');
 describe('URL Parameter Consistency', () => {
     let fireworksWallHtml;
     let museumCheckinHtml;
+    let museumCheckinJs;
     let scriptJs;
 
     beforeAll(() => {
@@ -21,6 +22,11 @@ describe('URL Parameter Consistency', () => {
         );
         museumCheckinHtml = fs.readFileSync(
             path.join(__dirname, '../museum-checkin.html'),
+            'utf8'
+        );
+        // Load the external JS file (CSS/JS refactored from museum-checkin.html)
+        museumCheckinJs = fs.readFileSync(
+            path.join(__dirname, '../js/museum-checkin.js'),
             'utf8'
         );
         scriptJs = fs.readFileSync(
@@ -52,21 +58,21 @@ describe('URL Parameter Consistency', () => {
 
     describe('museum-checkin.html', () => {
         test('should use "museum" parameter to read museum ID from URL', () => {
-            // Check that museum-checkin.html reads 'museum' parameter
-            expect(museumCheckinHtml).toMatch(/urlParams\.get\(['"]museum['"]\)/);
+            // Check that museum-checkin.js reads 'museum' parameter (code refactored to external JS)
+            expect(museumCheckinJs).toMatch(/urlParams\.get\(['"]museum['"]\)/);
         });
 
         test('should use "museum" parameter when linking to fireworks-wall.html', () => {
-            // Check that museum-checkin.html uses 'museum' parameter in links to fireworks-wall
-            expect(museumCheckinHtml).toMatch(/fireworks-wall\.html\?museum=/);
+            // Check that museum-checkin.js uses 'museum' parameter in links to fireworks-wall
+            expect(museumCheckinJs).toMatch(/fireworks-wall\.html\?museum=/);
             
             // Should NOT use 'museumId' parameter
-            expect(museumCheckinHtml).not.toMatch(/fireworks-wall\.html\?museumId=/);
+            expect(museumCheckinJs).not.toMatch(/fireworks-wall\.html\?museumId=/);
         });
 
         test('should store parameter value in museumId variable', () => {
             // The pattern should support both 'id' and 'museum' parameters with fallback
-            expect(museumCheckinHtml).toMatch(/const\s+museumId\s*=\s*urlParams\.get\(['"](?:id|museum)['"]\)/);
+            expect(museumCheckinJs).toMatch(/const\s+museumId\s*=\s*urlParams\.get\(['"](?:id|museum)['"]\)/);
         });
     });
 
@@ -95,7 +101,7 @@ describe('URL Parameter Consistency', () => {
         test('all pages should use same parameter name for museum ID', () => {
             // Extract URL parameter patterns from each file
             const fireworksWallParams = fireworksWallHtml.match(/urlParams\.get\(['"](\w+)['"]\)/g) || [];
-            const museumCheckinParams = museumCheckinHtml.match(/urlParams\.get\(['"](\w+)['"]\)/g) || [];
+            const museumCheckinParams = museumCheckinJs.match(/urlParams\.get\(['"](\w+)['"]\)/g) || [];
             
             // Both should use 'museum' for museum ID
             const fireworksUsesMuseum = fireworksWallParams.some(p => p.includes("'museum'") || p.includes('"museum"'));
@@ -113,8 +119,8 @@ describe('URL Parameter Consistency', () => {
         });
 
         test('navigation between pages should use consistent parameter name', () => {
-            // Check museum-checkin.html -> fireworks-wall.html navigation
-            const checkinToFireworks = museumCheckinHtml.match(/fireworks-wall\.html\?(\w+)=/);
+            // Check museum-checkin.js -> fireworks-wall.html navigation
+            const checkinToFireworks = museumCheckinJs.match(/fireworks-wall\.html\?(\w+)=/);
             expect(checkinToFireworks).toBeTruthy();
             expect(checkinToFireworks[1]).toBe('museum');
             
@@ -136,7 +142,7 @@ describe('URL Parameter Consistency', () => {
 
             problematicPatterns.forEach(pattern => {
                 expect(fireworksWallHtml).not.toMatch(pattern);
-                expect(museumCheckinHtml).not.toMatch(pattern);
+                expect(museumCheckinJs).not.toMatch(pattern);
                 expect(scriptJs).not.toMatch(pattern);
             });
         });

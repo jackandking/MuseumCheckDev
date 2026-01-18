@@ -14,10 +14,21 @@ const path = require('path');
 
 describe('Museum Check-in Page', () => {
     let htmlContent;
+    let jsContent;
+    let cssContent;
     
     beforeAll(() => {
         htmlContent = fs.readFileSync(
             path.join(__dirname, '..', 'museum-checkin.html'), 
+            'utf8'
+        );
+        // Load the external JS file (CSS/JS refactored from museum-checkin.html)
+        jsContent = fs.readFileSync(
+            path.join(__dirname, '..', 'js', 'museum-checkin.js'), 
+            'utf8'
+        );
+        cssContent = fs.readFileSync(
+            path.join(__dirname, '..', 'css', 'museum-checkin.css'), 
             'utf8'
         );
     });
@@ -29,11 +40,11 @@ describe('Museum Check-in Page', () => {
         });
 
         test('should update page title with child nickname', () => {
-            // Check for updatePageTitle function
-            expect(htmlContent).toContain('function updatePageTitle()');
-            expect(htmlContent).toContain('loadChildNickname()');
-            expect(htmlContent).toContain('的任务');
-            expect(htmlContent).toContain('document.title =');
+            // Check for updatePageTitle function (in JS)
+            expect(jsContent).toContain('function updatePageTitle()');
+            expect(jsContent).toContain('loadChildNickname()');
+            expect(jsContent).toContain('的任务');
+            expect(jsContent).toContain('document.title =');
         });
 
         test('should have page title element with id', () => {
@@ -70,8 +81,9 @@ describe('Museum Check-in Page', () => {
 
         test('should have menu modal for navigation', () => {
             expect(htmlContent).toContain('id="menuModal"');
-            // Fireworks menu items are now handled by SharedMenu component
-            expect(htmlContent).toContain('SharedMenu.init');
+            // Fireworks menu items are now handled by SharedMenu component (in HTML or JS)
+            const combined = htmlContent + jsContent;
+            expect(combined).toContain('SharedMenu.init');
         });
 
         test('should have parent hint section in task modal', () => {
@@ -83,197 +95,201 @@ describe('Museum Check-in Page', () => {
 
     describe('Progressive UX Implementation', () => {
         test('should show parent hint after completing tasks', () => {
-            // Parent hint should be hidden by default
-            expect(htmlContent).toContain('class="parent-hint"');
+            // Parent hint should be hidden by default (in HTML or CSS)
+            const combined = htmlContent + cssContent;
+            expect(combined).toContain('parent-hint');
             
-            // Logic to show parent hint after 1-2 completed tasks
-            expect(htmlContent).toContain('completedTasks.size >= 1');
-            expect(htmlContent).toContain('completedTasks.size <= 2');
-            expect(htmlContent).toContain('parentHint');
-            expect(htmlContent).toContain('classList.add');
+            // Logic to show parent hint after 1-2 completed tasks (in JS)
+            expect(jsContent).toContain('completedTasks.size >= 1');
+            expect(jsContent).toContain('completedTasks.size <= 2');
+            expect(jsContent).toContain('parentHint');
+            expect(jsContent).toContain('classList.add');
         });
     });
 
     describe('Data Management', () => {
         test('should use museum ID from URL parameter', () => {
-            expect(htmlContent).toContain('urlParams.get(\'museum\')');
-            expect(htmlContent).toContain('museumId');
+            expect(jsContent).toContain("urlParams.get('museum')");
+            expect(jsContent).toContain('museumId');
         });
 
         test('should support age group parameter', () => {
-            expect(htmlContent).toContain('urlParams.get(\'age\')');
-            expect(htmlContent).toContain('ageGroup');
+            expect(jsContent).toContain("urlParams.get('age')");
+            expect(jsContent).toContain('ageGroup');
         });
 
         test('should have local storage persistence', () => {
-            expect(htmlContent).toContain('localStorage.setItem');
-            expect(htmlContent).toContain('localStorage.getItem');
-            expect(htmlContent).toContain('museumCheckin_');
+            expect(jsContent).toContain('localStorage.setItem');
+            expect(jsContent).toContain('localStorage.getItem');
+            expect(jsContent).toContain('museumCheckin_');
         });
 
         test('should save completed tasks to local storage', () => {
-            expect(htmlContent).toContain('saveCompletedTasks');
-            expect(htmlContent).toContain('loadCompletedTasks');
+            expect(jsContent).toContain('saveCompletedTasks');
+            expect(jsContent).toContain('loadCompletedTasks');
         });
 
         test('should load and save child nickname', () => {
-            expect(htmlContent).toContain('loadChildNickname');
-            expect(htmlContent).toContain('saveChildNickname');
-            expect(htmlContent).toContain('childNickname');
+            expect(jsContent).toContain('loadChildNickname');
+            expect(jsContent).toContain('saveChildNickname');
+            expect(jsContent).toContain('childNickname');
         });
 
         test('should update title when nickname is saved', () => {
-            expect(htmlContent).toContain('updatePageTitle()');
+            expect(jsContent).toContain('updatePageTitle()');
             // Check that saveChildNickname function exists and contains updatePageTitle call
-            expect(htmlContent).toContain('function saveChildNickname');
-            const saveNicknameFnMatch = htmlContent.match(/function saveChildNickname[\s\S]{0,500}updatePageTitle\(\)/);
+            expect(jsContent).toContain('function saveChildNickname');
+            const saveNicknameFnMatch = jsContent.match(/function saveChildNickname[\s\S]{0,500}updatePageTitle\(\)/);
             expect(saveNicknameFnMatch).toBeTruthy();
         });
 
         test('should have inline nickname editing on page title click', () => {
-            // Check that pageTitle has click event listener setup
-            expect(htmlContent).toContain('getElementById(\'pageTitle\')');
-            expect(htmlContent).toContain('addEventListener(\'click\'');
-            expect(htmlContent).toContain('startInlineNicknameEditOnTitle');
+            // Check that pageTitle has click event listener setup (in JS)
+            expect(jsContent).toContain("getElementById('pageTitle')");
+            expect(jsContent).toContain("addEventListener('click'");
+            expect(jsContent).toContain('startInlineNicknameEditOnTitle');
             
-            // Check that the title element has tooltip
+            // Check that the title element has tooltip (in HTML)
             expect(htmlContent).toContain('title="点击修改昵称"');
             
-            // Check that cursor pointer style is set
-            expect(htmlContent).toContain('cursor: pointer');
+            // Check that cursor pointer style is set (in CSS)
+            expect(cssContent).toContain('cursor: pointer');
             
-            // Verify the inline editing function exists
-            expect(htmlContent).toContain('function startInlineNicknameEditOnTitle(titleElement)');
+            // Verify the inline editing function exists (in JS)
+            expect(jsContent).toContain('function startInlineNicknameEditOnTitle(titleElement)');
         });
 
         test('should use museumDataLoader for dynamic data priority', () => {
-            // Check that loadMuseumData is async
-            expect(htmlContent).toContain('async function loadMuseumData()');
+            // Check that loadMuseumData is async (in JS)
+            expect(jsContent).toContain('async function loadMuseumData()');
             
             // Check that it uses museumDataLoader
-            expect(htmlContent).toContain('window.museumDataLoader');
-            expect(htmlContent).toContain('museumDataLoader.loadMuseum');
+            expect(jsContent).toContain('window.museumDataLoader');
+            expect(jsContent).toContain('museumDataLoader.loadMuseum');
         });
 
         test('should not use cache when loading museum data', () => {
             // Verify loadMuseum is called with false to bypass cache
-            const loadMuseumMatch = htmlContent.match(/museumDataLoader\.loadMuseum\([^,]+,\s*false\)/);
+            const loadMuseumMatch = jsContent.match(/museumDataLoader\.loadMuseum\([^,]+,\s*false\)/);
             expect(loadMuseumMatch).toBeTruthy();
         });
 
         test('should wait for async museum data loading in init', () => {
-            // Check that init function is async
-            expect(htmlContent).toContain('async function init()');
+            // Check that init function is async (in JS)
+            expect(jsContent).toContain('async function init()');
             
             // Check that it awaits loadMuseumData
-            expect(htmlContent).toContain('await loadMuseumData()');
+            expect(jsContent).toContain('await loadMuseumData()');
         });
     });
 
     describe('Remote Storage Integration', () => {
         test('should have remote storage configuration', () => {
-            expect(htmlContent).toContain('REMOTE_STORAGE_CONFIG');
-            expect(htmlContent).toContain('API_ENDPOINT');
-            expect(htmlContent).toContain('FIREWORK_KEY');
+            expect(jsContent).toContain('REMOTE_STORAGE_CONFIG');
+            expect(jsContent).toContain('API_ENDPOINT');
+            expect(jsContent).toContain('FIREWORK_KEY');
         });
 
         test('should upload firework events to remote', () => {
-            expect(htmlContent).toContain('uploadFireworkEvent');
-            expect(htmlContent).toContain('uploadToRemoteStorage');
+            expect(jsContent).toContain('uploadFireworkEvent');
+            expect(jsContent).toContain('uploadToRemoteStorage');
         });
 
         test('should include firework data in upload', () => {
-            expect(htmlContent).toContain('museumId');
-            expect(htmlContent).toContain('museumName');
-            expect(htmlContent).toContain('taskContent');
-            expect(htmlContent).toContain('childNickname');
+            expect(jsContent).toContain('museumId');
+            expect(jsContent).toContain('museumName');
+            expect(jsContent).toContain('taskContent');
+            expect(jsContent).toContain('childNickname');
         });
     });
 
     describe('Task Display and Interaction', () => {
         test('should render task cards from museum data', () => {
-            expect(htmlContent).toContain('renderTasks');
-            expect(htmlContent).toContain('createTaskCard');
+            expect(jsContent).toContain('renderTasks');
+            expect(jsContent).toContain('createTaskCard');
         });
 
         test('should parse task strings for icon and title', () => {
-            expect(htmlContent).toContain('parseTaskString');
-            expect(htmlContent).toContain('emojiMatch');
+            expect(jsContent).toContain('parseTaskString');
+            expect(jsContent).toContain('emojiMatch');
         });
 
         test('should handle task completion', () => {
-            expect(htmlContent).toContain('completeTask');
-            expect(htmlContent).toContain('completedTasks.add');
+            expect(jsContent).toContain('completeTask');
+            expect(jsContent).toContain('completedTasks.add');
         });
 
         test('should show fireworks celebration on task completion', () => {
-            expect(htmlContent).toContain('celebrateWithFireworks');
-            expect(htmlContent).toContain('fireworksCanvas');
+            expect(jsContent).toContain('celebrateWithFireworks');
+            expect(jsContent).toContain('fireworksCanvas');
         });
 
         test('should update progress after task completion', () => {
-            expect(htmlContent).toContain('updateProgress');
-            expect(htmlContent).toContain('completedTasks.size');
+            expect(jsContent).toContain('updateProgress');
+            expect(jsContent).toContain('completedTasks.size');
         });
     });
 
     describe('Edit Mode Support', () => {
         test('should support edit mode parameter', () => {
-            expect(htmlContent).toContain('urlParams.get(\'edit\')');
-            expect(htmlContent).toContain('editMode');
+            expect(jsContent).toContain("urlParams.get('edit')");
+            expect(jsContent).toContain('editMode');
         });
 
         test('should show edit mode indicator when enabled', () => {
-            expect(htmlContent).toContain('editModeIndicator');
-            expect(htmlContent).toContain('编辑模式');
+            const combined = htmlContent + jsContent;
+            expect(combined).toContain('editModeIndicator');
+            expect(combined).toContain('编辑模式');
         });
 
         test('should allow adding new tasks in edit mode', () => {
-            expect(htmlContent).toContain('addNewTask');
-            expect(htmlContent).toContain('add-task-card');
+            expect(jsContent).toContain('addNewTask');
+            expect(jsContent).toContain('add-task-card');
         });
 
         test('should save tasks to remote storage in edit mode', () => {
-            expect(htmlContent).toContain('saveTasksToRemote');
-            expect(htmlContent).toContain('CHECKIN_KEY_PREFIX');
+            expect(jsContent).toContain('saveTasksToRemote');
+            expect(jsContent).toContain('CHECKIN_KEY_PREFIX');
         });
     });
 
     describe('Navigation and Integration', () => {
         test('should navigate to fireworks wall with museum filter', () => {
-            expect(htmlContent).toContain('fireworks-wall.html?museum=');
+            expect(jsContent).toContain('fireworks-wall.html?museum=');
         });
 
         test('should navigate back to main application', () => {
-            expect(htmlContent).toContain('index.html');
+            const combined = htmlContent + jsContent;
+            expect(combined).toContain('index.html');
             // Navigation is handled by SharedMenu component
-            expect(htmlContent).toContain('SharedMenu');
+            expect(combined).toContain('SharedMenu');
         });
 
         test('should provide link to parent tasks from hint', () => {
-            expect(htmlContent).toContain('parentTasksLink');
-            expect(htmlContent).toContain('家长任务清单');
+            const combined = htmlContent + jsContent;
+            expect(combined).toContain('parentTasksLink');
+            expect(combined).toContain('家长任务清单');
         });
     });
 
     describe('Styling and UX', () => {
         test('should have light blue gradient background', () => {
-            expect(htmlContent).toContain('linear-gradient(135deg, #a8d8ea');
+            expect(cssContent).toContain('linear-gradient(135deg, #a8d8ea');
         });
 
         test('should have completed task styling', () => {
-            expect(htmlContent).toContain('.task-card.completed');
-            expect(htmlContent).toContain('completion-badge');
+            expect(cssContent).toContain('.task-card.completed');
+            expect(cssContent).toContain('completion-badge');
         });
 
         test('should have responsive design', () => {
-            expect(htmlContent).toContain('@media (max-width: 768px)');
-            expect(htmlContent).toContain('grid-template-columns');
+            expect(cssContent).toContain('@media (max-width: 768px)');
+            expect(cssContent).toContain('grid-template-columns');
         });
 
         test('should have modal overlay styles', () => {
-            expect(htmlContent).toContain('.modal');
-            expect(htmlContent).toContain('modal.show');
+            expect(cssContent).toContain('.modal');
+            expect(cssContent).toContain('modal.show');
         });
     });
 
@@ -282,48 +298,48 @@ describe('Museum Check-in Page', () => {
             // No dependency on main script bundle
             expect(htmlContent).not.toContain('<script src="script.js">');
             
-            // Self-contained functionality
-            expect(htmlContent).toContain('<script>');
-            expect(htmlContent).toContain('function init()');
+            // Self-contained functionality (in external JS)
+            expect(htmlContent).toContain('<script src="js/museum-checkin.js">');
+            expect(jsContent).toContain('function init()');
         });
 
         test('should support URL parameters for museum-specific views', () => {
-            expect(htmlContent).toContain('URLSearchParams');
-            expect(htmlContent).toContain('window.location.search');
+            expect(jsContent).toContain('URLSearchParams');
+            expect(jsContent).toContain('window.location.search');
         });
     });
 
     describe('Data Flow and Logic', () => {
         test('should load museum data on initialization', () => {
-            expect(htmlContent).toContain('loadMuseumData');
-            expect(htmlContent).toContain('museumDataLoader.loadMuseum');
+            expect(jsContent).toContain('loadMuseumData');
+            expect(jsContent).toContain('museumDataLoader.loadMuseum');
         });
 
         test('should extract child tasks for age group', () => {
-            expect(htmlContent).toContain('checklists.child');
-            expect(htmlContent).toContain('childTasks');
+            expect(jsContent).toContain('checklists.child');
+            expect(jsContent).toContain('childTasks');
         });
 
         test('should handle missing museum gracefully', () => {
-            expect(htmlContent).toContain('博物馆未找到');
-            expect(htmlContent).toContain('未找到该博物馆的信息');
+            expect(jsContent).toContain('博物馆未找到');
+            expect(jsContent).toContain('未找到该博物馆的信息');
         });
 
         test('should initialize on DOM content loaded', () => {
-            expect(htmlContent).toContain('DOMContentLoaded');
-            expect(htmlContent).toContain('init');
+            expect(jsContent).toContain('DOMContentLoaded');
+            expect(jsContent).toContain('init');
         });
 
         test('should update page title on initialization', () => {
-            // Check that init function and updatePageTitle both exist
-            expect(htmlContent).toContain('async function init()');
-            expect(htmlContent).toContain('function updatePageTitle()');
+            // Check that init function and updatePageTitle both exist (in JS)
+            expect(jsContent).toContain('async function init()');
+            expect(jsContent).toContain('function updatePageTitle()');
             
             // Verify updatePageTitle is called somewhere
-            expect(htmlContent).toContain('updatePageTitle()');
+            expect(jsContent).toContain('updatePageTitle()');
             
             // Verify saveChildNickname also calls updatePageTitle (when nickname is saved)
-            expect(htmlContent).toMatch(/saveChildNickname[\s\S]{0,500}updatePageTitle/);
+            expect(jsContent).toMatch(/saveChildNickname[\s\S]{0,500}updatePageTitle/);
         });
     });
 });
