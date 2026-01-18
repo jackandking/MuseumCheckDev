@@ -238,6 +238,54 @@ class QuizLimit {
         
         return (total / dates.length).toFixed(1);
     }
+    
+    /**
+     * Get question IDs answered today
+     * @param {string} ageGroup - Age group
+     * @returns {Array<string>} Array of question IDs
+     */
+    static getTodayAnsweredQuestionIds(ageGroup) {
+        const dailyData = this.loadDailyData();
+        const today = this.getTodayKey();
+        
+        if (!dailyData[today] || !dailyData[today][ageGroup]) {
+            return [];
+        }
+        
+        return dailyData[today][ageGroup].answeredQuestionIds || [];
+    }
+    
+    /**
+     * Record a question as answered today
+     * @param {string} questionId - Question ID
+     * @param {string} ageGroup - Age group
+     */
+    static recordAnsweredQuestion(questionId, ageGroup) {
+        const dailyData = this.loadDailyData();
+        const today = this.getTodayKey();
+        
+        if (!dailyData[today]) {
+            dailyData[today] = {};
+        }
+        
+        if (!dailyData[today][ageGroup]) {
+            dailyData[today][ageGroup] = {
+                count: 0,
+                startTime: Date.now(),
+                answeredQuestionIds: []
+            };
+        }
+        
+        if (!dailyData[today][ageGroup].answeredQuestionIds) {
+            dailyData[today][ageGroup].answeredQuestionIds = [];
+        }
+        
+        if (!dailyData[today][ageGroup].answeredQuestionIds.includes(questionId)) {
+            dailyData[today][ageGroup].answeredQuestionIds.push(questionId);
+        }
+        
+        this.saveDailyData(dailyData);
+    }
 }
 
 // Export for use in other modules

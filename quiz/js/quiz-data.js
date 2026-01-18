@@ -403,6 +403,7 @@ class QuizData {
     
     /**
      * Get random questions from all visited museums
+     * Excludes questions already answered today to avoid repetition
      * @param {number} count - Number of questions
      * @param {string} ageGroup - Age group
      * @returns {Array} Random questions
@@ -410,8 +411,19 @@ class QuizData {
     static getRandomQuestions(count = 10, ageGroup = '7-12') {
         const allQuestions = this.getAllAvailableQuestions(ageGroup);
         
+        // Get today's answered question IDs to avoid repetition
+        const answeredIds = typeof QuizLimit !== 'undefined' 
+            ? QuizLimit.getTodayAnsweredQuestionIds(ageGroup) 
+            : [];
+        
+        // Filter out questions already answered today
+        const available = allQuestions.filter(q => !answeredIds.includes(q.id));
+        
+        // If not enough fresh questions, fall back to all questions
+        const pool = available.length >= count ? available : allQuestions;
+        
         // Shuffle questions
-        const shuffled = allQuestions.sort(() => Math.random() - 0.5);
+        const shuffled = pool.sort(() => Math.random() - 0.5);
         
         return shuffled.slice(0, count);
     }

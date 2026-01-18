@@ -126,6 +126,11 @@ class QuizEngine {
             timestamp: Date.now()
         });
         
+        // Record question ID for daily deduplication
+        if (typeof QuizLimit !== 'undefined') {
+            QuizLimit.recordAnsweredQuestion(question.id, this.currentSession.ageGroup);
+        }
+        
         return {
             isCorrect: isCorrect,
             correctAnswer: question.correctAnswer,
