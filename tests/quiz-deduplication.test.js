@@ -137,6 +137,7 @@ describe('Quiz Deduplication - QuizData.getRandomQuestions', () => {
             }]
         };
 
+
         await QuizData.init(mockAdapter);
 
         const allQuestions = QuizData.getAllAvailableQuestions('7-12');
@@ -149,5 +150,147 @@ describe('Quiz Deduplication - QuizData.getRandomQuestions', () => {
         // Should still return questions (fallback to all)
         const randomQuestions = QuizData.getRandomQuestions(5, '7-12');
         expect(randomQuestions.length).toBeGreaterThan(0);
+    });
+});
+
+describe('Quiz Image Recognition Questions', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        localStorage.setItem('visitedMuseums', JSON.stringify(['museum1', 'museum2', 'museum3', 'museum4']));
+        QuizData.resetForTests();
+    });
+
+    test('generateImageQuestions creates image-choice question when museum has image', async () => {
+        const museums = [
+            { id: 'museum1', name: '故宫博物院', location: '北京', image: 'https://example.com/1.jpg' },
+            { id: 'museum2', name: '上海博物馆', location: '上海', image: 'https://example.com/2.jpg' },
+            { id: 'museum3', name: '南京博物院', location: '南京', image: 'https://example.com/3.jpg' },
+            { id: 'museum4', name: '陕西历史博物馆', location: '西安', image: 'https://example.com/4.jpg' }
+        ];
+
+        const mockAdapter = {
+            init: async () => museums,
+            preloadMuseums: async () => {},
+            getMuseums: () => museums
+        };
+
+        await QuizData.init(mockAdapter);
+
+        const allQuestions = QuizData.getAllAvailableQuestions('7-12');
+        const imageQuestions = allQuestions.filter(q => q.type === 'image-choice');
+
+        expect(imageQuestions.length).toBeGreaterThan(0);
+        
+        const q = imageQuestions[0];
+        expect(q.type).toBe('image-choice');
+        expect(q.question).toBe('看图猜一猜，这是哪个博物馆？');
+        expect(q.image).toBeDefined();
+        expect(q.options).toHaveLength(4);
+        expect(q.correctAnswer).toBe(0);
+        expect(q.points).toBe(15);
+    });
+
+    test('generateImageQuestions does not create question when museum has no image', async () => {
+        const museums = [
+            { id: 'museum1', name: '无图博物馆', location: '北京' },
+            { id: 'museum2', name: '博物馆2', location: '上海', image: 'https://example.com/2.jpg' },
+            { id: 'museum3', name: '博物馆3', location: '南京', image: 'https://example.com/3.jpg' },
+            { id: 'museum4', name: '博物馆4', location: '西安', image: 'https://example.com/4.jpg' }
+        ];
+
+        const mockAdapter = {
+            init: async () => museums,
+            preloadMuseums: async () => {},
+            getMuseums: () => museums
+        };
+
+        await QuizData.init(mockAdapter);
+
+        const questions = QuizData.generateQuestionsForMuseum('museum1', '7-12');
+        const imageQuestions = questions.filter(q => q.type === 'image-choice');
+
+        expect(imageQuestions.length).toBe(0);
+    });
+});
+
+describe('Quiz Anti-Grinding - Questions Exhausted', () => {
+    beforeEach(() => {
+        localStorage.clear();
+    });
+
+    test('checkQuestionsExhausted returns exhausted when all answered and no wrong questions', () => {
+        // Record 5 questions as answered
+        for (let i = 0; i < 5; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        const status = QuizLimit.checkQuestionsExhausted('7-12', 5, 0);
+        
+        expect(status.exhausted).toBe(true);
+        expect(status.reason).toBe('all_done');
+        expect(status.answeredCount).toBe(5);
+    });
+
+    test('checkQuestionsExhausted returns not exhausted when has wrong questions', () => {
+        // Record 5 questions as answered
+        for (let i = 0; i < 5; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        // Has 2 wrong questions to review
+        const status = QuizLimit.checkQuestionsExhausted('7-12', 5, 2);
+        
+        expect(status.exhausted).toBe(false);
+        expect(status.reason).toBe('has_wrong_questions');
+    });
+
+    test('checkQuestionsExhausted returns not exhausted when has unanswered questions', () => {
+        // Only answered 3 out of 5
+        for (let i = 0; i < 3; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        const status = QuizLimit.checkQuestionsExhausted('7-12', 5, 0);
+        
+        expect(status.exhausted).toBe(false);
+        expect(status.reason).toBe('has_new_questions');
+    });
+
+    test('getWarning returns questions_exhausted warning when appropriate', () => {
+        // Record all questions as answered
+        for (let i = 0; i < 10; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        const warning = QuizLimit.getWarning('7-12', 10, 0);
+        
+        expect(warning).not.toBeNull();
+        expect(warning.type).toBe('questions_exhausted');
+        expect(warning.showContinueOption).toBe(false);
+    });
+
+    test('getWarning returns null when still has questions to answer', () => {
+        // Only answered 3 questions
+        for (let i = 0; i < 3; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        const warning = QuizLimit.getWarning('7-12', 10, 0);
+        
+        // Should be null because still has new questions
+        expect(warning).toBeNull();
+    });
+
+    test('getWarning allows wrong questions mode even when exhausted', () => {
+        // Record all questions as answered
+        for (let i = 0; i < 5; i++) {
+            QuizLimit.recordAnsweredQuestion(`q${i}`, '7-12');
+        }
+
+        // Has wrong questions to review - should not be exhausted
+        const warning = QuizLimit.getWarning('7-12', 5, 2);
+        
+        // Should be null because has wrong questions to review
+        expect(warning).toBeNull();
     });
 });

@@ -112,6 +112,11 @@ class QuizData {
             questions.push(...this.generateTagQuestions(museum, ageGroup));
         }
         
+        // Image recognition questions (guess museum by photo)
+        if (museum.image) {
+            questions.push(...this.generateImageQuestions(museum, ageGroup));
+        }
+        
         return questions;
     }
     
@@ -266,6 +271,47 @@ class QuizData {
                 ageGroup: '7-12'
             });
         }
+        
+        return questions;
+    }
+    
+    /**
+     * Generate image recognition questions (guess museum by photo)
+     * @private
+     */
+    static generateImageQuestions(museum, ageGroup) {
+        const questions = [];
+        const museumId = museum.id;
+        
+        if (!museum.image) return questions;
+        
+        // Get other museums for wrong options
+        const otherMuseums = this.getMuseums()
+            .filter(m => m.id !== museumId && m.image)
+            .slice(0, 10);
+        
+        if (otherMuseums.length < 3) return questions;
+        
+        // Shuffle and pick 3 wrong options
+        const wrongOptions = otherMuseums
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(m => m.name);
+        
+        questions.push({
+            id: `${museumId}_image_recognition`,
+            museumId: museumId,
+            type: 'image-choice',
+            difficulty: 'medium',
+            question: '看图猜一猜，这是哪个博物馆？',
+            image: museum.image,
+            options: [museum.name, ...wrongOptions],
+            correctAnswer: 0,
+            explanation: `这是${museum.name}，位于${museum.location}。`,
+            points: 15,
+            tags: ['图片识别', '博物馆'],
+            ageGroup: '7-12'
+        });
         
         return questions;
     }

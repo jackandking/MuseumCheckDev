@@ -160,9 +160,11 @@ class QuizLimit {
     /**
      * Check if user should see a warning
      * @param {string} ageGroup - Age group
+     * @param {number} totalAvailableQuestions - Total questions available (optional)
+     * @param {number} wrongQuestionsCount - Number of unresolved wrong questions (optional)
      * @returns {Object|null} Warning object or null
      */
-    static getWarning(ageGroup) {
+    static getWarning(ageGroup, totalAvailableQuestions = 0, wrongQuestionsCount = 0) {
         const status = this.checkDailyLimit(ageGroup);
         
         if (!status.canAnswer) {
@@ -170,6 +172,17 @@ class QuizLimit {
                 type: 'limit_reached',
                 title: '今日答题已达上限',
                 message: `今天已经答了${status.answered}道题，已达到${status.limit}题的每日上限。\n\n明天再来继续学习吧！适度学习，保护视力哦~ 😊`,
+                showContinueOption: false
+            };
+        }
+        
+        // Check if all questions answered and no wrong questions left
+        const exhaustedStatus = this.checkQuestionsExhausted(ageGroup, totalAvailableQuestions, wrongQuestionsCount);
+        if (exhaustedStatus.exhausted) {
+            return {
+                type: 'questions_exhausted',
+                title: '今日题目已全部完成',
+                message: `太棒了！你今天已经把所有题目都答过了，而且没有错题需要复习。\n\n去探索新的博物馆，明天会有更多题目哦~ 🎉`,
                 showContinueOption: false
             };
         }
@@ -184,6 +197,36 @@ class QuizLimit {
         }
         
         return null;
+    }
+    
+    /**
+     * Check if all available questions have been answered today with no wrong questions
+     * @param {string} ageGroup - Age group
+     * @param {number} totalAvailableQuestions - Total questions available
+     * @param {number} wrongQuestionsCount - Number of unresolved wrong questions
+     * @returns {Object} Exhaustion status
+     */
+    static checkQuestionsExhausted(ageGroup, totalAvailableQuestions, wrongQuestionsCount) {
+        const answeredIds = this.getTodayAnsweredQuestionIds(ageGroup);
+        const answeredCount = answeredIds.length;
+        
+        // If no total provided, can't determine exhaustion
+        if (!totalAvailableQuestions || totalAvailableQuestions <= 0) {
+            return { exhausted: false, answeredCount, totalAvailableQuestions, wrongQuestionsCount };
+        }
+        
+        // Exhausted if all questions answered AND no wrong questions to review
+        const allAnswered = answeredCount >= totalAvailableQuestions;
+        const noWrongQuestions = wrongQuestionsCount === 0;
+        const exhausted = allAnswered && noWrongQuestions;
+        
+        return {
+            exhausted,
+            answeredCount,
+            totalAvailableQuestions,
+            wrongQuestionsCount,
+            reason: exhausted ? 'all_done' : (allAnswered ? 'has_wrong_questions' : 'has_new_questions')
+        };
     }
     
     /**

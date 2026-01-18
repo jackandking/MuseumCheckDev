@@ -17,9 +17,26 @@ class QuizEngine {
      * @param {string} museumId - Museum ID (null for random mode)
      * @param {string} ageGroup - Age group
      * @param {string} mode - 'normal', 'daily', 'random', 'wrong'
-     * @returns {Object} Session object
+     * @returns {Object} Session object or error object if blocked
      */
     startSession(museumId, ageGroup = '7-12', mode = 'normal') {
+        // Check if questions are exhausted (all answered, no wrong questions)
+        // Skip this check for 'wrong' mode since that's specifically for reviewing mistakes
+        if (mode !== 'wrong' && typeof QuizLimit !== 'undefined' && typeof QuizData !== 'undefined') {
+            const totalQuestions = QuizData.getAllAvailableQuestions(ageGroup).length;
+            const wrongCount = this.getWrongQuestions(true).length;
+            const exhaustedStatus = QuizLimit.checkQuestionsExhausted(ageGroup, totalQuestions, wrongCount);
+            
+            if (exhaustedStatus.exhausted) {
+                return {
+                    blocked: true,
+                    reason: 'questions_exhausted',
+                    title: '今日题目已全部完成',
+                    message: '太棒了！你今天已经把所有题目都答过了，而且没有错题需要复习。\n\n去探索新的博物馆，明天会有更多题目哦~ 🎉'
+                };
+            }
+        }
+        
         let questions = [];
         
         if (mode === 'daily') {
