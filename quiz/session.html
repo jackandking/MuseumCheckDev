@@ -213,10 +213,13 @@
             const question = engine.currentSession.questions[engine.currentSession.currentIndex];
 
             if (result.isCorrect) {
+                const pointsText = result.canEarnPoints 
+                    ? `<p class="feedback-points">+${result.points} 积分</p>`
+                    : `<p class="feedback-points no-points">今日答题已达上限，不获得积分</p>`;
                 feedbackContent.innerHTML = `
                     <div class="feedback-icon correct animate-bounce">🎉</div>
                     <h2 class="feedback-title">回答正确！</h2>
-                    <p class="feedback-points">+${result.points} 积分</p>
+                    ${pointsText}
                     ${result.streak > 0 ? `<p class="feedback-streak">连对 ${result.streak} 题！</p>` : ''}
                     <div class="feedback-explanation">
                         <strong>💡 知识点：</strong>

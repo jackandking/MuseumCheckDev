@@ -104,7 +104,15 @@ class QuizEngine {
         }
         
         const isCorrect = answerIndex === question.correctAnswer;
-        const points = isCorrect ? question.points : 0;
+        
+        // Check daily limit - no points if limit exceeded
+        let canEarnPoints = true;
+        if (typeof QuizLimit !== 'undefined') {
+            const limitStatus = QuizLimit.checkDailyLimit(this.currentSession.ageGroup);
+            canEarnPoints = limitStatus.canEarnPoints;
+        }
+        
+        const points = (isCorrect && canEarnPoints) ? question.points : 0;
         
         // Update streak
         if (isCorrect) {
@@ -124,9 +132,9 @@ class QuizEngine {
             this.currentSession.correctCount++;
         }
         
-        // Calculate points with streak bonus
+        // Calculate points with streak bonus (only if can earn points)
         let earnedPoints = points;
-        if (isCorrect && this.currentSession.streak >= 5) {
+        if (isCorrect && canEarnPoints && this.currentSession.streak >= 5) {
             // Bonus for 5+ streak
             earnedPoints += 10;
         }
@@ -153,7 +161,8 @@ class QuizEngine {
             correctAnswer: question.correctAnswer,
             points: earnedPoints,
             explanation: question.explanation,
-            streak: this.currentSession.streak
+            streak: this.currentSession.streak,
+            canEarnPoints: canEarnPoints
         };
     }
     

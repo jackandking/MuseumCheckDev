@@ -130,14 +130,15 @@ class QuizData {
         
         // Location question
         if (museum.location) {
+            const locationOpts = this.shuffleOptions(this.generateLocationOptions(museum.location));
             questions.push({
                 id: `${museumId}_location`,
                 museumId: museumId,
                 type: 'single-choice',
                 difficulty: 'easy',
                 question: `${museum.name}位于哪个城市？`,
-                options: this.generateLocationOptions(museum.location),
-                correctAnswer: 0,
+                options: locationOpts.options,
+                correctAnswer: locationOpts.correctAnswer,
                 explanation: `${museum.name}位于${museum.location}。`,
                 points: 10,
                 tags: ['基础信息', '地理'],
@@ -175,14 +176,15 @@ class QuizData {
         
         museum.collections.forEach((collection, index) => {
             // Collection name question
+            const collectionOpts = this.shuffleOptions(this.generateCollectionOptions(collection.name, museum.name));
             questions.push({
                 id: `${museumId}_collection_${index}`,
                 museumId: museumId,
                 type: 'single-choice',
                 difficulty: 'medium',
                 question: `${museum.name}的镇馆之宝包括哪一件？`,
-                options: this.generateCollectionOptions(collection.name, museum.name),
-                correctAnswer: 0,
+                options: collectionOpts.options,
+                correctAnswer: collectionOpts.correctAnswer,
                 explanation: `${collection.name}是${museum.name}的重要藏品。${collection.description || ''}`,
                 points: 15,
                 tags: ['藏品', '文物'],
@@ -194,14 +196,15 @@ class QuizData {
             if (collection.description && collection.description.length > 20) {
                 const keyInfo = this.extractKeyInfo(collection.description);
                 if (keyInfo) {
+                    const detailOpts = this.shuffleOptions([keyInfo, ...this.generateWrongOptions(keyInfo)]);
                     questions.push({
                         id: `${museumId}_collection_${index}_detail`,
                         museumId: museumId,
                         type: 'single-choice',
                         difficulty: 'hard',
                         question: `关于${collection.name}，以下哪个说法是正确的？`,
-                        options: [keyInfo, ...this.generateWrongOptions(keyInfo)],
-                        correctAnswer: 0,
+                        options: detailOpts.options,
+                        correctAnswer: detailOpts.correctAnswer,
                         explanation: collection.description,
                         points: 20,
                         tags: ['藏品', '历史'],
@@ -230,14 +233,15 @@ class QuizData {
         const sameCity = museums.filter(m => m.location === museum.location);
         
         if (sameCity.length > 2) {
+            const countOpts = this.shuffleOptions(this.generateCountOptions(sameCity.length));
             questions.push({
                 id: `${museum.id}_city_museums`,
                 museumId: museum.id,
                 type: 'single-choice',
                 difficulty: 'medium',
                 question: `在${museum.location}，我们收录了多少家博物馆？`,
-                options: this.generateCountOptions(sameCity.length),
-                correctAnswer: 0,
+                options: countOpts.options,
+                correctAnswer: countOpts.correctAnswer,
                 explanation: `在${museum.location}，我们收录了${sameCity.length}家博物馆。`,
                 points: 15,
                 tags: ['地理', '统计'],
@@ -257,14 +261,15 @@ class QuizData {
         const museumId = museum.id;
         
         if (museum.tags && museum.tags.length > 0) {
+            const tagOpts = this.shuffleOptions(this.generateTagOptions(museum.tags[0]));
             questions.push({
                 id: `${museumId}_tags`,
                 museumId: museumId,
                 type: 'single-choice',
                 difficulty: 'easy',
                 question: `${museum.name}的主要类型是？`,
-                options: this.generateTagOptions(museum.tags[0]),
-                correctAnswer: 0,
+                options: tagOpts.options,
+                correctAnswer: tagOpts.correctAnswer,
                 explanation: `${museum.name}是一座${museum.tags.join('、')}类型的博物馆。`,
                 points: 10,
                 tags: ['分类'],
@@ -298,6 +303,7 @@ class QuizData {
             .slice(0, 3)
             .map(m => m.name);
         
+        const imageOpts = this.shuffleOptions([museum.name, ...wrongOptions]);
         questions.push({
             id: `${museumId}_image_recognition`,
             museumId: museumId,
@@ -305,8 +311,8 @@ class QuizData {
             difficulty: 'medium',
             question: '看图猜一猜，这是哪个博物馆？',
             image: museum.image,
-            options: [museum.name, ...wrongOptions],
-            correctAnswer: 0,
+            options: imageOpts.options,
+            correctAnswer: imageOpts.correctAnswer,
             explanation: `这是${museum.name}，位于${museum.location}。`,
             points: 15,
             tags: ['图片识别', '博物馆'],
@@ -431,6 +437,32 @@ class QuizData {
     }
     
     /**
+     * Shuffle options and return new options array with updated correct answer index
+     * @param {Array} options - Original options array (correct answer at index 0)
+     * @returns {Object} { options: shuffledOptions, correctAnswer: newCorrectIndex }
+     * @private
+     */
+    static shuffleOptions(options) {
+        // Create array of {value, isCorrect} objects
+        const optionsWithFlag = options.map((opt, idx) => ({
+            value: opt,
+            isCorrect: idx === 0
+        }));
+        
+        // Fisher-Yates shuffle
+        for (let i = optionsWithFlag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [optionsWithFlag[i], optionsWithFlag[j]] = [optionsWithFlag[j], optionsWithFlag[i]];
+        }
+        
+        // Find new correct answer index
+        const correctAnswer = optionsWithFlag.findIndex(opt => opt.isCorrect);
+        const shuffledOptions = optionsWithFlag.map(opt => opt.value);
+        
+        return { options: shuffledOptions, correctAnswer };
+    }
+    
+    /**
      * Get all questions for visited museums
      * @param {string} ageGroup - Age group
      * @returns {Array} All questions
@@ -462,15 +494,13 @@ class QuizData {
             ? QuizLimit.getTodayAnsweredQuestionIds(ageGroup) 
             : [];
         
-        // Filter out questions already answered today
+        // Filter out questions already answered today - never include duplicates
         const available = allQuestions.filter(q => !answeredIds.includes(q.id));
         
-        // If not enough fresh questions, fall back to all questions
-        const pool = available.length >= count ? available : allQuestions;
+        // Shuffle available questions (only fresh ones, no fallback to duplicates)
+        const shuffled = available.sort(() => Math.random() - 0.5);
         
-        // Shuffle questions
-        const shuffled = pool.sort(() => Math.random() - 0.5);
-        
+        // Return up to count questions (may be fewer if not enough fresh questions)
         return shuffled.slice(0, count);
     }
 }

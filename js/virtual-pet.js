@@ -1702,8 +1702,8 @@ class VirtualPet {
         
         goQuizBtn.addEventListener('click', () => {
             closePrompt();
-            // Navigate to quiz page
-            window.location.href = 'quiz/index.html';
+            // Navigate directly to random quiz mode
+            window.location.href = 'quiz/session.html?mode=random';
         });
         
         stayHereBtn.addEventListener('click', closePrompt);
