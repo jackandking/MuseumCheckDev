@@ -211,8 +211,8 @@ const UtilityFunctions = {
     generateRandomNickname: () => {
         // Generate UUID and take a substring to create unique but shorter nickname
         const uuid = UtilityFunctions.generateUUID();
-        // Take last 8 characters of UUID (without hyphens) for uniqueness
-        const shortId = uuid.replace(/-/g, '').slice(-8);
+        // Take last 6 characters of UUID (without hyphens) for shorter display
+        const shortId = uuid.replace(/-/g, '').slice(-6);
         return `用户${shortId}`;
     },
     
@@ -4106,10 +4106,7 @@ class MuseumCheckApp {
         // Update header title with child nickname
         this.updateHeaderTitle();
 
-        // Show a one-time gentle tip for first-time users
-        if (!this.hasSetNickname()) {
-            this.showNicknameTip();
-        }
+        // Nickname tip removed - now using onboarding modal instead
         
         // Update dynamic museum count displays
         this.updateDynamicMuseumCounts();
@@ -15491,12 +15488,80 @@ document.addEventListener('DOMContentLoaded', () => {
     window.app = new MuseumCheckApp();
     try { window.museumCheck = window.app; } catch(e) {}
     
+    // Show nickname onboarding modal for first-time users
+    setTimeout(() => {
+        showNicknameOnboardingModalIfNeeded();
+    }, 1000);
+    
     // 响应式更新汉堡菜单显示状态
     function updateMobileMenuVisibility() {
         const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const isMobile = window.innerWidth <= 480;
+        
         if (mobileMenuButton) {
-            const isMobile = window.innerWidth <= 768;
-            mobileMenuButton.style.display = isMobile ? 'flex' : 'none';
+            const isTablet = window.innerWidth <= 768;
+            mobileMenuButton.style.display = isTablet ? 'flex' : 'none';
+        }
+        
+        // 移动端标题样式优化
+        if (isMobile) {
+            const header = document.querySelector('header');
+            const h1 = document.querySelector('header h1');
+            const title = document.getElementById('headerTitle');
+            const menuBtn = document.querySelector('.menu-button');
+            const settingsBtn = document.querySelector('.settings-button');
+            
+            if (header) {
+                header.style.padding = '6px 0';
+                header.style.marginBottom = '10px';
+            }
+            if (h1) {
+                h1.style.padding = '0 2px';
+                h1.style.gap = '2px';
+            }
+            if (title) {
+                title.style.fontSize = '14px';
+                title.style.whiteSpace = 'nowrap';
+            }
+            if (menuBtn) {
+                menuBtn.style.width = '22px';
+                menuBtn.style.height = '22px';
+                menuBtn.style.minWidth = '22px';
+                menuBtn.style.padding = '1px';
+            }
+            if (settingsBtn) {
+                settingsBtn.style.width = '22px';
+                settingsBtn.style.height = '22px';
+                settingsBtn.style.minWidth = '22px';
+                settingsBtn.style.padding = '1px';
+                settingsBtn.style.background = 'transparent';
+                const svg = settingsBtn.querySelector('svg');
+                if (svg) svg.style.background = 'transparent';
+            }
+            if (menuBtn) {
+                menuBtn.style.background = 'transparent';
+                const svg = menuBtn.querySelector('svg');
+                if (svg) svg.style.background = 'transparent';
+            }
+            // 添加移动端按钮样式覆盖
+            if (!document.getElementById('mobileButtonStyles')) {
+                const style = document.createElement('style');
+                style.id = 'mobileButtonStyles';
+                style.textContent = `
+                    @media (max-width: 480px) {
+                        .menu-button, .settings-button,
+                        .menu-button:hover, .settings-button:hover,
+                        .menu-button:active, .settings-button:active,
+                        .menu-button:focus, .settings-button:focus {
+                            background: transparent !important;
+                            background-color: transparent !important;
+                            box-shadow: none !important;
+                            border: none !important;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
         }
         
         // 同步烟花按钮状态
@@ -15507,5 +15572,74 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 初始化和窗口 resize 时更新
     updateMobileMenuVisibility();
+    // 延迟再执行一次确保样式应用
+    setTimeout(updateMobileMenuVisibility, 100);
     window.addEventListener('resize', updateMobileMenuVisibility);
 });
+
+// Show nickname onboarding modal for first-time users (homepage)
+function showNicknameOnboardingModalIfNeeded() {
+    // Check if user has already set nickname
+    const hasSetNickname = localStorage.getItem('nicknameHasBeenSet') === 'true';
+    if (hasSetNickname) return;
+    
+    const modal = document.getElementById('nicknameOnboardingModal');
+    const input = document.getElementById('onboardingNicknameInput');
+    const confirmBtn = document.getElementById('confirmOnboardingNickname');
+    const skipBtn = document.getElementById('skipOnboardingNickname');
+    
+    if (!modal) return;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Focus input after a short delay
+    setTimeout(() => {
+        if (input) input.focus();
+    }, 100);
+    
+    // Handle confirm button
+    const handleConfirm = () => {
+        const nickname = input.value.trim();
+        if (nickname) {
+            localStorage.setItem('childNickname', nickname);
+            // Update page title if function exists
+            if (window.app && window.app.updateUserDisplay) {
+                window.app.updateUserDisplay();
+            }
+        }
+        // Mark as set
+        localStorage.setItem('nicknameHasBeenSet', 'true');
+        closeOnboardingModal();
+        // Refresh page title display
+        location.reload();
+    };
+    
+    // Handle skip button
+    const handleSkip = () => {
+        // Mark as set so we don't show again
+        localStorage.setItem('nicknameHasBeenSet', 'true');
+        closeOnboardingModal();
+    };
+    
+    // Close modal function
+    const closeOnboardingModal = () => {
+        modal.style.display = 'none';
+        // Clean up event listeners
+        confirmBtn.removeEventListener('click', handleConfirm);
+        skipBtn.removeEventListener('click', handleSkip);
+        input.removeEventListener('keydown', handleKeydown);
+    };
+    
+    // Handle enter key
+    const handleKeydown = (e) => {
+        if (e.key === 'Enter') {
+            handleConfirm();
+        }
+    };
+    
+    // Add event listeners
+    confirmBtn.addEventListener('click', handleConfirm);
+    skipBtn.addEventListener('click', handleSkip);
+    input.addEventListener('keydown', handleKeydown);
+}

@@ -699,14 +699,11 @@
 
             updatePageTitle();
             
-            // Check if this is a first-time user and trigger inline nickname editing
+            // Check if this is a first-time user and show nickname onboarding modal
             if (!hasSetNickname()) {
-                // Trigger inline nickname editing for first-time users after a short delay
+                // Show nickname onboarding modal for first-time users after a short delay
                 setTimeout(() => {
-                    const pageTitleElement = document.getElementById('pageTitle');
-                    if (pageTitleElement) {
-                        startInlineNicknameEditOnTitle(pageTitleElement);
-                    }
+                    showNicknameOnboardingModal();
                 }, 800); // Slightly longer delay to ensure page is fully loaded
             }
             
@@ -4166,8 +4163,8 @@
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
-            // Take last 8 characters of UUID (without hyphens) for uniqueness
-            const shortId = uuid.replace(/-/g, '').slice(-8);
+            // Take last 6 characters of UUID (without hyphens) for shorter display
+            const shortId = uuid.replace(/-/g, '').slice(-6);
             return `用户${shortId}`;
         }
         
@@ -4185,6 +4182,61 @@
             } catch (error) {
                 console.error('Failed to mark nickname as set:', error);
             }
+        }
+
+        // Show nickname onboarding modal for first-time users
+        function showNicknameOnboardingModal() {
+            const modal = document.getElementById('nicknameOnboardingModal');
+            const input = document.getElementById('onboardingNicknameInput');
+            const confirmBtn = document.getElementById('confirmOnboardingNickname');
+            const skipBtn = document.getElementById('skipOnboardingNickname');
+            
+            if (!modal) return;
+            
+            // Show modal
+            modal.style.display = 'flex';
+            
+            // Focus input after a short delay
+            setTimeout(() => {
+                if (input) input.focus();
+            }, 100);
+            
+            // Handle confirm button
+            const handleConfirm = () => {
+                const nickname = input.value.trim();
+                if (nickname) {
+                    saveChildNickname(nickname);
+                }
+                closeOnboardingModal();
+            };
+            
+            // Handle skip button
+            const handleSkip = () => {
+                // Mark as set so we don't show again
+                markNicknameAsSet();
+                closeOnboardingModal();
+            };
+            
+            // Close modal function
+            const closeOnboardingModal = () => {
+                modal.style.display = 'none';
+                // Clean up event listeners
+                confirmBtn.removeEventListener('click', handleConfirm);
+                skipBtn.removeEventListener('click', handleSkip);
+                input.removeEventListener('keydown', handleKeydown);
+            };
+            
+            // Handle enter key
+            const handleKeydown = (e) => {
+                if (e.key === 'Enter') {
+                    handleConfirm();
+                }
+            };
+            
+            // Add event listeners
+            confirmBtn.addEventListener('click', handleConfirm);
+            skipBtn.addEventListener('click', handleSkip);
+            input.addEventListener('keydown', handleKeydown);
         }
 
         function saveChildNickname(nickname) {

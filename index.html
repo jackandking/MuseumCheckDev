@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MuseumCheck - 让孩子爱上博物馆</title>
+    <title>让孩子爱上博物馆</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="通过博物馆亲子游改善亲子关系的专业指南应用。收录全国主要博物馆，提供分龄参观清单和亲子互动指导，让博物馆成为增进亲子感情的最佳场所。">
@@ -858,6 +858,28 @@
             </p>
         </div>
     </footer>
+
+    <!-- Nickname onboarding modal for first-time users -->
+    <div class="modal" id="nicknameOnboardingModal" style="display: none;">
+        <div class="modal-content" style="max-width: 360px; text-align: center; padding: 32px 24px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">👶</div>
+            <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #1f2937;">给孩子起个昵称吧！</h2>
+            <input type="text" id="onboardingNicknameInput" 
+                   style="width: 100%; padding: 12px 16px; font-size: 18px; border: 2px solid #e5e7eb; border-radius: 12px; text-align: center; margin-bottom: 12px; box-sizing: border-box;"
+                   maxlength="10" placeholder="小明">
+            <p style="margin: 0 0 20px 0; font-size: 14px; color: #6b7280;">这个名字会出现在任务和成就海报上哦～</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="skipOnboardingNickname" 
+                        style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 8px; font-size: 15px; color: #6b7280; cursor: pointer;">
+                    暂时跳过
+                </button>
+                <button id="confirmOnboardingNickname" 
+                        style="padding: 10px 24px; border: none; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer;">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 汉堡菜单模态框 -->
     <div class="modal" id="mobileMenuModal" style="display: none;">

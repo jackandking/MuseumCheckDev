@@ -12,6 +12,7 @@
 
     const MENU_ITEMS = [
         { action: 'achievements', icon: '🏆', text: '我的成就', alwaysShow: true },
+        { action: 'everyoneAchievements', icon: '👥', text: '大家的成就', alwaysShow: true },
         { action: 'museumFireworks', icon: '🎆', text: '本馆烟花墙', id: 'sharedMenuMuseumFireworks', defaultHidden: true, className: 'fireworks-menu-item' },
         { action: 'fireworks', icon: '🎇', text: '烟花记录', id: 'sharedMenuFireworks', defaultHidden: true, className: 'fireworks-menu-item' },
         { action: 'leaderboard', icon: '🏅', text: '排行榜', alwaysShow: true },
@@ -54,6 +55,9 @@
         switch(action) {
             case 'achievements':
                 window.location.href = getBasePath() + 'achievements.html';
+                break;
+            case 'everyoneAchievements':
+                window.location.href = getBasePath() + 'everyone-achievements.html';
                 break;
             case 'leaderboard':
                 // Try to use existing leaderboard modal if available

@@ -546,7 +546,6 @@ header h1 {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
 }
-}
 
 .settings-icon {
     cursor: pointer;
@@ -3652,29 +3651,52 @@ header h1 {
     }
     
     header h1 {
-        font-size: 1em;
-        text-align: right;
-        padding: 0 12px;
+        font-size: 0.65em;
+        text-align: center;
+        padding: 0;
         margin: 0;
         display: flex;
+        flex-wrap: nowrap;
         justify-content: space-between;
         align-items: center;
-        line-height: 1.4;
+        line-height: 1.1;
+        height: 36px;
     }
     
+    .menu-button,
+    .settings-button,
+    .menu-button:hover,
+    .settings-button:hover,
+    .menu-button:active,
+    .settings-button:active,
+    .menu-button:focus,
+    .settings-button:focus {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        padding: 1px !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    
+    .menu-icon,
     .settings-icon {
-        order: -1;
-        font-size: 1.3em;
-        flex-shrink: 0;
+        width: 18px !important;
+        height: 18px !important;
+        background: transparent !important;
     }
     
     #headerTitle {
         flex: 1;
-        text-align: right;
-        font-size: 1em;
+        text-align: center;
+        font-size: 12px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        padding: 0;
     }
     
     /* Inline nickname editing styles */

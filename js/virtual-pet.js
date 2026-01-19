@@ -1474,12 +1474,7 @@ class VirtualPet {
         // Show sad animation
         this.showPetAnimation('death');
         
-        // Show notification
-        setTimeout(() => {
-            if (this.hasPet()) {
-                alert(`😢 很抱歉，${this.petData.pet.name}因为太久没有喂食离开了...你可以用积分复活它。`);
-            }
-        }, 500);
+        // Removed proactive alert - users can see pet status in the floating widget
     }
 
     // ===== POINTS INTEGRATION =====
