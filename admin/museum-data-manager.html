@@ -1087,16 +1087,12 @@
         // Check API key
         const deepseekAPI = new DeepSeekAPI();
         if (!deepseekAPI.hasApiKey()) {
-          const userChoice = confirm(
+          alert(
             '🤖 AI 自动生成镇馆之宝\n\n' +
             '此功能使用 DeepSeek AI 自动为博物馆生成 3 个真实的镇馆之宝数据。\n\n' +
             '⚠️ 当前未配置 DeepSeek API Key\n\n' +
-            '是否前往设置页面配置 API Key？'
+            '请在 localStorage 中设置 deepseek_api_key'
           );
-          
-          if (userChoice) {
-            window.location.href = 'settings.html';
-          }
           return;
         }
         
@@ -1334,20 +1330,12 @@
             
             if (!deepseekAPI.hasApiKey()) {
               // Show more actionable dialog to configure API key
-              const userChoice = confirm(
-                '💡 AI 镇馆之宝验证\n\n' +
-                '基础数据验证已通过 ✓\n\n' +
-                '您可以使用 DeepSeek AI 来验证镇馆之宝的真实性。\n' +
-                '这将帮助确认列出的文物是否确实属于该博物馆。\n\n' +
+              alert(
+                '🔍 AI 镇馆之宝验证\n\n' +
+                '您可以使用 DeepSeek AI 来验证镇馆之宝的真实性。\n\n' +
                 '⚠️ 当前未配置 DeepSeek API Key\n\n' +
-                '是否前往设置页面配置 API Key？\n\n' +
-                '(配置后即可使用 AI 验证功能)'
+                '请在 localStorage 中设置 deepseek_api_key'
               );
-              
-              if (userChoice) {
-                // Redirect to settings page
-                window.location.href = 'settings.html';
-              }
               return;
             }
             
