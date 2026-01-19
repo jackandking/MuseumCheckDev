@@ -1,0 +1,443 @@
+{
+  "backupTime": "2026-01-19T01:24:29.988Z",
+  "type": "museum-data",
+  "count": 108,
+  "successList": [
+    "forbidden-city",
+    "national-museum",
+    "shanghai-museum",
+    "terracotta-warriors",
+    "nanjing-museum",
+    "hubei-museum",
+    "shaanxi-history",
+    "suzhou-museum",
+    "zhejiang-museum",
+    "guangdong-museum",
+    "sichuan-museum",
+    "henan-museum",
+    "liaoning-museum",
+    "shandong-museum",
+    "tianjin-museum",
+    "china-art-museum",
+    "tibet-museum",
+    "xinjiang-museum",
+    "yunnan-museum",
+    "inner-mongolia-museum",
+    "chongqing-three-gorges-museum",
+    "qinghai-museum",
+    "heilongjiang-museum",
+    "beijing-capital-museum",
+    "china-military-museum",
+    "beijing-natural-history-museum",
+    "china-railway-museum",
+    "beijing-planetarium",
+    "shanghai-science-technology-museum",
+    "guangzhou-museum",
+    "shenzhen-museum",
+    "xian-museum",
+    "chengdu-jinsha-museum",
+    "nanjing-massacre-memorial",
+    "hangzhou-museum",
+    "ningbo-museum",
+    "wuxi-museum",
+    "changzhou-museum",
+    "yangzhou-museum",
+    "hefei-museum",
+    "nanchang-museum",
+    "jinan-museum",
+    "qingdao-museum",
+    "zhengzhou-museum",
+    "wuhan-museum",
+    "kunming-museum",
+    "guiyang-museum",
+    "fuzhou-museum",
+    "nanning-museum",
+    "haikou-museum",
+    "shijiazhuang-museum",
+    "taiyuan-museum",
+    "hohhot-museum",
+    "lanzhou-museum",
+    "xining-museum",
+    "yantai-museum",
+    "linyi-museum",
+    "wenzhou-museum",
+    "shaoxing-museum",
+    "jiaxing-museum",
+    "jingdezhen-museum",
+    "quanzhou-museum",
+    "xiamen-museum",
+    "jiangmen-museum",
+    "baotou-museum",
+    "yichang-museum",
+    "luoyang-museum",
+    "jingzhou-museum",
+    "guilin-museum",
+    "jian-museum",
+    "shangrao-museum",
+    "ganzhou-museum",
+    "jiujiang-museum",
+    "beijing-art-museum",
+    "xian-tang-dynasty-museum",
+    "nanchang-august-first-museum",
+    "zhenjiang-museum",
+    "xuzhou-museum",
+    "qingdao-beer-museum",
+    "zhoushan-museum",
+    "anqing-museum",
+    "china-geology-museum",
+    "lu-xun-museum",
+    "jilin-museum",
+    "china-aviation-museum",
+    "china-film-museum",
+    "china-tea-museum",
+    "china-silk-museum",
+    "china-porcelain-museum",
+    "china-sports-museum",
+    "china-agriculture-museum",
+    "tsinghua-museum",
+    "peking-university-museum",
+    "lanzhou-museum-new",
+    "taiyuan-museum-new",
+    "china-printing-museum",
+    "china-science-technology-museum",
+    "china-women-children-museum",
+    "china-ethnic-museum",
+    "china-coal-museum",
+    "xian-banpo-museum",
+    "tianjin-natural-history-museum",
+    "wuhan-revolution-museum",
+    "suzhou-silk-museum",
+    "china-water-museum",
+    "pinghu-museum",
+    "china-archaeology-museum",
+    "china-ancient-architecture-museum"
+  ],
+  "notFoundList": [],
+  "failedList": [],
+  "data": {
+    "forbidden-city": {
+      "value": "{\"id\":\"forbidden-city\",\"name\":\"故宫博物院\",\"location\":\"北京\",\"tags\":[\"历史\",\"建筑\",\"文物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/0/00/Sunset_of_the_Forbidden_City_2006.JPG\",\"level\":\"一级\",\"hasCollections\":true,\"collections\":[{\"name\":\"《清明上河图》\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/e/e0/Qingming_Scroll_2008x5605_mt.jpg\",\"description\":\"北宋张择端绘制的社会风俗画，宽25.2厘米，长528.7厘米\"},{\"name\":\"青花瓷瓶\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg/640px-Vase_with_cover%2C_Qing_dynasty%2C_Kangxi_period.jpg\",\"description\":\"清代康熙年间制造的精美青花瓷器，反映了当时的工艺水平\"},{\"name\":\"铜镀金佛像\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/4/4c/Met_07.228.117_view4.jpg\",\"description\":\"明代铜镀金佛像，高约30厘米，工艺精湛\"}],\"timestamp\":\"2026-01-14T01:56:33.235Z\"}"
+    },
+    "national-museum": {
+      "value": "{\"id\":\"national-museum\",\"name\":\"中国国家博物馆\",\"location\":\"北京\",\"tags\":[\"历史\",\"文化\",\"艺术\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/8/8b/%E4%B8%AD%E5%9B%BD%E5%9B%BD%E5%AE%B6%E5%8D%9A%E7%89%A9%E9%A6%86.JPG\",\"level\":\"一级\",\"hasCollections\":true,\"collections\":[{\"name\":\"后母戊鼎\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Simuwu_ding.jpg/640px-Simuwu_ding.jpg\",\"description\":\"商代晚期青铜器，中国古代最著名的器物之一\"},{\"name\":\"人头壶\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/7/7b/Pot_with_human_faces%2C_Yangshao_culture.jpg\",\"description\":\"新石器时代彩陶，距今约7000年\"},{\"name\":\"唐三彩马\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/a/a3/Tang_Dynasty_tomb_pottery_3_color_horse.jpg\",\"description\":\"唐代陶制骏马，彩釉工艺完美\"}],\"timestamp\":\"2026-01-14T01:56:33.914Z\"}"
+    },
+    "shanghai-museum": {
+      "value": "{\"id\":\"shanghai-museum\",\"name\":\"上海博物馆\",\"location\":\"上海\",\"tags\":[\"艺术\",\"文物\",\"收藏\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/3/3a/%E4%B8%8A%E6%B5%B7%E5%8D%9A%E7%89%A9%E9%A6%86%E4%B8%9C%E9%A6%86_161003.jpg\",\"level\":\"一级\",\"hasCollections\":true,\"collections\":[{\"name\":\"大克鼎\",\"description\":\"西周晚期青铜鼎，内壁铸有290字铭文，与大盂鼎、毛公鼎并称海内青铜器三宝\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/7/70/Da_Ke_ding.jpg\"},{\"name\":\"晋侯稣编钟\",\"description\":\"西周青铜乐器，全套16件，铭文记载晋侯稣随周厉王征伐东夷的战功\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/7/77/Bells_of_Marquis_Su_of_Jin.jpg\"},{\"name\":\"高逸图\",\"description\":\"唐末画家孙位唯一存世真迹，描绘竹林七贤中四贤，卷首有宋徽宗御题\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/b/b2/%E5%AD%99%E4%BD%8D_%E9%AB%98%E9%80%B8%E5%9B%BE%E5%8D%B7.jpg\"}],\"timestamp\":\"2026-01-16T05:22:00.000Z\"}"
+    },
+    "terracotta-warriors": {
+      "value": "{\"id\":\"terracotta-warriors\",\"name\":\"秦始皇帝陵博物院\",\"location\":\"西安\",\"tags\":[\"历史\",\"考古\",\"世界遗产\"],\"image\":\"https://img0.baidu.com/it/u=394895228,4120900227&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:34.994Z\"}"
+    },
+    "nanjing-museum": {
+      "value": "{\"id\":\"nanjing-museum\",\"name\":\"南京博物院\",\"location\":\"南京\",\"tags\":[\"历史\",\"艺术\",\"民俗\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/3/31/Nanjing_Museum1.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:35.381Z\"}"
+    },
+    "hubei-museum": {
+      "value": "{\"id\":\"hubei-museum\",\"name\":\"湖北省博物馆\",\"location\":\"武汉\",\"tags\":[\"历史\",\"音乐\",\"青铜器\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/0/0b/Hubei_Provincial_Museum.JPG\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:35.775Z\"}"
+    },
+    "shaanxi-history": {
+      "value": "{\"id\":\"shaanxi-history\",\"name\":\"陕西历史博物馆\",\"location\":\"西安\",\"tags\":[\"历史\",\"文物\",\"古代文明\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/3/35/%E9%99%95%E8%A5%BF%E5%8E%86%E5%8F%B2%E5%8D%9A%E7%89%A9%E9%A6%86.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:36.167Z\"}"
+    },
+    "suzhou-museum": {
+      "value": "{\"id\":\"suzhou-museum\",\"name\":\"苏州博物馆\",\"location\":\"苏州\",\"tags\":[\"艺术\",\"建筑\",\"江南文化\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/9/9c/Suzhou_Museum_-_new_buildings.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:36.550Z\"}"
+    },
+    "zhejiang-museum": {
+      "value": "{\"id\":\"zhejiang-museum\",\"name\":\"浙江省博物馆\",\"location\":\"杭州\",\"tags\":[\"历史\",\"文化\",\"江南\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/d/d0/%E6%B5%99%E6%B1%9F%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_-_panoramio.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:36.934Z\"}"
+    },
+    "guangdong-museum": {
+      "value": "{\"id\":\"guangdong-museum\",\"name\":\"广东省博物馆\",\"location\":\"广州\",\"tags\":[\"岭南文化\",\"海丝\",\"文物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/7/7e/Guangdong_Museum.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:37.322Z\"}"
+    },
+    "sichuan-museum": {
+      "value": "{\"id\":\"sichuan-museum\",\"name\":\"四川博物院\",\"location\":\"成都\",\"tags\":[\"巴蜀文化\",\"历史\",\"民俗\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/5/5f/%E5%9B%9B%E5%B7%9D%E5%8D%9A%E7%89%A9%E9%99%A2.JPG\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:37.711Z\"}"
+    },
+    "henan-museum": {
+      "value": "{\"id\":\"henan-museum\",\"name\":\"河南博物院\",\"location\":\"郑州\",\"tags\":[\"中原文化\",\"文物\",\"历史\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/7/74/%E6%B2%B3%E5%8D%97%E5%8D%9A%E7%89%A9%E9%99%A2_-_Henan_Museum_-_2014.03_-_panoramio.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:38.094Z\"}"
+    },
+    "liaoning-museum": {
+      "value": "{\"id\":\"liaoning-museum\",\"name\":\"辽宁省博物馆\",\"location\":\"沈阳\",\"tags\":[\"东北文化\",\"考古\",\"历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:38.477Z\"}"
+    },
+    "shandong-museum": {
+      "value": "{\"id\":\"shandong-museum\",\"name\":\"山东博物馆\",\"location\":\"济南\",\"tags\":[\"齐鲁文化\",\"孔子\",\"历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:38.876Z\"}"
+    },
+    "tianjin-museum": {
+      "value": "{\"id\":\"tianjin-museum\",\"name\":\"天津博物馆\",\"location\":\"天津\",\"tags\":[\"近代史\",\"文化\",\"天津\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:39.269Z\"}"
+    },
+    "china-art-museum": {
+      "value": "{\"id\":\"china-art-museum\",\"name\":\"中国美术馆\",\"location\":\"北京\",\"tags\":[\"美术\",\"艺术\",\"绘画\"],\"image\":\"\",\"level\":\"未定级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:39.655Z\"}"
+    },
+    "tibet-museum": {
+      "value": "{\"id\":\"tibet-museum\",\"name\":\"西藏博物馆\",\"location\":\"拉萨\",\"tags\":[\"藏族文化\",\"雪域高原\",\"佛教\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:40.043Z\"}"
+    },
+    "xinjiang-museum": {
+      "value": "{\"id\":\"xinjiang-museum\",\"name\":\"新疆维吾尔自治区博物馆\",\"location\":\"乌鲁木齐\",\"tags\":[\"丝绸之路\",\"多民族\",\"西域文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:40.447Z\"}"
+    },
+    "yunnan-museum": {
+      "value": "{\"id\":\"yunnan-museum\",\"name\":\"云南省博物馆\",\"location\":\"昆明\",\"tags\":[\"多民族\",\"西南文化\",\"边疆历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:40.841Z\"}"
+    },
+    "inner-mongolia-museum": {
+      "value": "{\"id\":\"inner-mongolia-museum\",\"name\":\"内蒙古博物院\",\"location\":\"呼和浩特\",\"tags\":[\"草原文化\",\"蒙古族\",\"游牧文明\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:41.231Z\"}"
+    },
+    "chongqing-three-gorges-museum": {
+      "value": "{\"id\":\"chongqing-three-gorges-museum\",\"name\":\"重庆中国三峡博物馆\",\"location\":\"重庆\",\"tags\":[\"三峡文化\",\"巴渝文化\",\"山城历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:41.678Z\"}"
+    },
+    "qinghai-museum": {
+      "value": "{\"id\":\"qinghai-museum\",\"name\":\"青海省博物馆\",\"location\":\"西宁\",\"tags\":[\"青藏高原\",\"多民族\",\"高原文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:42.067Z\"}"
+    },
+    "heilongjiang-museum": {
+      "value": "{\"id\":\"heilongjiang-museum\",\"name\":\"黑龙江省博物馆\",\"location\":\"哈尔滨\",\"tags\":[\"东北文化\",\"中俄交流\",\"近代史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:42.464Z\"}"
+    },
+    "beijing-capital-museum": {
+      "value": "{\"id\":\"beijing-capital-museum\",\"name\":\"首都博物馆\",\"location\":\"北京\",\"tags\":[\"北京历史\",\"古都文化\",\"民俗\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[{\"name\":\"凤首扁壶\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/6/65/%E6%99%AF%E5%BE%B7%E9%95%87%E7%AA%91%E9%9D%92%E8%8A%B1%E5%87%A4%E9%A6%96%E6%89%81%E5%A3%B609124.jpg\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768453079589},{\"name\":\"水月观音\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/9/98/%E6%99%AF%E5%BE%B7%E9%95%87%E7%AA%91%E9%9D%92%E7%99%BD%E9%87%89%E6%B0%B4%E6%9C%88%E8%A7%82%E9%9F%B3%E8%8F%A9%E8%90%A8%E5%83%8F08858.jpg\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768453133403},{\"name\":\"魏太和造像\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/c/c4/Northern_Wei_Buddha_Statue.jpg\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768453192152}],\"timestamp\":\"2026-01-14T01:56:42.847Z\"}"
+    },
+    "china-military-museum": {
+      "value": "{\"id\":\"china-military-museum\",\"name\":\"中国人民革命军事博物馆\",\"location\":\"北京\",\"tags\":[\"军事历史\",\"革命历史\",\"国防教育\"],\"image\":\"https://img1.baidu.com/it/u=4286222987,673276445&fm=253&fmt=auto&app=138?f=JPEG?w=800&h=1067\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[{\"name\":\"朱德手枪\",\"imageUrl\":\"https://img2.baidu.com/it/u=3778476096,2388449125&fm=253&fmt=auto&app=138?f=JPEG?w=809&h=500\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768401473775},{\"name\":\"功臣号坦克\",\"imageUrl\":\"https://img0.baidu.com/it/u=3192961185,2370115502&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768401577953},{\"name\":\"东风一号\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/1/11/Dongfeng_1_Missile.jpg\",\"description\":\"用户添加的镇馆之宝\",\"isUserAdded\":true,\"addedAt\":1768401681307}],\"timestamp\":\"2026-01-14T01:56:43.231Z\"}"
+    },
+    "beijing-natural-history-museum": {
+      "value": "{\"id\":\"beijing-natural-history-museum\",\"name\":\"国家自然博物馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"自然科学\",\"生物进化\",\"古生物\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/4/4a/Beijing_Museum_of_Natural_History_2.jpg\",\"collections\":[{\"name\":\"井研马门溪龙化石\",\"imageUrl\":\"https://img2.baidu.com/it/u=3941138217,418694675&fm=253&fmt=auto&app=120?f=JPEG?w=800&h=1200\",\"description\":\"\"},{\"name\":\"赫氏近鸟龙\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/b/ba/Anchiornis_huxleyi_%28fossil%29.jpg\",\"description\":\"\"},{\"name\":\"黄河象\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/9/99/%E9%BB%84%E6%B2%B3%E5%8F%A4%E8%B1%A1%E5%8C%96%E7%9F%B3.jpg\",\"description\":\"\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    },
+    "china-railway-museum": {
+      "value": "{\"id\":\"china-railway-museum\",\"name\":\"中国铁道博物馆\",\"location\":\"北京\",\"tags\":[\"铁路历史\",\"交通运输\",\"工业发展\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:46.067Z\"}"
+    },
+    "beijing-planetarium": {
+      "value": "{\"id\":\"beijing-planetarium\",\"name\":\"北京天文馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"天文科学\",\"宇宙探索\",\"科普教育\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Beijing_Planetarium_%2820221112164636%29.jpg/1280px-Beijing_Planetarium_%2820221112164636%29.jpg\",\"collections\":[{\"name\":\"南丹铁陨石\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/2/25/Nantan_meteorite.jpg\",\"description\":\"\"},{\"name\":\"半克月岩\",\"imageUrl\":\"https://img0.baidu.com/it/u=536859570,1684498871&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500\",\"description\":\"\"},{\"name\":\"傅科摆\",\"imageUrl\":\"https://img2.baidu.com/it/u=1267850779,3705433856&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=653\",\"description\":\"\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    },
+    "shanghai-science-technology-museum": {
+      "value": "{\"id\":\"shanghai-science-technology-museum\",\"name\":\"上海科技馆\",\"location\":\"上海\",\"tags\":[\"科技创新\",\"科学教育\",\"互动体验\"],\"image\":\"https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:46.835Z\"}"
+    },
+    "guangzhou-museum": {
+      "value": "{\"id\":\"guangzhou-museum\",\"name\":\"广州博物馆\",\"location\":\"广州\",\"tags\":[\"岭南文化\",\"广州历史\",\"海上丝绸之路\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:47.226Z\"}"
+    },
+    "shenzhen-museum": {
+      "value": "{\"id\":\"shenzhen-museum\",\"name\":\"深圳博物馆\",\"location\":\"深圳\",\"tags\":[\"改革开放\",\"城市发展\",\"现代化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:47.617Z\"}"
+    },
+    "xian-museum": {
+      "value": "{\"id\":\"xian-museum\",\"name\":\"西安博物院\",\"location\":\"西安\",\"tags\":[\"古都文化\",\"丝绸之路\",\"唐文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:48.009Z\"}"
+    },
+    "chengdu-jinsha-museum": {
+      "value": "{\"id\":\"chengdu-jinsha-museum\",\"name\":\"成都金沙遗址博物馆\",\"location\":\"成都\",\"tags\":[\"古蜀文明\",\"考古发现\",\"金沙文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:48.391Z\"}"
+    },
+    "nanjing-massacre-memorial": {
+      "value": "{\"id\":\"nanjing-massacre-memorial\",\"name\":\"侵华日军南京大屠杀遇难同胞纪念馆\",\"location\":\"南京\",\"tags\":[\"历史教育\",\"爱国主义\",\"和平教育\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:48.782Z\"}"
+    },
+    "hangzhou-museum": {
+      "value": "{\"id\":\"hangzhou-museum\",\"name\":\"杭州博物馆\",\"location\":\"杭州\",\"tags\":[\"西湖文化\",\"江南文化\",\"杭州历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:49.175Z\"}"
+    },
+    "ningbo-museum": {
+      "value": "{\"id\":\"ningbo-museum\",\"name\":\"宁波博物馆\",\"location\":\"宁波\",\"tags\":[\"海洋文化\",\"港口贸易\",\"商业历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:49.560Z\"}"
+    },
+    "wuxi-museum": {
+      "value": "{\"id\":\"wuxi-museum\",\"name\":\"无锡博物院\",\"location\":\"无锡\",\"tags\":[\"江南文化\",\"水乡文化\",\"民族工业\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:49.941Z\"}"
+    },
+    "changzhou-museum": {
+      "value": "{\"id\":\"changzhou-museum\",\"name\":\"常州博物馆\",\"location\":\"常州\",\"tags\":[\"常州历史\",\"江南文化\",\"现代发展\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:50.330Z\"}"
+    },
+    "yangzhou-museum": {
+      "value": "{\"id\":\"yangzhou-museum\",\"name\":\"扬州博物馆\",\"location\":\"扬州\",\"tags\":[\"运河文化\",\"盐商文化\",\"园林艺术\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:50.725Z\"}"
+    },
+    "hefei-museum": {
+      "value": "{\"id\":\"hefei-museum\",\"name\":\"安徽博物院\",\"location\":\"合肥\",\"tags\":[\"徽文化\",\"安徽历史\",\"新安文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:51.107Z\"}"
+    },
+    "nanchang-museum": {
+      "value": "{\"id\":\"nanchang-museum\",\"name\":\"江西省博物馆\",\"location\":\"南昌\",\"tags\":[\"赣文化\",\"江西历史\",\"陶瓷文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:51.497Z\"}"
+    },
+    "jinan-museum": {
+      "value": "{\"id\":\"jinan-museum\",\"name\":\"济南市博物馆\",\"location\":\"济南\",\"tags\":[\"泉城文化\",\"齐鲁文化\",\"济南历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:51.886Z\"}"
+    },
+    "qingdao-museum": {
+      "value": "{\"id\":\"qingdao-museum\",\"name\":\"青岛市博物馆\",\"location\":\"青岛\",\"tags\":[\"海洋文化\",\"青岛历史\",\"近代建筑\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:52.272Z\"}"
+    },
+    "zhengzhou-museum": {
+      "value": "{\"id\":\"zhengzhou-museum\",\"name\":\"郑州博物馆\",\"location\":\"郑州\",\"tags\":[\"中原文化\",\"商代文明\",\"黄河文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:52.657Z\"}"
+    },
+    "wuhan-museum": {
+      "value": "{\"id\":\"wuhan-museum\",\"name\":\"武汉博物馆\",\"location\":\"武汉\",\"tags\":[\"荆楚文化\",\"武汉历史\",\"长江文明\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:53.040Z\"}"
+    },
+    "kunming-museum": {
+      "value": "{\"id\":\"kunming-museum\",\"name\":\"昆明市博物馆\",\"location\":\"昆明\",\"tags\":[\"滇文化\",\"民族文化\",\"春城文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:53.429Z\"}"
+    },
+    "guiyang-museum": {
+      "value": "{\"id\":\"guiyang-museum\",\"name\":\"贵州省博物馆\",\"location\":\"贵阳\",\"tags\":[\"多民族文化\",\"贵州历史\",\"山地文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:53.815Z\"}"
+    },
+    "fuzhou-museum": {
+      "value": "{\"id\":\"fuzhou-museum\",\"name\":\"福建博物院\",\"location\":\"福州\",\"tags\":[\"闽文化\",\"海洋文化\",\"侨乡文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:54.196Z\"}"
+    },
+    "nanning-museum": {
+      "value": "{\"id\":\"nanning-museum\",\"name\":\"广西壮族自治区博物馆\",\"location\":\"南宁\",\"tags\":[\"壮族文化\",\"民族文化\",\"桂文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:54.581Z\"}"
+    },
+    "haikou-museum": {
+      "value": "{\"id\":\"haikou-museum\",\"name\":\"海南省博物馆\",\"location\":\"海口\",\"tags\":[\"海岛文化\",\"热带文化\",\"海南历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:54.972Z\"}"
+    },
+    "shijiazhuang-museum": {
+      "value": "{\"id\":\"shijiazhuang-museum\",\"name\":\"河北博物院\",\"location\":\"石家庄\",\"tags\":[\"燕赵文化\",\"河北历史\",\"中山国\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:55.360Z\"}"
+    },
+    "taiyuan-museum": {
+      "value": "{\"id\":\"taiyuan-museum\",\"name\":\"山西博物院\",\"location\":\"太原\",\"tags\":[\"晋文化\",\"煤炭文化\",\"古建筑\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:55.751Z\"}"
+    },
+    "hohhot-museum": {
+      "value": "{\"id\":\"hohhot-museum\",\"name\":\"内蒙古自然博物馆\",\"location\":\"呼和浩特\",\"tags\":[\"草原文化\",\"自然生态\",\"蒙古族文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:56.133Z\"}"
+    },
+    "lanzhou-museum": {
+      "value": "{\"id\":\"lanzhou-museum\",\"name\":\"甘肃省博物馆\",\"location\":\"兰州\",\"tags\":[\"丝路文化\",\"马踏飞燕\",\"敦煌文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:56.522Z\"}"
+    },
+    "xining-museum": {
+      "value": "{\"id\":\"xining-museum\",\"name\":\"青海藏医药文化博物馆\",\"location\":\"西宁\",\"tags\":[\"藏医药\",\"高原文化\",\"民族医学\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:56.910Z\"}"
+    },
+    "yantai-museum": {
+      "value": "{\"id\":\"yantai-museum\",\"name\":\"烟台市博物馆\",\"location\":\"烟台\",\"tags\":[\"胶东文化\",\"海洋文化\",\"近代开埠\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:57.288Z\"}"
+    },
+    "linyi-museum": {
+      "value": "{\"id\":\"linyi-museum\",\"name\":\"临沂市博物馆\",\"location\":\"临沂\",\"tags\":[\"沂蒙文化\",\"革命文化\",\"临沂历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:57.677Z\"}"
+    },
+    "wenzhou-museum": {
+      "value": "{\"id\":\"wenzhou-museum\",\"name\":\"温州博物馆\",\"location\":\"温州\",\"tags\":[\"瓯越文化\",\"商业文化\",\"温州历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:58.067Z\"}"
+    },
+    "shaoxing-museum": {
+      "value": "{\"id\":\"shaoxing-museum\",\"name\":\"绍兴博物馆\",\"location\":\"绍兴\",\"tags\":[\"水乡文化\",\"越文化\",\"文人文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:58.461Z\"}"
+    },
+    "jiaxing-museum": {
+      "value": "{\"id\":\"jiaxing-museum\",\"name\":\"嘉兴博物馆\",\"location\":\"嘉兴\",\"tags\":[\"红船精神\",\"江南文化\",\"嘉兴历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:58.848Z\"}"
+    },
+    "jingdezhen-museum": {
+      "value": "{\"id\":\"jingdezhen-museum\",\"name\":\"景德镇中国陶瓷博物馆\",\"location\":\"景德镇\",\"tags\":[\"陶瓷文化\",\"制瓷工艺\",\"瓷都文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:59.228Z\"}"
+    },
+    "quanzhou-museum": {
+      "value": "{\"id\":\"quanzhou-museum\",\"name\":\"泉州海外交通史博物馆\",\"location\":\"泉州\",\"tags\":[\"海上丝绸之路\",\"海外交通\",\"泉州文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:56:59.622Z\"}"
+    },
+    "xiamen-museum": {
+      "value": "{\"id\":\"xiamen-museum\",\"name\":\"厦门市博物馆\",\"location\":\"厦门\",\"tags\":[\"闽南文化\",\"侨乡文化\",\"海岛文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:00.012Z\"}"
+    },
+    "jiangmen-museum": {
+      "value": "{\"id\":\"jiangmen-museum\",\"name\":\"江门市博物馆\",\"location\":\"江门\",\"tags\":[\"侨乡文化\",\"碉楼文化\",\"江门历史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:02.736Z\"}"
+    },
+    "baotou-museum": {
+      "value": "{\"id\":\"baotou-museum\",\"name\":\"包头博物馆\",\"location\":\"包头\",\"tags\":[\"工业文化\",\"草原文化\",\"钢铁文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:03.125Z\"}"
+    },
+    "yichang-museum": {
+      "value": "{\"id\":\"yichang-museum\",\"name\":\"宜昌博物馆\",\"location\":\"宜昌\",\"tags\":[\"三峡文化\",\"长江文明\",\"水利文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:03.903Z\"}"
+    },
+    "luoyang-museum": {
+      "value": "{\"id\":\"luoyang-museum\",\"name\":\"洛阳博物馆\",\"location\":\"洛阳\",\"tags\":[\"古都文化\",\"洛阳历史\",\"牡丹文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:04.292Z\"}"
+    },
+    "jingzhou-museum": {
+      "value": "{\"id\":\"jingzhou-museum\",\"name\":\"荆州博物馆\",\"location\":\"荆州\",\"tags\":[\"楚文化\",\"历史名城\",\"文物考古\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:05.086Z\"}"
+    },
+    "guilin-museum": {
+      "value": "{\"id\":\"guilin-museum\",\"name\":\"桂林博物馆\",\"location\":\"桂林\",\"tags\":[\"山水文化\",\"桂北文化\",\"世界遗产\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:08.555Z\"}"
+    },
+    "jian-museum": {
+      "value": "{\"id\":\"jian-museum\",\"name\":\"吉安市博物馆\",\"location\":\"吉安\",\"tags\":[\"庐陵文化\",\"吉安历史\",\"书院文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:12.820Z\"}"
+    },
+    "shangrao-museum": {
+      "value": "{\"id\":\"shangrao-museum\",\"name\":\"上饶市博物馆\",\"location\":\"上饶\",\"tags\":[\"赣东北文化\",\"上饶历史\",\"生态文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:13.206Z\"}"
+    },
+    "ganzhou-museum": {
+      "value": "{\"id\":\"ganzhou-museum\",\"name\":\"赣州市博物馆\",\"location\":\"赣州\",\"tags\":[\"客家文化\",\"赣州历史\",\"宋城文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:13.598Z\"}"
+    },
+    "jiujiang-museum": {
+      "value": "{\"id\":\"jiujiang-museum\",\"name\":\"九江市博物馆\",\"location\":\"九江\",\"tags\":[\"庐山文化\",\"九江历史\",\"长江文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:13.986Z\"}"
+    },
+    "beijing-art-museum": {
+      "value": "{\"id\":\"beijing-art-museum\",\"name\":\"北京艺术博物馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"艺术\",\"绘画\",\"雕塑\"],\"image\":\"https://img1.baidu.com/it/u=486738805,1591484411&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=667\",\"collections\":[{\"name\":\"福寿纹贯耳\",\"imageUrl\":\"https://img1.baidu.com/it/u=2797022920,915622014&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=667\",\"description\":\"\"},{\"name\":\"夺宝佛铜塔\",\"imageUrl\":\"https://img2.baidu.com/it/u=2506043839,4219809379&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=500\",\"description\":\"\"},{\"name\":\"乾隆御碑亭\",\"imageUrl\":\"https://img1.baidu.com/it/u=792526853,3028727692&fm=253&fmt=auto&app=138?f=JPEG?w=770&h=500\",\"description\":\"\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    },
+    "xian-tang-dynasty-museum": {
+      "value": "{\"id\":\"xian-tang-dynasty-museum\",\"name\":\"西安大唐西市博物馆\",\"location\":\"西安\",\"tags\":[\"唐朝\",\"丝绸之路\",\"商贸\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:15.524Z\"}"
+    },
+    "nanchang-august-first-museum": {
+      "value": "{\"id\":\"nanchang-august-first-museum\",\"name\":\"南昌八一起义纪念馆\",\"location\":\"南昌\",\"tags\":[\"革命历史\",\"军事\",\"红色教育\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:15.907Z\"}"
+    },
+    "zhenjiang-museum": {
+      "value": "{\"id\":\"zhenjiang-museum\",\"name\":\"镇江博物馆\",\"location\":\"镇江\",\"tags\":[\"镇江文化\",\"长江文明\",\"山水文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:16.681Z\"}"
+    },
+    "xuzhou-museum": {
+      "value": "{\"id\":\"xuzhou-museum\",\"name\":\"徐州博物馆\",\"location\":\"徐州\",\"tags\":[\"汉代文化\",\"楚汉争霸\",\"彭城文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:17.066Z\"}"
+    },
+    "qingdao-beer-museum": {
+      "value": "{\"id\":\"qingdao-beer-museum\",\"name\":\"青岛啤酒博物馆\",\"location\":\"青岛\",\"tags\":[\"啤酒文化\",\"工业遗产\",\"德式建筑\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:17.449Z\"}"
+    },
+    "zhoushan-museum": {
+      "value": "{\"id\":\"zhoushan-museum\",\"name\":\"舟山博物馆\",\"location\":\"舟山\",\"tags\":[\"海岛文化\",\"观音文化\",\"渔业文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:17.837Z\"}"
+    },
+    "anqing-museum": {
+      "value": "{\"id\":\"anqing-museum\",\"name\":\"安庆博物馆\",\"location\":\"安庆\",\"tags\":[\"黄梅戏\",\"桐城派\",\"安庆文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:18.222Z\"}"
+    },
+    "china-geology-museum": {
+      "value": "{\"id\":\"china-geology-museum\",\"name\":\"中国地质博物馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"地质科学\",\"矿物标本\",\"地球历史\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/9/9f/Geological_Museum_of_China.jpg\",\"collections\":[{\"name\":\"中华龙鸟化石\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/d/d9/Sinosauropteryx_lingyuanensis_fossil.jpg\",\"description\":\"用户添加的镇馆之宝\"},{\"name\":\"狗头金\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/3/37/CSIRO_ScienceImage_10458_An_8_kg_nugget_from_Victoria_that_was_cut_in_two_and_had_a_thin_slice.jpg\",\"description\":\"用户添加的镇馆之宝\"},{\"name\":\"水晶王\",\"imageUrl\":\"https://img2.baidu.com/it/u=3552039703,512875177&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=614\",\"description\":\"用户添加的镇馆之宝\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    },
+    "lu-xun-museum": {
+      "value": "{\"id\":\"lu-xun-museum\",\"name\":\"鲁迅博物馆\",\"location\":\"北京\",\"tags\":[\"文学历史\",\"现代文学\",\"鲁迅研究\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:19.376Z\"}"
+    },
+    "jilin-museum": {
+      "value": "{\"id\":\"jilin-museum\",\"name\":\"吉林省博物院\",\"location\":\"长春\",\"tags\":[\"东北文化\",\"满族文化\",\"关东风情\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:19.767Z\"}"
+    },
+    "china-aviation-museum": {
+      "value": "{\"id\":\"china-aviation-museum\",\"name\":\"中国航空博物馆\",\"location\":\"北京\",\"tags\":[\"航空历史\",\"航空技术\",\"国防科技\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:20.157Z\"}"
+    },
+    "china-film-museum": {
+      "value": "{\"id\":\"china-film-museum\",\"name\":\"中国电影博物馆\",\"location\":\"北京\",\"tags\":[\"电影历史\",\"影视文化\",\"艺术发展\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:20.540Z\"}"
+    },
+    "china-tea-museum": {
+      "value": "{\"id\":\"china-tea-museum\",\"name\":\"中国茶叶博物馆\",\"location\":\"杭州\",\"tags\":[\"茶文化\",\"传统文化\",\"农业文明\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:21.309Z\"}"
+    },
+    "china-silk-museum": {
+      "value": "{\"id\":\"china-silk-museum\",\"name\":\"中国丝绸博物馆\",\"location\":\"杭州\",\"tags\":[\"丝绸文化\",\"纺织技术\",\"工艺美术\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:21.707Z\"}"
+    },
+    "china-porcelain-museum": {
+      "value": "{\"id\":\"china-porcelain-museum\",\"name\":\"中国陶瓷博物馆\",\"location\":\"景德镇\",\"tags\":[\"陶瓷文化\",\"工艺美术\",\"传统技艺\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:22.090Z\"}"
+    },
+    "china-sports-museum": {
+      "value": "{\"id\":\"china-sports-museum\",\"name\":\"中国体育博物馆\",\"location\":\"北京\",\"tags\":[\"体育历史\",\"奥运文化\",\"体育精神\"],\"image\":\"\",\"level\":\"未定级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:22.476Z\"}"
+    },
+    "china-agriculture-museum": {
+      "value": "{\"id\":\"china-agriculture-museum\",\"name\":\"中国农业博物馆\",\"location\":\"北京\",\"tags\":[\"农业历史\",\"农耕文明\",\"农业科技\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:22.867Z\"}"
+    },
+    "tsinghua-museum": {
+      "value": "{\"id\":\"tsinghua-museum\",\"name\":\"清华大学艺术博物馆\",\"location\":\"北京\",\"tags\":[\"大学博物馆\",\"艺术教育\",\"文化传承\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:23.252Z\"}"
+    },
+    "peking-university-museum": {
+      "value": "{\"id\":\"peking-university-museum\",\"name\":\"北京大学赛克勒考古与艺术博物馆\",\"location\":\"北京\",\"tags\":[\"大学博物馆\",\"考古学\",\"艺术研究\"],\"image\":\"\",\"level\":\"未定级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:23.640Z\"}"
+    },
+    "lanzhou-museum-new": {
+      "value": "{\"id\":\"lanzhou-museum-new\",\"name\":\"兰州市博物馆\",\"location\":\"兰州\",\"tags\":[\"金城文化\",\"兰州历史\",\"丝路重镇\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:25.178Z\"}"
+    },
+    "taiyuan-museum-new": {
+      "value": "{\"id\":\"taiyuan-museum-new\",\"name\":\"太原市博物馆\",\"location\":\"太原\",\"tags\":[\"晋阳文化\",\"太原历史\",\"龙城风韵\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:25.955Z\"}"
+    },
+    "china-printing-museum": {
+      "value": "{\"id\":\"china-printing-museum\",\"name\":\"中国印刷博物馆\",\"location\":\"北京\",\"tags\":[\"印刷文化\",\"四大发明\",\"文化传播\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:27.900Z\"}"
+    },
+    "china-science-technology-museum": {
+      "value": "{\"id\":\"china-science-technology-museum\",\"name\":\"中国科学技术馆\",\"location\":\"北京\",\"tags\":[\"科学技术\",\"科普教育\",\"创新发展\"],\"image\":\"http://eb118-file.cdn.bcebos.com/upload/59c7c8753e8b48f6a6ab0224ed104e0a_2211489826.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:28.283Z\"}"
+    },
+    "china-women-children-museum": {
+      "value": "{\"id\":\"china-women-children-museum\",\"name\":\"中国妇女儿童博物馆\",\"location\":\"北京\",\"tags\":[\"妇女发展\",\"儿童成长\",\"社会进步\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:28.667Z\"}"
+    },
+    "china-ethnic-museum": {
+      "value": "{\"id\":\"china-ethnic-museum\",\"name\":\"中华民族博物院\",\"location\":\"北京\",\"tags\":[\"民族文化\",\"文化多样性\",\"民族团结\"],\"image\":\"\",\"level\":\"未定级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:29.051Z\"}"
+    },
+    "china-coal-museum": {
+      "value": "{\"id\":\"china-coal-museum\",\"name\":\"中国煤炭博物馆\",\"location\":\"太原\",\"tags\":[\"煤炭工业\",\"能源发展\",\"工业文明\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:29.436Z\"}"
+    },
+    "xian-banpo-museum": {
+      "value": "{\"id\":\"xian-banpo-museum\",\"name\":\"西安半坡博物馆\",\"location\":\"西安\",\"tags\":[\"史前文明\",\"考古遗址\",\"原始社会\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:30.589Z\"}"
+    },
+    "tianjin-natural-history-museum": {
+      "value": "{\"id\":\"tianjin-natural-history-museum\",\"name\":\"天津自然博物馆\",\"location\":\"天津\",\"tags\":[\"自然科学\",\"生物多样性\",\"地球演化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:30.975Z\"}"
+    },
+    "wuhan-revolution-museum": {
+      "value": "{\"id\":\"wuhan-revolution-museum\",\"name\":\"武汉革命博物馆\",\"location\":\"武汉\",\"tags\":[\"革命历史\",\"红色文化\",\"近代史\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:31.353Z\"}"
+    },
+    "suzhou-silk-museum": {
+      "value": "{\"id\":\"suzhou-silk-museum\",\"name\":\"苏州丝绸博物馆\",\"location\":\"苏州\",\"tags\":[\"苏绣文化\",\"丝绸工艺\",\"江南文化\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:31.746Z\"}"
+    },
+    "china-water-museum": {
+      "value": "{\"id\":\"china-water-museum\",\"name\":\"中国水利博物馆\",\"location\":\"杭州\",\"tags\":[\"水利工程\",\"治水文化\",\"生态文明\"],\"image\":\"\",\"level\":\"一级\",\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:32.132Z\"}"
+    },
+    "pinghu-museum": {
+      "value": "{\"id\":\"pinghu-museum\",\"name\":\"平湖博物馆\",\"location\":\"平湖\",\"tags\":[\"历史\",\"地方\",\"文化\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG\",\"level\":null,\"hasCollections\":false,\"collections\":[],\"timestamp\":\"2026-01-14T01:57:33.283Z\"}"
+    },
+    "china-archaeology-museum": {
+      "value": "{\"id\":\"china-archaeology-museum\",\"name\":\"中国考古博物馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"考古发现\",\"文明探源\",\"科学研究\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/d/d4/China_Archaeological_Museum-Exterior-20250227.jpg\",\"collections\":[{\"name\":\"绿松石龙形器\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/9/99/%E7%BB%BF%E6%9D%BE%E7%9F%B3%E9%BE%99%E5%BD%A2%E5%99%A8.jpg\",\"description\":\"\"},{\"name\":\"嵌绿松石象牙杯\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/4/4d/%E5%B5%8C%E7%BB%BF%E6%9D%BE%E7%9F%B3%E8%B1%A1%E7%89%99%E6%9D%AF.jpg\",\"description\":\"\"},{\"name\":\"铜牺尊\",\"imageUrl\":\"https://upload.wikimedia.org/wikipedia/commons/8/8f/%E5%BC%A0%E5%AE%B6%E5%9D%A1%E8%A5%BF%E5%91%A8%E5%A2%93%E5%9C%B0%E5%87%BA%E5%9C%9F%E9%93%9C%E7%89%BA%E5%B0%8A%2C_2024-06-23.jpg\",\"description\":\"\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    },
+    "china-ancient-architecture-museum": {
+      "value": "{\"id\":\"china-ancient-architecture-museum\",\"name\":\"北京古代建筑博物馆\",\"location\":\"北京\",\"description\":\"\",\"tags\":[\"建筑\",\"古代\",\"文化\",\"北京\"],\"image\":\"https://upload.wikimedia.org/wikipedia/commons/9/96/North_gate_of_Xiannongtan_and_Beijing_Yucai_School_%2820221001165539%29.jpg\",\"collections\":[{\"name\":\"天宫藻井\",\"imageUrl\":\"https://img2.baidu.com/it/u=174153967,4183730777&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500\",\"description\":\"用户添加的镇馆之宝\"},{\"name\":\"蟠龙藻井\",\"imageUrl\":\"https://img2.baidu.com/it/u=3431981118,846959048&fm=253&fmt=auto&app=138?f=JPEG?w=514&h=500\",\"description\":\"\"},{\"name\":\"神仓\",\"imageUrl\":\"https://img2.baidu.com/it/u=1492012639,440680397&fm=253&fmt=auto&app=138?f=JPEG?w=500&h=653\",\"description\":\"\"}],\"workflows\":[],\"checklists\":{\"parent\":{},\"child\":{}}}"
+    }
+  }
+}

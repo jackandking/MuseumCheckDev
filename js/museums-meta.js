@@ -371,7 +371,7 @@ window.MUSEUMS_META = [
       "宇宙探索",
       "科普教育"
     ],
-    "image": "",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Beijing_Planetarium_%2820221112164636%29.jpg/1280px-Beijing_Planetarium_%2820221112164636%29.jpg",
     "hasCollections": false,
     "level": "一级"
   },
@@ -1398,7 +1398,7 @@ window.MUSEUMS_META = [
       "文明探源",
       "科学研究"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg/800px-%E9%99%95%E8%A5%BF%E7%9C%81%E8%80%83%E5%8F%A4%E5%8D%9A%E7%89%A9%E9%A6%86%E6%AD%A3%E9%97%A8.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/d/d4/China_Archaeological_Museum-Exterior-20250227.jpg",
     "hasCollections": false,
     "level": "未定级"
   },

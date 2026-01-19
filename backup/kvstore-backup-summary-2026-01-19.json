@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-01-19T01:23:46.083Z",
+  "backupType": "readonly",
+  "files": [
+    "kvstore-museums-backup-2026-01-19.json",
+    "kvstore-leaderboard-backup-2026-01-19.json"
+  ]
+}
