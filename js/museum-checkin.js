@@ -733,12 +733,7 @@
             updateProgress();
             checkCompletion(); // Check if all tasks complete
             
-            // Show pet adoption prompt if user hasn't adopted a pet (after a short delay)
-            setTimeout(() => {
-                if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.showAdoptionPromptIfNeeded('checkin');
-                }
-            }, 1000); // Delay 1 second to let the page load first
+            // Pet adoption prompt moved to checkCompletion() - only show after all tasks complete
         }
 
         // Apply child mode settings - hide settings button when child mode is enabled
@@ -1579,12 +1574,7 @@
                 window.achievementGamification.showXPGainNotification(taskXP, hasPhoto ? '任务完成 (含照片)' : '任务完成');
             }
             
-            // Show pet adoption prompt if user hasn't adopted a pet (when XP gained)
-            if (typeof VirtualPet !== 'undefined') {
-                VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
-            }
-            
-            // Notify virtual pet about task completion
+            // Notify virtual pet about task completion (pet adoption prompt moved to checkCompletion)
             if (window.virtualPet && window.virtualPet.isPetAlive()) {
                 window.virtualPet.onTaskCompleted();
             }
@@ -1662,20 +1652,15 @@
         // Celebrate with fireworks animation
         function celebrateWithFireworks() {
             const canvas = document.getElementById('fireworksCanvas');
+            if (!canvas) return; // Guard against missing canvas
+            
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            // Create a simple firework celebration
-            const firework = new Firework(
-                canvas.width / 2,
-                canvas.height,
-                canvas.width / 2,
-                canvas.height / 3,
-                '#FF6B9D'
-            );
-
+            // Simple particle-based firework celebration (no dependency on global Firework class)
             let particles = [];
             
             function explode() {
@@ -3494,6 +3479,14 @@
                 setTimeout(() => {
                     generatePoster();
                 }, 500);
+                
+                // Show pet adoption prompt only after ALL tasks are completed
+                // This avoids interrupting the task flow
+                setTimeout(() => {
+                    if (typeof VirtualPet !== 'undefined') {
+                        VirtualPet.showAdoptionPromptIfNeeded('checkin');
+                    }
+                }, 1500); // Delay to let poster generate first
             }
         }
         
@@ -5656,9 +5649,8 @@
                     window.achievementGamification.showXPGainNotification(xp, `${gameName}完成`);
                 }
                 
-                // Show pet adoption prompt if needed
+                // Notify virtual pet about game completion (pet adoption prompt only after all tasks)
                 if (typeof VirtualPet !== 'undefined') {
-                    VirtualPet.showAdoptionPromptIfNeeded('xp_gain');
                     VirtualPet.notifyGameCompleted(gameType, score, timeSeconds);
                 }
                 
