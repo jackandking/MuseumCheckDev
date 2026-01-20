@@ -3996,7 +3996,6 @@ class MuseumCheckApp {
         this.sortBy = this.loadSortPreference(); // Load sorting preference
         this.userLocation = null; // Will be set if user grants location permission
         this.assessmentHidden = !this.loadAssessmentVisibility(); // Load from settings, default to hidden
-        this.manageButtonHidden = !this.loadManageButtonVisibility(); // Load from settings, default to hidden
         this.guideButtonHidden = !this.loadGuideButtonVisibility(); // Load from settings, default to hidden
         this.childModeEnabled = this.loadChildModeEnabled(); // Load child mode setting
         this.readonlyCheckboxes = false; // Default to interactive checkboxes
@@ -4113,9 +4112,6 @@ class MuseumCheckApp {
         
         // Apply assessment visibility setting
         this.applyAssessmentVisibility();
-        
-        // Apply management button visibility setting
-        this.applyManageButtonVisibility();
         
         // Apply guide button visibility setting
         this.applyGuideButtonVisibility();
@@ -5119,23 +5115,6 @@ class MuseumCheckApp {
                     // Track assessment visibility change
                     this.trackEvent('assessment_visibility_changed', {
                         'show_assessment': showAssessment,
-                        'auto_saved': true
-                    });
-                }
-            });
-        }
-
-        // Management button visibility toggle
-        const showManageButtonToggle = document.getElementById('showManageButtonToggle');
-        if (showManageButtonToggle) {
-            showManageButtonToggle.addEventListener('change', (e) => {
-                const showManageButton = e.target.checked;
-                const result = this.saveManageButtonVisibility(showManageButton);
-                
-                if (result.success) {
-                    // Track manage button visibility change
-                    this.trackEvent('manage_button_visibility_changed', {
-                        'show_manage_button': showManageButton,
                         'auto_saved': true
                     });
                 }
@@ -6165,38 +6144,6 @@ class MuseumCheckApp {
             body.classList.add('hide-assessments');
         } else {
             body.classList.remove('hide-assessments');
-        }
-    }
-
-    loadManageButtonVisibility() {
-        try {
-            const saved = localStorage.getItem('showManageButton');
-            // Default to false (hidden) if not saved
-            return saved === 'true';
-        } catch (error) {
-            console.error('Failed to load manage button visibility:', error);
-            return false; // Default to hidden
-        }
-    }
-
-    saveManageButtonVisibility(showManageButton) {
-        try {
-            localStorage.setItem('showManageButton', showManageButton ? 'true' : 'false');
-            this.manageButtonHidden = !showManageButton;
-            this.applyManageButtonVisibility();
-            return { success: true, message: '显示设置已保存' };
-        } catch (error) {
-            console.error('Failed to save manage button visibility:', error);
-            return { success: false, message: '保存失败，请重试' };
-        }
-    }
-
-    applyManageButtonVisibility() {
-        const body = document.body;
-        if (this.manageButtonHidden) {
-            body.classList.add('hide-manage-buttons');
-        } else {
-            body.classList.remove('hide-manage-buttons');
         }
     }
 
@@ -7362,7 +7309,6 @@ class MuseumCheckApp {
                             <div class="museum-info">
                                 <h3>
                                     ${museum.name}
-                                    <button class="museum-manage-button" data-museum="${museum.id}" title="管理博物馆数据">🔧 管理</button>
                                     ${isVisited && !this.assessmentHidden 
                                         ? (hasAssessment 
                                             ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
@@ -7383,7 +7329,6 @@ class MuseumCheckApp {
                 card.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('visit-checkbox') && 
                         !e.target.classList.contains('assessment-button') &&
-                        !e.target.classList.contains('museum-manage-button') &&
                         !e.target.classList.contains('favorite-button')) {
                         // Mark museum as browsed
                         this.markMuseumAsBrowsed(museum.id);
@@ -7416,23 +7361,6 @@ class MuseumCheckApp {
                     assessmentButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.openAssessmentModal(museum.id);
-                    });
-                }
-
-                // Add manage button event
-                const manageButton = card.querySelector('.museum-manage-button');
-                if (manageButton) {
-                    manageButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        // Navigate to museum-data-manager.html with museum ID parameter
-                        window.location.href = `museum-data-manager.html?museum=${encodeURIComponent(museum.id)}`;
-                        
-                        // Track event
-                        this.trackEvent('museum_manage_opened', {
-                            'museum_id': museum.id,
-                            'museum_name': museum.name,
-                            'museum_location': museum.location
-                        });
                     });
                 }
 
@@ -10718,12 +10646,6 @@ class MuseumCheckApp {
         const showAssessmentToggle = document.getElementById('showAssessmentToggle');
         if (showAssessmentToggle) {
             showAssessmentToggle.checked = !this.assessmentHidden;
-        }
-
-        // Update management button visibility toggle
-        const showManageButtonToggle = document.getElementById('showManageButtonToggle');
-        if (showManageButtonToggle) {
-            showManageButtonToggle.checked = !this.manageButtonHidden;
         }
 
         // Update guide button visibility toggle - REMOVED (setting deleted)

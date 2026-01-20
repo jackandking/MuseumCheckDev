@@ -136,7 +136,6 @@ button,
 .museum-card,
 .favorite-button,
 .assessment-button,
-.museum-manage-button,
 .menu-button,
 .settings-button {
     cursor: pointer;
@@ -1744,35 +1743,6 @@ header h1 {
     transform: var(--btn-active-transform);
 }
 
-/* Museum Manage Button - Admin/data management button */
-.museum-manage-button {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.75em;
-    margin-left: 12px;
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--btn-transition);
-    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
-    cursor: pointer;
-}
-
-.museum-manage-button:hover:not(:disabled) {
-    transform: translateY(-1px) scale(1.05);
-    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
-    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
-}
-
-.museum-manage-button:active:not(:disabled) {
-    transform: var(--btn-active-transform);
-}
-
 /* Favorite Button - Icon-only button with special styling */
 .favorite-button {
     /* Special case: Icon button without background */
@@ -1853,14 +1823,6 @@ header h1 {
         min-height: 40px;
     }
     
-    .museum-manage-button {
-        padding: 6px 10px;
-        font-size: 0.75em;
-        margin-left: 6px;
-        min-width: 40px;
-        min-height: 40px;
-    }
-    
     .assessment-button {
         padding: 6px 10px;
         font-size: 0.75em;
@@ -1921,14 +1883,6 @@ header h1 {
     }
     
     .museum-v3-button {
-        padding: 5px 8px;
-        font-size: 0.7em;
-        margin-left: 4px;
-        min-width: 36px;
-        min-height: 36px;
-    }
-    
-    .museum-manage-button {
         padding: 5px 8px;
         font-size: 0.7em;
         margin-left: 4px;
@@ -7538,11 +7492,6 @@ main[role="main"] {
     display: none !important;
 }
 
-/* Management button hiding */
-.hide-manage-buttons .museum-manage-button {
-    display: none !important;
-}
-
 /* Guide button hiding */
 .hide-guide-buttons .museum-v3-button {
     display: none !important;
@@ -7559,7 +7508,6 @@ main[role="main"] {
 .child-mode .fireworks-button-icon,
 .child-mode .age-selector,
 .child-mode .how-to-play-guide,
-.child-mode .museum-card .museum-manage-button,
 .child-mode .museum-card .museum-v3-button,
 .child-mode .museum-card .visit-checkbox,
 .child-mode .site-footer {
