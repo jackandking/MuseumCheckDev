@@ -10570,8 +10570,9 @@ class MuseumCheckApp {
     }
 
     renderSettingsInfo() {
-        // Update museum count
-        document.getElementById('museumCountSettings').textContent = MUSEUMS.length;
+        // Update museum count (element may not exist if settings section removed)
+        const museumCountEl = document.getElementById('museumCountSettings');
+        if (museumCountEl) museumCountEl.textContent = MUSEUMS.length;
         
         // Update child nickname input
         const nicknameInput = document.getElementById('childNicknameInput');
@@ -15037,21 +15038,48 @@ class MuseumCheckApp {
             );
             
             if (doubleConfirmed) {
-                // Clear all localStorage data
+                // Clear all localStorage data (preserve: childNickname, user_id)
                 localStorage.removeItem('visitedMuseums');
                 localStorage.removeItem('museumChecklists');
                 localStorage.removeItem('taskPhotos');
                 localStorage.removeItem('ageGroup');
                 localStorage.removeItem('assessmentResults');
-                localStorage.removeItem('assessmentProgress'); // Clear assessment progress
-                localStorage.removeItem('fireworks'); // Clear fireworks data
-                localStorage.removeItem('museumCheckFireworks'); // Clear shared fireworks data
+                localStorage.removeItem('assessmentProgress');
+                localStorage.removeItem('fireworks');
+                localStorage.removeItem('museumCheckFireworks');
                 
-                // Clear museum checkin page data (museumCheckin_* keys)
+                // Clear additional data that was previously missed
+                localStorage.removeItem('assessment_history');
+                localStorage.removeItem('current_assessment_progress');
+                localStorage.removeItem('virtualPetData');
+                localStorage.removeItem('browsedMuseums');
+                localStorage.removeItem('analytics_events');
+                localStorage.removeItem('visit_count');
+                localStorage.removeItem('lastSubmittedVisitCount');
+                localStorage.removeItem('lastSubmittedXP');
+                localStorage.removeItem('lastSubmittedPetPower');
+                localStorage.removeItem('fireworksRetentionTime');
+                
+                // Clear gamification data
+                localStorage.removeItem('gamificationXP');
+                localStorage.removeItem('gamificationStreak');
+                localStorage.removeItem('gamificationAchievements');
+                localStorage.removeItem('gamificationSettings');
+                localStorage.removeItem('museumcheck_xp_data');
+                
+                // Clear additional user data
+                localStorage.removeItem('museumPosters');
+                localStorage.removeItem('nicknameHasBeenSet');
+                
+                // Clear prefixed keys (museumCheckin_*, mc_*, museum-cache-*)
                 const keysToRemove = [];
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
-                    if (key && key.startsWith('museumCheckin_')) {
+                    if (key && (
+                        key.startsWith('museumCheckin_') || 
+                        key.startsWith('mc_') ||
+                        key.startsWith('museum-cache-')
+                    )) {
                         keysToRemove.push(key);
                     }
                 }
