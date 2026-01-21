@@ -999,23 +999,128 @@
                 card.classList.add('completed');
             }
             
+            // Try to get existing poster from localStorage
+            let posterDataURL = '';
+            try {
+                const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+                const currentPoster = postersData[museumId];
+                if (currentPoster && currentPoster.dataURL) {
+                    posterDataURL = currentPoster.dataURL;
+                }
+            } catch (e) {
+                console.warn('Failed to load poster from localStorage:', e);
+            }
+            
+            // Check if poster is already published
+            let isPublished = false;
+            try {
+                const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
+                isPublished = publishedPosters[museumId] && publishedPosters[museumId].recordId;
+            } catch (e) {}
+            
             card.innerHTML = `
                 <div class="completion-badge">✓</div>
                 <div class="task-visual-container">
-                    <div class="task-icon">🎨</div>
+                    ${posterDataURL ? `<img src="${posterDataURL}" class="task-card-image poster-thumbnail" alt="成就海报" />` : ''}
+                    <div class="task-icon" ${posterDataURL ? 'style="display:none"' : ''}>🎨</div>
                 </div>
                 <div class="task-title">成就海报</div>
-                <div class="task-subtitle">${allCompleted ? '点击查看你的专属海报' : '完成所有任务后生成'}</div>
+                <div class="task-subtitle">${allCompleted ? (isPublished ? '已发布' : '点击查看海报') : '完成所有任务后生成'}</div>
+                ${allCompleted ? `
+                <button class="poster-publish-btn ${isPublished ? 'published' : ''}" id="posterCardPublishBtn">
+                    ${isPublished ? '✅ 已发布' : '📣 发布'}
+                </button>
+                ` : ''}
             `;
             
             if (allCompleted) {
-                card.onclick = () => openPosterModal();
+                // Click on card image area to show fullscreen poster
+                const posterImg = card.querySelector('.poster-thumbnail');
+                const taskIcon = card.querySelector('.task-icon');
+                const visualContainer = card.querySelector('.task-visual-container');
+                
+                if (visualContainer) {
+                    visualContainer.style.cursor = 'pointer';
+                    visualContainer.onclick = (e) => {
+                        e.stopPropagation();
+                        // Generate poster first if not exists, then show fullscreen
+                        if (!posterDataURL) {
+                            generatePoster();
+                            // Wait a bit for poster generation, then show celebration
+                            setTimeout(() => {
+                                openPosterModal();
+                            }, 500);
+                        } else {
+                            // Show poster in fullscreen viewer
+                            openPosterFullscreen(posterDataURL);
+                        }
+                    };
+                }
+                
+                // Publish button click handler
+                const publishBtn = card.querySelector('#posterCardPublishBtn');
+                if (publishBtn && !isPublished) {
+                    publishBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        handlePosterPublish(publishBtn);
+                    };
+                }
             } else {
                 card.style.opacity = '0.5';
                 card.style.cursor = 'not-allowed';
             }
             
             return card;
+        }
+        
+        // Open poster in fullscreen viewer
+        function openPosterFullscreen(posterDataURL) {
+            const fullscreenViewer = document.getElementById('fullscreenViewer');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            const fullscreenHint = document.getElementById('fullscreenHint');
+            
+            if (!fullscreenViewer || !fullscreenImage) {
+                // Fallback to celebration modal
+                openPosterModal();
+                return;
+            }
+            
+            fullscreenImage.src = posterDataURL;
+            fullscreenViewer.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Show hint temporarily
+            if (fullscreenHint) {
+                fullscreenHint.style.display = 'block';
+                setTimeout(() => {
+                    if (fullscreenHint) fullscreenHint.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Handle poster publish from card button
+        async function handlePosterPublish(btn) {
+            if (!btn || btn.classList.contains('published')) return;
+            
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳';
+            
+            try {
+                await publishPosterFromCheckin();
+                btn.innerHTML = '✅ 已发布';
+                btn.classList.add('published');
+                // Update subtitle
+                const card = btn.closest('.poster-card');
+                if (card) {
+                    const subtitle = card.querySelector('.task-subtitle');
+                    if (subtitle) subtitle.textContent = '已发布';
+                }
+            } catch (error) {
+                console.error('Publish failed:', error);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // Open poster modal with enhanced celebration effects
@@ -1234,7 +1339,8 @@
             const { icon, title, subtitle } = parseTaskString(task);
             const isCompleted = completedTasks.has(index);
 
-            document.getElementById('modalIcon').textContent = icon;
+            const modalIconEl = document.getElementById('modalIcon');
+            if (modalIconEl) modalIconEl.textContent = icon;
             document.getElementById('modalTaskTitle').textContent = title;
             document.getElementById('modalDescription').textContent = subtitle || '完成这个有趣的任务吧！';
             
@@ -1263,6 +1369,10 @@
                 
                 if (imgEl) {
                     if (matchedUrl) { 
+                        // Hide icon when image is available to save space
+                        if (modalIconEl) modalIconEl.style.display = 'none';
+                        // Expand image to use saved space
+                        imgEl.classList.add('expanded');
                         // 优先从缓存加载图片
                         // Load image from cache first for better performance
                         if (typeof MuseumImageCache !== 'undefined') {
@@ -1281,7 +1391,10 @@
                         if (treasurePhotoSection) treasurePhotoSection.style.display = 'none';
                     } else { 
                         imgEl.removeAttribute('src'); 
-                        imgEl.style.display = 'none'; 
+                        imgEl.style.display = 'none';
+                        imgEl.classList.remove('expanded');
+                        // Show icon when no image available
+                        if (modalIconEl) modalIconEl.style.display = '';
                         
                         // Check if this is a treasure task
                         const isTreasureTask = title && title.includes(TREASURE_TASK_IDENTIFIER);
@@ -1312,8 +1425,10 @@
                                     delete preview.dataset.imageUrl;
                                 }
                                 // Hide submit button and badge
-                                document.getElementById('modalMuseumPhotoSubmitBtn').style.display = 'none';
-                                document.getElementById('museumPhotoContributedBadge').style.display = 'none';
+                                const submitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
+                                const contributedBadge = document.getElementById('museumPhotoContributedBadge');
+                                if (submitBtn) submitBtn.style.display = 'none';
+                                if (contributedBadge) contributedBadge.style.display = 'none';
                             }
                         }
                         else if (isTreasureTask && treasureName) {
@@ -1392,8 +1507,8 @@
             const reportStatus = document.getElementById('treasureReportStatus');
             
             // Reset report section state
-            reportConfirm.classList.remove('show');
-            reportStatus.classList.remove('show');
+            if (reportConfirm) reportConfirm.classList.remove('show');
+            if (reportStatus) reportStatus.classList.remove('show');
             
             // Check if this is a treasure task
             const isTreasureTask = title && title.includes(TREASURE_TASK_IDENTIFIER);
@@ -1401,28 +1516,30 @@
                 const nameMatch = subtitle.match(/「([^」]+)」/);
                 const treasureName = nameMatch && nameMatch[1];
                 
-                if (treasureName) {
+                if (treasureName && reportSection) {
                     reportSection.classList.add('show');
                     reportSection.dataset.treasureName = treasureName;
                     
                     // Check if user already reported
-                    if (hasUserReportedTreasure(treasureName)) {
-                        reportBtn.textContent = '✅ 您已报告过此问题';
-                        reportBtn.disabled = true;
-                    } else {
-                        reportBtn.textContent = '⚠️ 报告：找不到这个镇馆之宝';
-                        reportBtn.disabled = false;
+                    if (reportBtn) {
+                        if (hasUserReportedTreasure(treasureName)) {
+                            reportBtn.textContent = '✅ 您已报告过此问题';
+                            reportBtn.disabled = true;
+                        } else {
+                            reportBtn.textContent = '⚠️ 报告：找不到这个镇馆之宝';
+                            reportBtn.disabled = false;
+                        }
+                        
+                        // Show report count if any
+                        const reportCount = getTreasureReportCount(treasureName);
+                        if (reportCount > 0) {
+                            reportBtn.textContent += ` (${reportCount}人已报告)`;
+                        }
                     }
-                    
-                    // Show report count if any
-                    const reportCount = getTreasureReportCount(treasureName);
-                    if (reportCount > 0) {
-                        reportBtn.textContent += ` (${reportCount}人已报告)`;
-                    }
-                } else {
+                } else if (reportSection) {
                     reportSection.classList.remove('show');
                 }
-            } else {
+            } else if (reportSection) {
                 reportSection.classList.remove('show');
             }
 
@@ -1434,9 +1551,9 @@
             const imageReplacementSection = document.getElementById('imageReplacementSection');
             
             // Reset image error section state
-            imageErrorConfirm.classList.remove('show');
-            imageErrorStatus.classList.remove('show');
-            imageReplacementSection.classList.remove('show');
+            if (imageErrorConfirm) imageErrorConfirm.classList.remove('show');
+            if (imageErrorStatus) imageErrorStatus.classList.remove('show');
+            if (imageReplacementSection) imageReplacementSection.classList.remove('show');
             
             // Check if task has an image
             const modalImage = document.getElementById('modalImage');
@@ -1446,28 +1563,33 @@
                 const taskTitle = title || ''; 
                 const imageUrl = modalImage.src;
                 
-                imageErrorSection.classList.add('show');
-                imageErrorSection.dataset.taskTitle = taskTitle;
-                imageErrorSection.dataset.imageUrl = imageUrl;
+                if (imageErrorSection) {
+                    imageErrorSection.classList.add('show');
+                    imageErrorSection.dataset.taskTitle = taskTitle;
+                    imageErrorSection.dataset.imageUrl = imageUrl;
+                }
                 
                 // Check if user already reported this image error
-                if (hasUserReportedImageError(taskTitle)) {
-                    imageErrorBtn.textContent = '✅ 您已报告过此问题';
-                    imageErrorBtn.disabled = true;
-                } else {
-                    imageErrorBtn.textContent = '📷 报告图片错误';
-                    imageErrorBtn.disabled = false;
+                if (imageErrorBtn) {
+                    if (hasUserReportedImageError(taskTitle)) {
+                        imageErrorBtn.textContent = '✅ 您已报告过此问题';
+                        imageErrorBtn.disabled = true;
+                    } else {
+                        imageErrorBtn.textContent = '📷 报告图片错误';
+                        imageErrorBtn.disabled = false;
+                    }
                 }
                 
                 // Check if threshold reached for replacement upload
                 const errorCount = getImageErrorCount(taskTitle);
-                if (errorCount >= IMAGE_ERROR_THRESHOLD) {
+                if (errorCount >= IMAGE_ERROR_THRESHOLD && imageReplacementSection) {
                     imageReplacementSection.classList.add('show');
-                    document.getElementById('imageErrorCount').textContent = errorCount;
-                } else if (errorCount > 0) {
+                    const errorCountEl = document.getElementById('imageErrorCount');
+                    if (errorCountEl) errorCountEl.textContent = errorCount;
+                } else if (errorCount > 0 && imageErrorBtn) {
                     imageErrorBtn.textContent += ` (${errorCount}人已报告)`;
                 }
-            } else {
+            } else if (imageErrorSection) {
                 imageErrorSection.classList.remove('show');
             }
 
@@ -3567,20 +3689,31 @@
             }
             
             // Close modal buttons
-            document.getElementById('closeModal').onclick = () => {
-                document.getElementById('taskModal').classList.remove('show');
-            };
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelBtn = document.getElementById('cancelButton');
+            const completeBtn = document.getElementById('completeButton');
+            const taskPhotoInput = document.getElementById('taskPhotoInput');
+            const retakeBtn = document.getElementById('retakeButton');
+            const taskModal = document.getElementById('taskModal');
+            
+            if (closeModalBtn) {
+                closeModalBtn.onclick = () => {
+                    if (taskModal) taskModal.classList.remove('show');
+                };
+            }
 
-            document.getElementById('cancelButton').onclick = () => {
-                document.getElementById('taskModal').classList.remove('show');
-            };
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    if (taskModal) taskModal.classList.remove('show');
+                };
+            }
 
-            document.getElementById('completeButton').onclick = completeTask;
+            if (completeBtn) completeBtn.onclick = completeTask;
 
             // Photo capture
-            document.getElementById('taskPhotoInput').onchange = handlePhotoCapture;
+            if (taskPhotoInput) taskPhotoInput.onchange = handlePhotoCapture;
 
-            document.getElementById('retakeButton').onclick = clearPhotoPreview;
+            if (retakeBtn) retakeBtn.onclick = clearPhotoPreview;
 
             // Modal treasure contributor search buttons
             const modalSearchWikiBtn = document.getElementById('modalSearchWikiBtn');
@@ -3642,12 +3775,13 @@
                 modalTreasureImageInput.addEventListener('input', () => {
                     const url = modalTreasureImageInput.value.trim();
                     const preview = document.getElementById('modalTreasurePreview');
+                    if (!preview) return;
                     if (url) {
                         const img = document.createElement('img');
                         img.src = url;
                         img.className = 'image-preview-thumb';
                         img.alt = '预览';
-                        img.onerror = function() { preview.textContent = '❌'; };
+                        img.onerror = function() { if (preview) preview.textContent = '❌'; };
                         preview.innerHTML = '';
                         preview.appendChild(img);
                     } else {
@@ -3709,30 +3843,50 @@
             // ===== End Photo Upload Event Listeners =====
 
             // Celebration close button
-            document.getElementById('closeCelebration').onclick = () => {
-                document.getElementById('completionCelebration').classList.remove('show');
-            };
+            const closeCelebrationBtn = document.getElementById('closeCelebration');
+            if (closeCelebrationBtn) {
+                closeCelebrationBtn.onclick = () => {
+                    const celebration = document.getElementById('completionCelebration');
+                    if (celebration) celebration.classList.remove('show');
+                };
+            }
 
             // Menu button
-            document.getElementById('menuButton').onclick = () => {
-                document.getElementById('menuModal').classList.add('show');
-            };
+            const menuButton = document.getElementById('menuButton');
+            if (menuButton) {
+                menuButton.onclick = () => {
+                    const menuModal = document.getElementById('menuModal');
+                    if (menuModal) menuModal.classList.add('show');
+                };
+            }
 
-            document.getElementById('closeMenu').onclick = () => {
-                document.getElementById('menuModal').classList.remove('show');
-            };
+            const closeMenuBtn = document.getElementById('closeMenu');
+            if (closeMenuBtn) {
+                closeMenuBtn.onclick = () => {
+                    const menuModal = document.getElementById('menuModal');
+                    if (menuModal) menuModal.classList.remove('show');
+                };
+            }
 
             // Settings button
-            document.getElementById('settingsButton').onclick = () => {
-                openSettings();
-            };
+            const settingsButton = document.getElementById('settingsButton');
+            if (settingsButton) {
+                settingsButton.onclick = () => {
+                    openSettings();
+                };
+            }
 
-            document.getElementById('closeSettings').onclick = () => {
-                document.getElementById('settingsModal').classList.remove('show');
-            };
+            const closeSettingsBtn = document.getElementById('closeSettings');
+            if (closeSettingsBtn) {
+                closeSettingsBtn.onclick = () => {
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal) settingsModal.classList.remove('show');
+                };
+            }
 
             // Click outside modal to close
-            document.getElementById('settingsModal').onclick = (e) => {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) settingsModal.onclick = (e) => {
                 if (e.target.id === 'settingsModal') {
                     document.getElementById('settingsModal').classList.remove('show');
                 }
@@ -3768,15 +3922,21 @@
                 window.location.href = `fireworks-wall.html?museum=${museumId}`;
             });
 
-            document.getElementById('parentTasksLink').onclick = (e) => {
-                e.preventDefault();
-                window.location.href = `index.html?museum=${museumId}&type=parent&age=${ageGroup}`;
-            };
+            const parentTasksLink = document.getElementById('parentTasksLink');
+            if (parentTasksLink) {
+                parentTasksLink.onclick = (e) => {
+                    e.preventDefault();
+                    window.location.href = `index.html?museum=${museumId}&type=parent&age=${ageGroup}`;
+                };
+            }
 
             // Settings actions
-            document.getElementById('clearCheckinData').onclick = () => {
-                clearCheckinData();
-            };
+            const clearCheckinDataBtn = document.getElementById('clearCheckinData');
+            if (clearCheckinDataBtn) {
+                clearCheckinDataBtn.onclick = () => {
+                    clearCheckinData();
+                };
+            }
 
             // Puzzle game settings toggle
             const puzzleToggle = document.getElementById('puzzleGameToggle');
@@ -6850,7 +7010,8 @@
                     resetSI.onclick = () => { cleanupSpaceInvadersGame(); initSpaceInvadersGame(taskIndex); };
                 }
             }
-            document.getElementById('exitSpaceInvaders').onclick = cleanupSpaceInvadersGame;
+            const exitSIBtn = document.getElementById('exitSpaceInvaders');
+            if (exitSIBtn) exitSIBtn.onclick = cleanupSpaceInvadersGame;
             
             // Start game loop
             siGameLoop();
@@ -7269,7 +7430,8 @@
                     resetTB.onclick = () => { cleanupTankBattleGame(); initTankBattleGame(taskIndex); };
                 }
             }
-            document.getElementById('exitTankBattle').onclick = cleanupTankBattleGame;
+            const exitTBBtn = document.getElementById('exitTankBattle');
+            if (exitTBBtn) exitTBBtn.onclick = cleanupTankBattleGame;
             
             // Start game loop
             tbGameLoop();
