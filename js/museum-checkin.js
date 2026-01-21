@@ -1384,13 +1384,6 @@
                 completeButton.disabled = false;
                 completeButton.style.opacity = '1';
             }
-
-            // Show parent hint if this is the 2nd or 3rd completed task
-            if (completedTasks.size >= 1 && completedTasks.size <= 2 && !isCompleted) {
-                document.getElementById('parentHint').classList.add('show');
-            } else {
-                document.getElementById('parentHint').classList.remove('show');
-            }
             
             // Handle treasure report section visibility
             const reportSection = document.getElementById('treasureReportSection');
@@ -1658,8 +1651,6 @@
                         initSpaceInvadersGame(taskIndexForGame);
                     } else if (gameType === 'tank-battle') {
                         initTankBattleGame(taskIndexForGame);
-                    } else if (gameType === 'pet-adventure') {
-                        initPetAdventureGame(taskIndexForGame);
                     } else if (gameType === 'snake') {
                         // Open snake inline overlay instead of new window
                         if (typeof initSnakeInlineGame === 'function') {
@@ -5591,7 +5582,7 @@
 
         // ===== Individual Game Settings =====
         // All games enabled by default
-        const ALL_GAMES = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper', 'pet-adventure', 'snake'];
+        const ALL_GAMES = ['puzzle', 'maze', 'shooting', 'space-invaders', 'tank-battle', 'minesweeper', 'snake'];
 
         function loadEnabledGames() {
             try {
@@ -5701,7 +5692,7 @@
                     return rewards.base;
                 }
                 
-                // Score-based games (shooting, space-invaders, tank-battle, pet-adventure, snake)
+                // Score-based games (shooting, space-invaders, tank-battle, snake)
                 if (rewards.divisor) {
                     return Math.max(rewards.min, Math.min(rewards.max, Math.floor(score / rewards.divisor)));
                 }
@@ -5724,7 +5715,6 @@
                     'space-invaders': Math.max(15, Math.min(30, Math.floor(score / 10))),
                     'tank-battle': Math.max(20, Math.min(30, Math.floor(score / 5))),
                     'minesweeper': Math.max(10, Math.min(25, Math.floor((100 - Math.min(timeSeconds, 100)) * 0.3))),
-                    'pet-adventure': Math.max(10, Math.min(25, Math.floor(score / 10))),
                     'snake': Math.max(10, Math.min(30, Math.floor(score / 10)))
                 };
                 return fallbacks[gameType] || 10;
@@ -5739,7 +5729,6 @@
                     'space-invaders': '小蜜蜂游戏',
                     'tank-battle': '坦克大战',
                     'minesweeper': '扫雷游戏',
-                    'pet-adventure': '宠物冒险',
                     'snake': '贪食蛇'
                 };
                 return names[gameType] || '游戏';
@@ -8225,326 +8214,6 @@
             
             document.getElementById('minesweeperOverlay').classList.remove('show');
             document.getElementById('minesweeperCompleteMessage').classList.remove('show');
-        }
-
-        // ===== Pet Adventure Game Logic =====
-        let paCanvas, paCtx;
-        let paPlayer, paObstacles, paCollectibles, paGameRunning, paScore, paLives;
-        let paAnimationId, paGameSpeed, paSpawnTimer, paDistance;
-        
-        // Game constants
-        const PA_GRAVITY = 0.8;
-        const PA_JUMP_FORCE = -15;
-        let PA_GROUND_Y = 420; // Will be adjusted based on canvas size - increased for better visibility
-        const PA_PLAYER_SIZE = 40;
-        const PA_OBSTACLE_WIDTH = 30;
-        const PA_OBSTACLE_MIN_HEIGHT = 40;
-        const PA_OBSTACLE_MAX_HEIGHT = 80;
-        const PA_COLLECTIBLE_SIZE = 25;
-        const PA_OBSTACLE_EMOJIS = ['🌵', '🪨', '🗿'];
-        const PA_COLLECTIBLE_EMOJIS = ['🏺', '⚱️', '📜', '👑', '💎'];
-        const PA_DIFFICULTY_DISTANCE_THRESHOLD = 1000;
-        const PA_MAX_SPEED = 4; // Reduced from 6 to make game less overwhelming
-        const PA_BASE_SPEED = 2; // Reduced from 3 for easier start
-        const PA_SPEED_INCREASE_RATE = 0.2; // Reduced from 0.3 for gentler difficulty curve
-        const PA_DEFAULT_CANVAS_WIDTH = 600;
-        const PA_DEFAULT_CANVAS_HEIGHT = 500; // Increased from 400 to 500 for better jump visibility
-        const PA_CANVAS_ASPECT_RATIO = PA_DEFAULT_CANVAS_HEIGHT / PA_DEFAULT_CANVAS_WIDTH; // Height / Width
-        
-        function initPetAdventureGame(taskIndex = 0) {
-            GameRewardManager.startNewSession();
-            // Show overlay
-            document.getElementById('petAdventureOverlay').classList.add('show');
-            try { const paDebug = (typeof isDebugMode === 'function') ? !!isDebugMode() : (!!window.__MC_DEBUG || new URLSearchParams(window.location.search).get('debug')==='1' || (localStorage && localStorage.getItem && localStorage.getItem('mc_debug')==='1')); console.info('PetAdventure opened debug check:', paDebug); } catch(e){}
-            
-            // Get canvas - with null check
-            paCanvas = document.getElementById('petAdventureCanvas');
-            if (!paCanvas) {
-                console.error('Pet adventure canvas not found');
-                return;
-            }
-            paCtx = paCanvas.getContext('2d');
-            
-            // Set canvas size for mobile responsiveness - with null check
-            if (paCanvas.parentElement) {
-                const containerWidth = paCanvas.parentElement.offsetWidth;
-                const maxWidth = Math.min(containerWidth - 40, PA_DEFAULT_CANVAS_WIDTH); // 40px padding
-                
-                // Always set canvas size based on available space
-                paCanvas.width = maxWidth;
-                paCanvas.height = Math.floor(maxWidth * PA_CANVAS_ASPECT_RATIO);
-                
-                // Adjust ground position to ensure full jump visibility (leaving more space at top)
-                PA_GROUND_Y = paCanvas.height - 80; // 80px from bottom provides proper viewport
-            } else {
-                // Fallback to default size with increased canvas height
-                paCanvas.width = PA_DEFAULT_CANVAS_WIDTH;
-                paCanvas.height = PA_DEFAULT_CANVAS_HEIGHT;
-                PA_GROUND_Y = 420; // Increased from 320 to match new canvas height
-            }
-            
-            // Initialize game state
-            resetPetAdventureGame();
-            
-            // Bind controls
-            bindPetAdventureControls();
-            
-            // Start game loop
-            paGameRunning = true;
-            paGameLoop();
-        }
-        
-        function resetPetAdventureGame() {
-            // Hide the complete message if it's showing
-            document.getElementById('petAdventureCompleteMessage').classList.remove('show');
-            
-            // Get pet emoji from virtual pet if available
-            let petEmoji = '🐱';
-            if (window.virtualPet && window.virtualPet.hasPet()) {
-                petEmoji = window.virtualPet.getPetEmoji();
-            }
-            
-            paPlayer = {
-                x: 100,
-                y: PA_GROUND_Y - PA_PLAYER_SIZE,
-                width: PA_PLAYER_SIZE,
-                height: PA_PLAYER_SIZE,
-                velocityY: 0,
-                isJumping: false,
-                emoji: petEmoji
-            };
-            
-            paObstacles = [];
-            paCollectibles = [];
-            paScore = 0;
-            paLives = 5; // Increased from 3 to make game more forgiving for children
-            paGameSpeed = PA_BASE_SPEED;
-            paSpawnTimer = 0;
-            paDistance = 0;
-            
-            updatePetAdventureUI();
-        }
-        
-        function bindPetAdventureControls() {
-            // Remove existing keyboard listener first to prevent duplicates
-            document.removeEventListener('keydown', handlePetAdventureKeyPress);
-            
-            // Remove existing listeners to avoid duplicates
-            const jumpBtn = document.getElementById('paJumpBtn');
-            const restartBtn = document.getElementById('restartPetAdventure');
-            const exitBtn = document.getElementById('exitPetAdventure');
-            
-            // Create new button instances to clear all listeners
-            const newJumpBtn = jumpBtn.cloneNode(true);
-            const newRestartBtn = restartBtn.cloneNode(true);
-            const newExitBtn = exitBtn.cloneNode(true);
-            
-            jumpBtn.parentNode.replaceChild(newJumpBtn, jumpBtn);
-            restartBtn.parentNode.replaceChild(newRestartBtn, restartBtn);
-            exitBtn.parentNode.replaceChild(newExitBtn, exitBtn);
-            
-            // Add new listeners
-            newJumpBtn.addEventListener('click', paJump);
-            if (typeof isDebugMode === 'function' && !isDebugMode()) {
-                newRestartBtn.style.display = 'none';
-                newRestartBtn.addEventListener('click', cleanupPetAdventureGame);
-            } else {
-                newRestartBtn.style.display = '';
-                newRestartBtn.addEventListener('click', () => {
-                    resetPetAdventureGame();
-                    if (!paGameRunning) {
-                        paGameRunning = true;
-                        paGameLoop();
-                    }
-                });
-            }
-            newExitBtn.addEventListener('click', cleanupPetAdventureGame);
-            
-            // Keyboard controls - add fresh listener after removing old one
-            document.addEventListener('keydown', handlePetAdventureKeyPress);
-        }
-        
-        function handlePetAdventureKeyPress(e) {
-            if (!paGameRunning) return;
-            if (e.code === 'Space' || e.code === 'ArrowUp') {
-                e.preventDefault();
-                paJump();
-            }
-        }
-        
-        function paJump() {
-            if (!paPlayer.isJumping) {
-                paPlayer.velocityY = PA_JUMP_FORCE;
-                paPlayer.isJumping = true;
-            }
-        }
-        
-        function paGameLoop() {
-            if (!paGameRunning) return;
-            
-            // Update game state
-            paUpdate();
-            
-            // Render
-            paRender();
-            
-            // Continue loop
-            paAnimationId = requestAnimationFrame(paGameLoop);
-        }
-        
-        function paUpdate() {
-            // Update player physics
-            paPlayer.velocityY += PA_GRAVITY;
-            paPlayer.y += paPlayer.velocityY;
-            
-            // Ground collision
-            if (paPlayer.y >= PA_GROUND_Y - PA_PLAYER_SIZE) {
-                paPlayer.y = PA_GROUND_Y - PA_PLAYER_SIZE;
-                paPlayer.velocityY = 0;
-                paPlayer.isJumping = false;
-            }
-            
-            // Spawn obstacles and collectibles
-            paSpawnTimer++;
-            paDistance += paGameSpeed;
-            
-            if (paSpawnTimer > 100) { // Increased from 80 to give more space between objects
-                paSpawnTimer = 0;
-                
-                // Randomly spawn obstacle or collectible
-                if (Math.random() < 0.5) { // Reduced from 0.7 to spawn fewer obstacles, more collectibles
-                    // Spawn obstacle
-                    const height = PA_OBSTACLE_MIN_HEIGHT + Math.random() * (PA_OBSTACLE_MAX_HEIGHT - PA_OBSTACLE_MIN_HEIGHT);
-                    paObstacles.push({
-                        x: paCanvas.width,
-                        y: PA_GROUND_Y - height,
-                        width: PA_OBSTACLE_WIDTH,
-                        height: height,
-                        emoji: PA_OBSTACLE_EMOJIS[Math.floor(Math.random() * PA_OBSTACLE_EMOJIS.length)]
-                    });
-                } else {
-                    // Spawn collectible (museum artifact)
-                    const y = PA_GROUND_Y - 100 - Math.random() * 100;
-                    paCollectibles.push({
-                        x: paCanvas.width,
-                        y: y,
-                        size: PA_COLLECTIBLE_SIZE,
-                        emoji: PA_COLLECTIBLE_EMOJIS[Math.floor(Math.random() * PA_COLLECTIBLE_EMOJIS.length)]
-                    });
-                }
-            }
-            
-            // Update obstacles
-            paObstacles = paObstacles.filter(obs => {
-                obs.x -= paGameSpeed;
-                
-                // Check collision
-                if (paCheckCollision(paPlayer, obs)) {
-                    paLives--;
-                    updatePetAdventureUI();
-                    
-                    if (paLives <= 0) {
-                        paGameOver();
-                    }
-                    return false; // Remove obstacle
-                }
-                
-                return obs.x + obs.width > 0;
-            });
-            
-            // Update collectibles
-            paCollectibles = paCollectibles.filter(col => {
-                col.x -= paGameSpeed;
-                
-                // Check collection
-                const colBox = { x: col.x, y: col.y, width: col.size, height: col.size };
-                if (paCheckCollision(paPlayer, colBox)) {
-                    paScore += 10;
-                    updatePetAdventureUI();
-                    return false; // Remove collectible
-                }
-                
-                return col.x + col.size > 0;
-            });
-            
-            // Increase difficulty over time
-            if (paDistance > PA_DIFFICULTY_DISTANCE_THRESHOLD) {
-                paGameSpeed = Math.min(PA_MAX_SPEED, PA_BASE_SPEED + Math.floor(paDistance / PA_DIFFICULTY_DISTANCE_THRESHOLD) * PA_SPEED_INCREASE_RATE);
-            }
-        }
-        
-        function paCheckCollision(a, b) {
-            return a.x < b.x + b.width &&
-                   a.x + a.width > b.x &&
-                   a.y < b.y + b.height &&
-                   a.y + a.height > b.y;
-        }
-        
-        function paRender() {
-            // Clear canvas
-            paCtx.fillStyle = '#87CEEB'; // Sky blue
-            paCtx.fillRect(0, 0, paCanvas.width, paCanvas.height);
-            
-            // Draw ground
-            paCtx.fillStyle = '#8B4513'; // Brown
-            paCtx.fillRect(0, PA_GROUND_Y, paCanvas.width, paCanvas.height - PA_GROUND_Y);
-            
-            // Draw grass on top of ground
-            paCtx.fillStyle = '#228B22'; // Green
-            paCtx.fillRect(0, PA_GROUND_Y, paCanvas.width, 5);
-            
-            // Draw player (pet emoji)
-            paCtx.font = `${PA_PLAYER_SIZE}px Arial`;
-            paCtx.fillText(paPlayer.emoji, paPlayer.x, paPlayer.y + PA_PLAYER_SIZE);
-            
-            // Draw obstacles
-            paObstacles.forEach(obs => {
-                paCtx.font = `${obs.height}px Arial`;
-                paCtx.fillText(obs.emoji, obs.x, obs.y + obs.height);
-            });
-            
-            // Draw collectibles
-            paCollectibles.forEach(col => {
-                paCtx.font = `${col.size}px Arial`;
-                paCtx.fillText(col.emoji, col.x, col.y + col.size);
-            });
-        }
-        
-        function updatePetAdventureUI() {
-            document.getElementById('paScore').textContent = paScore;
-            const hearts = '❤️'.repeat(paLives);
-            document.getElementById('paLives').textContent = hearts || '💔';
-        }
-        
-        function paGameOver() {
-            paGameRunning = false;
-            
-            // Cancel animation frame
-            if (paAnimationId) {
-                cancelAnimationFrame(paAnimationId);
-                paAnimationId = null;
-            }
-            
-            // Show game over message
-            document.getElementById('paFinalScore').textContent = paScore;
-            document.getElementById('petAdventureCompleteMessage').classList.add('show');
-            
-            // Award XP via unified GameRewardManager
-            GameRewardManager.awardCompletion('pet-adventure', paScore);
-        }
-        
-        function cleanupPetAdventureGame() {
-            paGameRunning = false;
-            if (paAnimationId) {
-                cancelAnimationFrame(paAnimationId);
-                paAnimationId = null;
-            }
-            
-            // Remove keyboard listener
-            document.removeEventListener('keydown', handlePetAdventureKeyPress);
-            
-            document.getElementById('petAdventureOverlay').classList.remove('show');
-            document.getElementById('petAdventureCompleteMessage').classList.remove('show');
         }
 
         // ===== Random Game Selection =====

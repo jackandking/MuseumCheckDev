@@ -403,15 +403,6 @@
                     ✅ 提交新图片
                 </button>
             </div>
-            
-            <div class="parent-hint" id="parentHint">
-                <div class="parent-hint-title">💡 给家长的提示</div>
-                <div class="parent-hint-text">
-                    孩子完成任务很棒！想让博物馆之旅更有意义吗？
-                    <br>查看<a href="index.html?museum=&focus=parent" class="parent-hint-link" id="parentTasksLink">家长任务清单</a>，
-                    了解如何通过参观增进亲子关系。
-                </div>
-            </div>
         </div>
     </div>
 
@@ -591,10 +582,6 @@
                             <span>💣 扫雷</span>
                         </label>
                         <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
-                            <input type="checkbox" id="gameTogglePetAdventure" class="game-toggle" data-game="pet-adventure" checked>
-                            <span>🐾 宠物冒险</span>
-                        </label>
-                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
                             <input type="checkbox" id="gameToggleSnake" class="game-toggle" data-game="snake" checked>
                             <span>🐍 贪食蛇</span>
                         </label>
@@ -756,30 +743,6 @@
     </div>
 
     <!-- Minesweeper (扫雷) Game Overlay -->
-    <!-- Pet Adventure Game Overlay -->
-    <div class="pet-adventure-overlay" id="petAdventureOverlay">
-        <div class="pet-adventure-header">
-            <div class="pet-adventure-title">🐾 宠物大冒险 🐾</div>
-            <div class="pet-adventure-stats">
-                得分：<span id="paScore">0</span> | 生命：<span id="paLives">❤️❤️❤️❤️❤️</span>
-            </div>
-        </div>
-        <div class="pet-adventure-container">
-            <canvas id="petAdventureCanvas" width="600" height="400"></canvas>
-        </div>
-        <div class="pet-adventure-hint">按 ↑ 或 空格键跳跃，收集文物，避开障碍！</div>
-        <div class="pet-adventure-controls">
-            <button class="pet-adventure-button pet-adventure-jump-btn" id="paJumpBtn">⬆️ 跳跃</button>
-        </div>
-        <div class="pet-adventure-buttons">
-            <button class="pet-adventure-button pet-adventure-button-restart" id="restartPetAdventure">🔄 重新开始</button>
-            <button class="pet-adventure-button pet-adventure-button-continue" id="exitPetAdventure">继续游览 ➡️</button>
-        </div>
-        <div class="pet-adventure-complete-message" id="petAdventureCompleteMessage">
-            🎉 游戏结束！得分：<span id="paFinalScore">0</span>
-        </div>
-    </div>
-
     <div class="minesweeper-overlay" id="minesweeperOverlay">
         <div class="minesweeper-header">
             <div class="minesweeper-title">💣 扫雷挑战 💣</div>

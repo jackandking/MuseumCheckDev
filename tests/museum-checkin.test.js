@@ -85,26 +85,6 @@ describe('Museum Check-in Page', () => {
             const combined = htmlContent + jsContent;
             expect(combined).toContain('SharedMenu.init');
         });
-
-        test('should have parent hint section in task modal', () => {
-            expect(htmlContent).toContain('id="parentHint"');
-            expect(htmlContent).toContain('给家长的提示');
-            expect(htmlContent).toContain('家长任务清单');
-        });
-    });
-
-    describe('Progressive UX Implementation', () => {
-        test('should show parent hint after completing tasks', () => {
-            // Parent hint should be hidden by default (in HTML or CSS)
-            const combined = htmlContent + cssContent;
-            expect(combined).toContain('parent-hint');
-            
-            // Logic to show parent hint after 1-2 completed tasks (in JS)
-            expect(jsContent).toContain('completedTasks.size >= 1');
-            expect(jsContent).toContain('completedTasks.size <= 2');
-            expect(jsContent).toContain('parentHint');
-            expect(jsContent).toContain('classList.add');
-        });
     });
 
     describe('Data Management', () => {
@@ -263,12 +243,6 @@ describe('Museum Check-in Page', () => {
             expect(combined).toContain('index.html');
             // Navigation is handled by SharedMenu component
             expect(combined).toContain('SharedMenu');
-        });
-
-        test('should provide link to parent tasks from hint', () => {
-            const combined = htmlContent + jsContent;
-            expect(combined).toContain('parentTasksLink');
-            expect(combined).toContain('家长任务清单');
         });
     });
 
