@@ -840,6 +840,14 @@
 
             renderTasks();
             updateProgress();
+            
+            // 预加载当前博物馆的藏品图片到缓存
+            // Preload museum collection images for faster subsequent access
+            if (typeof MuseumImageCache !== 'undefined' && currentMuseum) {
+                MuseumImageCache.preloadMuseumImages(museumId, currentMuseum.collections).catch(e => {
+                    console.warn('图片预加载失败:', e);
+                });
+            }
         }
 
         // Render task cards
@@ -947,7 +955,7 @@
                 ${subtitle ? `<div class="task-subtitle">${subtitle}</div>` : ''}
             `;
 
-            // If there's an image URL, try to load it and replace icon on success
+            // If there's an image URL, try to load it from cache first, then fallback to direct load
             if (imageUrl) {
                 const img = card.querySelector('.task-card-image');
                 const iconDiv = card.querySelector('.task-icon');
@@ -960,8 +968,17 @@
                         img.style.display = 'none';
                         iconDiv.style.display = 'block';
                     };
-                    // Trigger load
-                    img.src = imageUrl;
+                    // 优先从缓存加载图片，提升当天打卡博物馆的访问速度
+                    // Try loading from cache first for better performance
+                    if (typeof MuseumImageCache !== 'undefined') {
+                        MuseumImageCache.getImage(imageUrl, museumId).then(cachedUrl => {
+                            img.src = cachedUrl || imageUrl;
+                        }).catch(() => {
+                            img.src = imageUrl;
+                        });
+                    } else {
+                        img.src = imageUrl;
+                    }
                 }
             }
 
@@ -1246,7 +1263,17 @@
                 
                 if (imgEl) {
                     if (matchedUrl) { 
-                        imgEl.src = matchedUrl; 
+                        // 优先从缓存加载图片
+                        // Load image from cache first for better performance
+                        if (typeof MuseumImageCache !== 'undefined') {
+                            MuseumImageCache.getImage(matchedUrl, museumId).then(cachedUrl => {
+                                imgEl.src = cachedUrl || matchedUrl;
+                            }).catch(() => {
+                                imgEl.src = matchedUrl;
+                            });
+                        } else {
+                            imgEl.src = matchedUrl;
+                        }
                         imgEl.style.display = 'block'; 
                         if (museumPhotoSection) museumPhotoSection.style.display = 'none';
                         // Also hide treasure photo section if visible
