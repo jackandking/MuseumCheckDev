@@ -392,6 +392,47 @@ body:not(.child-mode) .virtual-pet-container {
     transform: translateY(0);
 }
 
+/* Locked state - when tasks not completed */
+.pet-action-btn.locked {
+    background: linear-gradient(135deg, #bdbdbd, #9e9e9e) !important;
+    color: #fff !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.pet-action-btn.locked:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pet-action-btn.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 10px;
+}
+
+/* Task lock hint message */
+.pet-task-lock-hint {
+    grid-column: span 3;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 1px solid #ffb74d;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #e65100;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: hint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
 /* Pet Reset Section */
 .pet-reset-section {
     margin-top: 12px;

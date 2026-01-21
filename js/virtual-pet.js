@@ -223,6 +223,11 @@ class VirtualPet {
         ];
     }
     
+    // ===== MUSEUM TASK COMPLETION CHECK =====
+    // Check if all tasks are completed in the current museum
+    // This is used to gate pet feeding/upgrades - encourages completing all tasks first
+    static get REQUIRE_ALL_TASKS_FOR_PET_ACTIONS() { return true; } // Feature flag
+    
     // Pet types with different appearances and level-specific emojis
     static get PET_TYPES() {
         return {
@@ -458,6 +463,61 @@ class VirtualPet {
         }
     }
 
+    // ===== MUSEUM TASK STATUS CHECK =====
+    // Check if all tasks are completed in the current museum
+    // Returns { allCompleted, completed, total, remaining, isOnMuseumPage }
+    getMuseumTaskStatus() {
+        // Check if we're on a museum check-in page by URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const museumId = urlParams.get('museum');
+        const ageGroup = urlParams.get('age') || '7-12';
+        const isMuseumCheckinPage = museumId && window.location.pathname.includes('museum-checkin');
+        
+        // Default status when not on museum page
+        if (!isMuseumCheckinPage) {
+            return {
+                allCompleted: true, // Allow actions when not on museum page
+                completed: 0,
+                total: 0,
+                remaining: 0,
+                isOnMuseumPage: false
+            };
+        }
+        
+        // We ARE on a museum check-in page - always set isOnMuseumPage: true
+        // Get task count from the page (if available)
+        const taskCards = document.querySelectorAll('.task-card:not(.poster-card)');
+        const totalTasks = taskCards.length;
+        
+        // Get completed tasks from localStorage
+        const checklistKey = `${museumId}-child-${ageGroup}`;
+        const checklistsData = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
+        const completedTasks = checklistsData[checklistKey] || [];
+        const completedCount = completedTasks.length;
+        
+        // If no tasks loaded yet, still block but show appropriate message
+        if (totalTasks === 0) {
+            return {
+                allCompleted: false, // Block actions until tasks are loaded
+                completed: completedCount,
+                total: 0,
+                remaining: 0,
+                isOnMuseumPage: true,
+                museumId: museumId,
+                tasksNotLoaded: true
+            };
+        }
+        
+        return {
+            allCompleted: completedCount >= totalTasks,
+            completed: completedCount,
+            total: totalTasks,
+            remaining: Math.max(0, totalTasks - completedCount),
+            isOnMuseumPage: true,
+            museumId: museumId
+        };
+    }
+
     // ===== PET STATUS =====
     hasPet() {
         return this.petData.adopted && this.petData.pet !== null;
@@ -579,6 +639,22 @@ class VirtualPet {
             return { success: false, message: '宠物已经死了，需要复活才能喂食' };
         }
 
+        // Check if all tasks are completed (feature gate)
+        if (VirtualPet.REQUIRE_ALL_TASKS_FOR_PET_ACTIONS) {
+            const taskStatus = this.getMuseumTaskStatus();
+            if (!taskStatus.allCompleted && taskStatus.isOnMuseumPage) {
+                const msg = taskStatus.tasksNotLoaded 
+                    ? '等待任务加载...' 
+                    : `先完成所有任务吧！还剩 ${taskStatus.remaining} 个任务`;
+                return { 
+                    success: false, 
+                    message: msg,
+                    requireTasks: true,
+                    taskStatus: taskStatus
+                };
+            }
+        }
+
         if (points < VirtualPet.FEED_COST) {
             return { success: false, message: `积分不足，当前积分: ${points}，喂食需要 ${VirtualPet.FEED_COST} 积分` };
         }
@@ -612,6 +688,22 @@ class VirtualPet {
             return { success: false, message: '宠物需要活着才能训练' };
         }
 
+        // Check if all tasks are completed (feature gate)
+        if (VirtualPet.REQUIRE_ALL_TASKS_FOR_PET_ACTIONS) {
+            const taskStatus = this.getMuseumTaskStatus();
+            if (!taskStatus.allCompleted && taskStatus.isOnMuseumPage) {
+                const msg = taskStatus.tasksNotLoaded 
+                    ? '等待任务加载...' 
+                    : `先完成所有任务吧！还剩 ${taskStatus.remaining} 个任务`;
+                return { 
+                    success: false, 
+                    message: msg,
+                    requireTasks: true,
+                    taskStatus: taskStatus
+                };
+            }
+        }
+
         if (points < VirtualPet.ATTACK_UPGRADE_COST) {
             return { success: false, message: `积分不足，当前积分: ${points}，需要 ${VirtualPet.ATTACK_UPGRADE_COST} 积分` };
         }
@@ -642,6 +734,22 @@ class VirtualPet {
     upgradeDefense(points) {
         if (!this.isPetAlive()) {
             return { success: false, message: '宠物需要活着才能训练' };
+        }
+
+        // Check if all tasks are completed (feature gate)
+        if (VirtualPet.REQUIRE_ALL_TASKS_FOR_PET_ACTIONS) {
+            const taskStatus = this.getMuseumTaskStatus();
+            if (!taskStatus.allCompleted && taskStatus.isOnMuseumPage) {
+                const msg = taskStatus.tasksNotLoaded 
+                    ? '等待任务加载...' 
+                    : `先完成所有任务吧！还剩 ${taskStatus.remaining} 个任务`;
+                return { 
+                    success: false, 
+                    message: msg,
+                    requireTasks: true,
+                    taskStatus: taskStatus
+                };
+            }
         }
 
         if (points < VirtualPet.DEFENSE_UPGRADE_COST) {
@@ -1174,6 +1282,17 @@ class VirtualPet {
         
         // Get current points
         const currentPoints = this.getCurrentPoints();
+        
+        // Check museum task completion status
+        const taskStatus = this.getMuseumTaskStatus();
+        const tasksLocked = VirtualPet.REQUIRE_ALL_TASKS_FOR_PET_ACTIONS && 
+                           taskStatus.isOnMuseumPage && 
+                           !taskStatus.allCompleted;
+        const lockMessage = tasksLocked 
+            ? (taskStatus.tasksNotLoaded 
+                ? '🔒 等待任务加载...' 
+                : `🔒 先完成所有任务！(${taskStatus.completed}/${taskStatus.total})`)
+            : '';
 
         return `
             <div class="pet-alive">
@@ -1232,13 +1351,14 @@ class VirtualPet {
                 </div>
                 
                 <div class="pet-actions">
-                    <button class="pet-action-btn feed-btn" id="feedPetBtn">
+                    ${tasksLocked ? `<div class="pet-task-lock-hint">${lockMessage}</div>` : ''}
+                    <button class="pet-action-btn feed-btn ${tasksLocked ? 'locked' : ''}" id="feedPetBtn" ${tasksLocked ? 'title="完成所有任务后解锁"' : ''}>
                         🍖 喂食 (${VirtualPet.FEED_COST})
                     </button>
-                    <button class="pet-action-btn attack-btn" id="upgradeAttackBtn">
+                    <button class="pet-action-btn attack-btn ${tasksLocked ? 'locked' : ''}" id="upgradeAttackBtn" ${tasksLocked ? 'title="完成所有任务后解锁"' : ''}>
                         ⚔️ 攻击 (${VirtualPet.ATTACK_UPGRADE_COST})
                     </button>
-                    <button class="pet-action-btn defense-btn" id="upgradeDefenseBtn">
+                    <button class="pet-action-btn defense-btn ${tasksLocked ? 'locked' : ''}" id="upgradeDefenseBtn" ${tasksLocked ? 'title="完成所有任务后解锁"' : ''}>
                         🛡️ 防御 (${VirtualPet.DEFENSE_UPGRADE_COST})
                     </button>
                 </div>
@@ -1316,6 +1436,9 @@ class VirtualPet {
                     this.deductPoints(result.pointsUsed);
                     this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
+                } else if (result.requireTasks) {
+                    // Show task requirement message instead of insufficient points
+                    this.showPetMessage(result.message);
                 } else {
                     this.showInsufficientPointsPrompt(result.message);
                 }
@@ -1330,6 +1453,9 @@ class VirtualPet {
                     this.deductPoints(result.pointsUsed);
                     this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
                     this.showPetMessage(result.message);
+                } else if (result.requireTasks) {
+                    // Show task requirement message instead of insufficient points
+                    this.showPetMessage(result.message);
                 } else {
                     this.showInsufficientPointsPrompt(result.message);
                 }
@@ -1343,6 +1469,9 @@ class VirtualPet {
                 if (result.success) {
                     this.deductPoints(result.pointsUsed);
                     this.updateUI(); // 扣积分后刷新UI显示正确的剩余积分
+                    this.showPetMessage(result.message);
+                } else if (result.requireTasks) {
+                    // Show task requirement message instead of insufficient points
                     this.showPetMessage(result.message);
                 } else {
                     this.showInsufficientPointsPrompt(result.message);
