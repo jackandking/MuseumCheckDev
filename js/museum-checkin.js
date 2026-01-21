@@ -914,9 +914,15 @@
 
             // Try to get collection image URL for treasure hunt tasks
             let imageUrl = '';
+            let isUserPhoto = false; // Flag to indicate if image is user's photo (no need for cache)
             try {
+                // Check if this is a 亲子合影 task - use user's photo if available
+                if (title && title.includes('亲子合影') && taskPhotos[index]) {
+                    imageUrl = taskPhotos[index];
+                    isUserPhoto = true;
+                }
                 // Check if this is a 门口打卡 task - use museum image
-                if (currentMuseum && title && title.includes('门口打卡')) {
+                else if (currentMuseum && title && title.includes('门口打卡')) {
                     imageUrl = currentMuseum.image || '';
                 }
                 // Otherwise, try to match collection images for treasure hunt tasks
@@ -968,9 +974,13 @@
                         img.style.display = 'none';
                         iconDiv.style.display = 'block';
                     };
+                    // User photos (data URLs) don't need cache, load directly
+                    if (isUserPhoto) {
+                        img.src = imageUrl;
+                    }
                     // 优先从缓存加载图片，提升当天打卡博物馆的访问速度
                     // Try loading from cache first for better performance
-                    if (typeof MuseumImageCache !== 'undefined') {
+                    else if (typeof MuseumImageCache !== 'undefined') {
                         MuseumImageCache.getImage(imageUrl, museumId).then(cachedUrl => {
                             img.src = cachedUrl || imageUrl;
                         }).catch(() => {
