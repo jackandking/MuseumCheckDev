@@ -60,15 +60,8 @@
                 window.location.href = getBasePath() + 'everyone-achievements.html';
                 break;
             case 'leaderboard':
-                // Try to use existing leaderboard modal if available
-                if (typeof window.showLeaderboardModal === 'function') {
-                    window.showLeaderboardModal();
-                } else if (typeof window.museumApp?.showLeaderboardModal === 'function') {
-                    window.museumApp.showLeaderboardModal();
-                } else {
-                    // Fallback: dispatch event for page-specific handling
-                    document.dispatchEvent(new CustomEvent('sharedmenu:leaderboard'));
-                }
+                // Navigate to standalone leaderboard page
+                window.location.href = getBasePath() + 'leaderboard.html';
                 break;
             case 'quiz':
                 window.location.href = getBasePath() + 'quiz/index.html';

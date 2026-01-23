@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排行榜 - MuseumCheck</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="MuseumCheck排行榜 - 查看博物馆参观排行榜和宠物等级排行榜，与小伙伴们一起比赛！">
+    <meta name="keywords" content="排行榜,博物馆排行榜,宠物排行榜,儿童博物馆,亲子游">
+    <meta name="author" content="MuseumCheck">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="zh-CN">
+    <link rel="canonical" href="https://museumcheck.cn/leaderboard.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://museumcheck.cn/leaderboard.html">
+    <meta property="og:title" content="排行榜 - MuseumCheck">
+    <meta property="og:description" content="查看博物馆参观排行榜和宠物等级排行榜，与小伙伴们一起比赛！">
+    <meta property="og:image" content="https://museumcheck.cn/logo-og.png">
+    <meta property="og:site_name" content="MuseumCheck">
+    <meta property="og:locale" content="zh_CN">
+    
+    <!-- Critical CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/leaderboard.css">
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://eb118-file.cdn.bcebos.com" crossorigin>
+    <link rel="dns-prefetch" href="//eb118-file.cdn.bcebos.com">
+    <script>window.performance && performance.mark && performance.mark('mc_head_loaded');</script>
+    <script src="js/debug-mode.js"></script>
+    
+    <!-- Cache busting meta tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">
+                    <span class="back-icon">←</span>
+                    <span>返回</span>
+                </button>
+                <h1 class="page-title">
+                    <span class="trophy-icon">🏆</span>
+                    排行榜
+                </h1>
+                <button class="refresh-btn" onclick="refreshLeaderboard()">
+                    <span class="refresh-icon">🔄</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="leaderboard-tabs">
+            <button class="tab-btn active" data-ranking-type="visits" onclick="switchTab('visits')">
+                <span class="tab-icon">🏛️</span>
+                <span>博物馆</span>
+            </button>
+            <button class="tab-btn" data-ranking-type="pet" onclick="switchTab('pet')">
+                <span class="tab-icon">🐾</span>
+                <span>宠物</span>
+            </button>
+        </div>
+
+        <!-- Leaderboard Content -->
+        <main class="leaderboard-content">
+            <!-- Introduction Section -->
+            <section class="leaderboard-intro" id="leaderboardIntro">
+                <h2 class="intro-title">
+                    <span class="title-icon">🏛️</span>
+                    博物馆参观排行榜
+                </h2>
+                <p class="intro-desc">看看谁的博物馆之旅最精彩！参观越多，排名越高！</p>
+            </section>
+
+            <!-- User Stats Card -->
+            <section class="user-stats-card" id="userStatsCard">
+                <div class="stats-header">
+                    <div class="user-avatar">
+                        <span class="avatar-placeholder">👤</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">我的排名</div>
+                        <div class="user-rank" id="myRank">加载中...</div>
+                    </div>
+                    <div class="user-score">
+                        <div class="score-label" id="scoreLabel">参观数量</div>
+                        <div class="score-value" id="myScore">-</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leaderboard List -->
+            <section class="leaderboard-list-section">
+                <div class="list-header">
+                    <h3 class="list-title">排行榜</h3>
+                    <div class="last-update" id="lastUpdate">更新中...</div>
+                </div>
+                
+                <!-- Loading State -->
+                <div class="leaderboard-loading" id="loadingState">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载排行榜...</p>
+                </div>
+
+                <!-- Leaderboard Items -->
+                <div class="leaderboard-list" id="leaderboardList">
+                    <!-- Items will be dynamically loaded here -->
+                </div>
+
+                <!-- Load More Button -->
+                <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreData()" style="display: none;">
+                    加载更多
+                </button>
+            </section>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <h3 class="empty-title">暂无数据</h3>
+                <p class="empty-desc">排行榜数据正在整理中，请稍后再试</p>
+                <button class="retry-btn" onclick="refreshLeaderboard()">重新加载</button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="index.html" class="footer-link">首页</a>
+                    <a href="museum-checkin.html" class="footer-link">打卡</a>
+                    <a href="achievements.html" class="footer-link">成就</a>
+                </div>
+                <div class="footer-info">
+                    <p>&copy; 2026 MuseumCheck - 让孩子爱上博物馆</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/leaderboard-page.js"></script>
+    
+    <!-- Analytics -->
+    <script>
+        // Deferred analytics loading
+        (function() {
+            'use strict';
+            var FALLBACK_LOAD_DELAY = 1500;
+            
+            // Baidu Analytics stub
+            var _hmt = window._hmt = window._hmt || [];
+            
+            function loadAnalytics() {
+                var hm = document.createElement('script');
+                hm.src = 'https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57';
+                hm.async = true;
+                document.head.appendChild(hm);
+            }
+            
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadAnalytics, { timeout: 3000 });
+            } else {
+                setTimeout(loadAnalytics, FALLBACK_LOAD_DELAY);
+            }
+        })();
+    </script>
+</body>
+</html>
