@@ -1,6 +1,6 @@
 /**
  * PetRewardManager
- * 提供宠物奖励的最小骨架：监听 checkin/achievement 事件，发放经验值。
+ * 提供宠物奖励的最小骨架：监听 checkin/achievement/poster 事件，发放经验值。
  */
 class PetRewardManager {
   constructor({ eventBus } = {}) {
@@ -24,6 +24,12 @@ class PetRewardManager {
       if (!evt) return;
       this.rewardForAchievement(evt);
     });
+
+    // 监听海报发布事件
+    this.eventBus.on('poster:published', (evt) => {
+      if (!evt) return;
+      this.rewardForPoster(evt);
+    });
   }
 
   rewardForCheckin({ museumId, points = 10, userId, timestamp = Date.now() } = {}) {
@@ -37,6 +43,15 @@ class PetRewardManager {
 
   rewardForAchievement({ achievementId, points = 20, userId, timestamp = Date.now() } = {}) {
     const reward = { type: 'achievement', achievementId, points, userId, timestamp };
+    this._recordReward(reward);
+    if (this.eventBus) {
+      this.eventBus.emit('pet:xp:added', reward);
+    }
+    return reward;
+  }
+
+  rewardForPoster({ posterId, title, points = 100, userId, timestamp = Date.now() } = {}) {
+    const reward = { type: 'poster', posterId, title, points, userId, timestamp };
     this._recordReward(reward);
     if (this.eventBus) {
       this.eventBus.emit('pet:xp:added', reward);

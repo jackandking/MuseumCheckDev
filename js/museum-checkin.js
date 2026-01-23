@@ -3511,7 +3511,19 @@
                     deleteBtn.style.display = 'flex';
                 }
                 
-                alert('已成功发布到大家的成就！感谢分享。');
+                alert('🎉 已成功发布到大家的成就！感谢分享。\n\n🏆 获得100积分奖励！');
+                
+                // Trigger poster published event for reward system
+                if (typeof EventBus !== 'undefined' && EventBus.getInstance()) {
+                    EventBus.getInstance().emit('poster:published', {
+                        posterId: recordId,
+                        title: title,
+                        imageUrl: safeImageUrl,
+                        userId: userName,
+                        museumId: museumId,
+                        timestamp: Date.now()
+                    });
+                }
                 
                 if (confirm('是否打开「大家的成就」查看？')) {
                     window.open('everyone-achievements.html', '_blank');

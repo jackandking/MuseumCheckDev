@@ -321,6 +321,41 @@
             box-shadow: var(--btn-primary-hover-shadow, 0 6px 20px rgba(255, 107, 107, 0.4));
         }
 
+        /* Reward hint styling for publish button */
+        .modal-button.primary[id="publishButton"] {
+            position: relative;
+            overflow: visible;
+        }
+
+        .modal-button.primary[id="publishButton"]::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+            animation: pulse 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .stats {
@@ -433,7 +468,7 @@
                 <p id="viewerDate">生成日期</p>
             </div>
             <div class="modal-actions">
-                <button class="modal-button primary" id="publishButton" onclick="publishPosterToEveryone()">📣 发布到大家的成就</button>
+                <button class="modal-button primary" id="publishButton" onclick="publishPosterToEveryone()">📣 发布到大家的成就 🏆 +100积分</button>
                 <button class="modal-button" onclick="downloadPoster()">📱 下载海报</button>
                 <button class="modal-button" onclick="sharePoster()">📤 分享海报</button>
             </div>
@@ -736,7 +771,19 @@
                     }
                 }
 
-                alert('已成功发布到大家的成就！感谢分享。');
+                alert('🎉 已成功发布到大家的成就！感谢分享。\n\n🏆 获得100积分奖励！');
+
+                // Trigger poster published event for reward system
+                if (typeof EventBus !== 'undefined' && EventBus.getInstance()) {
+                    EventBus.getInstance().emit('poster:published', {
+                        posterId: recordId || 'unknown',
+                        title: title,
+                        imageUrl: imageUrl,
+                        userId: userName,
+                        museumId: currentPoster.museumId,
+                        timestamp: Date.now()
+                    });
+                }
 
                 if (confirm('是否打开「大家的成就」查看？')) {
                     window.open('everyone-achievements.html', '_blank');
