@@ -1618,7 +1618,7 @@
             // Handle treasure contributor section visibility (for "添加镇馆之宝" tasks)
             const contributorSection = document.getElementById('treasureContributorSection');
             const treasureNameInput = document.getElementById('modalTreasureName');
-            const treasureImageInput = document.getElementById('modalTreasureImage');
+            const treasureImageInput = document.getElementById('modalTreasureUpload');
             const treasurePreview = document.getElementById('modalTreasurePreview');
             
             const isAddTreasureTask = title && title.includes('添加镇馆之宝');
@@ -1663,7 +1663,7 @@
             
             if (isAddTreasureTask) {
                 const treasureName = document.getElementById('modalTreasureName').value.trim();
-                const treasureImage = document.getElementById('modalTreasureImage').value.trim();
+                const treasureImage = document.getElementById('modalTreasureUpload').value.trim();
                 
                 // Validate: treasure name is required
                 if (!treasureName) {
@@ -3753,7 +3753,7 @@
             const modalSearchWikiBtn = document.getElementById('modalSearchWikiBtn');
             const modalSearchBaiduBtn = document.getElementById('modalSearchBaiduBtn');
             const modalTreasureNameInput = document.getElementById('modalTreasureName');
-            const modalTreasureImageInput = document.getElementById('modalTreasureImage');
+            const modalTreasureImageInput = document.getElementById('modalTreasureUpload');
             
             if (modalSearchWikiBtn) {
                 modalSearchWikiBtn.onclick = () => {
@@ -3769,7 +3769,7 @@
                         wikiSearchInput.value = treasureName;
                     }
                     // Set callback for wiki search to update modal image input
-                    window.currentImageInputId = 'modalTreasureImage';
+                    window.currentImageInputId = 'modalTreasureUpload';
                     window.currentPreviewId = 'modalTreasurePreview';
                     openWikiSearch();
                 };
@@ -3784,7 +3784,7 @@
                         return;
                     }
                     // Set callback context for baidu search
-                    window.currentImageInputId = 'modalTreasureImage';
+                    window.currentImageInputId = 'modalTreasureUpload';
                     window.currentPreviewId = 'modalTreasurePreview';
                     // Copy name to search input and perform baidu search
                     const wikiSearchInput = document.getElementById('wikiSearchInput');
@@ -3860,7 +3860,7 @@
             // Handler for modal treasure photo upload
             const modalTreasureUpload = document.getElementById('modalTreasureUpload');
             if (modalTreasureUpload) {
-                modalTreasureUpload.addEventListener('change', (e) => handlePhotoUpload(e, 'modalTreasureImage', 'modalTreasurePreview'));
+                modalTreasureUpload.addEventListener('change', (e) => handlePhotoUpload(e, 'modalTreasureUpload', 'modalTreasurePreview'));
             }
             
             // Handler for new treasure photo upload (settings page)
