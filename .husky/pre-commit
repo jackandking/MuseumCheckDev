@@ -7,6 +7,7 @@
 # 1. Checks if any museum data files were modified
 # 2. Runs the museum verification tool on modified museums
 # 3. Prevents commits with unverified or low-quality museums (strict mode)
+# 4. Checks document location compliance
 
 set -e
 
@@ -42,6 +43,43 @@ if ! npm run test:data-quality --silent 2>/dev/null; then
 fi
 echo "✅ Data quality checks passed!"
 echo ""
+
+# ====== Check document location compliance ======
+echo "📝 Checking document location compliance..."
+STAGED_MD_FILES=$(git diff --cached --name-only | grep "\.md$" || true)
+
+if [ -n "$STAGED_MD_FILES" ]; then
+    echo "📋 Found staged MD files:"
+    echo "$STAGED_MD_FILES" | while read -r file; do
+        [ -n "$file" ] && echo "  - $file"
+    done
+    echo ""
+    
+    # Run the docs location check script
+    if ! bash scripts/check-docs-location.sh; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "❌ COMMIT BLOCKED: Document location check failed"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Please move MD files to appropriate directories:"
+        echo "  - docs/architecture/ - Architecture docs"
+        echo "  - docs/features/     - Feature docs"
+        echo "  - docs/guides/       - Development guides"
+        echo "  - docs/api/          - API docs"
+        echo "  - docs/reports/      - Progress reports"
+        echo ""
+        echo "Or bypass this check (NOT RECOMMENDED):"
+        echo "  git commit --no-verify"
+        echo ""
+        exit 1
+    fi
+    echo "✅ Document location compliance passed!"
+    echo ""
+else
+    echo "📝 No MD files staged, skipping document location check."
+    echo ""
+fi
 
 # ====== Auto-sync museums-meta.json → museums-meta.js ======
 META_JSON="data/museums-meta.json"
