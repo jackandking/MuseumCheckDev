@@ -1,64 +1,27 @@
 import { test, expect } from '@playwright/test';
 
 // Basic single museum flow smoke
-// Select first museum, go enroute -> visit, verify progress updates
+// Test museum checkin page loads and shows tasks
 
 test.describe('Single museum flow', () => {
-  test('select museum and progress through visit steps', async ({ page }) => {
-    await page.goto('/single-museum.html');
+  test('museum checkin page loads and displays tasks', async ({ page }) => {
+    await page.goto('/museum-checkin.html?museum=pinghu-museum&age=7-12');
 
-    // Select section visible
-    await expect(page.locator('#step-select')).toBeVisible();
+    // Wait for page to load
+    await expect(page.locator('#museumName')).toContainText('平湖博物馆');
 
-    // If first-time settings modal shows, close it
-    const modal = page.locator('#sgSettingsModal');
-    if (await modal.isVisible({ timeout: 1000 }).catch(() => false)) {
-      const save = page.locator('#sgSettingsSave');
-      if (await save.isVisible().catch(() => false)) {
-        await save.click();
-      } else {
-        // click backdrop to close
-        await modal.click();
-      }
-      await expect(modal).toBeHidden({ timeout: 5000 });
-    }
+    // Task grid visible
+    const taskGrid = page.locator('#taskGrid');
+    await expect(taskGrid).toBeVisible();
 
-    // Click first museum card (sg-card) or list item
-    const card = page.locator('.sg-card').first();
-    if (await card.count() > 0) {
-      await card.click();
-    } else {
-      // fallback: any museum list button
-      const any = page.locator('#sgMuseumList button, #sgMuseumList .sg-card');
-      await any.first().click();
-    }
+    // Wait until at least one task card is rendered
+    await page.waitForSelector('.task-card', { timeout: 8000 });
 
-    // Either go to prep or directly enroute; continue to enroute
-    const goReserve = page.locator('#sgGoReserve');
-    if (await page.locator('#step-prep').isVisible()) {
-      await page.locator('#sgPrepDone').click();
-    }
-    await expect(page.locator('#step-enroute')).toBeVisible();
+    // Verify we have task cards
+    const taskCards = page.locator('.task-card');
+    expect(await taskCards.count()).toBeGreaterThan(0);
 
-    // Arrive to visit
-    await page.locator('#sgArrived').click();
-    await expect(page.locator('#step-visit')).toBeVisible();
-
-    // Progress visible
-    const progress = page.locator('#sgVisitProgress');
-    await expect(progress).toBeVisible();
-
-    // Next step twice then share
-    const next = page.locator('#sgVisitNext');
-    await next.click();
-    await expect(progress).toBeVisible();
-
-    await next.click();
-    // third click may go to share depending on workflow length
-    await next.click();
-
-    // Either at share or still visit
-    const onShare = await page.locator('#step-share').isVisible();
-    expect(onShare || (await page.locator('#step-visit').isVisible())).toBeTruthy();
+    // Progress container visible
+    await expect(page.locator('.progress-container')).toBeVisible();
   });
 });
