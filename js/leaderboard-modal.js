@@ -25,7 +25,11 @@
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.style.display = 'flex';
+                // Add animation class
+                modal.classList.add('modal-enter');
+                setTimeout(() => modal.classList.remove('modal-enter'), 300);
                 this.loadLeaderboardData();
+                this.bindTabEvents();
             } else {
                 console.warn('[LeaderboardModal] Modal element not found');
             }
@@ -41,11 +45,12 @@
         },
 
         // Load leaderboard data from API
-        loadLeaderboardData: async function() {
+        loadLeaderboardData: async function(rankingType = 'visits') {
             const leaderboardList = document.getElementById('leaderboardList');
+            const leaderboardIntro = document.getElementById('leaderboardIntro');
             if (!leaderboardList) return;
 
-            // Show loading state
+            // Show loading state with animation
             leaderboardList.innerHTML = `
                 <div class="leaderboard-loading">
                     <div class="loading-spinner"></div>
@@ -53,36 +58,52 @@
                 </div>
             `;
 
+            // Update intro text based on ranking type
+            if (leaderboardIntro) {
+                const introTexts = {
+                    'visits': '看看谁的博物馆之旅最精彩！参观越多，排名越高！',
+                    'pet': '看看谁的小宠物最厉害！精心照料，等级更高！'
+                };
+                const paragraph = leaderboardIntro.querySelector('p');
+                if (paragraph) {
+                    paragraph.textContent = introTexts[rankingType] || introTexts['visits'];
+                }
+            }
+
             try {
                 // Try to fetch from API first
                 const response = await fetch('https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/leaderboard');
                 if (response.ok) {
                     const data = await response.json();
-                    this.renderLeaderboard(data);
+                    this.renderLeaderboard(data, rankingType);
                 } else {
                     throw new Error('API response not ok');
                 }
             } catch (error) {
                 console.error('[LeaderboardModal] Error loading leaderboard:', error);
                 // Fallback to sample data
-                this.renderSampleLeaderboard();
+                this.renderSampleLeaderboard(rankingType);
             }
         },
 
         // Render leaderboard data
-        renderLeaderboard: function(data) {
+        renderLeaderboard: function(data, rankingType = 'visits') {
             const leaderboardList = document.getElementById('leaderboardList');
             if (!leaderboardList || !data || !data.items) return;
 
             let html = '';
             data.items.forEach((item, index) => {
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                const countText = rankingType === 'pet' 
+                    ? `宠物等级 ${item.petLevel || 1}`
+                    : `参观了 ${item.visits || 0} 个博物馆`;
+                
                 html += `
-                    <div class="leaderboard-item">
+                    <div class="leaderboard-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both">
                         <div class="rank-medal">${medal}</div>
                         <div class="rank-info">
                             <div class="rank-name">${item.nickname || '匿名用户'}</div>
-                            <div class="rank-count">参观了 ${item.visits || 0} 个博物馆</div>
+                            <div class="rank-count">${countText}</div>
                         </div>
                     </div>
                 `;
@@ -92,8 +113,16 @@
         },
 
         // Render sample leaderboard for demo/fallback
-        renderSampleLeaderboard: function() {
-            const sampleData = {
+        renderSampleLeaderboard: function(rankingType = 'visits') {
+            const sampleData = rankingType === 'pet' ? {
+                items: [
+                    { nickname: '小淘气', petLevel: 5 },
+                    { nickname: '咚咚', petLevel: 4 },
+                    { nickname: '用户123', petLevel: 3 },
+                    { nickname: '小明', petLevel: 2 },
+                    { nickname: '小红', petLevel: 1 }
+                ]
+            } : {
                 items: [
                     { nickname: '小淘气', visits: 3 },
                     { nickname: '咚咚', visits: 2 },
@@ -102,7 +131,7 @@
                     { nickname: '小红', visits: 1 }
                 ]
             };
-            this.renderLeaderboard(sampleData);
+            this.renderLeaderboard(sampleData, rankingType);
         },
 
         // Bind event listeners
@@ -134,6 +163,40 @@
                     this.close();
                 }
             });
+        },
+
+        // Bind tab switching events
+        bindTabEvents: function() {
+            const tabs = document.querySelectorAll('.leaderboard-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rankingType = tab.dataset.rankingType;
+                    this.switchTab(rankingType);
+                });
+            });
+        },
+
+        // Switch ranking tab
+        switchTab: function(rankingType) {
+            const tabs = document.querySelectorAll('.leaderboard-tab');
+            const activeTab = document.querySelector(`[data-ranking-type="${rankingType}"]`);
+            
+            if (!activeTab) return;
+
+            // Update tab states with animation
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            activeTab.classList.add('active');
+
+            // Add haptic feedback for mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
+            // Reload data for new ranking type
+            this.loadLeaderboardData(rankingType);
         },
 
         // Expose global function for SharedMenu

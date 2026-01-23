@@ -4084,3 +4084,10 @@
         .task-image:hover {
             opacity: 0.95;
         }
+
+/* =====================================================
+   END OF MUSEUM-CHECKIN.CSS
+   
+   Leaderboard styles moved to css/leaderboard.css
+   to avoid duplication across pages
+   ===================================================== */

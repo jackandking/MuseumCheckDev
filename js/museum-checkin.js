@@ -765,11 +765,23 @@
             }
 
             if (!museum) {
-                console.warn(`Museum ${museumId} not found via loader (Tier2/Tier1)`);
-                document.getElementById('museumName').textContent = '博物馆未找到';
-                document.getElementById('taskGrid').innerHTML = '<div class="loading">未找到该博物馆的信息</div>';
-                currentMuseum = null;
-                return;
+                console.warn(`Museum ${museumId} not found via loader (Tier2/Tier1), trying fallback to local data`);
+                
+                // Fallback to local MUSEUMS_META data
+                if (window.MUSEUMS_META && Array.isArray(window.MUSEUMS_META)) {
+                    museum = window.MUSEUMS_META.find(m => m.id === museumId);
+                    if (museum) {
+                        console.log(`✓ Found museum ${museumId} in local MUSEUMS_META fallback`);
+                    }
+                }
+                
+                if (!museum) {
+                    console.warn(`Museum ${museumId} not found in fallback data either`);
+                    document.getElementById('museumName').textContent = '博物馆未找到';
+                    document.getElementById('taskGrid').innerHTML = '<div class="loading">未找到该博物馆的信息</div>';
+                    currentMuseum = null;
+                    return;
+                }
             }
 
             currentMuseum = museum;
