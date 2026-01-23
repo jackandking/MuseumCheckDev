@@ -2890,6 +2890,18 @@ class ModalManager {
             closeOnEscape: true,
             focusTrap: false
         });
+        
+        this.modalConfigs.set('leaderboardModal', {
+            closeOnOutsideClick: true,
+            closeOnEscape: true,
+            focusTrap: false
+        });
+        
+        this.modalConfigs.set('fireworksModal', {
+            closeOnOutsideClick: true,
+            closeOnEscape: true,
+            focusTrap: false
+        });
     }
     
     bindGlobalEvents() {

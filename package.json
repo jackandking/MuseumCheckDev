@@ -34,7 +34,10 @@
   "author": "jackandking",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.5.0"
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
@@ -56,5 +59,17 @@
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup.js"
     ]
-  }
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackandking/MuseumCheck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jackandking/MuseumCheck/issues"
+  },
+  "homepage": "https://github.com/jackandking/MuseumCheck#readme"
 }

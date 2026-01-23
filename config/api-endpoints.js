@@ -11,10 +11,18 @@
   // ============================================
   // 主配置 - 只需修改这里即可切换环境
   // ============================================
-  const BASE_URL = 'https://letmetry.cloud';
   
-  // 备用配置（取消注释切换）
+  // 自动检测环境：如果是本地开发，使用 localhost；生产环境使用 letmetry.cloud
+  const isLocalDevelopment = window && window.location && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1' || 
+     window.location.hostname === '0.0.0.0');
+  
+  const BASE_URL = isLocalDevelopment ? 'http://localhost:3000' : 'https://letmetry.cloud';
+  
+  // 手动覆盖（取消注释切换）
   // const BASE_URL = 'https://letmetry.cloud';
+  // const BASE_URL = 'http://localhost:3000';
 
   // ============================================
   // API 端点定义
