@@ -3954,15 +3954,12 @@ class LeaderboardManager {
      * Get user rank for a specific ranking type
      * @param {Array} entries - Leaderboard entries
      * @param {string} userId - User ID to find
-     * @param {string} rankingType - 'visits', 'xp', or 'pet'
+     * @param {string} rankingType - 'visits' or 'pet'
      */
     getUserRankByType(entries, userId, rankingType = 'visits') {
         // Sort entries by the appropriate field
         let sortedEntries;
         switch (rankingType) {
-            case 'xp':
-                sortedEntries = [...entries].sort((a, b) => (b.xp || 0) - (a.xp || 0));
-                break;
             case 'pet':
                 sortedEntries = [...entries].filter(e => e.petStats && e.petStats.totalPower)
                     .sort((a, b) => (b.petStats?.totalPower || 0) - (a.petStats?.totalPower || 0));
@@ -10293,7 +10290,6 @@ class MuseumCheckApp {
                 // Show empty state
                 const emptyMessages = {
                     visits: { icon: '🏅', title: '排行榜暂无数据', subtitle: '快去参观博物馆，成为第一名吧！' },
-                    xp: { icon: '⭐', title: '积分排行榜暂无数据', subtitle: '完成任务获取积分，成为积分王！' },
                     pet: { icon: '🐾', title: '宠物排行榜暂无数据', subtitle: '领养并训练宠物，成为最强驯兽师！' }
                 };
                 const msg = emptyMessages[rankingType] || emptyMessages.visits;
@@ -10327,7 +10323,6 @@ class MuseumCheckApp {
             if (entries.length === 0) {
                 const noDataMessages = {
                     visits: { icon: '🏅', title: '暂无排行数据', subtitle: '完成任务后将显示排名！' },
-                    xp: { icon: '⭐', title: '暂无积分数据', subtitle: '完成任务获取积分，成为积分王！' },
                     pet: { icon: '🐾', title: '暂无宠物数据', subtitle: '领养宠物后，你的宠物会出现在这里！' }
                 };
                 const msg = noDataMessages[rankingType] || noDataMessages.visits;
@@ -10410,11 +10405,6 @@ class MuseumCheckApp {
      */
     sortEntriesByRankingType(entries, rankingType) {
         switch (rankingType) {
-            case 'xp':
-                // Filter entries with XP > 0 and sort by XP
-                return [...entries]
-                    .filter(e => e.xp && e.xp > 0)
-                    .sort((a, b) => (b.xp || 0) - (a.xp || 0));
             case 'pet':
                 // Filter entries with pet stats and sort by total power
                 return [...entries]
@@ -10434,14 +10424,6 @@ class MuseumCheckApp {
         const nickname = this.escapeHtml(entry.nickname) + (isMyEntry ? ' (我)' : '');
         
         switch (rankingType) {
-            case 'xp':
-                return `
-                    <div class="entry-nickname">${nickname}</div>
-                    <div class="entry-xp">
-                        <span class="xp-icon">⭐</span>
-                        <span class="xp-value">${entry.xp || 0}</span> 积分
-                    </div>
-                `;
             case 'pet':
                 const petStats = entry.petStats || {};
                 const petEmoji = petStats.petEmoji || '🐾';
@@ -10484,18 +10466,6 @@ class MuseumCheckApp {
         let localValue = '';
         let localValueLabel = '';
         switch (rankingType) {
-            case 'xp':
-                let xp = 0;
-                let lifetimeXP = 0;
-                if (this.achievementGamification) {
-                    const xpData = this.achievementGamification.getXPInfo();
-                    xp = xpData.total || 0;
-                    lifetimeXP = xpData.lifetime || 0;
-                }
-                localValue = lifetimeXP;
-                // Show lifetime XP for ranking (the value used in leaderboard)
-                localValueLabel = `${lifetimeXP} 积分`;
-                break;
             case 'pet':
                 try {
                     const petData = JSON.parse(localStorage.getItem('virtualPetData') || '{}');
@@ -10538,9 +10508,6 @@ class MuseumCheckApp {
         if (countElem) {
             // Use entry value if available, otherwise use local value
             switch (rankingType) {
-                case 'xp':
-                    countElem.textContent = myEntry ? `${myEntry.xp || 0} 积分` : localValueLabel;
-                    break;
                 case 'pet':
                     if (myEntry && myEntry.petStats) {
                         const ps = myEntry.petStats;

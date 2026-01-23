@@ -8801,26 +8801,9 @@ main[role="main"] {
 }
 
 .entry-pet-stat .stat-value {
-    font-weight: 600;
+    font-weight: 700;
 }
 
-/* XP display in leaderboard entry */
-.entry-xp {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    color: #666;
-}
-
-.entry-xp .xp-icon {
-    color: #ffd700;
-}
-
-.entry-xp .xp-value {
-    font-weight: 600;
-    color: #333;
-}
 
 /* Pet emoji display in leaderboard */
 .entry-pet-emoji {
