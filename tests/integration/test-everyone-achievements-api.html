@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Everyone Achievements API</title>
+</head>
+<body>
+    <h1>测试大家的成就 API</h1>
+    <div id="result"></div>
+    
+    <script src="config/api-endpoints.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // 显示 API 配置
+                resultDiv.innerHTML += '<h2>API 配置:</h2>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(window.API_ENDPOINTS, null, 2) + '</pre>';
+                
+                // 测试 MySQL 查询
+                const sql = "SELECT id, image_url AS imageUrl, title, user_name AS userName, museum_id AS museumId, created_at AS createdAt FROM achievement_posters WHERE visibility='public' ORDER BY created_at DESC LIMIT 100";
+                
+                resultDiv.innerHTML += '<h2>执行查询:</h2>';
+                resultDiv.innerHTML += '<pre>' + sql + '</pre>';
+                
+                const response = await fetch(window.API_ENDPOINTS.MYSQL.QUERY, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql, params: [] })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML += '<h2>查询结果:</h2>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                resultDiv.innerHTML += '<h2>结果统计:</h2>';
+                resultDiv.innerHTML += '<p>返回 ' + data.length + ' 条记录</p>';
+                
+                if (data.length > 0) {
+                    resultDiv.innerHTML += '<p>第一条记录: ' + data[0].title + ' (by ' + data[0].user_name + ')</p>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML += '<h2>错误:</h2>';
+                resultDiv.innerHTML += '<p style="color: red;">' + error.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

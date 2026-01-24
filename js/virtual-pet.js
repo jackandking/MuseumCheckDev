@@ -1001,6 +1001,39 @@ class VirtualPet {
         
         // Update floating pet emoji
         this.updateFloatingPet();
+        
+        // 主动更新排行榜数据（宠物升级后）
+        this.updateLeaderboardAfterPetLevelUp(oldLevel, newLevel);
+    }
+    
+    // 主动更新排行榜数据（宠物升级后）
+    updateLeaderboardAfterPetLevelUp(oldLevel, newLevel) {
+        try {
+            // 如果排行榜模态框是打开状态，立即刷新数据
+            const leaderboardModal = document.getElementById('leaderboardModal');
+            if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
+                console.log('[Leaderboard] Refreshing after pet level up');
+                if (window.LeaderboardModal) {
+                    // 宠物升级时，切换到宠物排行榜标签页
+                    window.LeaderboardModal.switchTab('pet');
+                }
+            }
+            
+            // 触发排行榜数据更新事件
+            const leaderboardUpdateEvent = new CustomEvent('leaderboard:update', {
+                detail: { 
+                    type: 'pet_level_up',
+                    oldLevel: oldLevel,
+                    newLevel: newLevel,
+                    timestamp: Date.now()
+                }
+            });
+            document.dispatchEvent(leaderboardUpdateEvent);
+            
+            console.log('[Leaderboard] Update event triggered after pet level up');
+        } catch (error) {
+            console.error('Error updating leaderboard after pet level up:', error);
+        }
     }
     
     // ===== LEVEL-BASED ANIMATIONS =====

@@ -22,7 +22,16 @@
     "test:sanity:watch": "node scripts/run-sanity-agent.js watch",
     "test:sanity:ci": "node scripts/run-sanity-agent.js ci",
     "test:sanity:mobile": "node scripts/run-sanity-agent.js mobile",
-    "test:sanity:quick": "node scripts/run-sanity-agent.js quick"
+    "test:sanity:quick": "node scripts/run-sanity-agent.js quick",
+    "verify:pages": "node scripts/quick-page-check.js",
+    "verify:pages:fast": "node scripts/quick-page-check-simple.js",
+    "verify:pages:simple": "node scripts/quick-page-check-simple.js",
+    "verify:file-placement": "bash scripts/check-file-placement.sh",
+    "verify:docs-location": "bash scripts/check-docs-location.sh",
+    "regression:test": "node scripts/regression-gatekeeper.js",
+    "regression:full": "npm test -- --coverage --verbose",
+    "regression:affected": "npm test -- --findRelatedTests",
+    "regression:report": "node scripts/regression-gatekeeper.js --dry-run"
   },
   "keywords": [
     "museum",

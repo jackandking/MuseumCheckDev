@@ -21,6 +21,26 @@
   </style>
   <!-- Leaderboard Styles - Unified across all pages -->
   <link rel="stylesheet" href="css/leaderboard.css">
+  <!-- API endpoints configuration -->
+  <script src="config/api-endpoints.js"></script>
+  <script>
+    // 确保 API_ENDPOINTS 正确加载的备用方案
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!window.API_ENDPOINTS) {
+        console.warn('API_ENDPOINTS not loaded, using fallback configuration');
+        window.API_ENDPOINTS = {
+          BASE_URL: 'http://localhost:3000',
+          MYSQL: {
+            BASE: 'http://localhost:3000/mysql',
+            QUERY: 'http://localhost:3000/mysql/query',
+            INSERT: 'http://localhost:3000/mysql/insert',
+            UPDATE: 'http://localhost:3000/mysql/update',
+            DELETE: 'http://localhost:3000/mysql/delete'
+          }
+        };
+      }
+    });
+  </script>
 </head>
 <body>
   <header class="main-header" style="display:flex;align-items:center;justify-content:space-between;padding:18px 18px 0 18px">

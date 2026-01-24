@@ -141,8 +141,12 @@
             this.isLoading = true;
 
             try {
-                // Try to fetch from API first
-                const response = await fetch('https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/leaderboard');
+                // Use the same KV Store API as other components
+                const apiEndpoint = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+                const leaderboardKey = 'museumcheck-leaderboard';
+                const url = `${apiEndpoint}?key=${encodeURIComponent(leaderboardKey)}&sortKey=*`;
+                
+                const response = await fetch(url);
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -161,27 +165,85 @@
 
         // Handle successful data response
         handleDataResponse: function(data, isInitial) {
-            if (!data || !data.items) {
+            // Handle both API response formats: { items: [...] } or { value: "[...]" }
+            let items = [];
+            if (data && data.items && Array.isArray(data.items)) {
+                items = data.items;
+            } else if (data && data.value && typeof data.value === 'string') {
+                try {
+                    items = JSON.parse(data.value);
+                } catch (e) {
+                    console.error('[LeaderboardPage] Failed to parse value field:', e);
+                    this.showEmptyState();
+                    return;
+                }
+            }
+
+            if (!items || items.length === 0) {
                 this.showEmptyState();
                 return;
             }
 
+            // Parse and filter user records (sortKey starts with "user-")
+            const userRecords = items.filter(item => {
+                const sortKey = item.sortKey || item.sk || '';
+                return sortKey.startsWith('user-');
+            }).map(item => {
+                try {
+                    const value = JSON.parse(item.value);
+                    const sortKey = item.sortKey || item.sk || ''; // Re-get sortKey in this scope
+                    return {
+                        userId: sortKey.replace('user-', ''),
+                        nickname: value.nickname || value.userName || 'Anonymous',
+                        visitedCount: value.visitedCount || 0,
+                        petLevel: value.petLevel || 1,
+                        rank: 0 // Will be calculated after sorting
+                    };
+                } catch (e) {
+                    console.warn('[LeaderboardPage] Failed to parse item value:', e);
+                    return null;
+                }
+            }).filter(item => item !== null);
+
+            // Sort and assign ranks
+            if (this.currentTab === 'visits') {
+                userRecords.sort((a, b) => b.visitedCount - a.visitedCount);
+            } else {
+                userRecords.sort((a, b) => b.petLevel - a.petLevel);
+            }
+            
+            userRecords.forEach((record, index) => {
+                record.rank = index + 1;
+            });
+
             if (isInitial) {
-                this.allData = data.items;
-                this.renderLeaderboard(data.items);
-                this.updateUserStats(data.userStats);
+                this.allData = userRecords;
+                this.renderLeaderboard(userRecords);
+                this.updateUserStats(this.getCurrentUserStats(userRecords));
                 this.updateLastRefreshTime();
             } else {
-                // Append new data for pagination
-                this.allData = [...this.allData, ...data.items];
-                this.appendLeaderboardItems(data.items);
+                this.allData = [...this.allData, ...userRecords];
+                this.appendLeaderboardItems(userRecords);
             }
 
-            // Check if there's more data
-            this.hasMoreData = data.items.length >= 10; // Assuming 10 items per page
+            this.hasMoreData = userRecords.length >= 10;
             this.updateLoadMoreButton();
-
             this.hideLoadingState();
+        },
+
+        // Get current user stats from the data
+        getCurrentUserStats: function(records) {
+            const currentUserId = localStorage.getItem('userName') || 'user';
+            const userRecord = records.find(record => record.userId === currentUserId);
+            
+            if (userRecord) {
+                return {
+                    rank: userRecord.rank,
+                    score: this.currentTab === 'visits' ? userRecord.visitedCount : userRecord.petLevel
+                };
+            }
+            
+            return { rank: '-', score: '-' };
         },
 
         // Load sample data for demo/fallback

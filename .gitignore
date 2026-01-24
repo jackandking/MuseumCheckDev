@@ -5,6 +5,7 @@ node_modules/
 coverage/
 .nyc_output/
 test-results/
+regression-results/
 
 # Temporary files
 .tmp/
@@ -36,3 +37,6 @@ pids
 test-poster-v2-*.html
 test-sortkey-fix-verification.html
 generate-v3-qr-codes.js
+
+# User uploads
+uploads/

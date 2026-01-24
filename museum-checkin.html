@@ -809,6 +809,9 @@
     <script src="js/firework.js"></script>
     <script src="js/achievement-gamification.js"></script>
     <script src="js/virtual-pet.js"></script>
+    <script src="core/event-bus.js"></script>
+    <script src="shared-features/pet-reward-system/pet-reward-manager.js"></script>
+    <script src="quiz/js/points-manager.js"></script>
     <script src="js/baidu-image-search.js"></script>
     <script src="config/api-endpoints.js"></script>
     <script src="js/letmetry-cloud-api.js"></script>
@@ -824,6 +827,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof SharedMenu !== 'undefined') {
                 SharedMenu.init({ showHome: true, showMuseumFireworks: true });
+            }
+            
+            // Initialize PetRewardManager for handling poster rewards
+            if (typeof PetRewardManager !== 'undefined' && typeof EventBus !== 'undefined') {
+                const petRewardManager = new PetRewardManager({ eventBus: EventBus.getInstance() });
+                console.log('[PetRewardManager] Initialized for poster rewards');
             }
         });
     </script>

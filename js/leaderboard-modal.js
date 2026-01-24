@@ -71,8 +71,18 @@
             }
 
             try {
-                // Try to fetch from API first
-                const response = await fetch('https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/leaderboard');
+                // Determine API endpoint based on environment
+                let leaderboardUrl;
+                if (window.API_ENDPOINTS && window.API_ENDPOINTS.BASE_URL.includes('localhost')) {
+                    // Local development - use mock API
+                    leaderboardUrl = window.API_ENDPOINTS.BASE_URL + '/default/leaderboard';
+                } else {
+                    // Production - use AWS API
+                    leaderboardUrl = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/leaderboard';
+                }
+                
+                console.log('[LeaderboardModal] Loading from:', leaderboardUrl);
+                const response = await fetch(leaderboardUrl);
                 if (response.ok) {
                     const data = await response.json();
                     this.renderLeaderboard(data, rankingType);
@@ -94,33 +104,120 @@
             let html = '';
             data.items.forEach((item, index) => {
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
-                const countText = rankingType === 'pet' 
-                    ? `宠物等级 ${item.petLevel || 1}`
-                    : `参观了 ${item.visits || 0} 个博物馆`;
                 
-                html += `
-                    <div class="leaderboard-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both">
-                        <div class="rank-medal">${medal}</div>
-                        <div class="rank-info">
-                            <div class="rank-name">${item.nickname || '匿名用户'}</div>
-                            <div class="rank-count">${countText}</div>
+                if (rankingType === 'pet') {
+                    // 宠物排行榜 - 显示详细宠物属性
+                    const petLevel = item.petLevel || 1;
+                    const petType = item.petType || '小猫';
+                    const petEmoji = this.getPetEmoji(petType);
+                    const attack = item.attack || 0;
+                    const defense = item.defense || 0;
+                    const intelligence = item.intelligence || 0;
+                    const totalPoints = item.totalPoints || 0;
+                    
+                    html += `
+                        <div class="leaderboard-item pet-leaderboard-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both">
+                            <div class="rank-medal">${medal}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${item.nickname || '匿名用户'}</div>
+                                <div class="rank-pet-info">
+                                    <span class="pet-emoji">${petEmoji}</span>
+                                    <span class="pet-name">${petType}</span>
+                                    <span class="pet-level">Lv.${petLevel}</span>
+                                </div>
+                                <div class="rank-count">总积分: ${totalPoints}</div>
+                                <div class="pet-stats">
+                                    <span class="stat">⚔️${attack}</span>
+                                    <span class="stat">🛡️${defense}</span>
+                                    <span class="stat">🧠${intelligence}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // 博物馆排行榜
+                    const countText = `参观了 ${item.visits || 0} 个博物馆`;
+                    html += `
+                        <div class="leaderboard-item" style="animation: slideInUp 0.3s ease-out ${index * 0.1}s both">
+                            <div class="rank-medal">${medal}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${item.nickname || '匿名用户'}</div>
+                                <div class="rank-count">${countText}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             });
 
             leaderboardList.innerHTML = html;
+        },
+        
+        // 获取宠物表情符号
+        getPetEmoji: function(petType) {
+            const petEmojis = {
+                '小猫': '🐱',
+                '小狗': '🐶',
+                '小兔子': '🐰',
+                '小熊猫': '🐼',
+                '小狐狸': '🦊',
+                '小老虎': '🐯',
+                '小恐龙': '🦕',
+                '小龙': '🐲',
+                '独角兽': '🦄',
+                '凤凰': '🦅'
+            };
+            return petEmojis[petType] || '🐱'; // 默认小猫
         },
 
         // Render sample leaderboard for demo/fallback
         renderSampleLeaderboard: function(rankingType = 'visits') {
             const sampleData = rankingType === 'pet' ? {
                 items: [
-                    { nickname: '小淘气', petLevel: 5 },
-                    { nickname: '咚咚', petLevel: 4 },
-                    { nickname: '用户123', petLevel: 3 },
-                    { nickname: '小明', petLevel: 2 },
-                    { nickname: '小红', petLevel: 1 }
+                    { 
+                        nickname: '小淘气', 
+                        petLevel: 5, 
+                        petType: '小猫',
+                        attack: 15,
+                        defense: 12,
+                        intelligence: 18,
+                        totalPoints: 2500
+                    },
+                    { 
+                        nickname: '咚咚', 
+                        petLevel: 4, 
+                        petType: '小狗',
+                        attack: 12,
+                        defense: 15,
+                        intelligence: 14,
+                        totalPoints: 1800
+                    },
+                    { 
+                        nickname: '用户123', 
+                        petLevel: 3, 
+                        petType: '小兔子',
+                        attack: 8,
+                        defense: 10,
+                        intelligence: 12,
+                        totalPoints: 1200
+                    },
+                    { 
+                        nickname: '小明', 
+                        petLevel: 2, 
+                        petType: '小熊猫',
+                        attack: 5,
+                        defense: 7,
+                        intelligence: 8,
+                        totalPoints: 600
+                    },
+                    { 
+                        nickname: '小红', 
+                        petLevel: 1, 
+                        petType: '小狐狸',
+                        attack: 2,
+                        defense: 3,
+                        intelligence: 4,
+                        totalPoints: 200
+                    }
                 ]
             } : {
                 items: [
@@ -157,12 +254,85 @@
                 this.show();
             });
 
+            // Listen for leaderboard update events
+            document.addEventListener('leaderboard:update', (e) => {
+                console.log('[Leaderboard] Update event received:', e.detail);
+                this.handleLeaderboardUpdate(e.detail);
+            });
+
             // ESC key to close
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     this.close();
                 }
             });
+        },
+        
+        // 处理排行榜更新事件
+        handleLeaderboardUpdate: function(detail) {
+            try {
+                const modal = document.getElementById('leaderboardModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    console.log('[Leaderboard] Refreshing due to update:', detail.type);
+                    
+                    // 根据更新类型决定刷新哪个标签页
+                    let rankingType = 'visits'; // 默认博物馆排行榜
+                    if (detail.type === 'pet_level_up') {
+                        rankingType = 'pet'; // 宠物升级时切换到宠物排行榜
+                    }
+                    
+                    // 刷新数据
+                    this.loadLeaderboardData(rankingType);
+                    
+                    // 显示更新提示
+                    this.showUpdateNotification(detail.type);
+                }
+            } catch (error) {
+                console.error('Error handling leaderboard update:', error);
+            }
+        },
+        
+        // 显示更新通知
+        showUpdateNotification: function(updateType) {
+            const messages = {
+                'museum_checkin': '🎉 完成博物馆打卡！排行榜已更新',
+                'pet_level_up': '🎊 宠物升级！排行榜已更新'
+            };
+            
+            const message = messages[updateType] || '📊 排行榜已更新';
+            
+            // 创建临时通知元素
+            const notification = document.createElement('div');
+            notification.className = 'leaderboard-update-notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后移除通知
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 3000);
         },
 
         // Bind tab switching events

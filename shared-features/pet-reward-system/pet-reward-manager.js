@@ -53,6 +53,19 @@ class PetRewardManager {
   rewardForPoster({ posterId, title, points = 100, userId, timestamp = Date.now() } = {}) {
     const reward = { type: 'poster', posterId, title, points, userId, timestamp };
     this._recordReward(reward);
+    
+    // Actually add points to user's account
+    if (typeof PointsManager !== 'undefined') {
+      PointsManager.addPoints(points, 'poster', {
+        posterId: posterId,
+        title: title,
+        userId: userId
+      });
+      console.log(`[PetRewardManager] Added ${points} points for poster publication: ${title}`);
+    } else {
+      console.warn('[PetRewardManager] PointsManager not available, points not added');
+    }
+    
     if (this.eventBus) {
       this.eventBus.emit('pet:xp:added', reward);
     }

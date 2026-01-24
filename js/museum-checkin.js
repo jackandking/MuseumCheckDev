@@ -3672,9 +3672,43 @@
                     visitedMuseums.push(museumId);
                     localStorage.setItem('visitedMuseums', JSON.stringify(visitedMuseums));
                     console.log('Museum auto-marked as visited:', museumId);
+                    
+                    // 主动更新排行榜数据
+                    updateLeaderboardAfterCheckin();
                 }
             } catch (error) {
                 console.error('Error marking museum as visited:', error);
+            }
+        }
+
+        // 主动更新排行榜数据（打卡后）
+        function updateLeaderboardAfterCheckin() {
+            try {
+                // 如果排行榜模态框是打开状态，立即刷新数据
+                const leaderboardModal = document.getElementById('leaderboardModal');
+                if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
+                    console.log('[Leaderboard] Refreshing after museum check-in');
+                    if (window.LeaderboardModal) {
+                        // 获取当前活跃的标签页
+                        const activeTab = document.querySelector('.leaderboard-tab.active');
+                        const rankingType = activeTab ? activeTab.dataset.rankingType : 'visits';
+                        window.LeaderboardModal.loadLeaderboardData(rankingType);
+                    }
+                }
+                
+                // 触发排行榜数据更新事件
+                const leaderboardUpdateEvent = new CustomEvent('leaderboard:update', {
+                    detail: { 
+                        type: 'museum_checkin',
+                        museumId: museumId,
+                        timestamp: Date.now()
+                    }
+                });
+                document.dispatchEvent(leaderboardUpdateEvent);
+                
+                console.log('[Leaderboard] Update event triggered after check-in');
+            } catch (error) {
+                console.error('Error updating leaderboard after check-in:', error);
             }
         }
 

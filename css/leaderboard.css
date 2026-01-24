@@ -92,6 +92,90 @@
     background: rgba(44, 90, 160, 0.02);
 }
 
+/* Pet leaderboard specific styles */
+.pet-leaderboard-item {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    border: 1px solid rgba(255, 154, 158, 0.3);
+}
+
+.pet-leaderboard-item:hover {
+    background: linear-gradient(135deg, #ff8a8e 0%, #febfbf 100%);
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(255, 154, 158, 0.2);
+}
+
+.pet-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.pet-emoji {
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.pet-name {
+    font-weight: 600;
+    color: #d63384;
+    font-size: 14px;
+}
+
+.pet-level {
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.pet-stats {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.stat {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Update notification animation */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+.leaderboard-update-notification {
+    pointer-events: none;
+    user-select: none;
+}
+
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
     .modal-enter,
