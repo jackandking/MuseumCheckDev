@@ -8,8 +8,8 @@ echo "🔍 检查文件目录规范..."
 echo "================================"
 echo ""
 
-# 获取所有暂存的文件
-STAGED_FILES=$(git diff --cached --name-only)
+# 获取所有暂存的文件（排除已删除的文件）
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMRT)
 if [ -z "$STAGED_FILES" ]; then
     echo "📝 没有暂存文件，跳过检查"
     exit 0
