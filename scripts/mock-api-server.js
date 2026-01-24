@@ -64,14 +64,85 @@ app.get('/health', (req, res) => {
 // Leaderboard endpoint (mocking AWS API)
 app.get('/default/leaderboard', (req, res) => {
   console.log('[Mock API] Returning leaderboard data');
+  
+  // Mock data that mimics the real AWS API structure
+  const mockUsers = [
+    {
+      expireAt: "4866674732",
+      value: JSON.stringify({
+        nickname: "高分玩家",
+        visitedCount: 15,
+        userId: "user-highscore",
+        lastUpdate: 1769193213365,
+        xp: 100,
+        petLevel: 10
+      }),
+      key: "museumcheck-leaderboard",
+      sortKey: "user-highscore-1769193213365"
+    },
+    {
+      expireAt: "4866674732", 
+      value: JSON.stringify({
+        nickname: "测试用户",
+        visitedCount: 5,
+        userId: "user-test",
+        lastUpdate: 1769179104290,
+        xp: 50,
+        petLevel: 3
+      }),
+      key: "museumcheck-leaderboard",
+      sortKey: "user-test-1769179104290"
+    },
+    {
+      expireAt: "4866674732",
+      value: JSON.stringify({
+        nickname: "小淘气",
+        visitedCount: 3,
+        userId: "user_mfs4dh1n95441taucth",
+        lastUpdate: 1762993092291,
+        xp: 25
+      }),
+      key: "museumcheck-leaderboard", 
+      sortKey: "user-user_mfs4dh1n95441taucth"
+    },
+    {
+      expireAt: "4866674732",
+      value: JSON.stringify({
+        nickname: "咚咚",
+        visitedCount: 2,
+        userId: "user_mfm1pllapx23v2mu6qd",
+        lastUpdate: 1766311163328,
+        xp: 458,
+        petStats: {
+          attack: 20,
+          defense: 10,
+          totalPower: 30,
+          petType: "cat",
+          petEmoji: "🐱",
+          petName: "小猫"
+        }
+      }),
+      key: "museumcheck-leaderboard",
+      sortKey: "user-user_mfm1pllapx23v2mu6qd"
+    },
+    {
+      expireAt: "4866674732",
+      value: JSON.stringify({
+        nickname: "mm",
+        visitedCount: 0,
+        userId: "35c5e612-c9c8-4f1f-b70b-7fdf11bd0976",
+        lastUpdate: 1768288655581,
+        xp: 0,
+        petStats: null
+      }),
+      key: "museumcheck-leaderboard",
+      sortKey: "user-35c5e612-c9c8-4f1f-b70b-7fdf11bd0976"
+    }
+  ];
+  
+  // Return the same nested structure as the real AWS API
   res.json({
-    items: [
-      { nickname: '小淘气', visits: 3 },
-      { nickname: '咚咚', visits: 2 },
-      { nickname: '用户123', visits: 2 },
-      { nickname: '小明', visits: 1 },
-      { nickname: '小红', visits: 1 }
-    ]
+    value: JSON.stringify(mockUsers)
   });
 });
 

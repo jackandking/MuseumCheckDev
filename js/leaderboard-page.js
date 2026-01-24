@@ -184,18 +184,23 @@
                 return;
             }
 
-            // Parse and filter user records (sortKey starts with "user-")
-            const userRecords = items.filter(item => {
-                const sortKey = item.sortKey || item.sk || '';
-                return sortKey.startsWith('user-');
-            }).map(item => {
+            // Parse and filter user records (include all records, not just user- prefix)
+            const userRecords = items.map(item => {
                 try {
                     const value = JSON.parse(item.value);
-                    const sortKey = item.sortKey || item.sk || ''; // Re-get sortKey in this scope
+                    const sortKey = item.sortKey || item.sk || '';
+                    
+                    // Extract userId from sortKey, handle both patterns:
+                    // "user-xxxxxxxx" and "user-highscore-xxxxxxxx"
+                    let userId = sortKey;
+                    if (sortKey.startsWith('user-')) {
+                        userId = sortKey.replace('user-', '');
+                    }
+                    
                     return {
-                        userId: sortKey.replace('user-', ''),
+                        userId: userId,
                         nickname: value.nickname || value.userName || 'Anonymous',
-                        visitedCount: value.visitedCount || 0,
+                        visits: value.visitedCount || 0,  // 改为visits以匹配渲染逻辑
                         petLevel: value.petLevel || 1,
                         rank: 0 // Will be calculated after sorting
                     };
@@ -207,7 +212,7 @@
 
             // Sort and assign ranks
             if (this.currentTab === 'visits') {
-                userRecords.sort((a, b) => b.visitedCount - a.visitedCount);
+                userRecords.sort((a, b) => b.visits - a.visits);
             } else {
                 userRecords.sort((a, b) => b.petLevel - a.petLevel);
             }

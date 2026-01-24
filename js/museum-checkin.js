@@ -3684,17 +3684,9 @@
         // 主动更新排行榜数据（打卡后）
         function updateLeaderboardAfterCheckin() {
             try {
-                // 如果排行榜模态框是打开状态，立即刷新数据
-                const leaderboardModal = document.getElementById('leaderboardModal');
-                if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
-                    console.log('[Leaderboard] Refreshing after museum check-in');
-                    if (window.LeaderboardModal) {
-                        // 获取当前活跃的标签页
-                        const activeTab = document.querySelector('.leaderboard-tab.active');
-                        const rankingType = activeTab ? activeTab.dataset.rankingType : 'visits';
-                        window.LeaderboardModal.loadLeaderboardData(rankingType);
-                    }
-                }
+                // 打卡后，排行榜数据会在下次访问时自动更新
+                // 不需要模态框相关的刷新逻辑
+                console.log('[MuseumCheckin] Museum checked in, leaderboard will be updated on next visit');
                 
                 // 触发排行榜数据更新事件
                 const leaderboardUpdateEvent = new CustomEvent('leaderboard:update', {

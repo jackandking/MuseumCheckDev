@@ -4761,7 +4761,7 @@ class MuseumCheckApp {
         const leaderboardButton = document.getElementById('leaderboardButton');
         if (leaderboardButton) {
             leaderboardButton.addEventListener('click', () => {
-                this.showLeaderboardModal();
+                window.location.href = 'leaderboard.html'; // Navigate to standalone page
             });
         }
 

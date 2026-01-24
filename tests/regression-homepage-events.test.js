@@ -72,7 +72,6 @@ describe('HomepageAdapter event payloads do not break rendering', () => {
     app.saveShowOnlyMuseumsWithCollections = jest.fn();
     app.clearData = jest.fn();
     app.openTreasureReportModal = jest.fn();
-    app.openLeaderboardModal = jest.fn();
     app.openAssessmentModal = jest.fn();
     app.openShareModal = jest.fn();
     app.openGuideModal = jest.fn();

@@ -1009,15 +1009,10 @@ class VirtualPet {
     // 主动更新排行榜数据（宠物升级后）
     updateLeaderboardAfterPetLevelUp(oldLevel, newLevel) {
         try {
-            // 如果排行榜模态框是打开状态，立即刷新数据
-            const leaderboardModal = document.getElementById('leaderboardModal');
-            if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
-                console.log('[Leaderboard] Refreshing after pet level up');
-                if (window.LeaderboardModal) {
-                    // 宠物升级时，切换到宠物排行榜标签页
-                    window.LeaderboardModal.switchTab('pet');
-                }
-            }
+            // 宠物升级后，排行榜数据会在下次访问时自动更新
+            // 不需要模态框相关的刷新逻辑
+            console.log('[VirtualPet] Pet leveled up from', oldLevel, 'to', newLevel);
+            console.log('[VirtualPet] Leaderboard will be updated on next page visit');
             
             // 触发排行榜数据更新事件
             const leaderboardUpdateEvent = new CustomEvent('leaderboard:update', {
