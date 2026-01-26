@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坦克大战游戏显示测试</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            background: white;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover { background: #45a049; }
+        #testLog { 
+            font-family: monospace; 
+            background: #f5f5f5; 
+            padding: 10px; 
+            height: 200px; 
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .mobile-preview {
+            width: 375px;
+            height: 667px;
+            border: 2px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px auto;
+            background: white;
+            position: relative;
+        }
+        .mobile-header {
+            height: 44px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .mobile-content {
+            height: calc(100% - 44px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎖️ 坦克大战游戏显示测试</h1>
+    
+    <div class="test-section">
+        <h2>测试控制</h2>
+        <button onclick="testTankBattleDisplay()">测试坦克大战显示</button>
+        <button onclick="testMobileMode()">测试手机模式</button>
+        <button onclick="testGameStart()">测试游戏启动</button>
+        <button onclick="closeTankBattle()">关闭游戏</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>手机预览</h2>
+        <div class="mobile-preview">
+            <div class="mobile-header">手机模式预览</div>
+            <div class="mobile-content">
+                <!-- 这里会显示坦克大战游戏 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试日志</h2>
+        <div id="testLog"></div>
+    </div>
+
+    <!-- Tank Battle Game Overlay -->
+    <div class="tank-battle-overlay" id="tank-battleGameOverlay">
+        <div class="tank-battle-container">
+            <div class="tank-battle-header">
+                <div class="tank-battle-title">🎖️ 坦克大战 🎖️</div>
+                <div class="tank-battle-stats">
+                    得分：<span id="tbScore">0</span> | 生命：<span id="tbLives">3</span> | 敌人：<span id="tbEnemiesLeft">5</span>
+                </div>
+            </div>
+            <div class="tank-battle-container">
+                <canvas class="tank-battle-canvas" id="tankBattleCanvas" width="320" height="320"></canvas>
+            </div>
+            <div class="tank-controls">
+                <div class="tank-controls-row">
+                    <button class="tank-control-btn empty"></button>
+                    <button class="tank-control-btn" id="tbUpBtn">⬆️</button>
+                    <button class="tank-control-btn empty"></button>
+                </div>
+                <div class="tank-controls-row">
+                    <button class="tank-control-btn" id="tbLeftBtn">⬅️</button>
+                    <button class="tank-control-btn empty"></button>
+                    <button class="tank-control-btn" id="tbRightBtn">➡️</button>
+                </div>
+                <div class="tank-controls-row">
+                    <button class="tank-control-btn empty"></button>
+                    <button class="tank-control-btn" id="tbDownBtn">⬇️</button>
+                    <button class="tank-control-btn empty"></button>
+                </div>
+                <div class="tank-controls-row">
+                    <button class="tank-control-btn empty"></button>
+                    <button class="tank-control-btn" id="tbFireBtn">🔥</button>
+                    <button class="tank-control-btn empty"></button>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <button id="exitTankBattle">退出游戏</button>
+                <button id="resetTankBattle" style="display: none;">重新开始</button>
+            </div>
+        </div>
+        <div class="tank-battle-complete-message" id="tank-battleCompleteMessage">
+            <h2>游戏结束！</h2>
+            <p>最终得分：<span id="tbFinalScore">0</span></p>
+            <button onclick="closeTankBattle()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const log = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span class="info">[${timestamp}]</span> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+        }
+        
+        function closeTankBattle() {
+            const overlay = document.getElementById('tank-battleGameOverlay');
+            overlay.classList.remove('show');
+            log('🔚 坦克大战游戏已关闭');
+        }
+        
+        // Mock GameRewardManager
+        const GameRewardManager = {
+            startNewSession: () => {
+                log('🎮 GameRewardManager.startNewSession() called');
+            },
+            awardCompletion: (gameType, score) => {
+                log(`🏆 GameRewardManager.awardCompletion(${gameType}, ${score}) called`);
+            }
+        };
+        
+        async function testTankBattleDisplay() {
+            log('🧪 开始测试坦克大战显示...');
+            
+            try {
+                // Check if overlay exists
+                const overlay = document.getElementById('tank-battleGameOverlay');
+                if (overlay) {
+                    log('✅ 找到坦克大战 overlay 元素');
+                    log(`📋 当前显示状态: ${overlay.classList.contains('show') ? '显示' : '隐藏'}`);
+                } else {
+                    log('❌ 未找到坦克大战 overlay 元素');
+                }
+                
+                // Check if canvas exists
+                const canvas = document.getElementById('tankBattleCanvas');
+                if (canvas) {
+                    log('✅ 找到坦克大战 canvas 元素');
+                    log(`📋 Canvas 尺寸: ${canvas.width}x${canvas.height}`);
+                } else {
+                    log('❌ 未找到坦克大战 canvas 元素');
+                }
+                
+                // Check if controls exist
+                const controls = ['tbUpBtn', 'tbDownBtn', 'tbLeftBtn', 'tbRightBtn', 'tbFireBtn'];
+                controls.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        log(`✅ 找到控制按钮: ${id}`);
+                    } else {
+                        log(`❌ 未找到控制按钮: ${id}`);
+                    }
+                });
+                
+                log('🎉 坦克大战显示测试完成！');
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+            }
+        }
+        
+        async function testMobileMode() {
+            log('🧪 开始测试手机模式...');
+            
+            try {
+                // Simulate mobile viewport
+                const viewportWidth = 375; // iPhone X width
+                const viewportHeight = 667; // iPhone X height
+                
+                log(`📱 模拟手机视口: ${viewportWidth}x${viewportHeight}`);
+                
+                // Check responsive styles
+                const overlay = document.getElementById('tank-battleGameOverlay');
+                if (overlay) {
+                    overlay.classList.add('show');
+                    
+                    // Check if container fits in mobile viewport
+                    const container = overlay.querySelector('.tank-battle-container');
+                    if (container) {
+                        const containerRect = container.getBoundingClientRect();
+                        log(`📋 容器尺寸: ${Math.round(containerRect.width)}x${Math.round(containerRect.height)}`);
+                        
+                        if (containerRect.width <= viewportWidth * 0.95) {
+                            log('✅ 容器宽度适合手机屏幕');
+                        } else {
+                            log('⚠️ 容器宽度可能超出手机屏幕');
+                        }
+                        
+                        if (containerRect.height <= viewportHeight * 0.95) {
+                            log('✅ 容器高度适合手机屏幕');
+                        } else {
+                            log('⚠️ 容器高度可能超出手机屏幕');
+                        }
+                    }
+                    
+                    // Check canvas responsiveness
+                    const canvas = document.getElementById('tankBattleCanvas');
+                    if (canvas) {
+                        const canvasRect = canvas.getBoundingClientRect();
+                        log(`📋 Canvas 显示尺寸: ${Math.round(canvasRect.width)}x${Math.round(canvasRect.height)}`);
+                        
+                        if (canvasRect.width <= viewportWidth * 0.9) {
+                            log('✅ Canvas 适合手机屏幕');
+                        } else {
+                            log('⚠️ Canvas 可能过大');
+                        }
+                    }
+                    
+                    // Check controls size
+                    const controls = overlay.querySelectorAll('.tank-control-btn');
+                    if (controls.length > 0) {
+                        const controlRect = controls[0].getBoundingClientRect();
+                        log(`📋 控制按钮尺寸: ${Math.round(controlRect.width)}x${Math.round(controlRect.height)}`);
+                        
+                        if (controlRect.width >= 40) {
+                            log('✅ 控制按钮大小适合触摸');
+                        } else {
+                            log('⚠️ 控制按钮可能太小');
+                        }
+                    }
+                }
+                
+                log('🎉 手机模式测试完成！');
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+            }
+        }
+        
+        async function testGameStart() {
+            log('🧪 开始测试游戏启动...');
+            
+            try {
+                // Create game instance
+                const game = new UnifiedTankBattleGame();
+                log('✅ 游戏实例创建成功');
+                
+                // Initialize game
+                await game.init(2); // taskIndex 2 = normal mode
+                log('✅ 游戏初始化完成');
+                
+                // Start game
+                game.start();
+                log('✅ 游戏启动完成');
+                
+                // Check if overlay is shown
+                setTimeout(() => {
+                    const overlay = document.getElementById('tank-battleGameOverlay');
+                    if (overlay.classList.contains('show')) {
+                        log('✅ 游戏界面已显示');
+                    } else {
+                        log('❌ 游戏界面未显示');
+                    }
+                }, 100);
+                
+                // Close game after 3 seconds
+                setTimeout(() => {
+                    if (game.state !== 'idle') {
+                        game.close();
+                        log('✅ 游戏已关闭');
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+            }
+        }
+        
+        // Setup exit button
+        document.getElementById('exitTankBattle').addEventListener('click', closeTankBattle);
+        
+        // Page load initialization
+        window.addEventListener('load', function() {
+            log('🎮 坦克大战游戏显示测试页面已加载');
+            log('📋 使用说明:');
+            log('1. 点击"测试坦克大战显示"验证元素存在');
+            log('2. 点击"测试手机模式"验证响应式设计');
+            log('3. 点击"测试游戏启动"验证游戏启动流程');
+            log('4. 观察游戏界面是否正确显示');
+            log('');
+            log('🎯 如果游戏界面没有显示，检查控制台错误信息');
+        });
+    </script>
+    
+    <!-- Load game scripts -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-tank-battle-game.js"></script>
+    <link rel="stylesheet" href="css/unified-game-ui.css">
+</body>
+</html>

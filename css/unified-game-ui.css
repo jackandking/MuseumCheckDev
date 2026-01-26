@@ -1,0 +1,700 @@
+/* Unified Game UI Styles */
+/* 统一游戏UI样式，解决屏幕空间利用率和一致性问题 */
+
+/* Base Game Overlay Styles */
+.game-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.game-overlay.show {
+    display: flex;
+}
+
+/* Game Container */
+.game-content {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Game Header */
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-title {
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+    transition: font-size 0.3s ease;
+}
+
+.game-title.title-desktop {
+    font-size: 28px;
+}
+
+.game-title.title-mobile {
+    font-size: 24px;
+}
+
+.game-title.title-small-mobile {
+    font-size: 20px;
+}
+
+.game-stats {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    transition: font-size 0.3s ease;
+}
+
+/* Game Container */
+.game-container {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Game Elements */
+[data-game-element],
+.game-canvas,
+.puzzle-grid,
+.maze-canvas {
+    display: block;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive Game Sizes */
+.game-desktop [data-game-element],
+.game-desktop .game-canvas,
+.game-desktop .puzzle-grid,
+.game-desktop .maze-canvas {
+    /* Desktop: larger sizes */
+}
+
+.game-mobile [data-game-element],
+.game-mobile .game-canvas,
+.game-mobile .puzzle-grid,
+.game-mobile .maze-canvas {
+    /* Mobile: optimized sizes */
+    max-width: 100%;
+    max-height: 70vh;
+}
+
+.game-small-mobile [data-game-element],
+.game-small-mobile .game-canvas,
+.game-small-mobile .puzzle-grid,
+.game-small-mobile .maze-canvas {
+    /* Small Mobile: compact sizes */
+    max-width: 280px;
+    max-height: 280px;
+}
+
+/* Game Buttons */
+.game-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.game-buttons.buttons-desktop {
+    flex-direction: row;
+    gap: 20px;
+}
+
+.game-buttons.buttons-mobile {
+    flex-direction: row;
+    gap: 15px;
+}
+
+.game-buttons.buttons-small-mobile {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.game-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.game-button.buttons-small-mobile {
+    width: 100%;
+    max-width: 200px;
+}
+
+/* Puzzle Game Specific Styles */
+.puzzle-game-overlay {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.puzzle-grid {
+    display: grid;
+    gap: 4px;
+    width: var(--puzzle-grid-size, 280px);
+    height: var(--puzzle-grid-size, 280px);
+    margin: 0 auto;
+}
+
+.puzzle-grid.size-3 {
+    grid-template-columns: repeat(3, 1fr);
+    width: var(--puzzle-grid-size, 360px);
+    height: var(--puzzle-grid-size, 360px);
+}
+
+.puzzle-tile {
+    width: var(--puzzle-tile-size, 93px);
+    height: var(--puzzle-tile-size, 93px);
+    background-size: var(--puzzle-grid-size, 280px) var(--puzzle-grid-size, 280px);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    border: 2px solid #e9ecef;
+    box-sizing: border-box;
+}
+
+.puzzle-grid.size-3 .puzzle-tile {
+    width: var(--puzzle-tile-size, 120px);
+    height: var(--puzzle-tile-size, 120px);
+    background-size: var(--puzzle-grid-size, 360px) var(--puzzle-grid-size, 360px);
+}
+
+/* Maze Game Specific Styles */
+.maze-game-overlay {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.maze-canvas {
+    touch-action: none;
+    width: var(--maze-canvas-size, 280px);
+    height: var(--maze-canvas-size, 280px);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .game-overlay {
+        padding: 15px;
+    }
+    
+    .game-content {
+        padding: 15px;
+        border-radius: 12px;
+    }
+    
+    .game-header {
+        margin-bottom: 15px;
+    }
+    
+    .game-container {
+        padding: 10px;
+    }
+    
+    .game-buttons {
+        margin-top: 15px;
+    }
+    
+    .game-button {
+        padding: 10px 20px;
+        font-size: 14px;
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-overlay {
+        padding: 10px;
+    }
+    
+    .game-content {
+        padding: 10px;
+        border-radius: 8px;
+    }
+    
+    .game-header {
+        margin-bottom: 10px;
+    }
+    
+    .game-container {
+        padding: 8px;
+    }
+    
+    .game-buttons {
+        margin-top: 10px;
+    }
+    
+    .game-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 360px) {
+    .game-overlay {
+        padding: 8px;
+    }
+    
+    .game-content {
+        padding: 8px;
+        border-radius: 6px;
+    }
+    
+    .game-header {
+        margin-bottom: 8px;
+    }
+    
+    .game-container {
+        padding: 6px;
+    }
+    
+    .game-buttons {
+        margin-top: 8px;
+    }
+    
+    .game-button {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 60px;
+    }
+}
+
+/* CSS Variables for Dynamic Sizing */
+:root {
+    --game-width: 280px;
+    --game-height: 280px;
+    --game-scale: 1;
+    --is-mobile: 0;
+    --is-small-mobile: 0;
+    
+    /* Puzzle specific */
+    --puzzle-grid-size: 280px;
+    --puzzle-tile-size: 93px;
+    
+    /* Maze specific */
+    --maze-canvas-size: 280px;
+    --maze-cell-size: 31px;
+}
+
+/* Responsive adjustments based on CSS variables */
+@media (max-width: 768px) {
+    :root {
+        --game-scale: 0.9;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --game-scale: 0.8;
+    }
+}
+
+@media (max-width: 360px) {
+    :root {
+        --game-scale: 0.7;
+        --puzzle-grid-size: 280px;
+        --puzzle-tile-size: 93px;
+        --maze-canvas-size: 280px;
+        --maze-cell-size: 31px;
+    }
+}
+
+/* Animation Classes */
+.game-resize-animation {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-scale-animation {
+    animation: gameScale 0.3s ease-out;
+}
+
+@keyframes gameScale {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Utility Classes */
+.game-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-full-width {
+    width: 100%;
+}
+
+.game-responsive {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .game-content {
+        background: #2c3e50;
+        color: white;
+    }
+    
+    .game-container {
+        background: #34495e;
+    }
+}
+
+/* Tank Battle Game Styles */
+.tank-battle-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.tank-battle-overlay.show {
+    display: flex;
+}
+
+.tank-battle-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 95vw;
+    max-height: 95vh;
+    overflow: hidden;
+}
+
+.tank-battle-header {
+    margin-bottom: 15px;
+}
+
+.tank-battle-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.tank-battle-stats {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.tank-battle-canvas {
+    border: 2px solid #333;
+    background: #7CB342;
+    max-width: 100%;
+    height: auto;
+}
+
+.tank-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(4, 60px);
+    gap: 5px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.tank-control-btn {
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tank-control-btn:hover {
+    background: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.tank-control-btn:active {
+    background: #4CAF50;
+    color: white;
+    transform: scale(0.95);
+}
+
+.tank-control-btn.empty {
+    visibility: hidden;
+    cursor: default;
+}
+
+.tank-control-btn.empty:hover {
+    background: #f0f0f0;
+    transform: none;
+}
+
+.tank-battle-complete-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+    z-index: 3100;
+}
+
+.tank-battle-complete-message.show {
+    display: block;
+}
+
+.tank-battle-complete-message h2 {
+    margin: 0 0 10px 0;
+    color: #4CAF50;
+}
+
+.tank-battle-complete-message p {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+}
+
+.tank-battle-complete-message button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.tank-battle-complete-message button:hover {
+    background: #45a049;
+}
+
+.snake-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    background: rgba(5, 5, 10, 0.9);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.snake-overlay.show {
+    display: flex;
+}
+
+.snake-header {
+    text-align: center;
+    color: #76FF03;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(118, 255, 3, 0.6);
+}
+
+.snake-title {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.snake-stats {
+    font-size: 18px;
+    color: #E0E0E0;
+}
+
+.snake-container {
+    background: #0b0b0f;
+    padding: 15px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.snake-canvas {
+    border: 2px solid rgba(118, 255, 3, 0.5);
+    border-radius: 12px;
+    max-width: 90vw;
+    max-height: 60vh;
+}
+
+.snake-hint {
+    margin-top: 12px;
+    color: #B3E5FC;
+    font-size: 14px;
+    text-align: center;
+}
+
+.snake-touch-controls {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.snake-touch-row {
+    display: flex;
+    gap: 12px;
+}
+
+.snake-touch-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFF;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.snake-touch-btn:active {
+    transform: scale(0.95);
+    background: rgba(118, 255, 3, 0.3);
+}
+
+.snake-touch-btn.empty {
+    visibility: hidden;
+}
+
+.snake-buttons {
+    margin-top: 18px;
+    display: flex;
+    gap: 12px;
+}
+
+.snake-button {
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.snake-button-reset {
+    background: linear-gradient(135deg, #00C853, #B2FF59);
+    color: #0b0b0f;
+}
+
+.snake-button-continue {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFF;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.snake-button:hover {
+    transform: translateY(-2px);
+}
+
+.snake-complete-message {
+    margin-top: 12px;
+    color: #FFF;
+    font-size: 18px;
+    display: none;
+}
+
+.snake-complete-message.show {
+    display: block;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .tank-battle-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .tank-battle-title {
+        font-size: 20px;
+    }
+    
+    .tank-battle-stats {
+        font-size: 16px;
+    }
+    
+    .tank-controls {
+        grid-template-columns: repeat(3, 50px);
+        grid-template-rows: repeat(4, 50px);
+        gap: 3px;
+    }
+    
+    .tank-control-btn {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tank-battle-container {
+        padding: 10px;
+        margin: 5px;
+    }
+    
+    .tank-battle-title {
+        font-size: 18px;
+    }
+    
+    .tank-battle-stats {
+        font-size: 14px;
+    }
+    
+    .tank-controls {
+        grid-template-columns: repeat(3, 45px);
+        grid-template-rows: repeat(4, 45px);
+        gap: 2px;
+    }
+    
+    .tank-control-btn {
+        font-size: 16px;
+    }
+}

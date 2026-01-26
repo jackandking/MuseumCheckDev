@@ -560,16 +560,8 @@
                     <label class="settings-label">选择可奖励的小游戏：</label>
                     <div class="game-selection-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                         <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
-                            <input type="checkbox" id="gameTogglePuzzle" class="game-toggle" data-game="puzzle" checked>
-                            <span>🧩 拼图</span>
-                        </label>
-                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
                             <input type="checkbox" id="gameToggleMaze" class="game-toggle" data-game="maze" checked>
                             <span>🏃 迷宫</span>
-                        </label>
-                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
-                            <input type="checkbox" id="gameToggleShooting" class="game-toggle" data-game="shooting" checked>
-                            <span>🎯 射击</span>
                         </label>
                         <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
                             <input type="checkbox" id="gameToggleSpaceInvaders" class="game-toggle" data-game="space-invaders" checked>
@@ -578,10 +570,6 @@
                         <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
                             <input type="checkbox" id="gameToggleTankBattle" class="game-toggle" data-game="tank-battle" checked>
                             <span>🎖️ 坦克大战</span>
-                        </label>
-                        <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
-                            <input type="checkbox" id="gameToggleMinesweeper" class="game-toggle" data-game="minesweeper" checked>
-                            <span>💣 扫雷</span>
                         </label>
                         <label class="game-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #f8f9fa; border-radius: 8px;">
                             <input type="checkbox" id="gameToggleSnake" class="game-toggle" data-game="snake" checked>
@@ -630,15 +618,15 @@
     </div>
 
     <!-- Maze Game Overlay -->
-    <div class="maze-game-overlay" id="mazeGameOverlay">
-        <div class="maze-header">
-            <div class="maze-title">🏃 迷宫冒险</div>
-            <div class="maze-steps">步数：<span id="mazeSteps">0</span></div>
+    <div class="maze-game-overlay game-overlay" id="mazeGameOverlay">
+        <div class="maze-header game-header">
+            <div class="maze-title game-title">🏃 迷宫冒险</div>
+            <div class="maze-steps game-stats">步数：<span id="mazeSteps">0</span></div>
         </div>
-        <div class="maze-container">
+        <div class="maze-container game-container">
             <canvas class="maze-canvas" id="mazeCanvas" width="280" height="280"></canvas>
         </div>
-        <div class="maze-hint">使用下方方向键或滑动屏幕移动小人</div>
+        <div class="maze-hint game-hint">使用下方方向键或滑动屏幕移动小人</div>
         <div class="maze-controls">
             <button class="maze-control-btn empty"></button>
             <button class="maze-control-btn" id="mazeUp">⬆️</button>
@@ -650,49 +638,27 @@
             <button class="maze-control-btn" id="mazeDown">⬇️</button>
             <button class="maze-control-btn empty"></button>
         </div>
-        <div class="maze-buttons">
-            <button class="maze-button maze-button-reset" id="resetMaze">🔄 重新开始</button>
-            <button class="maze-button maze-button-continue" id="exitMaze">继续游览 ➡️</button>
+        <div class="maze-buttons game-buttons">
+            <button class="maze-button maze-button-reset game-button game-button-reset" id="resetMaze">🔄 重新开始</button>
+            <button class="maze-button maze-button-continue game-button game-button-continue" id="exitMaze">继续游览 ➡️</button>
         </div>
-        <div class="maze-complete-message" id="mazeCompleteMessage">
+        <div class="maze-complete-message game-complete-message" id="mazeCompleteMessage">
             🎉 成功逃脱！
         </div>
     </div>
 
-    <!-- Shooting Game Overlay -->
-    <div class="shooting-game-overlay" id="shootingGameOverlay">
-        <div class="shooting-header">
-            <div class="shooting-title">🎯 射击大师</div>
-            <div class="shooting-stats">
-                <span>得分：<span id="shootingScore">0</span></span>
-                <span>时间：<span id="shootingTime">30</span>秒</span>
-            </div>
-        </div>
-        <div class="shooting-container">
-            <canvas class="shooting-canvas" id="shootingCanvas" width="320" height="400"></canvas>
-        </div>
-        <div class="shooting-hint">点击或触摸屏幕射击目标</div>
-        <div class="shooting-buttons">
-            <button class="shooting-button shooting-button-reset" id="resetShooting">🔄 重新开始</button>
-            <button class="shooting-button shooting-button-continue" id="exitShooting">继续游览 ➡️</button>
-        </div>
-        <div class="shooting-complete-message" id="shootingCompleteMessage">
-            🎉 游戏结束！得分：<span id="finalScore">0</span>
-        </div>
-    </div>
-
     <!-- Space Invaders (小蜜蜂) Game Overlay -->
-    <div class="space-invaders-overlay" id="spaceInvadersOverlay">
-        <div class="space-invaders-header">
-            <div class="space-invaders-title">🐝 经典小蜜蜂 🐝</div>
-            <div class="space-invaders-stats">
+    <div class="space-invaders-overlay game-overlay" id="spaceInvadersOverlay">
+        <div class="space-invaders-header game-header">
+            <div class="space-invaders-title game-title">🐝 经典小蜜蜂 🐝</div>
+            <div class="space-invaders-stats game-stats">
                 得分：<span id="siScore">0</span> | 生命：<span id="siLives">3</span>
             </div>
         </div>
-        <div class="space-invaders-container">
+        <div class="space-invaders-container game-container">
             <canvas class="space-invaders-canvas" id="spaceInvadersCanvas" width="320" height="400"></canvas>
         </div>
-        <div class="space-invaders-hint">移动飞船消灭小蜜蜂！</div>
+        <div class="space-invaders-hint game-hint">移动飞船消灭小蜜蜂！</div>
         <div class="si-touch-controls" id="siTouchControls">
             <div class="si-touch-btn-group">
                 <button class="si-touch-btn" id="siLeftBtn">◀</button>
@@ -700,71 +666,84 @@
             </div>
             <button class="si-touch-btn si-fire-btn" id="siFireBtn">🔥</button>
         </div>
-        <div class="space-invaders-buttons">
-            <button class="space-invaders-button space-invaders-button-reset" id="resetSpaceInvaders">🔄 重新开始</button>
-            <button class="space-invaders-button space-invaders-button-continue" id="exitSpaceInvaders">继续游览 ➡️</button>
+        <div class="space-invaders-buttons game-buttons">
+            <button class="space-invaders-button space-invaders-button-reset game-button game-button-reset" id="resetSpaceInvaders">🔄 重新开始</button>
+            <button class="space-invaders-button space-invaders-button-continue game-button game-button-continue" id="exitSpaceInvaders">继续游览 ➡️</button>
         </div>
-        <div class="space-invaders-complete-message" id="spaceInvadersCompleteMessage">
+        <div class="space-invaders-complete-message game-complete-message" id="spaceInvadersCompleteMessage">
             🎉 游戏结束！得分：<span id="siFinalScore">0</span>
         </div>
     </div>
 
     <!-- Tank Battle (坦克大战) Game Overlay -->
-    <div class="tank-battle-overlay" id="tankBattleOverlay">
-        <div class="tank-battle-header">
-            <div class="tank-battle-title">🎖️ 坦克大战 🎖️</div>
-            <div class="tank-battle-stats">
+    <div class="tank-battle-overlay game-overlay" id="tank-battleGameOverlay">
+        <div class="tank-battle-header game-header">
+            <div class="tank-battle-title game-title">🎖️ 坦克大战 🎖️</div>
+            <div class="tank-battle-stats game-stats">
                 得分：<span id="tbScore">0</span> | 生命：<span id="tbLives">3</span> | 敌人：<span id="tbEnemiesLeft">5</span>
             </div>
         </div>
-        <div class="tank-battle-container">
+        <div class="tank-battle-container game-container">
             <canvas class="tank-battle-canvas" id="tankBattleCanvas" width="320" height="320"></canvas>
         </div>
-        <div class="tank-battle-hint">使用方向键移动坦克，空格键发射炮弹！</div>
-        <div class="tb-touch-controls" id="tbTouchControls">
-            <div class="tb-dpad">
-                <button class="tb-dpad-btn empty"></button>
-                <button class="tb-dpad-btn" id="tbUpBtn">⬆️</button>
-                <button class="tb-dpad-btn empty"></button>
-                <button class="tb-dpad-btn" id="tbLeftBtn">⬅️</button>
-                <button class="tb-dpad-btn empty"></button>
-                <button class="tb-dpad-btn" id="tbRightBtn">➡️</button>
-                <button class="tb-dpad-btn empty"></button>
-                <button class="tb-dpad-btn" id="tbDownBtn">⬇️</button>
-                <button class="tb-dpad-btn empty"></button>
+        <div class="tank-controls">
+            <div class="tank-controls-row">
+                <button class="tank-control-btn empty"></button>
+                <button class="tank-control-btn" id="tbUpBtn">⬆️</button>
+                <button class="tank-control-btn empty"></button>
             </div>
-            <button class="tb-touch-btn tb-fire-btn" id="tbFireBtn">💥</button>
+            <div class="tank-controls-row">
+                <button class="tank-control-btn" id="tbLeftBtn">⬅️</button>
+                <button class="tank-control-btn empty"></button>
+                <button class="tank-control-btn" id="tbRightBtn">➡️</button>
+            </div>
+            <div class="tank-controls-row">
+                <button class="tank-control-btn empty"></button>
+                <button class="tank-control-btn" id="tbDownBtn">⬇️</button>
+                <button class="tank-control-btn empty"></button>
+            </div>
+            <div class="tank-controls-row">
+                <button class="tank-control-btn empty"></button>
+                <button class="tank-control-btn" id="tbFireBtn">🔥</button>
+                <button class="tank-control-btn empty"></button>
+            </div>
         </div>
-        <div class="tank-battle-buttons">
-            <button class="tank-battle-button tank-battle-button-reset" id="resetTankBattle">🔄 重新开始</button>
-            <button class="tank-battle-button tank-battle-button-continue" id="exitTankBattle">继续游览 ➡️</button>
-        </div>
-        <div class="tank-battle-complete-message" id="tankBattleCompleteMessage">
-            🎉 胜利！得分：<span id="tbFinalScore">0</span>
+        <div style="margin-top: 10px;">
+            <button id="exitTankBattle">退出游戏</button>
+            <button id="resetTankBattle" style="display: none;">重新开始</button>
         </div>
     </div>
 
-    <!-- Minesweeper (扫雷) Game Overlay -->
-    <div class="minesweeper-overlay" id="minesweeperOverlay">
-        <div class="minesweeper-header">
-            <div class="minesweeper-title">💣 扫雷挑战 💣</div>
-            <div class="minesweeper-stats">
-                剩余地雷：<span id="msRemainingMines">10</span> | 用时：<span id="msTimer">0</span>秒
+    <!-- Snake (贪食蛇) Game Overlay -->
+    <div class="snake-overlay game-overlay" id="snakeGameOverlay">
+        <div class="snake-header game-header">
+            <div class="snake-title game-title">🐍 贪食蛇大作战</div>
+            <div class="snake-stats game-stats">
+                得分：<span id="snakeScore">0</span> | 长度：<span id="snakeLength">3</span>
             </div>
         </div>
-        <div class="minesweeper-container">
-            <div class="minesweeper-grid size-8" id="minesweeperGrid"></div>
+        <div class="snake-container game-container">
+            <canvas class="snake-canvas" id="snakeCanvas" width="320" height="320"></canvas>
         </div>
-        <div class="minesweeper-hint">点击揭开方块，长按或开启标记模式插旗标记地雷！</div>
-        <div class="minesweeper-flag-toggle">
-            <button class="flag-toggle-btn" id="flagModeToggle">🚩 标记模式</button>
+        <div class="snake-hint game-hint">滑动屏幕或使用下方按钮控制小蛇，吃到水果会变长！</div>
+        <div class="snake-touch-controls">
+            <div class="snake-touch-row">
+                <button class="snake-touch-btn empty"></button>
+                <button class="snake-touch-btn" id="snakeUpBtn">⬆️</button>
+                <button class="snake-touch-btn empty"></button>
+            </div>
+            <div class="snake-touch-row">
+                <button class="snake-touch-btn" id="snakeLeftBtn">⬅️</button>
+                <button class="snake-touch-btn" id="snakeDownBtn">⬇️</button>
+                <button class="snake-touch-btn" id="snakeRightBtn">➡️</button>
+            </div>
         </div>
-        <div class="minesweeper-buttons">
-            <button class="minesweeper-button minesweeper-button-reset" id="resetMinesweeper">🔄 重新开始</button>
-            <button class="minesweeper-button minesweeper-button-continue" id="exitMinesweeper">继续游览 ➡️</button>
+        <div class="snake-buttons game-buttons">
+            <button class="snake-button snake-button-reset game-button game-button-reset" id="resetSnake">🔄 重新开始</button>
+            <button class="snake-button snake-button-continue game-button game-button-continue" id="exitSnake">继续游览 ➡️</button>
         </div>
-        <div class="minesweeper-complete-message" id="minesweeperCompleteMessage">
-            🎉 胜利！用时：<span id="msFinalTime">0</span>秒
+        <div class="snake-complete-message game-complete-message" id="snakeCompleteMessage">
+            🎉 游戏结束！得分：<span id="snakeFinalScore">0</span>
         </div>
     </div>
 
@@ -795,6 +774,16 @@
     <!-- Leaderboard Modal Template -->
     <!-- 排行榜模态框将通过leaderboard-template.js动态生成 -->
 
+    <!-- Unified Game Architecture -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-maze-game.js"></script>
+    <script src="js/unified-tank-battle-game.js"></script>
+    <script src="js/unified-space-invaders-game.js"></script>
+    <script src="js/unified-snake-game.js"></script>
+    <script src="js/unified-game-ui.js"></script>
+    <link rel="stylesheet" href="css/unified-game-ui.css">
+    
     <!-- Shared Menu Component -->
     <script src="js/shared-menu.js"></script>
     <!-- Leaderboard Template Component -->

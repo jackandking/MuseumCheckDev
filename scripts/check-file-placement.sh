@@ -118,6 +118,10 @@ check_file_placement() {
         
         # 图片资源
         *.png|*.jpg|*.jpeg|*.gif|*.svg|*.ico|*.webp)
+            # 允许根目录 favicon.ico 作为浏览器默认入口
+            if [ "$filename" = "favicon.ico" ] && [ "$dirname" = "." ]; then
+                return 0
+            fi
             if [[ ! "$file" =~ ^(assets/|archive/|docs/) ]]; then
                 echo "  ❌ $file (图片应在assets/、archive/或docs/目录)"
                 return 1

@@ -9897,7 +9897,6 @@ class MuseumCheckApp {
     }
 
     showSettingsModal() {
-        this.renderSettingsInfo();
         this.modalManager.showModal('settingsModal');
         
         // Populate the treasure museum selector when settings modal is opened
@@ -14419,6 +14418,24 @@ class MuseumCheckApp {
     }
 
     // Clear Data Functionality
+    updateAgeGroupSelector() {
+        const ageGroupSelector = document.getElementById('ageGroupSelector');
+        if (ageGroupSelector) {
+            ageGroupSelector.value = this.currentAgeGroup || '7-12';
+        }
+        
+        // Update display
+        const ageGroupNames = {
+            '3-6': '3-6岁 (学龄前)',
+            '7-12': '7-12岁 (小学)',
+            '13-18': '13-18岁 (中学)'
+        };
+        const ageGroupDisplay = document.getElementById('currentAgeGroupDisplay');
+        if (ageGroupDisplay) {
+            ageGroupDisplay.textContent = ageGroupNames[this.currentAgeGroup || '7-12'] || '7-12岁 (小学)';
+        }
+    }
+
     clearAllData() {
         const confirmed = confirm(
             '⚠️ 重要警告 ⚠️\n\n' +

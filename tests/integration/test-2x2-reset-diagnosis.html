@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2x2拼图重置问题诊断</title>
+    <link rel="stylesheet" href="css/museum-checkin.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .state-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .error-info {
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧩 2x2拼图重置问题诊断</h1>
+        
+        <div class="test-info">
+            <strong>诊断目标：</strong><br>
+            深入分析2x2拼图重置后出现空格问题的根本原因
+        </div>
+        
+        <button class="test-button" onclick="start2x2Puzzle()">
+            🎯 启动 2x2 拼图
+        </button>
+        
+        <button class="test-button" onclick="testReset()">
+            🔄 测试重新打乱
+        </button>
+        
+        <button class="test-button" onclick="testMultipleResets()">
+            🔁 测试多次重置
+        </button>
+        
+        <button class="test-button" onclick="closePuzzle()">
+            ❌ 关闭拼图
+        </button>
+        
+        <div class="state-info" id="stateInfo">
+            等待游戏启动...
+        </div>
+        
+        <div class="error-info" id="errorInfo" style="display: none;">
+            错误信息将显示在这里
+        </div>
+        
+        <div class="debug-info" id="debugInfo">
+            等待诊断...
+        </div>
+    </div>
+
+    <!-- Puzzle Game Overlay -->
+    <div class="puzzle-game-overlay" id="puzzleGameOverlay">
+        <div class="puzzle-content">
+            <div class="puzzle-header">
+                <div class="puzzle-title">🧩 拼图挑战</div>
+                <div class="puzzle-moves">移动次数：<span id="puzzleMoves">0</span></div>
+            </div>
+            <div class="puzzle-container">
+                <div class="puzzle-grid" id="puzzleGrid"></div>
+            </div>
+            <div class="puzzle-reference">
+                <button class="puzzle-reference-btn" id="toggleReference">查看原图 👀</button>
+                <img class="puzzle-reference-img" id="puzzleReferenceImg" alt="原图参考">
+            </div>
+            <div class="puzzle-buttons">
+                <button class="puzzle-button puzzle-button-reset" id="resetPuzzle">🔄 重新打乱</button>
+                <button class="puzzle-button puzzle-button-continue" id="exitPuzzle">继续游览 ➡️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="puzzle-complete-message" id="puzzleCompleteMessage">
+        🎉 恭喜完成！
+    </div>
+
+    <!-- 引入游戏架构文件 -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-puzzle-game.js"></script>
+
+    <script>
+        // 模拟必要的全局变量和函数
+        window.playMoveSound = () => updateDebug('🔊 Move sound played');
+        window.playFireworkSound = () => updateDebug('🎆 Firework sound played');
+        window.VirtualPet = {
+            showPetWithMessage: (msg, duration) => updateDebug(`🐾 Pet: ${msg} (${duration}ms)`)
+        };
+        window.GameRewardManager = {
+            startNewSession: () => updateDebug('🏆 Reward session started'),
+            awardCompletion: (type, score, time) => {
+                updateDebug(`🏆 XP awarded: ${type}, score: ${score}, time: ${time}`);
+                return 15;
+            }
+        };
+
+        let currentGame = null;
+        let resetCount = 0;
+
+        function updateDebug(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `[${timestamp}] ${message}<br>` + debugInfo.innerHTML;
+        }
+
+        function updateState() {
+            if (!currentGame) {
+                document.getElementById('stateInfo').innerHTML = '等待游戏启动...';
+                return;
+            }
+            
+            const state = document.getElementById('stateInfo');
+            const tiles = currentGame.tiles || [];
+            const emptyPos = currentGame.emptyPos;
+            const imageLoaded = currentGame.imageLoaded;
+            const imageUrl = currentGame.imageUrl;
+            const moves = currentGame.moves;
+            
+            state.innerHTML = `
+                <strong>游戏状态：</strong><br>
+                拼图大小: 2x2<br>
+                瓦片数组: [${tiles.join(', ')}]<br>
+                空白位置: ${emptyPos}<br>
+                空白值: ${tiles[emptyPos]}<br>
+                图片已加载: ${imageLoaded}<br>
+                图片URL: ${imageUrl ? '已设置' : '未设置'}<br>
+                移动次数: ${moves}<br>
+                重置次数: ${resetCount}<br>
+                游戏状态: ${currentGame.state || 'unknown'}
+            `;
+        }
+
+        function showError(message) {
+            const errorInfo = document.getElementById('errorInfo');
+            errorInfo.style.display = 'block';
+            errorInfo.innerHTML = `<strong>错误：</strong> ${message}`;
+            updateDebug(`❌ ERROR: ${message}`);
+        }
+
+        async function start2x2Puzzle() {
+            updateDebug('🧪 启动 2x2 拼图诊断...');
+            resetCount = 0;
+            
+            try {
+                const imageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmY2YjZiO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzRlY2RjNDtzdG9wLW9wYWNpdHk6MSIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgZmlsbD0idXJsKCNncmFkMSkiLz48Y2lyY2xlIGN4PSI3MCIgY3k9IjcwIiByPSI0MCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC44Ii8+PGNpcmNsZSBjeD0iMjEwIiBjeT0iNzAiIHI9IjQwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjgiLz48Y2lyY2xlIGN4PSIxNDAiIGN5PSIxNDAiIHI9IjQwIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjgiLz48dGV4dCB4PSIxNDAiIHk9IjE4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzMzMyI+MngyIOeUqOa4heS4muWbvjwvdGV4dD48L3N2Zz4=';
+                
+                currentGame = await GameManager.startGame('puzzle', 0, { imageUrl });
+                
+                if (currentGame) {
+                    updateDebug('✅ 2x2 拼图游戏启动成功');
+                    
+                    // 定期更新状态
+                    const interval = setInterval(() => {
+                        if (currentGame && currentGame.state === 'playing') {
+                            updateState();
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 500);
+                } else {
+                    showError('2x2 拼图游戏启动失败');
+                }
+                
+            } catch (error) {
+                showError(`启动失败: ${error.message}`);
+            }
+        }
+
+        function testReset() {
+            updateDebug('🔄 测试重新打乱...');
+            
+            if (!currentGame) {
+                showError('请先启动拼图游戏');
+                return;
+            }
+            
+            try {
+                resetCount++;
+                updateDebug(`🔄 执行第 ${resetCount} 次重置`);
+                
+                // 记录重置前的状态
+                const beforeState = {
+                    tiles: [...currentGame.tiles],
+                    emptyPos: currentGame.emptyPos,
+                    imageLoaded: currentGame.imageLoaded,
+                    moves: currentGame.moves
+                };
+                updateDebug(`📊 重置前状态: tiles=[${beforeState.tiles.join(',')}], emptyPos=${beforeState.emptyPos}, imageLoaded=${beforeState.imageLoaded}`);
+                
+                // 执行重置
+                currentGame.reset();
+                
+                // 延迟检查重置后状态
+                setTimeout(() => {
+                    const afterState = {
+                        tiles: [...currentGame.tiles],
+                        emptyPos: currentGame.emptyPos,
+                        imageLoaded: currentGame.imageLoaded,
+                        moves: currentGame.moves
+                    };
+                    updateDebug(`📊 重置后状态: tiles=[${afterState.tiles.join(',')}], emptyPos=${afterState.emptyPos}, imageLoaded=${afterState.imageLoaded}`);
+                    
+                    // 检查是否有问题
+                    const hasIssues = afterState.tiles.every(tile => tile === 3); // 全是空白格子
+                    if (hasIssues) {
+                        showError('重置后所有瓦片都是空白！');
+                    } else {
+                        updateDebug('✅ 重置后瓦片状态正常');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                showError(`重置失败: ${error.message}`);
+            }
+        }
+
+        function testMultipleResets() {
+            updateDebug('🔁 测试多次重置...');
+            
+            if (!currentGame) {
+                showError('请先启动拼图游戏');
+                return;
+            }
+            
+            let resetIndex = 0;
+            const maxResets = 5;
+            
+            function performReset() {
+                if (resetIndex >= maxResets) {
+                    updateDebug('🔁 多次重置测试完成');
+                    return;
+                }
+                
+                resetIndex++;
+                updateDebug(`🔁 执行第 ${resetIndex}/${maxResets} 次重置`);
+                
+                try {
+                    currentGame.reset();
+                    
+                    setTimeout(() => {
+                        const tiles = currentGame.tiles || [];
+                        const hasIssues = tiles.every(tile => tile === 3);
+                        
+                        if (hasIssues) {
+                            showError(`第 ${resetIndex} 次重置后出现问题：所有瓦片都是空白`);
+                            return;
+                        }
+                        
+                        updateDebug(`✅ 第 ${resetIndex} 次重置成功`);
+                        performReset();
+                    }, 500);
+                    
+                } catch (error) {
+                    showError(`第 ${resetIndex} 次重置失败: ${error.message}`);
+                }
+            }
+            
+            performReset();
+        }
+
+        function closePuzzle() {
+            updateDebug('🔒 关闭拼图游戏...');
+            
+            if (GameManager.closeGame()) {
+                currentGame = null;
+                resetCount = 0;
+                updateDebug('✅ 游戏关闭成功');
+                document.getElementById('stateInfo').innerHTML = '等待游戏启动...';
+                document.getElementById('errorInfo').style.display = 'none';
+            } else {
+                showError('游戏关闭失败');
+            }
+        }
+
+        // 页面加载时显示准备信息
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                updateDebug('🚀 页面加载完成，准备诊断 2x2 拼图重置问题');
+                updateDebug('📋 诊断步骤:');
+                updateDebug('1. 启动 2x2 拼图游戏');
+                updateDebug('2. 观察初始状态');
+                updateDebug('3. 执行重新打乱');
+                updateDebug('4. 检查重置后状态');
+                updateDebug('5. 识别问题根因');
+                updateDebug('6. 测试多次重置');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

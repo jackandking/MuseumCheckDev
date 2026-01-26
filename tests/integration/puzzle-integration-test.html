@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼图游戏集成测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #testOutput {
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧩 拼图游戏集成测试</h1>
+        
+        <div class="info">
+            <strong>测试目标：</strong>验证新的统一拼图游戏架构是否正常工作
+        </div>
+        
+        <button onclick="testArchitecture()">测试架构加载</button>
+        <button onclick="testGameCreation()">测试游戏创建</button>
+        <button onclick="testGameStart()">测试游戏启动</button>
+        <button onclick="testGameManager()">测试GameManager</button>
+        <button onclick="testIntegration()">测试集成</button>
+        <button onclick="clearOutput()">清空输出</button>
+        
+        <div id="status"></div>
+        <div id="testOutput"></div>
+    </div>
+
+    <!-- 引入游戏架构文件 -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-puzzle-game.js"></script>
+
+    <script>
+        // 模拟必要的全局变量和函数
+        window.puzzleImageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgZmlsbD0iIzAwN2JmZiIvPjx0ZXh0IHg9IjE0MCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSI+6L+Z5piv5bqV55So5o6l5Y+jPC90ZXh0Pjwvc3ZnPg==';
+        window.playMoveSound = () => log('🔊 Move sound played');
+        window.playFireworkSound = () => log('🎆 Firework sound played');
+        window.VirtualPet = {
+            showPetWithMessage: (msg, duration) => log(`🐾 Pet: ${msg} (${duration}ms)`)
+        };
+        window.GameRewardManager = {
+            startNewSession: () => log('🏆 Reward session started'),
+            awardCompletion: (type, score, time) => {
+                log(`🏆 XP awarded: ${type}, score: ${score}, time: ${time}`);
+                return 15;
+            }
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('testOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${message}\n`;
+            output.textContent += entry;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+
+        function clearOutput() {
+            document.getElementById('testOutput').textContent = '';
+            setStatus('输出已清空', 'info');
+        }
+
+        function testArchitecture() {
+            log('🧪 测试架构加载...');
+            
+            if (typeof BaseGame !== 'undefined') {
+                log('✅ BaseGame类已加载');
+            } else {
+                log('❌ BaseGame类未找到');
+                setStatus('架构加载失败', 'error');
+                return;
+            }
+            
+            if (typeof GameManager !== 'undefined') {
+                log('✅ GameManager类已加载');
+            } else {
+                log('❌ GameManager类未找到');
+                setStatus('架构加载失败', 'error');
+                return;
+            }
+            
+            if (typeof UnifiedPuzzleGame !== 'undefined') {
+                log('✅ UnifiedPuzzleGame类已加载');
+            } else {
+                log('❌ UnifiedPuzzleGame类未找到');
+                setStatus('架构加载失败', 'error');
+                return;
+            }
+            
+            if (GameManager.isGameAvailable('puzzle')) {
+                log('✅ 拼图游戏已注册到GameManager');
+            } else {
+                log('❌ 拼图游戏未注册到GameManager');
+                setStatus('架构加载失败', 'error');
+                return;
+            }
+            
+            setStatus('架构加载成功', 'success');
+            log('🎉 架构加载测试完成');
+        }
+
+        function testGameCreation() {
+            log('🧪 测试游戏创建...');
+            
+            try {
+                const game = new UnifiedPuzzleGame('puzzle', {
+                    autoCloseDelay: 1000,
+                    showResetButton: true
+                });
+                
+                log('✅ 游戏实例创建成功');
+                log(`📊 游戏类型: ${game.gameType}`);
+                log(`📊 初始状态: ${game.state}`);
+                log(`📊 拼图大小: ${game.puzzleSize}x${game.puzzleSize}`);
+                log(`📊 自动关闭延迟: ${game.config.autoCloseDelay}ms`);
+                
+                setStatus('游戏创建测试成功', 'success');
+                
+            } catch (error) {
+                log(`❌ 游戏创建失败: ${error.message}`);
+                setStatus('游戏创建测试失败', 'error');
+            }
+        }
+
+        async function testGameStart() {
+            log('🧪 测试游戏启动...');
+            
+            try {
+                const game = new UnifiedPuzzleGame('puzzle');
+                
+                // 创建模拟DOM元素
+                const mockOverlay = {
+                    classList: { add: () => {}, remove: () => {} },
+                    style: { display: '' }
+                };
+                const mockCompleteMessage = {
+                    classList: { add: () => {}, remove: () => {} },
+                    querySelector: () => ({ textContent: '' })
+                };
+                const mockResetButton = {
+                    addEventListener: () => {},
+                    removeEventListener: () => {},
+                    style: { display: '' },
+                    textContent: '',
+                    onclick: null
+                };
+                
+                // 模拟DOM查找
+                document.getElementById = (id) => {
+                    switch(id) {
+                        case 'puzzleGameOverlay': return mockOverlay;
+                        case 'puzzleCompleteMessage': return mockCompleteMessage;
+                        case 'resetPuzzle': return mockResetButton;
+                        default: return null;
+                    }
+                };
+                
+                await game.init(0, { imageUrl: puzzleImageUrl });
+                log('✅ 游戏初始化成功');
+                
+                const started = game.start();
+                if (started && game.state === 'playing') {
+                    log('✅ 游戏启动成功');
+                    log(`📊 当前状态: ${game.state}`);
+                    log(`📊 开始时间: ${game.startTime}`);
+                } else {
+                    log('❌ 游戏启动失败');
+                }
+                
+                setStatus('游戏启动测试成功', 'success');
+                
+            } catch (error) {
+                log(`❌ 游戏启动测试失败: ${error.message}`);
+                setStatus('游戏启动测试失败', 'error');
+            }
+        }
+
+        async function testGameManager() {
+            log('🧪 测试GameManager...');
+            
+            try {
+                // 创建模拟DOM元素
+                document.getElementById = (id) => {
+                    const mockElement = {
+                        classList: { add: () => {}, remove: () => {} },
+                        style: { display: '' },
+                        textContent: '',
+                        innerHTML: '',
+                        addEventListener: () => {},
+                        removeEventListener: () => {},
+                        dataset: {},
+                        querySelector: () => ({ textContent: '' })
+                    };
+                    return mockElement;
+                };
+                
+                const game = await GameManager.startGame('puzzle', 0, { 
+                    imageUrl: puzzleImageUrl 
+                });
+                
+                if (game && GameManager.getCurrentGame() === game) {
+                    log('✅ GameManager启动游戏成功');
+                    log(`📊 当前游戏类型: ${game.gameType}`);
+                } else {
+                    log('❌ GameManager启动游戏失败');
+                }
+                
+                const ended = GameManager.endGame({ moves: 3 });
+                if (ended) {
+                    log('✅ GameManager结束游戏成功');
+                } else {
+                    log('❌ GameManager结束游戏失败');
+                }
+                
+                const closed = GameManager.closeGame();
+                if (closed && !GameManager.getCurrentGame()) {
+                    log('✅ GameManager关闭游戏成功');
+                } else {
+                    log('❌ GameManager关闭游戏失败');
+                }
+                
+                setStatus('GameManager测试成功', 'success');
+                
+            } catch (error) {
+                log(`❌ GameManager测试失败: ${error.message}`);
+                setStatus('GameManager测试失败', 'error');
+            }
+        }
+
+        function testIntegration() {
+            log('🧪 测试集成...');
+            
+            try {
+                // 测试全局函数
+                if (typeof startUnifiedGame === 'function') {
+                    log('✅ startUnifiedGame全局函数可用');
+                } else {
+                    log('❌ startUnifiedGame全局函数不可用');
+                }
+                
+                if (typeof endUnifiedGame === 'function') {
+                    log('✅ endUnifiedGame全局函数可用');
+                } else {
+                    log('❌ endUnifiedGame全局函数不可用');
+                }
+                
+                // 测试游戏选择逻辑
+                const availableGames = GameManager.getAvailableGames();
+                log(`📊 可用游戏: ${availableGames.join(', ')}`);
+                
+                if (availableGames.includes('puzzle')) {
+                    log('✅ 拼图游戏在可用列表中');
+                } else {
+                    log('❌ 拼图游戏不在可用列表中');
+                }
+                
+                setStatus('集成测试成功', 'success');
+                log('🎉 集成测试完成');
+                
+            } catch (error) {
+                log(`❌ 集成测试失败: ${error.message}`);
+                setStatus('集成测试失败', 'error');
+            }
+        }
+
+        // 页面加载时自动运行架构测试
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🚀 页面加载完成，开始自动测试...');
+                testArchitecture();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

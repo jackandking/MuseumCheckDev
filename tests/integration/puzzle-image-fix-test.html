@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼图游戏图片修复测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #testOutput {
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        /* Puzzle styles from main app */
+        .puzzle-game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .puzzle-game-overlay.show {
+            display: flex;
+        }
+        
+        .puzzle-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 350px;
+            width: 90%;
+        }
+        
+        .puzzle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .puzzle-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .puzzle-moves {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .puzzle-container {
+            margin-bottom: 15px;
+        }
+        
+        .puzzle-grid {
+            display: grid;
+            gap: 2px;
+            background: #ccc;
+            padding: 2px;
+            border-radius: 5px;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+        }
+        
+        .puzzle-tile {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .puzzle-tile:hover {
+            transform: scale(1.05);
+        }
+        
+        .puzzle-tile.empty {
+            background: transparent;
+            border: none;
+            cursor: default;
+        }
+        
+        .puzzle-reference {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .puzzle-reference-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .puzzle-reference-img {
+            display: none;
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .puzzle-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .puzzle-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .puzzle-complete-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 1001;
+        }
+        
+        .puzzle-complete-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧩 拼图游戏图片修复测试</h1>
+        
+        <div class="info">
+            <strong>测试目标：</strong>验证拼图游戏图片显示修复
+        </div>
+        
+        <button onclick="testWithValidImage()">测试有效图片</button>
+        <button onclick="testWithInvalidImage()">测试无效图片</button>
+        <button onclick="testWithoutImage()">测试无图片</button>
+        <button onclick="clearOutput()">清空输出</button>
+        
+        <div id="status"></div>
+        <div id="testOutput"></div>
+    </div>
+
+    <!-- Puzzle Game Overlay -->
+    <div class="puzzle-game-overlay" id="puzzleGameOverlay">
+        <div class="puzzle-content">
+            <div class="puzzle-header">
+                <div class="puzzle-title">🧩 拼图挑战</div>
+                <div class="puzzle-moves">移动次数：<span id="puzzleMoves">0</span></div>
+            </div>
+            <div class="puzzle-container">
+                <div class="puzzle-grid" id="puzzleGrid"></div>
+            </div>
+            <div class="puzzle-reference">
+                <button class="puzzle-reference-btn" id="toggleReference">查看原图 👀</button>
+                <img class="puzzle-reference-img" id="puzzleReferenceImg" alt="原图参考">
+            </div>
+            <div class="puzzle-buttons">
+                <button class="puzzle-button puzzle-button-reset" id="resetPuzzle">🔄 重新打乱</button>
+                <button class="puzzle-button puzzle-button-continue" id="exitPuzzle">继续游览 ➡️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="puzzle-complete-message" id="puzzleCompleteMessage">
+        🎉 恭喜完成！
+    </div>
+
+    <!-- 引入游戏架构文件 -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-puzzle-game.js"></script>
+
+    <script>
+        // 模拟必要的全局变量和函数
+        window.playMoveSound = () => log('🔊 Move sound played');
+        window.playFireworkSound = () => log('🎆 Firework sound played');
+        window.VirtualPet = {
+            showPetWithMessage: (msg, duration) => log(`🐾 Pet: ${msg} (${duration}ms)`)
+        };
+        window.GameRewardManager = {
+            startNewSession: () => log('🏆 Reward session started'),
+            awardCompletion: (type, score, time) => {
+                log(`🏆 XP awarded: ${type}, score: ${score}, time: ${time}`);
+                return 15;
+            }
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('testOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${message}\n`;
+            output.textContent += entry;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+
+        function clearOutput() {
+            document.getElementById('testOutput').textContent = '';
+            setStatus('输出已清空', 'info');
+        }
+
+        async function testWithValidImage() {
+            log('🧪 测试有效图片...');
+            
+            try {
+                const imageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgZmlsbD0iIzAwN2JmZiIvPjx0ZXh0IHg9IjE0MCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSI+6L+Z5piv5bqV55So5o6l5Y+jPC90ZXh0Pjwvc3ZnPg==';
+                
+                const game = await GameManager.startGame('puzzle', 0, { imageUrl });
+                
+                if (game) {
+                    log('✅ 游戏启动成功');
+                    log(`📊 图片URL: ${game.imageUrl}`);
+                    log(`📊 图片加载状态: ${game.imageLoaded}`);
+                    setStatus('有效图片测试成功', 'success');
+                } else {
+                    log('❌ 游戏启动失败');
+                    setStatus('有效图片测试失败', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+                setStatus('有效图片测试失败', 'error');
+            }
+        }
+
+        async function testWithInvalidImage() {
+            log('🧪 测试无效图片...');
+            
+            try {
+                const imageUrl = 'http://invalid-url-that-does-not-exist.com/image.jpg';
+                
+                const game = await GameManager.startGame('puzzle', 0, { imageUrl });
+                
+                if (game) {
+                    log('✅ 游戏启动成功（应该使用fallback图片）');
+                    log(`📊 图片URL: ${game.imageUrl}`);
+                    log(`📊 图片加载状态: ${game.imageLoaded}`);
+                    setStatus('无效图片测试成功', 'success');
+                } else {
+                    log('❌ 游戏启动失败');
+                    setStatus('无效图片测试失败', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+                setStatus('无效图片测试失败', 'error');
+            }
+        }
+
+        async function testWithoutImage() {
+            log('🧪 测试无图片...');
+            
+            try {
+                // 不传递imageUrl
+                const game = await GameManager.startGame('puzzle', 0, {});
+                
+                if (game) {
+                    log('✅ 游戏启动成功（应该使用fallback图片）');
+                    log(`📊 图片URL: ${game.imageUrl}`);
+                    log(`📊 图片加载状态: ${game.imageLoaded}`);
+                    setStatus('无图片测试成功', 'success');
+                } else {
+                    log('❌ 游戏启动失败');
+                    setStatus('无图片测试失败', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 测试失败: ${error.message}`);
+                setStatus('无图片测试失败', 'error');
+            }
+        }
+
+        // 页面加载时自动运行架构检查
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🚀 页面加载完成，准备测试...');
+                if (typeof GameManager !== 'undefined') {
+                    log('✅ GameManager已加载');
+                } else {
+                    log('❌ GameManager未加载');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

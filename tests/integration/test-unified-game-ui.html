@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统一游戏UI系统测试</title>
+    <link rel="stylesheet" href="css/museum-checkin.css">
+    <link rel="stylesheet" href="css/unified-game-ui.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .error-info {
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #c62828;
+        }
+        .viewport-info {
+            background: #f3e5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 统一游戏UI系统测试</h1>
+        
+        <div class="test-info">
+            <strong>测试目标：</strong><br>
+            验证统一游戏UI系统的屏幕空间利用率和响应式设计
+        </div>
+        
+        <div class="viewport-info" id="viewportInfo">
+            等待视口信息...
+        </div>
+        
+        <div class="test-grid">
+            <button class="test-button" onclick="testPuzzleUI()">
+                🧩 测试拼图游戏UI
+            </button>
+            <button class="test-button" onclick="testMazeUI()">
+                🏃 测试迷宫游戏UI
+            </button>
+            <button class="test-button" onclick="testResponsiveResize()">
+                📱 测试响应式调整
+            </button>
+            <button class="test-button" onclick="testViewportChange()">
+                🔄 测试视口变化
+            </button>
+        </div>
+        
+        <button class="test-button" onclick="closeAllGames()">
+            ❌ 关闭所有游戏
+        </button>
+        
+        <div class="status-info" id="statusInfo">
+            等待测试开始...
+        </div>
+        
+        <div class="error-info" id="errorInfo" style="display: none;">
+            错误信息将显示在这里
+        </div>
+        
+        <div class="debug-info" id="debugInfo">
+            等待测试日志...
+        </div>
+    </div>
+
+    <!-- Puzzle Game Overlay -->
+    <div class="puzzle-game-overlay" id="puzzleGameOverlay">
+        <div class="puzzle-content">
+            <div class="puzzle-header">
+                <div class="puzzle-title">🧩 拼图挑战</div>
+                <div class="puzzle-moves">移动次数：<span id="puzzleMoves">0</span></div>
+            </div>
+            <div class="puzzle-container">
+                <div class="puzzle-grid" id="puzzleGrid" data-game-element></div>
+            </div>
+            <div class="puzzle-reference">
+                <button class="puzzle-reference-btn" id="toggleReference">查看原图 👀</button>
+                <img class="puzzle-reference-img" id="puzzleReferenceImg" alt="原图参考">
+            </div>
+            <div class="puzzle-buttons puzzle-buttons">
+                <button class="puzzle-button puzzle-button-reset" id="resetPuzzle">🔄 重新打乱</button>
+                <button class="puzzle-button puzzle-button-continue" id="exitPuzzle">继续游览 ➡️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="puzzle-complete-message" id="puzzleCompleteMessage">
+        🎉 恭喜完成！
+    </div>
+
+    <!-- Maze Game Overlay -->
+    <div class="maze-game-overlay" id="mazeGameOverlay">
+        <div class="maze-content">
+            <div class="maze-header">
+                <div class="maze-title">🏃 迷宫冒险</div>
+                <div class="maze-steps">步数：<span id="mazeSteps">0</span></div>
+            </div>
+            <div class="maze-container">
+                <canvas class="maze-canvas" id="mazeCanvas" data-game-element></canvas>
+            </div>
+            <div class="maze-buttons maze-buttons">
+                <button class="maze-button maze-button-reset" id="resetMaze">🔄 重新开始</button>
+                <button class="maze-button maze-button-continue" id="exitMaze">继续游览 ➡️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="maze-complete-message" id="mazeCompleteMessage">
+        🎉 恭喜完成！
+    </div>
+
+    <!-- 引入游戏架构文件 -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-puzzle-game.js"></script>
+    <script src="js/unified-maze-game.js"></script>
+    <script src="js/unified-game-ui.js"></script>
+
+    <script>
+        // 模拟必要的全局变量和函数
+        window.playMoveSound = () => updateDebug('🔊 Move sound played');
+        window.playFireworkSound = () => updateDebug('🎆 Firework sound played');
+        window.VirtualPet = {
+            showPetWithMessage: (msg, duration) => updateDebug(`🐾 Pet: ${msg} (${duration}ms)`)
+        };
+        window.GameRewardManager = {
+            startNewSession: () => updateDebug('🏆 Reward session started'),
+            awardCompletion: (type, score, time) => {
+                updateDebug(`🏆 XP awarded: ${type}, score: ${score}, time: ${time}`);
+                return 15;
+            }
+        };
+
+        let currentGames = [];
+        let testCount = 0;
+
+        function updateDebug(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `[${timestamp}] ${message}<br>` + debugInfo.innerHTML;
+        }
+
+        function updateViewportInfo() {
+            if (typeof UnifiedGameUI !== 'undefined') {
+                const viewport = UnifiedGameUI.viewportInfo;
+                document.getElementById('viewportInfo').innerHTML = `
+                    <strong>视口信息：</strong><br>
+                    屏幕尺寸: ${viewport.width}x${viewport.height}px<br>
+                    移动设备: ${viewport.isMobile ? '是' : '否'}<br>
+                    小屏设备: ${viewport.isSmallMobile ? '是' : '否'}<br>
+                    可用宽度: ${viewport.availableWidth}px<br>
+                    可用高度: ${viewport.availableHeight}px<br>
+                    最大游戏尺寸: ${viewport.maxGameSize}px
+                `;
+            }
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('statusInfo');
+            status.innerHTML = `
+                <strong>当前状态：</strong><br>
+                活跃游戏数: ${currentGames.length}<br>
+                测试次数: ${testCount}<br>
+                统一UI系统: ${typeof UnifiedGameUI !== 'undefined' ? '✅ 可用' : '❌ 不可用'}
+            `;
+        }
+
+        function showError(message) {
+            const errorInfo = document.getElementById('errorInfo');
+            errorInfo.style.display = 'block';
+            errorInfo.innerHTML = `<strong>错误：</strong> ${message}`;
+            updateDebug(`❌ ERROR: ${message}`);
+        }
+
+        async function testPuzzleUI() {
+            testCount++;
+            updateDebug('🧩 测试拼图游戏UI优化...');
+            
+            try {
+                const game = await GameManager.startGame('puzzle', 0);
+                
+                if (game) {
+                    currentGames.push(game);
+                    updateDebug('✅ 拼图游戏启动成功');
+                    
+                    // 检查UI优化
+                    setTimeout(() => {
+                        const grid = document.getElementById('puzzleGrid');
+                        const container = document.querySelector('.puzzle-container');
+                        
+                        if (grid && container) {
+                            const gridWidth = grid.offsetWidth;
+                            const gridHeight = grid.offsetHeight;
+                            const containerWidth = container.offsetWidth;
+                            
+                            updateDebug(`📊 拼图UI尺寸: 网格=${gridWidth}x${gridHeight}, 容器=${containerWidth}`);
+                            updateDebug(`📊 优化效果: ${gridWidth > 280 ? '✅ 已优化' : '❌ 未优化'}`);
+                        }
+                    }, 1000);
+                    
+                } else {
+                    showError('拼图游戏启动失败');
+                }
+                
+            } catch (error) {
+                showError(`拼图游戏测试失败: ${error.message}`);
+            }
+            
+            updateStatus();
+        }
+
+        async function testMazeUI() {
+            testCount++;
+            updateDebug('🏃 测试迷宫游戏UI优化...');
+            
+            try {
+                const game = await GameManager.startGame('maze', 0);
+                
+                if (game) {
+                    currentGames.push(game);
+                    updateDebug('✅ 迷宫游戏启动成功');
+                    
+                    // 检查UI优化
+                    setTimeout(() => {
+                        const canvas = document.getElementById('mazeCanvas');
+                        const container = document.querySelector('.maze-container');
+                        
+                        if (canvas && container) {
+                            const canvasWidth = canvas.offsetWidth;
+                            const canvasHeight = canvas.offsetHeight;
+                            const containerWidth = container.offsetWidth;
+                            
+                            updateDebug(`📊 迷宫UI尺寸: 画布=${canvasWidth}x${canvasHeight}, 容器=${containerWidth}`);
+                            updateDebug(`📊 优化效果: ${canvasWidth > 280 ? '✅ 已优化' : '❌ 未优化'}`);
+                        }
+                    }, 1000);
+                    
+                } else {
+                    showError('迷宫游戏启动失败');
+                }
+                
+            } catch (error) {
+                showError(`迷宫游戏测试失败: ${error.message}`);
+            }
+            
+            updateStatus();
+        }
+
+        function testResponsiveResize() {
+            testCount++;
+            updateDebug('📱 测试响应式调整...');
+            
+            if (typeof UnifiedGameUI === 'undefined') {
+                showError('UnifiedGameUI不可用');
+                return;
+            }
+            
+            // 模拟不同屏幕尺寸
+            const testSizes = [
+                { width: 360, height: 640, name: '小屏手机' },
+                { width: 768, height: 1024, name: '平板' },
+                { width: 1920, height: 1080, name: '桌面' }
+            ];
+            
+            testSizes.forEach((size, index) => {
+                setTimeout(() => {
+                    updateDebug(`📊 测试尺寸 ${index + 1}: ${size.name} (${size.width}x${size.height})`);
+                    
+                    const optimalSize = UnifiedGameUI.calculateOptimalGameSize('puzzle');
+                    updateDebug(`📊 拼图最佳尺寸: ${optimalSize.width}x${optimalSize.height}`);
+                    
+                    const mazeSize = UnifiedGameUI.calculateOptimalGameSize('maze');
+                    updateDebug(`📊 迷宫最佳尺寸: ${mazeSize.width}x${mazeSize.height}`);
+                }, index * 1000);
+            });
+            
+            updateStatus();
+        }
+
+        function testViewportChange() {
+            testCount++;
+            updateDebug('🔄 测试视口变化监听...');
+            
+            if (typeof UnifiedGameUI === 'undefined') {
+                showError('UnifiedGameUI不可用');
+                return;
+            }
+            
+            // 添加视口变化监听器
+            const handler = (event) => {
+                updateDebug(`🔄 视口变化事件: ${event.detail.width}x${event.detail.height}`);
+                updateViewportInfo();
+            };
+            
+            window.addEventListener('gameViewportResize', handler);
+            
+            // 模拟视口变化
+            setTimeout(() => {
+                updateDebug('🔄 模拟视口变化...');
+                UnifiedGameUI.viewportInfo = {
+                    width: 768,
+                    height: 1024,
+                    isMobile: true,
+                    isSmallMobile: false,
+                    availableWidth: 728,
+                    availableHeight: 824,
+                    maxGameSize: 600
+                };
+                UnifiedGameUI.notifyGameResize();
+            }, 2000);
+            
+            // 清理监听器
+            setTimeout(() => {
+                window.removeEventListener('gameViewportResize', handler);
+                updateDebug('✅ 视口变化测试完成');
+            }, 5000);
+            
+            updateStatus();
+        }
+
+        function closeAllGames() {
+            updateDebug('🔒 关闭所有游戏...');
+            
+            currentGames.forEach(game => {
+                if (game && typeof game.close === 'function') {
+                    game.close();
+                }
+            });
+            
+            currentGames = [];
+            updateDebug('✅ 所有游戏已关闭');
+            updateStatus();
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                updateDebug('🚀 页面加载完成，准备测试统一游戏UI系统');
+                updateDebug('📋 测试项目:');
+                updateDebug('1. 拼图游戏UI优化');
+                updateDebug('2. 迷宫游戏UI优化');
+                updateDebug('3. 响应式尺寸计算');
+                updateDebug('4. 视口变化监听');
+                updateDebug('5. 屏幕空间利用率');
+                updateDebug('6. 移动设备适配');
+                
+                updateViewportInfo();
+                updateStatus();
+                
+                // 定期更新视口信息
+                setInterval(updateViewportInfo, 5000);
+            }, 100);
+        });
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            setTimeout(updateViewportInfo, 100);
+        });
+    </script>
+</body>
+</html>

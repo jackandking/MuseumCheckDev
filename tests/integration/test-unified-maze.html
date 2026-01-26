@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnifiedMazeGame 测试</title>
+    <link rel="stylesheet" href="css/museum-checkin.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .error-info {
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #c62828;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 UnifiedMazeGame 测试</h1>
+        
+        <div class="test-info">
+            <strong>测试目标：</strong><br>
+            验证UnifiedMazeGame的完整功能，包括迷宫生成、移动控制、难度设置等
+        </div>
+        
+        <div class="test-grid">
+            <button class="test-button" onclick="testEasyMaze()">
+                🟢 测试简单迷宫 (9x9)
+            </button>
+            <button class="test-button" onclick="testHardMaze()">
+                🔴 测试困难迷宫 (15x15)
+            </button>
+            <button class="test-button" onclick="testMazeLifecycle()">
+                🔄 测试游戏生命周期
+            </button>
+            <button class="test-button" onclick="testMazeReset()">
+                🔄 测试重新开始
+            </button>
+        </div>
+        
+        <button class="test-button" onclick="testMazeIntegration()">
+            🔗 测试GameManager集成
+        </button>
+        
+        <button class="test-button" onclick="closeMaze()">
+            ❌ 关闭迷宫游戏
+        </button>
+        
+        <div class="status-info" id="statusInfo">
+            等待测试开始...
+        </div>
+        
+        <div class="error-info" id="errorInfo" style="display: none;">
+            错误信息将显示在这里
+        </div>
+        
+        <div class="debug-info" id="debugInfo">
+            等待测试日志...
+        </div>
+    </div>
+
+    <!-- Maze Game Overlay -->
+    <div class="maze-game-overlay" id="mazeGameOverlay">
+        <div class="maze-content">
+            <div class="maze-header">
+                <div class="maze-title">🏃 迷宫冒险</div>
+                <div class="maze-steps">步数：<span id="mazeSteps">0</span></div>
+            </div>
+            <div class="maze-container">
+                <canvas class="maze-canvas" id="mazeCanvas"></canvas>
+            </div>
+            <div class="maze-buttons">
+                <button class="maze-button maze-button-reset" id="resetMaze">🔄 重新开始</button>
+                <button class="maze-button maze-button-continue" id="exitMaze">继续游览 ➡️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="maze-complete-message" id="mazeCompleteMessage">
+        🎉 恭喜完成！
+    </div>
+
+    <!-- 引入游戏架构文件 -->
+    <script src="js/base-game.js"></script>
+    <script src="js/game-manager.js"></script>
+    <script src="js/unified-maze-game.js"></script>
+
+    <script>
+        // 模拟必要的全局变量和函数
+        window.playMoveSound = () => updateDebug('🔊 Move sound played');
+        window.playFireworkSound = () => updateDebug('🎆 Firework sound played');
+        window.VirtualPet = {
+            showPetWithMessage: (msg, duration) => updateDebug(`🐾 Pet: ${msg} (${duration}ms)`)
+        };
+        window.GameRewardManager = {
+            startNewSession: () => updateDebug('🏆 Reward session started'),
+            awardCompletion: (type, score, time) => {
+                updateDebug(`🏆 XP awarded: ${type}, score: ${score}, time: ${time}`);
+                return 20; // Maze game gives 20 XP
+            }
+        };
+
+        let currentGame = null;
+        let testCount = 0;
+
+        function updateDebug(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `[${timestamp}] ${message}<br>` + debugInfo.innerHTML;
+        }
+
+        function updateStatus() {
+            if (!currentGame) {
+                document.getElementById('statusInfo').innerHTML = '等待游戏启动...';
+                return;
+            }
+            
+            const status = document.getElementById('statusInfo');
+            status.innerHTML = `
+                <strong>游戏状态：</strong><br>
+                游戏类型: ${currentGame.gameType}<br>
+                迷宫大小: ${currentGame.mazeSize}x${currentGame.mazeSize}<br>
+                玩家位置: (${currentGame.playerPos.x}, ${currentGame.playerPos.y})<br>
+                出口位置: (${currentGame.exitPos.x}, ${currentGame.exitPos.y})<br>
+                步数: ${currentGame.steps}<br>
+                迷雾模式: ${currentGame.fogOfWarEnabled ? '开启' : '关闭'}<br>
+                可见半径: ${currentGame.visibleRadius}<br>
+                游戏状态: ${currentGame.state || 'unknown'}<br>
+                测试次数: ${testCount}
+            `;
+        }
+
+        function showError(message) {
+            const errorInfo = document.getElementById('errorInfo');
+            errorInfo.style.display = 'block';
+            errorInfo.innerHTML = `<strong>错误：</strong> ${message}`;
+            updateDebug(`❌ ERROR: ${message}`);
+        }
+
+        async function testEasyMaze() {
+            testCount++;
+            updateDebug('🟢 测试简单迷宫 (9x9)...');
+            
+            try {
+                currentGame = await GameManager.startGame('maze', 0);
+                
+                if (currentGame) {
+                    updateDebug('✅ 简单迷宫启动成功');
+                    
+                    // 验证配置
+                    const isEasy = currentGame.mazeSize === 9 && !currentGame.fogOfWarEnabled;
+                    updateDebug(`📊 配置验证: ${isEasy ? '✅ 正确' : '❌ 错误'} (9x9, 无迷雾)`);
+                    
+                    // 定期更新状态
+                    const interval = setInterval(() => {
+                        if (currentGame && currentGame.state === 'playing') {
+                            updateStatus();
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 500);
+                } else {
+                    showError('简单迷宫启动失败');
+                }
+                
+            } catch (error) {
+                showError(`简单迷宫启动失败: ${error.message}`);
+            }
+        }
+
+        async function testHardMaze() {
+            testCount++;
+            updateDebug('🔴 测试困难迷宫 (15x15)...');
+            
+            try {
+                currentGame = await GameManager.startGame('maze', 1);
+                
+                if (currentGame) {
+                    updateDebug('✅ 困难迷宫启动成功');
+                    
+                    // 验证配置
+                    const isHard = currentGame.mazeSize === 15 && currentGame.fogOfWarEnabled;
+                    updateDebug(`📊 配置验证: ${isHard ? '✅ 正确' : '❌ 错误'} (15x15, 有迷雾)`);
+                    
+                    // 定期更新状态
+                    const interval = setInterval(() => {
+                        if (currentGame && currentGame.state === 'playing') {
+                            updateStatus();
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 500);
+                } else {
+                    showError('困难迷宫启动失败');
+                }
+                
+            } catch (error) {
+                showError(`困难迷宫启动失败: ${error.message}`);
+            }
+        }
+
+        async function testMazeLifecycle() {
+            testCount++;
+            updateDebug('🔄 测试游戏生命周期...');
+            
+            if (!currentGame) {
+                showError('请先启动迷宫游戏');
+                return;
+            }
+            
+            try {
+                updateDebug('📊 当前状态检查:');
+                updateDebug(`  - 游戏类型: ${currentGame.gameType}`);
+                updateDebug(`  - 当前状态: ${currentGame.state}`);
+                updateDebug(`  - 迷宫大小: ${currentGame.mazeSize}x${currentGame.mazeSize}`);
+                updateDebug(`  - 玩家位置: (${currentGame.playerPos.x}, ${currentGame.playerPos.y})`);
+                
+                updateDebug('✅ 生命周期测试完成');
+                
+            } catch (error) {
+                showError(`生命周期测试失败: ${error.message}`);
+            }
+        }
+
+        async function testMazeReset() {
+            testCount++;
+            updateDebug('🔄 测试重新开始...');
+            
+            if (!currentGame) {
+                showError('请先启动迷宫游戏');
+                return;
+            }
+            
+            try {
+                // 记录重置前状态
+                const beforeState = {
+                    steps: currentGame.steps,
+                    playerPos: { ...currentGame.playerPos },
+                    mazeSize: currentGame.mazeSize
+                };
+                updateDebug(`📊 重置前状态: steps=${beforeState.steps}, pos=(${beforeState.playerPos.x}, ${beforeState.playerPos.y})`);
+                
+                // 执行重置
+                currentGame.reset();
+                
+                // 延迟检查重置后状态
+                setTimeout(() => {
+                    const afterState = {
+                        steps: currentGame.steps,
+                        playerPos: { ...currentGame.playerPos },
+                        mazeSize: currentGame.mazeSize
+                    };
+                    updateDebug(`📊 重置后状态: steps=${afterState.steps}, pos=(${afterState.playerPos.x}, ${afterState.playerPos.y})`);
+                    
+                    // 验证重置效果
+                    const stepsReset = afterState.steps === 0;
+                    const posReset = afterState.playerPos.x === 1 && afterState.playerPos.y === 1;
+                    const sizeSame = afterState.mazeSize === beforeState.mazeSize;
+                    
+                    updateDebug(`📊 重置验证: steps重置=${stepsReset}, 位置重置=${posReset}, 大小保持=${sizeSame}`);
+                    
+                    if (stepsReset && posReset && sizeSame) {
+                        updateDebug('✅ 重置测试成功');
+                    } else {
+                        showError('重置测试失败');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                showError(`重置测试失败: ${error.message}`);
+            }
+        }
+
+        async function testMazeIntegration() {
+            testCount++;
+            updateDebug('🔗 测试GameManager集成...');
+            
+            try {
+                // 测试游戏可用性
+                const isAvailable = GameManager.isGameAvailable('maze');
+                updateDebug(`📊 游戏可用性: ${isAvailable ? '✅ 可用' : '❌ 不可用'}`);
+                
+                // 测试可用游戏列表
+                const availableGames = GameManager.getAvailableGames();
+                const hasMaze = availableGames.includes('maze');
+                updateDebug(`📊 游戏列表: [${availableGames.join(', ')}], 包含maze: ${hasMaze}`);
+                
+                // 测试启动新游戏
+                const newGame = await GameManager.startGame('maze', 0);
+                const isActive = GameManager.isGameActive();
+                const current = GameManager.getCurrentGame();
+                
+                updateDebug(`📊 集成测试: 游戏活跃=${isActive}, 当前游戏=${current ? current.gameType : 'null'}`);
+                
+                if (isAvailable && hasMaze && newGame && isActive && current) {
+                    updateDebug('✅ GameManager集成测试成功');
+                } else {
+                    showError('GameManager集成测试失败');
+                }
+                
+            } catch (error) {
+                showError(`GameManager集成测试失败: ${error.message}`);
+            }
+        }
+
+        function closeMaze() {
+            updateDebug('🔒 关闭迷宫游戏...');
+            
+            if (GameManager.closeGame()) {
+                currentGame = null;
+                testCount = 0;
+                updateDebug('✅ 游戏关闭成功');
+                document.getElementById('statusInfo').innerHTML = '等待游戏启动...';
+                document.getElementById('errorInfo').style.display = 'none';
+            } else {
+                showError('游戏关闭失败');
+            }
+        }
+
+        // 页面加载时显示准备信息
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                updateDebug('🚀 页面加载完成，准备测试 UnifiedMazeGame');
+                updateDebug('📋 测试项目:');
+                updateDebug('1. 简单迷宫 (9x9, 无迷雾)');
+                updateDebug('2. 困难迷宫 (15x15, 有迷雾)');
+                updateDebug('3. 游戏生命周期');
+                updateDebug('4. 重新开始功能');
+                updateDebug('5. GameManager集成');
+                updateDebug('6. 键盘和触摸控制');
+                updateDebug('7. 迷宫生成算法');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,12 +1,42 @@
 /**
  * @jest-environment jsdom
- * 
- * Tests for Snake game mobile touch controls
- * Issue: 贪食蛇的ux - 手机上贪食蛇的ux和其他游戏保持一致
- * 
- * This test ensures that the Snake game has visible touch controls on mobile
- * devices, consistent with other games like Space Invaders.
+ *
+ * Unified Snake Game basic UI tests
  */
+
+describe('UnifiedSnakeGame UI basics', () => {
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div class="snake-overlay" id="snakeGameOverlay">
+                <div class="snake-header">
+                    <div class="snake-title">贪食蛇大作战</div>
+                    <div class="snake-stats">
+                        得分：<span id="snakeScore">0</span> | 长度：<span id="snakeLength">3</span>
+                    </div>
+                </div>
+                <div class="snake-container">
+                    <canvas class="snake-canvas" id="snakeCanvas" width="320" height="320"></canvas>
+                </div>
+                <div class="snake-buttons">
+                    <button class="snake-button snake-button-reset" id="resetSnake">重新开始</button>
+                    <button class="snake-button snake-button-continue" id="exitSnake">继续游览 ➡️</button>
+                </div>
+                <div class="snake-complete-message" id="snakeCompleteMessage">
+                    游戏结束！得分：<span id="snakeFinalScore">0</span>
+                </div>
+            </div>
+        `;
+    });
+
+    test('should render overlay elements', () => {
+        expect(document.getElementById('snakeGameOverlay')).not.toBeNull();
+        expect(document.getElementById('snakeCanvas')).not.toBeNull();
+        expect(document.getElementById('snakeScore')).not.toBeNull();
+        expect(document.getElementById('snakeLength')).not.toBeNull();
+        expect(document.getElementById('resetSnake')).not.toBeNull();
+        expect(document.getElementById('exitSnake')).not.toBeNull();
+    });
+});
 
 describe('Snake Game Mobile Touch Controls', () => {
     let mockDocument;
@@ -84,20 +114,22 @@ describe('Snake Game Mobile Touch Controls', () => {
         });
     });
 
-    describe('Touch Control Behavior', () => {
-        let gameState, direction, nextDirection;
+    describe('Button Functionality', () => {
         let upBtn, downBtn, leftBtn, rightBtn;
+        let direction;
+        let nextDirection;
+        let gameState;
 
         beforeEach(() => {
-            // Simulate game state
-            gameState = 'playing';
-            direction = { x: 1, y: 0 }; // Moving right initially
-            nextDirection = { x: 1, y: 0 };
-
             upBtn = document.getElementById('upBtn');
             downBtn = document.getElementById('downBtn');
             leftBtn = document.getElementById('leftBtn');
             rightBtn = document.getElementById('rightBtn');
+
+            // Default mock state mirrors runtime globals
+            direction = { x: 0, y: 0 };
+            nextDirection = { x: 0, y: 0 };
+            gameState = 'playing';
 
             // Setup button handlers similar to snake-game.js
             upBtn.addEventListener('touchstart', (e) => {
