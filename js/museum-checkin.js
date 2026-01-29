@@ -1658,6 +1658,28 @@
         }
 
         // Complete a task
+        function loadPuzzleGameSetting() {
+            try {
+                const saved = localStorage.getItem('puzzleGameEnabled');
+                return saved === 'true';
+            } catch (error) {
+                console.error('Failed to load puzzle game setting:', error);
+                return true;
+            }
+        }
+
+        function savePuzzleGameSetting(enabled) {
+            try {
+                localStorage.setItem('puzzleGameEnabled', enabled ? 'true' : 'false');
+            } catch (error) {
+                console.error('Failed to save puzzle game setting:', error);
+            }
+        }
+
+        // Expose helpers for any global handlers that expect them
+        window.loadPuzzleGameSetting = loadPuzzleGameSetting;
+        window.savePuzzleGameSetting = savePuzzleGameSetting;
+
         async function completeTask() {
             if (currentTaskIndex === null) return;
 
@@ -4011,13 +4033,13 @@
             // Puzzle game controls
             const exitPuzzleBtn = document.getElementById('exitPuzzle');
             if (exitPuzzleBtn) {
-                exitPuzzleBtn.onclick = closePuzzleGame;
+                exitPuzzleBtn.onclick = () => window.closeUnifiedGame();
             }
 
             const resetPuzzleBtn = document.getElementById('resetPuzzle');
             if (resetPuzzleBtn) {
                 if (typeof isDebugMode === 'function' && !isDebugMode()) {
-                    resetPuzzleBtn.onclick = closePuzzleGame;
+                    resetPuzzleBtn.onclick = () => window.closeUnifiedGame();
                 } else {
                     // Check if new game system is available
                     if (typeof GameManager !== 'undefined' && GameManager.getCurrentGame()) {
@@ -4032,20 +4054,21 @@
 
             const toggleRefBtn = document.getElementById('toggleReference');
             if (toggleRefBtn) {
-                toggleRefBtn.onclick = toggleReferenceImage;
+                // Reference image toggling is handled by the unified puzzle game
+                // toggleRefBtn.onclick = toggleReferenceImage;
             }
 
             // Maze game controls
             const exitMazeBtn = document.getElementById('exitMaze');
             if (exitMazeBtn) {
-                exitMazeBtn.onclick = closeMazeGame;
+                exitMazeBtn.onclick = () => window.closeUnifiedGame();
             }
 
             const resetMazeBtn = document.getElementById('resetMaze');
             if (resetMazeBtn) {
                 if (typeof isDebugMode === 'function' && !isDebugMode()) {
                     resetMazeBtn.style.display = 'none';
-                    resetMazeBtn.onclick = closeMazeGame;
+                    resetMazeBtn.onclick = () => window.closeUnifiedGame();
                 } else {
                     resetMazeBtn.style.display = '';
                     resetMazeBtn.onclick = resetMaze;

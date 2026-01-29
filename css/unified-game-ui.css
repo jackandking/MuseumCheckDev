@@ -399,12 +399,173 @@
 
 .tank-battle-container {
     background: white;
+    border-radius: 16px;
     padding: 20px;
-    border-radius: 10px;
+    width: 340px;
+    max-width: 90vw;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ==============================================
+   Unified Game Controls (shared touch keyboard)
+   ============================================== */
+.ugc-container {
+    margin-top: 18px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    color: #0f172a;
+}
+
+.ugc-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.ugc-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
+    border: none;
+    font-size: 26px;
+    font-weight: 600;
+    background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 8px 14px rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    touch-action: manipulation;
+}
+
+.ugc-btn:active,
+.ugc-btn[data-pressed="true"] {
+    transform: translateY(2px);
+    box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.2), 0 2px 4px rgba(15, 23, 42, 0.08);
+}
+
+.ugc-dpad-fire {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+}
+
+.ugc-dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 68px);
+    grid-template-rows: repeat(3, 68px);
+    gap: 12px;
+}
+
+.ugc-dpad .ugc-btn-up {
+    grid-column: 2 / 3;
+}
+
+.ugc-dpad .ugc-btn-left {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.ugc-dpad .ugc-btn-right {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+.ugc-dpad .ugc-btn-down {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+}
+
+.ugc-dpad .ugc-spacer {
+    width: 68px;
+    height: 68px;
+}
+
+.ugc-fire-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+}
+
+.ugc-fire-column .ugc-btn-fire {
+    width: 88px;
+    height: 88px;
+    font-size: 30px;
+    border-radius: 50%;
+    background: linear-gradient(150deg, #ffedd5, #fdba74);
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 10px 20px rgba(249, 115, 22, 0.25);
+}
+
+.ugc-lr-fire {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.ugc-lr-fire .ugc-btn-fire {
+    width: 82px;
+    height: 82px;
+    border-radius: 24px;
+}
+
+.ugc-hints {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
     text-align: center;
-    max-width: 95vw;
-    max-height: 95vh;
-    overflow: hidden;
+    line-height: 1.4;
+}
+
+.ugc-hints li + li {
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .ugc-controls {
+        gap: 16px;
+    }
+
+    .ugc-btn,
+    .ugc-dpad {
+        width: 64px;
+        height: 64px;
+        grid-template-columns: repeat(3, 64px);
+        grid-template-rows: repeat(3, 64px);
+    }
+
+    .ugc-fire-column .ugc-btn-fire,
+    .ugc-lr-fire .ugc-btn-fire {
+        width: 76px;
+        height: 76px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ugc-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .ugc-btn,
+    .ugc-dpad {
+        width: 58px;
+        height: 58px;
+        grid-template-columns: repeat(3, 58px);
+        grid-template-rows: repeat(3, 58px);
+    }
+
+    .ugc-fire-column .ugc-btn-fire,
+    .ugc-lr-fire .ugc-btn-fire {
+        width: 70px;
+        height: 70px;
+    }
 }
 
 .tank-battle-header {

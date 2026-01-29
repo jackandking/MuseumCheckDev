@@ -35,6 +35,7 @@ class UnifiedTankBattleGame extends BaseGame {
         
         // Input state
         this.keys = { up: false, down: false, left: false, right: false, fire: false };
+        this.gameControls = null;
 
         // Bound handlers for tracked listeners
         this.boundHandleKeyUp = this.handleKeyUp.bind(this);
@@ -212,43 +213,61 @@ class UnifiedTankBattleGame extends BaseGame {
      * Setup touch controls for mobile
      */
     setupTouchControls() {
-        const upBtn = document.getElementById('tbUpBtn');
-        const downBtn = document.getElementById('tbDownBtn');
-        const leftBtn = document.getElementById('tbLeftBtn');
-        const rightBtn = document.getElementById('tbRightBtn');
-        const fireBtn = document.getElementById('tbFireBtn');
-        
-        if (upBtn) {
-            upBtn.ontouchstart = (e) => { e.preventDefault(); this.keys.up = true; };
-            upBtn.ontouchend = () => { this.keys.up = false; };
-            upBtn.onmousedown = () => { this.keys.up = true; };
-            upBtn.onmouseup = () => { this.keys.up = false; };
+        const controlsMount = document.getElementById('tankBattleControls');
+        if (!controlsMount) {
+            console.warn('[tank-battle] Controls mount not found');
+            return;
         }
-        
-        if (downBtn) {
-            downBtn.ontouchstart = (e) => { e.preventDefault(); this.keys.down = true; };
-            downBtn.ontouchend = () => { this.keys.down = false; };
-            downBtn.onmousedown = () => { this.keys.down = true; };
-            downBtn.onmouseup = () => { this.keys.down = false; };
+        if (typeof UnifiedGameControls === 'undefined') {
+            console.warn('[tank-battle] UnifiedGameControls not loaded');
+            return;
         }
-        
-        if (leftBtn) {
-            leftBtn.ontouchstart = (e) => { e.preventDefault(); this.keys.left = true; };
-            leftBtn.ontouchend = () => { this.keys.left = false; };
-            leftBtn.onmousedown = () => { this.keys.left = true; };
-            leftBtn.onmouseup = () => { this.keys.left = false; };
+
+        if (this.gameControls) {
+            this.gameControls.teardown();
+            this.gameControls = null;
         }
-        
-        if (rightBtn) {
-            rightBtn.ontouchstart = (e) => { e.preventDefault(); this.keys.right = true; };
-            rightBtn.ontouchend = () => { this.keys.right = false; };
-            rightBtn.onmousedown = () => { this.keys.right = true; };
-            rightBtn.onmouseup = () => { this.keys.right = false; };
+
+        const labels = {
+            up: '⬆️',
+            down: '⬇️',
+            left: '⬅️',
+            right: '➡️',
+            fire: '🔥'
+        };
+
+        this.gameControls = new UnifiedGameControls({
+            targetElement: controlsMount,
+            scheme: 'dpad-fire',
+            labels,
+            hints: ['按住方向键前进/转向', '点击🔥发射炮弹'],
+            onActionStart: (action) => {
+                this.handleControlAction(action, true);
+            },
+            onActionEnd: (action) => {
+                this.handleControlAction(action, false);
+            }
+        });
+    }
+
+    handleControlAction(action, isActive) {
+        const movementMap = {
+            up: 'up',
+            down: 'down',
+            left: 'left',
+            right: 'right'
+        };
+
+        if (action === 'fire') {
+            if (isActive) {
+                this.fireBullet();
+            }
+            return;
         }
-        
-        if (fireBtn) {
-            fireBtn.ontouchstart = (e) => { e.preventDefault(); this.fireBullet(); };
-            fireBtn.onmousedown = () => { this.fireBullet(); };
+
+        const key = movementMap[action];
+        if (key) {
+            this.keys[key] = isActive;
         }
     }
     
@@ -905,6 +924,11 @@ class UnifiedTankBattleGame extends BaseGame {
         
         // Set game over flag to stop game loop
         this.gameOver = true;
+
+        if (this.gameControls) {
+            this.gameControls.teardown();
+            this.gameControls = null;
+        }
         
         console.log(`[${this.gameType}] Tank battle game cleanup completed`);
     }

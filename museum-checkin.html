@@ -686,31 +686,10 @@
         <div class="tank-battle-container game-container">
             <canvas class="tank-battle-canvas" id="tankBattleCanvas" width="320" height="320"></canvas>
         </div>
-        <div class="tank-controls">
-            <div class="tank-controls-row">
-                <button class="tank-control-btn empty"></button>
-                <button class="tank-control-btn" id="tbUpBtn">⬆️</button>
-                <button class="tank-control-btn empty"></button>
-            </div>
-            <div class="tank-controls-row">
-                <button class="tank-control-btn" id="tbLeftBtn">⬅️</button>
-                <button class="tank-control-btn empty"></button>
-                <button class="tank-control-btn" id="tbRightBtn">➡️</button>
-            </div>
-            <div class="tank-controls-row">
-                <button class="tank-control-btn empty"></button>
-                <button class="tank-control-btn" id="tbDownBtn">⬇️</button>
-                <button class="tank-control-btn empty"></button>
-            </div>
-            <div class="tank-controls-row">
-                <button class="tank-control-btn empty"></button>
-                <button class="tank-control-btn" id="tbFireBtn">🔥</button>
-                <button class="tank-control-btn empty"></button>
-            </div>
-        </div>
-        <div style="margin-top: 10px;">
-            <button id="exitTankBattle">退出游戏</button>
-            <button id="resetTankBattle" style="display: none;">重新开始</button>
+        <div id="tankBattleControls" class="ugc-mount"></div>
+        <div class="game-buttons">
+            <button class="game-button game-button-reset" id="resetTankBattle">🔄 重新开始</button>
+            <button class="game-button game-button-continue" id="exitTankBattle">继续游览 ➡️</button>
         </div>
     </div>
 
@@ -778,6 +757,7 @@
     <script src="js/base-game.js"></script>
     <script src="js/game-manager.js"></script>
     <script src="js/unified-maze-game.js"></script>
+    <script src="js/unified-game-controls.js"></script>
     <script src="js/unified-tank-battle-game.js"></script>
     <script src="js/unified-space-invaders-game.js"></script>
     <script src="js/unified-snake-game.js"></script>

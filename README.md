@@ -672,3 +672,6 @@ npm run test:coverage
 - 开发文件规整：脚本、工具、测试分别放在对应目录
 - 访问权限明确：通过目录结构和robots.txt明确界定公开和私有内容
 
+## 参考资料
+### 政府网站
+1. http://nb.ncha.gov.cn/museum.html
