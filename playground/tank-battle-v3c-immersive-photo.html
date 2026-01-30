@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>v3c - 沉浸式：全屏文物照片背景</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* 全屏文物照片背景 */
+        .fullscreen-photo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6) blur(2px);
+        }
+
+        .photo-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, 
+                        transparent 0%, 
+                        rgba(0,0,0,0.5) 60%, 
+                        rgba(0,0,0,0.85) 100%);
+        }
+
+        /* 游戏容器覆盖在照片上方 */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部毛玻璃栏 */
+        .header {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .museum-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .museum-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(240, 87, 108, 0.4);
+        }
+
+        .museum-name-wrapper {
+            color: white;
+        }
+
+        .museum-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+
+        .artifact-subtitle {
+            font-size: 11px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* 游戏画布区域 - 透明玻璃效果 */
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        #gameCanvas {
+            display: block;
+            border-radius: 18px;
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+        }
+
+        /* 控制区域 - 毛玻璃效果 */
+        .controls-section {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .controls-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .dpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 58px);
+            grid-template-rows: repeat(3, 58px);
+            gap: 6px;
+            justify-self: start;
+        }
+
+        .dpad-button {
+            border: none;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .dpad-button:active {
+            background: rgba(240, 147, 251, 0.5);
+            transform: scale(0.92);
+            box-shadow: 0 3px 10px rgba(240, 147, 251, 0.6);
+        }
+
+        .dpad-up { grid-column: 2; grid-row: 1; }
+        .dpad-left { grid-column: 1; grid-row: 2; }
+        .dpad-right { grid-column: 3; grid-row: 2; }
+        .dpad-down { grid-column: 2; grid-row: 3; }
+
+        .dpad-center {
+            grid-column: 2;
+            grid-row: 2;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            pointer-events: none;
+            border-radius: 14px;
+        }
+
+        .center-status {
+            text-align: center;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+        }
+
+        .status-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f093fb;
+        }
+
+        .fire-button-area {
+            justify-self: end;
+        }
+
+        .fire-button {
+            width: 115px;
+            height: 115px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 10px 35px rgba(240, 87, 108, 0.6);
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .fire-button:active {
+            transform: scale(0.9);
+            box-shadow: 0 5px 25px rgba(240, 87, 108, 0.8);
+        }
+
+        .fire-text {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        /* 答题弹窗 */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .quiz-box {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            max-width: 92%;
+            width: 500px;
+            padding: 38px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+        }
+
+        .quiz-photo-large {
+            width: 100%;
+            height: 220px;
+            border-radius: 18px;
+            object-fit: cover;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .quiz-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .quiz-subtitle {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .quiz-question-box {
+            background: linear-gradient(135deg, #f5f7fa, #e8ebf0);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 22px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            margin-bottom: 22px;
+        }
+
+        .quiz-option {
+            padding: 17px 22px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quiz-option:active {
+            transform: scale(0.98);
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .quiz-option.selected {
+            border-color: #f093fb;
+            background: #fff0fd;
+        }
+
+        .quiz-option.selected .option-letter {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .quiz-option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .quiz-option.correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .quiz-option.incorrect .option-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .quiz-result {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+        }
+
+        .quiz-result.show {
+            display: block;
+        }
+
+        .quiz-result.success {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+        }
+
+        .quiz-result.fail {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+        }
+
+        .quiz-submit-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(240, 87, 108, 0.4);
+        }
+
+        .quiz-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 游戏结束弹窗 */
+        .game-end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-end-modal.visible {
+            display: flex;
+        }
+
+        .end-box {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 42px;
+            text-align: center;
+            max-width: 92%;
+        }
+
+        .end-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .end-heading {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 28px;
+        }
+
+        .end-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .end-stat-card {
+            background: linear-gradient(135deg, #f5f7fa, #e8ebf0);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .end-stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f093fb;
+            margin-bottom: 6px;
+        }
+
+        .end-stat-name {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .end-continue-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 全屏文物照片背景 -->
+    <div class="fullscreen-photo" id="fullscreenPhoto">
+        <img class="photo-image" id="backgroundImage" src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=1920" alt="文物背景">
+        <div class="photo-vignette"></div>
+    </div>
+
+    <div class="game-container">
+        <!-- 顶部 -->
+        <div class="header">
+            <div class="museum-info">
+                <div class="museum-icon">🏺</div>
+                <div class="museum-name-wrapper">
+                    <div class="museum-name">后母戊鼎</div>
+                    <div class="artifact-subtitle">商朝 · 青铜礼器</div>
+                </div>
+            </div>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <div class="stat-label">得分</div>
+                    <div class="stat-value" id="scoreText">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">生命</div>
+                    <div class="stat-value" id="livesText">❤️❤️❤️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏区 -->
+        <div class="game-area">
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas" width="420" height="420"></canvas>
+            </div>
+        </div>
+
+        <!-- 控制区 -->
+        <div class="controls-section">
+            <div class="controls-layout">
+                <div class="dpad-grid">
+                    <button class="dpad-button dpad-up" data-direction="up">⬆️</button>
+                    <button class="dpad-button dpad-left" data-direction="left">⬅️</button>
+                    <div class="dpad-center">🎯</div>
+                    <button class="dpad-button dpad-right" data-direction="right">➡️</button>
+                    <button class="dpad-button dpad-down" data-direction="down">⬇️</button>
+                </div>
+
+                <div class="center-status">
+                    <div class="status-label">敌人剩余</div>
+                    <div class="status-value"><span id="enemiesLeft">4</span></div>
+                </div>
+
+                <div class="fire-button-area">
+                    <button class="fire-button" id="fireBtn">
+                        🔥
+                        <span class="fire-text">发射</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答题弹窗 -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-box">
+            <img class="quiz-photo-large" id="quizPhotoLarge" src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=800" alt="文物">
+            <div class="quiz-title">文物知识问答</div>
+            <div class="quiz-subtitle">答对可获得额外生命值 ❤️❤️</div>
+            <div class="quiz-question-box" id="quizQuestionText">题目加载中...</div>
+            <div class="quiz-options" id="quizOptionsList"></div>
+            <div class="quiz-result" id="quizResultBox"></div>
+            <button class="quiz-submit-btn" id="quizSubmitBtn" disabled>选择一个答案</button>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="game-end-modal" id="gameEndModal">
+        <div class="end-box">
+            <div class="end-icon" id="endIcon">🎉</div>
+            <div class="end-heading" id="endHeading">守护成功！</div>
+            <div class="end-stats-grid">
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endScore">0</div>
+                    <div class="end-stat-name">得分</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endKills">0</div>
+                    <div class="end-stat-name">击败</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endLives">3</div>
+                    <div class="end-stat-name">剩余生命</div>
+                </div>
+            </div>
+            <button class="end-continue-btn" onclick="location.reload()">继续游览 →</button>
+        </div>
+    </div>
+
+    <script>
+        // 答题数据
+        const QUIZ = {
+            question: '后母戊鼎重达832公斤，是用什么材料铸造的？',
+            options: [
+                { letter: 'A', text: '铁', correct: false },
+                { letter: 'B', text: '青铜', correct: true },
+                { letter: 'C', text: '黄金', correct: false },
+                { letter: 'D', text: '白银', correct: false }
+            ],
+            explanation: '后母戊鼎是商朝晚期的青铜礼器，用青铜铸造。青铜是铜和锡的合金，商朝的青铜冶炼技术已经非常发达。',
+            reward: '✅ 回答正确！获得额外 +2 生命值 ❤️❤️'
+        };
+
+        // 游戏状态
+        const state = {
+            canvas: null,
+            ctx: null,
+            active: false,
+            score: 0,
+            lives: 3,
+            kills: 0,
+            player: { x: 210, y: 370, size: 28, dir: 'up', speed: 3.5 },
+            enemies: [],
+            bullets: [],
+            enemyBullets: [],
+            keys: { up: false, down: false, left: false, right: false }
+        };
+
+        // 初始化
+        window.onload = () => {
+            setupQuiz();
+        };
+
+        function setupQuiz() {
+            document.getElementById('quizQuestionText').textContent = QUIZ.question;
+            
+            const optionsList = document.getElementById('quizOptionsList');
+            optionsList.innerHTML = '';
+            
+            QUIZ.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerHTML = `
+                    <div class="option-letter">${opt.letter}</div>
+                    <div>${opt.text}</div>
+                `;
+                div.onclick = () => selectOption(idx, div);
+                optionsList.appendChild(div);
+            });
+
+            document.getElementById('quizSubmitBtn').onclick = submitQuiz;
+        }
+
+        function selectOption(idx, elem) {
+            document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            elem.classList.add('selected');
+            elem.dataset.idx = idx;
+            document.getElementById('quizSubmitBtn').disabled = false;
+            document.getElementById('quizSubmitBtn').textContent = '确认答案';
+        }
+
+        function submitQuiz() {
+            const selected = document.querySelector('.quiz-option.selected');
+            if (!selected) return;
+
+            const idx = parseInt(selected.dataset.idx);
+            const correct = QUIZ.options[idx].correct;
+
+            document.querySelectorAll('.quiz-option').forEach((elem, i) => {
+                if (QUIZ.options[i].correct) {
+                    elem.classList.add('correct');
+                } else if (i === idx) {
+                    elem.classList.add('incorrect');
+                }
+                elem.style.pointerEvents = 'none';
+            });
+
+            const result = document.getElementById('quizResultBox');
+            result.classList.add('show');
+
+            if (correct) {
+                state.lives += 2;
+                result.className = 'quiz-result show success';
+                result.innerHTML = `${QUIZ.explanation}<br><br><strong>${QUIZ.reward}</strong>`;
+            } else {
+                result.className = 'quiz-result show fail';
+                result.innerHTML = `❌ 答错了<br>${QUIZ.explanation}`;
+            }
+
+            document.getElementById('quizSubmitBtn').textContent = '开始守护 🚀';
+            document.getElementById('quizSubmitBtn').onclick = startGame;
+            document.getElementById('quizSubmitBtn').disabled = false;
+        }
+
+        function startGame() {
+            document.getElementById('quizModal').style.display = 'none';
+
+            state.canvas = document.getElementById('gameCanvas');
+            state.ctx = state.canvas.getContext('2d');
+
+            // 响应式
+            const wrapper = document.querySelector('.canvas-wrapper');
+            const maxSize = Math.min(wrapper.clientWidth - 16, wrapper.clientHeight - 16, 650);
+            state.canvas.width = maxSize;
+            state.canvas.height = maxSize;
+
+            state.player.x = maxSize / 2;
+            state.player.y = maxSize * 0.85;
+
+            // 创建敌人
+            for (let i = 0; i < 4; i++) {
+                state.enemies.push({
+                    x: 70 + i * 90,
+                    y: 70,
+                    size: 28,
+                    vx: 1.5,
+                    vy: 0.9,
+                    lastShot: 0
+                });
+            }
+
+            attachControls();
+            updateDisplay();
+            state.active = true;
+            loop();
+        }
+
+        function attachControls() {
+            // D-Pad
+            document.querySelectorAll('.dpad-button').forEach(btn => {
+                const dir = btn.dataset.direction;
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    state.keys[dir] = true;
+                    if (dir === 'up') state.player.dir = 'up';
+                    else if (dir === 'down') state.player.dir = 'down';
+                    else if (dir === 'left') state.player.dir = 'left';
+                    else if (dir === 'right') state.player.dir = 'right';
+                });
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    state.keys[dir] = false;
+                });
+            });
+
+            // 发射
+            document.getElementById('fireBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                fire();
+            });
+
+            // 键盘
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') { state.keys.up = true; state.player.dir = 'up'; }
+                if (e.key === 'ArrowDown') { state.keys.down = true; state.player.dir = 'down'; }
+                if (e.key === 'ArrowLeft') { state.keys.left = true; state.player.dir = 'left'; }
+                if (e.key === 'ArrowRight') { state.keys.right = true; state.player.dir = 'right'; }
+                if (e.key === ' ') fire();
+                e.preventDefault();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp') state.keys.up = false;
+                if (e.key === 'ArrowDown') state.keys.down = false;
+                if (e.key === 'ArrowLeft') state.keys.left = false;
+                if (e.key === 'ArrowRight') state.keys.right = false;
+            });
+        }
+
+        function loop() {
+            if (!state.active) return;
+            update();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // 移动
+            if (state.keys.up) state.player.y -= state.player.speed;
+            if (state.keys.down) state.player.y += state.player.speed;
+            if (state.keys.left) state.player.x -= state.player.speed;
+            if (state.keys.right) state.player.x += state.player.speed;
+
+            // 边界
+            const s = state.player.size;
+            state.player.x = Math.max(s/2, Math.min(state.canvas.width - s/2, state.player.x));
+            state.player.y = Math.max(s/2, Math.min(state.canvas.height - s/2, state.player.y));
+
+            // 子弹
+            state.bullets = state.bullets.filter(b => {
+                b.y -= 8;
+                return b.y > -10;
+            });
+
+            // 敌人
+            state.enemies.forEach(e => {
+                e.x += e.vx;
+                e.y += e.vy;
+                if (e.x < e.size || e.x > state.canvas.width - e.size) e.vx *= -1;
+                if (e.y < e.size || e.y > state.canvas.height * 0.6) e.vy *= -1;
+
+                if (Date.now() - e.lastShot > 3000 && Math.random() < 0.025) {
+                    state.enemyBullets.push({ x: e.x, y: e.y + e.size/2, speed: 4.5 });
+                    e.lastShot = Date.now();
+                }
+            });
+
+            state.enemyBullets = state.enemyBullets.filter(b => {
+                b.y += b.speed;
+                return b.y < state.canvas.height + 10;
+            });
+
+            // 碰撞
+            state.bullets.forEach((b, bi) => {
+                state.enemies.forEach((e, ei) => {
+                    if (Math.abs(b.x - e.x) < e.size && Math.abs(b.y - e.y) < e.size) {
+                        state.bullets.splice(bi, 1);
+                        state.enemies.splice(ei, 1);
+                        state.score += 200;
+                        state.kills++;
+                        updateDisplay();
+                    }
+                });
+            });
+
+            state.enemyBullets.forEach((b, bi) => {
+                if (Math.abs(b.x - state.player.x) < state.player.size/2 && 
+                    Math.abs(b.y - state.player.y) < state.player.size/2) {
+                    state.enemyBullets.splice(bi, 1);
+                    state.lives--;
+                    updateDisplay();
+                    if (state.lives <= 0) finish(false);
+                }
+            });
+
+            if (state.enemies.length === 0) finish(true);
+        }
+
+        function render() {
+            const ctx = state.ctx;
+            const w = state.canvas.width;
+            const h = state.canvas.height;
+
+            // 半透明深色背景
+            ctx.fillStyle = 'rgba(10, 25, 47, 0.75)';
+            ctx.fillRect(0, 0, w, h);
+
+            // 玩家
+            const p = state.player;
+            ctx.fillStyle = '#4ecca3';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#4ecca3';
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#3ba886';
+            if (p.dir === 'up') ctx.fillRect(p.x - 4, p.y - p.size/2 - 10, 8, 12);
+            else if (p.dir === 'down') ctx.fillRect(p.x - 4, p.y + p.size/2 - 2, 8, 12);
+            else if (p.dir === 'left') ctx.fillRect(p.x - p.size/2 - 10, p.y - 4, 12, 8);
+            else if (p.dir === 'right') ctx.fillRect(p.x + p.size/2 - 2, p.y - 4, 12, 8);
+
+            // 敌人
+            ctx.fillStyle = '#ff6b6b';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff6b6b';
+            state.enemies.forEach(e => {
+                ctx.fillRect(e.x - e.size/2, e.y - e.size/2, e.size, e.size);
+            });
+            ctx.shadowBlur = 0;
+
+            // 子弹
+            ctx.fillStyle = '#ffd93d';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ffd93d';
+            state.bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            state.enemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        function fire() {
+            if (!state.active) return;
+            state.bullets.push({ x: state.player.x, y: state.player.y - 20 });
+        }
+
+        function updateDisplay() {
+            document.getElementById('scoreText').textContent = state.score;
+            document.getElementById('livesText').textContent = '❤️'.repeat(Math.max(0, state.lives));
+            document.getElementById('enemiesLeft').textContent = state.enemies.length;
+        }
+
+        function finish(won) {
+            state.active = false;
+            document.getElementById('endIcon').textContent = won ? '🎉' : '💔';
+            document.getElementById('endHeading').textContent = won ? '守护成功！' : '守护失败';
+            document.getElementById('endScore').textContent = state.score;
+            document.getElementById('endKills').textContent = state.kills;
+            document.getElementById('endLives').textContent = state.lives;
+            document.getElementById('gameEndModal').classList.add('visible');
+        }
+    </script>
+</body>
+</html>

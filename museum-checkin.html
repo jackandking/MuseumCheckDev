@@ -676,9 +676,24 @@
     </div>
 
     <!-- Tank Battle (坦克大战) Game Overlay -->
-    <div class="tank-battle-overlay game-overlay" id="tank-battleGameOverlay">
+    <div class="tank-battle-overlay game-overlay tank-battle-ar" id="tank-battleGameOverlay">
+        <div class="tank-battle-ar-scan" aria-hidden="true">
+            <div class="tank-battle-scan-line"></div>
+        </div>
+        <div class="tank-battle-ar-floats" aria-hidden="true">
+            <div class="tank-battle-ar-card tank-battle-ar-card-1">
+                <img src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=400" alt="后母戊鼎">
+            </div>
+            <div class="tank-battle-ar-card tank-battle-ar-card-2">
+                <img src="https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=400" alt="四羊方尊">
+            </div>
+            <div class="tank-battle-ar-card tank-battle-ar-card-3">
+                <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400" alt="越王勾践剑">
+            </div>
+        </div>
         <div class="tank-battle-header game-header">
-            <div class="tank-battle-title game-title">🎖️ 坦克大战 🎖️</div>
+            <div class="tank-battle-title game-title">🎖️ AR坦克大战 🎖️</div>
+            <div class="tank-battle-subtitle">AR 文物守护系统</div>
             <div class="tank-battle-stats game-stats">
                 得分：<span id="tbScore">0</span> | 生命：<span id="tbLives">3</span> | 敌人：<span id="tbEnemiesLeft">5</span>
             </div>
@@ -723,6 +738,16 @@
         </div>
         <div class="snake-complete-message game-complete-message" id="snakeCompleteMessage">
             🎉 游戏结束！得分：<span id="snakeFinalScore">0</span>
+        </div>
+    </div>
+
+    <!-- Game Choice Overlay -->
+    <div class="game-choice-overlay" id="gameChoiceOverlay" aria-hidden="true">
+        <div class="game-choice-modal" role="dialog" aria-modal="true" aria-labelledby="gameChoiceTitle">
+            <div class="game-choice-title" id="gameChoiceTitle">🎁 任务完成奖励</div>
+            <div class="game-choice-subtitle">随机推荐3个游戏，选择你最想玩的</div>
+            <div class="game-choice-grid" id="gameChoiceGrid"></div>
+            <button class="game-choice-skip" id="gameChoiceSkip" type="button">稍后再玩</button>
         </div>
     </div>
 

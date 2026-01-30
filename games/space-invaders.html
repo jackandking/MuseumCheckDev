@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>👽 小蜜蜂 - 文物守护者</title>
+    <link rel="stylesheet" href="../css/unified-game-ui.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 游戏内容 */
+        .game-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部 */
+        .header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(200, 50, 255, 0.3);
+        }
+
+        .museum-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .museum-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #c832ff, #8b32f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(200, 50, 255, 0.6);
+        }
+
+        .museum-name-wrapper {
+            color: white;
+        }
+
+        .museum-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            text-shadow: 0 0 10px rgba(200, 50, 255, 0.8);
+        }
+
+        .artifact-subtitle {
+            font-size: 11px;
+            color: #c832ff;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(200, 50, 255, 0.6);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #c832ff;
+            margin-bottom: 3px;
+            text-shadow: 0 0 8px rgba(200, 50, 255, 0.8);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(200, 50, 255, 0.8);
+        }
+
+        /* 游戏区 */
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 10px;
+            box-shadow: 0 0 40px rgba(200, 50, 255, 0.3), 0 0 0 2px rgba(200, 50, 255, 0.2), inset 0 0 60px rgba(200, 50, 255, 0.1);
+        }
+
+        #gameCanvas {
+            display: block;
+            border-radius: 18px;
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+            background: linear-gradient(135deg, #330066 0%, #660099 50%, #330066 100%);
+        }
+
+        .canvas-wrapper::before,
+        .canvas-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #c832ff;
+            box-shadow: 0 0 15px rgba(200, 50, 255, 0.8);
+        }
+
+        .canvas-wrapper::before {
+            top: 5px;
+            left: 5px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .canvas-wrapper::after {
+            bottom: 5px;
+            right: 5px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* 控制区 */
+        .controls-section {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 18px;
+            border-top: 2px solid rgba(200, 50, 255, 0.3);
+        }
+
+        /* 游戏结束弹窗 */
+        .game-end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-end-modal.visible {
+            display: flex;
+        }
+
+        .end-box {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(200, 50, 255, 0.5);
+            border-radius: 28px;
+            padding: 42px;
+            text-align: center;
+            max-width: 92%;
+            box-shadow: 0 0 60px rgba(200, 50, 255, 0.6);
+        }
+
+        .end-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(200, 50, 255, 0.8));
+        }
+
+        .end-heading {
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 28px;
+            text-shadow: 0 0 20px rgba(200, 50, 255, 0.8);
+        }
+
+        .end-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .end-stat-card {
+            background: rgba(200, 50, 255, 0.1);
+            border: 2px solid rgba(200, 50, 255, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .end-stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #c832ff;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(200, 50, 255, 1);
+        }
+
+        .end-stat-name {
+            font-size: 12px;
+            color: #c832ff;
+        }
+
+        .end-continue-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #c832ff, #8b32f6);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(200, 50, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-content">
+            <!-- 顶部 -->
+            <div class="header">
+                <div class="museum-info">
+                    <div class="museum-icon">👽</div>
+                    <div class="museum-name-wrapper">
+                        <div class="museum-name">小蜜蜂入侵</div>
+                        <div class="artifact-subtitle">防卫文物系统</div>
+                    </div>
+                </div>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">SCORE</div>
+                        <div class="stat-value" id="scoreText">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">WAVE</div>
+                        <div class="stat-value" id="waveText">1</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏区 -->
+            <div class="game-area">
+                <div class="canvas-wrapper">
+                    <canvas id="gameCanvas" width="420" height="420"></canvas>
+                </div>
+            </div>
+
+            <!-- 控制区 -->
+            <div class="controls-section">
+                <div id="spaceInvadersControls" class="ugc-mount"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="game-end-modal" id="gameEndModal">
+        <div class="end-box">
+            <div class="end-icon" id="endIcon">🎉</div>
+            <div class="end-heading" id="endHeading">防卫成功！</div>
+            <div class="end-stats-grid">
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endScore">0</div>
+                    <div class="end-stat-name">得分</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endWave">1</div>
+                    <div class="end-stat-name">波数</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endKills">0</div>
+                    <div class="end-stat-name">击败</div>
+                </div>
+            </div>
+            <button class="end-continue-btn" onclick="closeGame()">继续游览 →</button>
+        </div>
+    </div>
+
+    <!-- 加载游戏脚本 -->
+    <script src="../js/unified-game-controls.js"></script>
+    <script src="../js/base-game.js"></script>
+    <script src="../js/unified-space-invaders-game.js"></script>
+
+    <script>
+        // 初始化游戏
+        const gameInstance = new UnifiedSpaceInvadersGame({
+            enableKeyboard: true,
+            enableTouchControls: true
+        });
+
+        // 启动游戏
+        async function startGame() {
+            try {
+                await gameInstance.init(1, {});
+                gameInstance.show();
+            } catch (error) {
+                console.error('Game initialization error:', error);
+            }
+        }
+
+        // 关闭游戏
+        function closeGame() {
+            window.close() || (window.parent && window.parent.postMessage({ type: 'game-close' }, '*'));
+        }
+
+        // 页面加载时启动游戏
+        window.addEventListener('DOMContentLoaded', startGame);
+
+        // 处理来自父窗口的消息
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'start-game') {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>坦克大战 v1 - 文物守护模式</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .game-header {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .museum-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .museum-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .museum-name {
+            flex: 1;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .artifact-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: 0.15;
+            font-size: 120px;
+            z-index: 1;
+        }
+
+        .controls-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            gap: 20px;
+        }
+
+        .dpad {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .dpad-btn:active {
+            transform: scale(0.9);
+            background: rgba(76, 175, 80, 0.9);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dpad-up { top: 0; left: 50px; }
+        .dpad-down { bottom: 0; left: 50px; }
+        .dpad-left { top: 50px; left: 0; }
+        .dpad-right { top: 50px; right: 0; }
+
+        .dpad-center {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(200, 200, 200, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            pointer-events: none;
+        }
+
+        .fire-button {
+            width: 120px;
+            height: 120px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35, #F44336);
+            color: white;
+            font-size: 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(244, 67, 54, 0.5);
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .fire-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 8px rgba(244, 67, 54, 0.6);
+        }
+
+        .fire-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* Quiz Modal */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .quiz-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .quiz-artifact {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .quiz-artifact-icon {
+            font-size: 80px;
+            margin-bottom: 10px;
+        }
+
+        .quiz-artifact-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .quiz-question {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            background: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:active {
+            transform: scale(0.98);
+        }
+
+        .quiz-option.selected {
+            border-color: #2196F3;
+            background: #E3F2FD;
+        }
+
+        .quiz-option.correct {
+            border-color: #4CAF50;
+            background: #E8F5E9;
+        }
+
+        .quiz-option.wrong {
+            border-color: #F44336;
+            background: #FFEBEE;
+        }
+
+        .quiz-submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .quiz-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quiz-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .quiz-result.correct {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .quiz-result.wrong {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* Game Over Modal */
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-modal.show {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .game-over-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .game-over-stats {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .game-over-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Landscape optimization */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .game-header {
+                padding: 8px 12px;
+            }
+            .museum-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+            }
+            .museum-name {
+                font-size: 14px;
+            }
+            .game-stats {
+                font-size: 12px;
+            }
+            .dpad {
+                width: 120px;
+                height: 120px;
+            }
+            .dpad-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            .dpad-up, .dpad-down { left: 40px; }
+            .dpad-center { top: 40px; left: 40px; width: 40px; height: 40px; }
+            .fire-button {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="museum-info">
+                <div class="museum-icon" id="museumIcon">🏛️</div>
+                <div class="museum-name" id="museumName">故宫博物院</div>
+            </div>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span>💰</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span id="lives">❤️❤️❤️</span>
+                </div>
+                <div class="stat-item">
+                    <span>🎯</span>
+                    <span id="enemies">5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <div class="artifact-overlay" id="artifactOverlay">🏺</div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <div class="dpad">
+                <button class="dpad-btn dpad-up" data-dir="up">⬆️</button>
+                <button class="dpad-btn dpad-left" data-dir="left">⬅️</button>
+                <button class="dpad-btn dpad-right" data-dir="right">➡️</button>
+                <button class="dpad-btn dpad-down" data-dir="down">⬇️</button>
+                <div class="dpad-center">🎯</div>
+            </div>
+            <button class="fire-button" id="fireBtn">
+                🔥
+                <span class="fire-label">射击</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-content">
+            <div class="quiz-artifact">
+                <div class="quiz-artifact-icon" id="quizArtifactIcon">🏺</div>
+                <div class="quiz-artifact-name" id="quizArtifactName">后母戊鼎</div>
+            </div>
+            <div class="quiz-question" id="quizQuestion">
+                后母戊鼎是哪个朝代的青铜器？
+            </div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <button class="quiz-submit" id="quizSubmit" disabled>提交答案</button>
+            <div class="quiz-result" id="quizResult"></div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="game-over-content">
+            <div class="game-over-title" id="gameOverTitle">🎉 守护成功！</div>
+            <div class="game-over-stats">
+                <div>得分：<strong id="finalScore">0</strong></div>
+                <div>消灭敌人：<strong id="finalEnemies">0</strong></div>
+            </div>
+            <button class="game-over-btn" onclick="location.reload()">继续游览 ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        // Game Configuration
+        const MUSEUM_DATA = {
+            name: '故宫博物院',
+            icon: '🏛️',
+            artifact: {
+                name: '后母戊鼎',
+                icon: '🏺',
+                quiz: {
+                    question: '后母戊鼎是哪个朝代的青铜器？',
+                    options: [
+                        { text: '夏朝', correct: false },
+                        { text: '商朝', correct: true },
+                        { text: '周朝', correct: false },
+                        { text: '秦朝', correct: false }
+                    ],
+                    explanation: '后母戊鼎是商朝晚期的青铜礼器，重达832.84公斤，是目前世界上最重的古代青铜器。'
+                }
+            }
+        };
+
+        // Game State
+        let gameState = {
+            lives: 3,
+            score: 0,
+            enemiesKilled: 0,
+            totalEnemies: 5,
+            gameOver: false,
+            canvas: null,
+            ctx: null,
+            player: null,
+            enemies: [],
+            bullets: [],
+            enemyBullets: [],
+            keys: { up: false, down: false, left: false, right: false },
+            quizAnswered: false
+        };
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setupUI();
+            setupQuiz();
+        });
+
+        function setupUI() {
+            document.getElementById('museumName').textContent = MUSEUM_DATA.name;
+            document.getElementById('museumIcon').textContent = MUSEUM_DATA.icon;
+            document.getElementById('artifactOverlay').textContent = MUSEUM_DATA.artifact.icon;
+        }
+
+        function setupQuiz() {
+            const quiz = MUSEUM_DATA.artifact.quiz;
+            document.getElementById('quizArtifactIcon').textContent = MUSEUM_DATA.artifact.icon;
+            document.getElementById('quizArtifactName').textContent = MUSEUM_DATA.artifact.name;
+            document.getElementById('quizQuestion').textContent = quiz.question;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            quiz.options.forEach((option, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option';
+                btn.textContent = option.text;
+                btn.dataset.index = index;
+                btn.dataset.correct = option.correct;
+                btn.onclick = () => selectOption(btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quizSubmit').onclick = submitQuiz;
+        }
+
+        function selectOption(btn) {
+            document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('quizSubmit').disabled = false;
+        }
+
+        function submitQuiz() {
+            const selected = document.querySelector('.quiz-option.selected');
+            if (!selected) return;
+
+            const isCorrect = selected.dataset.correct === 'true';
+            const resultDiv = document.getElementById('quizResult');
+
+            document.querySelectorAll('.quiz-option').forEach(o => {
+                if (o.dataset.correct === 'true') {
+                    o.classList.add('correct');
+                } else if (o === selected) {
+                    o.classList.add('wrong');
+                }
+                o.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                gameState.lives += 2;
+                resultDiv.className = 'quiz-result correct';
+                resultDiv.innerHTML = `✅ 答对了！<br>${MUSEUM_DATA.artifact.quiz.explanation}<br><br>奖励：额外+2条生命 ❤️❤️`;
+            } else {
+                resultDiv.className = 'quiz-result wrong';
+                resultDiv.innerHTML = `❌ 答错了<br>${MUSEUM_DATA.artifact.quiz.explanation}`;
+            }
+
+            document.getElementById('quizSubmit').textContent = '开始游戏';
+            document.getElementById('quizSubmit').onclick = startGame;
+            document.getElementById('quizSubmit').disabled = false;
+        }
+
+        function startGame() {
+            document.getElementById('quizModal').style.display = 'none';
+            gameState.quizAnswered = true;
+            initGame();
+        }
+
+        function initGame() {
+            gameState.canvas = document.getElementById('gameCanvas');
+            gameState.ctx = gameState.canvas.getContext('2d');
+
+            // Resize canvas for mobile
+            const container = gameState.canvas.parentElement;
+            const maxSize = Math.min(
+                container.clientWidth - 20,
+                container.clientHeight - 20,
+                500
+            );
+            gameState.canvas.width = maxSize;
+            gameState.canvas.height = maxSize;
+
+            // Init player
+            gameState.player = {
+                x: gameState.canvas.width / 2 - 15,
+                y: gameState.canvas.height - 50,
+                width: 30,
+                height: 30,
+                direction: 'up',
+                speed: 3
+            };
+
+            // Init enemies
+            gameState.enemies = [];
+            for (let i = 0; i < gameState.totalEnemies; i++) {
+                gameState.enemies.push({
+                    x: 50 + i * 70,
+                    y: 50,
+                    width: 30,
+                    height: 30,
+                    direction: 'down',
+                    speed: 0.8,
+                    lastFire: 0
+                });
+            }
+
+            setupControls();
+            updateUI();
+            gameLoop();
+        }
+
+        function setupControls() {
+            // D-pad
+            document.querySelectorAll('.dpad-btn').forEach(btn => {
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const dir = btn.dataset.dir;
+                    gameState.keys[dir] = true;
+                });
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const dir = btn.dataset.dir;
+                    gameState.keys[dir] = false;
+                });
+            });
+
+            // Fire button
+            document.getElementById('fireBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                fireBullet();
+            });
+
+            // Keyboard
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'ArrowUp') gameState.keys.up = true;
+                if (e.code === 'ArrowDown') gameState.keys.down = true;
+                if (e.code === 'ArrowLeft') gameState.keys.left = true;
+                if (e.code === 'ArrowRight') gameState.keys.right = true;
+                if (e.code === 'Space') fireBullet();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.code === 'ArrowUp') gameState.keys.up = false;
+                if (e.code === 'ArrowDown') gameState.keys.down = false;
+                if (e.code === 'ArrowLeft') gameState.keys.left = false;
+                if (e.code === 'ArrowRight') gameState.keys.right = false;
+            });
+        }
+
+        function gameLoop() {
+            if (gameState.gameOver) return;
+
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            // Move player
+            if (gameState.keys.up) {
+                gameState.player.y -= gameState.player.speed;
+                gameState.player.direction = 'up';
+            }
+            if (gameState.keys.down) {
+                gameState.player.y += gameState.player.speed;
+                gameState.player.direction = 'down';
+            }
+            if (gameState.keys.left) {
+                gameState.player.x -= gameState.player.speed;
+                gameState.player.direction = 'left';
+            }
+            if (gameState.keys.right) {
+                gameState.player.x += gameState.player.speed;
+                gameState.player.direction = 'right';
+            }
+
+            // Bounds
+            gameState.player.x = Math.max(0, Math.min(gameState.canvas.width - gameState.player.width, gameState.player.x));
+            gameState.player.y = Math.max(0, Math.min(gameState.canvas.height - gameState.player.height, gameState.player.y));
+
+            // Move bullets
+            gameState.bullets = gameState.bullets.filter(b => {
+                b.y -= 6;
+                return b.y > 0;
+            });
+
+            // Move enemies
+            gameState.enemies.forEach(e => {
+                e.y += e.speed;
+                if (e.y > gameState.canvas.height - 100 || e.y < 50) e.speed *= -1;
+
+                // Enemy fire
+                if (Date.now() - e.lastFire > 3000 && Math.random() < 0.02) {
+                    gameState.enemyBullets.push({
+                        x: e.x + e.width / 2 - 3,
+                        y: e.y + e.height,
+                        width: 6,
+                        height: 6
+                    });
+                    e.lastFire = Date.now();
+                }
+            });
+
+            gameState.enemyBullets = gameState.enemyBullets.filter(b => {
+                b.y += 4;
+                return b.y < gameState.canvas.height;
+            });
+
+            // Collisions
+            checkCollisions();
+
+            // Win/lose
+            if (gameState.lives <= 0) {
+                endGame(false);
+            } else if (gameState.enemies.length === 0) {
+                endGame(true);
+            }
+        }
+
+        function checkCollisions() {
+            // Player bullets vs enemies
+            gameState.bullets.forEach((b, bIndex) => {
+                gameState.enemies.forEach((e, eIndex) => {
+                    if (collision(b, e)) {
+                        gameState.bullets.splice(bIndex, 1);
+                        gameState.enemies.splice(eIndex, 1);
+                        gameState.enemiesKilled++;
+                        gameState.score += 100;
+                        updateUI();
+                    }
+                });
+            });
+
+            // Enemy bullets vs player
+            gameState.enemyBullets.forEach((b, bIndex) => {
+                if (collision(b, gameState.player)) {
+                    gameState.enemyBullets.splice(bIndex, 1);
+                    gameState.lives--;
+                    updateUI();
+                }
+            });
+        }
+
+        function collision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + (a.width || 6) > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + (a.height || 6) > b.y;
+        }
+
+        function render() {
+            const ctx = gameState.ctx;
+            const canvas = gameState.canvas;
+
+            // Clear
+            ctx.fillStyle = '#f5f7fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Player
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(gameState.player.x, gameState.player.y, gameState.player.width, gameState.player.height);
+            ctx.fillStyle = '#2E7D32';
+            if (gameState.player.direction === 'up') {
+                ctx.fillRect(gameState.player.x + 12, gameState.player.y, 6, 15);
+            } else if (gameState.player.direction === 'down') {
+                ctx.fillRect(gameState.player.x + 12, gameState.player.y + 15, 6, 15);
+            } else if (gameState.player.direction === 'left') {
+                ctx.fillRect(gameState.player.x, gameState.player.y + 12, 15, 6);
+            } else if (gameState.player.direction === 'right') {
+                ctx.fillRect(gameState.player.x + 15, gameState.player.y + 12, 15, 6);
+            }
+
+            // Enemies
+            ctx.fillStyle = '#F44336';
+            gameState.enemies.forEach(e => {
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+            });
+
+            // Bullets
+            ctx.fillStyle = '#FFD700';
+            gameState.bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x + 3, b.y + 3, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            gameState.enemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x + 3, b.y + 3, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function fireBullet() {
+            if (gameState.gameOver) return;
+            gameState.bullets.push({
+                x: gameState.player.x + gameState.player.width / 2 - 3,
+                y: gameState.player.y,
+                width: 6,
+                height: 6
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = '❤️'.repeat(Math.max(0, gameState.lives));
+            document.getElementById('enemies').textContent = gameState.totalEnemies - gameState.enemiesKilled;
+        }
+
+        function endGame(victory) {
+            gameState.gameOver = true;
+            document.getElementById('gameOverTitle').textContent = victory ? '🎉 守护成功！' : '💔 守护失败';
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalEnemies').textContent = gameState.enemiesKilled;
+            document.getElementById('gameOverModal').classList.add('show');
+        }
+    </script>
+</body>
+</html>

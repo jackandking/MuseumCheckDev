@@ -1805,19 +1805,14 @@
             checkCompletion();
 
             // Show game as reward if photo was uploaded and setting is enabled
-            // Randomly select between unified games (maze, space invaders, tank battle, snake)
+            // Present 3 random games for the user to choose
             if (showGame) {
                 // Delay slightly to let fireworks animation start
-                // Store current task index for closure
                 const taskIndexForGame = currentTaskIndex;
-                const gameType = selectRandomGame();
-                const options = {}; // Initialize options for GameManager
-                
+                const options = {};
+
                 setTimeout(() => {
-                    // Use unified architecture; legacy fallback removed
-                    if (typeof GameManager !== 'undefined') {
-                        GameManager.startGame(gameType, taskIndexForGame, options);
-                    }
+                    showGameChoiceOverlay(taskIndexForGame, options);
                 }, 800);
             }
         }
@@ -6010,6 +6005,78 @@
             const games = enabledGames.length > 0 ? enabledGames : ALL_GAMES;
             const randomIndex = Math.floor(Math.random() * games.length);
             return games[randomIndex];
+        }
+
+        function selectRandomGames(count = 3) {
+            const enabledGames = loadEnabledGames();
+            const games = enabledGames.length > 0 ? enabledGames : ALL_GAMES;
+            const shuffled = [...games].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, Math.min(count, games.length));
+        }
+
+        const GAME_CHOICE_META = {
+            'maze': { name: '迷宫挑战', icon: '🧭', desc: '动脑找出口' },
+            'space-invaders': { name: '小蜜蜂', icon: '🐝', desc: '躲避反击' },
+            'tank-battle': { name: '坦克大战', icon: '🎖️', desc: '守护文物' },
+            'snake': { name: '贪食蛇', icon: '🐍', desc: '越吃越长' }
+        };
+
+        function showGameChoiceOverlay(taskIndex, options = {}) {
+            const overlay = document.getElementById('gameChoiceOverlay');
+            const grid = document.getElementById('gameChoiceGrid');
+            const skipBtn = document.getElementById('gameChoiceSkip');
+            if (!overlay || !grid) {
+                // Fallback to auto selection if overlay missing
+                const gameType = selectRandomGame();
+                if (typeof GameManager !== 'undefined') {
+                    GameManager.startGame(gameType, taskIndex, options);
+                }
+                return;
+            }
+
+            const choices = selectRandomGames(3);
+            grid.innerHTML = '';
+
+            choices.forEach((gameType) => {
+                const meta = GAME_CHOICE_META[gameType] || { name: '游戏', icon: '🎮', desc: '开始挑战' };
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'game-choice-card';
+                button.dataset.game = gameType;
+                button.innerHTML = `
+                    <div class="game-choice-icon">${meta.icon}</div>
+                    <div class="game-choice-name">${meta.name}</div>
+                    <div class="game-choice-desc">${meta.desc}</div>
+                `;
+                button.addEventListener('click', () => {
+                    overlay.classList.remove('show');
+                    overlay.setAttribute('aria-hidden', 'true');
+                    if (typeof GameManager !== 'undefined') {
+                        GameManager.startGame(gameType, taskIndex, options);
+                    }
+                });
+                grid.appendChild(button);
+            });
+
+            if (skipBtn) {
+                skipBtn.onclick = () => {
+                    overlay.classList.remove('show');
+                    overlay.setAttribute('aria-hidden', 'true');
+                };
+            }
+
+            if (!overlay.dataset.bound) {
+                overlay.addEventListener('click', (event) => {
+                    if (event.target === overlay) {
+                        overlay.classList.remove('show');
+                        overlay.setAttribute('aria-hidden', 'true');
+                    }
+                });
+                overlay.dataset.bound = 'true';
+            }
+
+            overlay.classList.add('show');
+            overlay.setAttribute('aria-hidden', 'false');
         }
 
         // ===== Fullscreen Image Viewer =====

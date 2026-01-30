@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>v3d - AR风格：动态文物照片特效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* AR扫描特效层 */
+        .ar-scan-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                #00ffff 10%, 
+                #00ffff 50%, 
+                #00ffff 90%, 
+                transparent 100%);
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 0%; opacity: 0.3; }
+            50% { top: 100%; opacity: 0.8; }
+        }
+
+        /* 浮动文物照片 - 3D倾斜效果 */
+        .floating-artifacts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 5;
+            perspective: 1200px;
+        }
+
+        .artifact-card {
+            position: absolute;
+            width: 120px;
+            height: 160px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 255, 255, 0.4),
+                        0 0 0 2px rgba(0, 255, 255, 0.3);
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .artifact-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.9) contrast(1.2);
+        }
+
+        .artifact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 255, 0.2) 0%, 
+                transparent 50%, 
+                rgba(0, 255, 255, 0.2) 100%);
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            25% { transform: translateY(-15px) rotateY(5deg); }
+            50% { transform: translateY(0) rotateY(-5deg); }
+            75% { transform: translateY(15px) rotateY(5deg); }
+        }
+
+        .artifact-1 {
+            top: 12%;
+            right: 8%;
+            animation-delay: 0s;
+        }
+
+        .artifact-2 {
+            top: 45%;
+            left: 5%;
+            animation-delay: 1.5s;
+        }
+
+        .artifact-3 {
+            bottom: 18%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        /* 顶部栏 - 科技感设计 */
+        .header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            z-index: 50;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, transparent);
+            animation: pulse-bar 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-bar {
+            0%, 100% { width: 30%; opacity: 1; }
+            50% { width: 70%; opacity: 0.5; }
+        }
+
+        .museum-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .museum-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00ffff, #0099ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            animation: icon-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes icon-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 1); }
+        }
+
+        .museum-name-wrapper {
+            color: white;
+        }
+
+        .museum-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .artifact-subtitle {
+            font-size: 11px;
+            color: #00ffff;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #00ffff;
+            margin-bottom: 3px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        /* 游戏画布区域 */
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 10px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.3),
+                        0 0 0 2px rgba(0, 255, 255, 0.2),
+                        inset 0 0 60px rgba(0, 255, 255, 0.1);
+        }
+
+        #gameCanvas {
+            display: block;
+            border-radius: 18px;
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+            background: linear-gradient(135deg, #0a192f 0%, #1e3a5f 50%, #0a192f 100%);
+        }
+
+        /* AR 边角装饰 */
+        .canvas-wrapper::before,
+        .canvas-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .canvas-wrapper::before {
+            top: 5px;
+            left: 5px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .canvas-wrapper::after {
+            bottom: 5px;
+            right: 5px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* 控制区域 - 科技感设计 */
+        .controls-section {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 18px;
+            border-top: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            z-index: 50;
+        }
+
+        .controls-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 22px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .dpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 58px);
+            grid-template-rows: repeat(3, 58px);
+            gap: 6px;
+            justify-self: start;
+        }
+
+        .dpad-button {
+            border: none;
+            border-radius: 14px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .dpad-button:active {
+            background: rgba(0, 255, 255, 0.4);
+            transform: scale(0.92);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        }
+
+        .dpad-up { grid-column: 2; grid-row: 1; }
+        .dpad-left { grid-column: 1; grid-row: 2; }
+        .dpad-right { grid-column: 3; grid-row: 2; }
+        .dpad-down { grid-column: 2; grid-row: 3; }
+
+        .dpad-center {
+            grid-column: 2;
+            grid-row: 2;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            pointer-events: none;
+            border-radius: 14px;
+        }
+
+        .center-status {
+            text-align: center;
+            color: white;
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #00ffff;
+            margin-bottom: 4px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+        }
+
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 1);
+        }
+
+        .fire-button-area {
+            justify-self: end;
+        }
+
+        .fire-button {
+            width: 115px;
+            height: 115px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffff, #0099ff);
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            transition: all 0.15s;
+            position: relative;
+            animation: pulse-button 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-button {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 255, 255, 1); }
+        }
+
+        .fire-button:active {
+            transform: scale(0.9) !important;
+            box-shadow: 0 0 80px rgba(0, 255, 255, 1) !important;
+        }
+
+        .fire-text {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 答题弹窗 - AR科技风格 */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .quiz-box {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 28px;
+            max-width: 92%;
+            width: 500px;
+            padding: 38px;
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.6);
+            position: relative;
+        }
+
+        .quiz-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #0099ff, #00ffff);
+            border-radius: 28px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: border-glow 3s linear infinite;
+        }
+
+        @keyframes border-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .quiz-photo-large {
+            width: 100%;
+            height: 220px;
+            border-radius: 18px;
+            object-fit: cover;
+            margin-bottom: 22px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .quiz-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .quiz-subtitle {
+            font-size: 13px;
+            color: #00ffff;
+            text-align: center;
+            margin-bottom: 28px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .quiz-question-box {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 22px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: white;
+            font-weight: 500;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            margin-bottom: 22px;
+        }
+
+        .quiz-option {
+            padding: 17px 22px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quiz-option:active {
+            transform: scale(0.98);
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 14px;
+        }
+
+        .quiz-option.selected {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .quiz-option.selected .option-letter {
+            background: linear-gradient(135deg, #00ffff, #0099ff);
+            color: white;
+        }
+
+        .quiz-option.correct {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .quiz-option.incorrect .option-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .quiz-result {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+            color: white;
+        }
+
+        .quiz-result.show {
+            display: block;
+        }
+
+        .quiz-result.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+        }
+
+        .quiz-result.fail {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+        }
+
+        .quiz-submit-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #00ffff, #0099ff);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .quiz-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 游戏结束弹窗 */
+        .game-end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-end-modal.visible {
+            display: flex;
+        }
+
+        .end-box {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 28px;
+            padding: 42px;
+            text-align: center;
+            max-width: 92%;
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.6);
+        }
+
+        .end-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+        }
+
+        .end-heading {
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 28px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+
+        .end-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .end-stat-card {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .end-stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 1);
+        }
+
+        .end-stat-name {
+            font-size: 12px;
+            color: #00ffff;
+        }
+
+        .end-continue-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #00ffff, #0099ff);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- AR扫描特效 -->
+    <div class="ar-scan-effect">
+        <div class="scan-line"></div>
+    </div>
+
+    <!-- 浮动文物照片 -->
+    <div class="floating-artifacts">
+        <div class="artifact-card artifact-1">
+            <img src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=400" alt="后母戊鼎">
+        </div>
+        <div class="artifact-card artifact-2">
+            <img src="https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=400" alt="四羊方尊">
+        </div>
+        <div class="artifact-card artifact-3">
+            <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400" alt="越王勾践剑">
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- 顶部 -->
+        <div class="header">
+            <div class="museum-info">
+                <div class="museum-icon">🏺</div>
+                <div class="museum-name-wrapper">
+                    <div class="museum-name">后母戊鼎</div>
+                    <div class="artifact-subtitle">AR 文物守护系统</div>
+                </div>
+            </div>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <div class="stat-label">SCORE</div>
+                    <div class="stat-value" id="scoreText">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">LIVES</div>
+                    <div class="stat-value" id="livesText">❤️❤️❤️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏区 -->
+        <div class="game-area">
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas" width="420" height="420"></canvas>
+            </div>
+        </div>
+
+        <!-- 控制区 -->
+        <div class="controls-section">
+            <div class="controls-layout">
+                <div class="dpad-grid">
+                    <button class="dpad-button dpad-up" data-direction="up">⬆️</button>
+                    <button class="dpad-button dpad-left" data-direction="left">⬅️</button>
+                    <div class="dpad-center">🎯</div>
+                    <button class="dpad-button dpad-right" data-direction="right">➡️</button>
+                    <button class="dpad-button dpad-down" data-direction="down">⬇️</button>
+                </div>
+
+                <div class="center-status">
+                    <div class="status-label">ENEMIES</div>
+                    <div class="status-value"><span id="enemiesLeft">4</span></div>
+                </div>
+
+                <div class="fire-button-area">
+                    <button class="fire-button" id="fireBtn">
+                        🔥
+                        <span class="fire-text">FIRE</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答题弹窗 -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-box">
+            <img class="quiz-photo-large" id="quizPhotoLarge" src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=800" alt="文物">
+            <div class="quiz-title">AR 文物知识扫描</div>
+            <div class="quiz-subtitle">答对可获得额外生命值增强 ❤️❤️</div>
+            <div class="quiz-question-box" id="quizQuestionText">正在扫描文物数据...</div>
+            <div class="quiz-options" id="quizOptionsList"></div>
+            <div class="quiz-result" id="quizResultBox"></div>
+            <button class="quiz-submit-btn" id="quizSubmitBtn" disabled>选择一个答案</button>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="game-end-modal" id="gameEndModal">
+        <div class="end-box">
+            <div class="end-icon" id="endIcon">🎉</div>
+            <div class="end-heading" id="endHeading">守护成功！</div>
+            <div class="end-stats-grid">
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endScore">0</div>
+                    <div class="end-stat-name">得分</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endKills">0</div>
+                    <div class="end-stat-name">击败</div>
+                </div>
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endLives">3</div>
+                    <div class="end-stat-name">剩余生命</div>
+                </div>
+            </div>
+            <button class="end-continue-btn" onclick="location.reload()">继续游览 →</button>
+        </div>
+    </div>
+
+    <script>
+        // 答题数据
+        const QUIZ = {
+            question: '后母戊鼎重达832公斤，是用什么材料铸造的？',
+            options: [
+                { letter: 'A', text: '铁', correct: false },
+                { letter: 'B', text: '青铜', correct: true },
+                { letter: 'C', text: '黄金', correct: false },
+                { letter: 'D', text: '白银', correct: false }
+            ],
+            explanation: '后母戊鼎是商朝晚期的青铜礼器，用青铜铸造。青铜是铜和锡的合金，商朝的青铜冶炼技术已经非常发达。',
+            reward: '✅ 扫描成功！系统增强 +2 生命值 ❤️❤️'
+        };
+
+        // 游戏状态
+        const state = {
+            canvas: null,
+            ctx: null,
+            active: false,
+            score: 0,
+            lives: 3,
+            kills: 0,
+            player: { x: 210, y: 370, size: 28, dir: 'up', speed: 3.5 },
+            enemies: [],
+            bullets: [],
+            enemyBullets: [],
+            keys: { up: false, down: false, left: false, right: false }
+        };
+
+        // 初始化
+        window.onload = () => {
+            setupQuiz();
+        };
+
+        function setupQuiz() {
+            document.getElementById('quizQuestionText').textContent = QUIZ.question;
+            
+            const optionsList = document.getElementById('quizOptionsList');
+            optionsList.innerHTML = '';
+            
+            QUIZ.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerHTML = `
+                    <div class="option-letter">${opt.letter}</div>
+                    <div>${opt.text}</div>
+                `;
+                div.onclick = () => selectOption(idx, div);
+                optionsList.appendChild(div);
+            });
+
+            document.getElementById('quizSubmitBtn').onclick = submitQuiz;
+        }
+
+        function selectOption(idx, elem) {
+            document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            elem.classList.add('selected');
+            elem.dataset.idx = idx;
+            document.getElementById('quizSubmitBtn').disabled = false;
+            document.getElementById('quizSubmitBtn').textContent = '确认答案';
+        }
+
+        function submitQuiz() {
+            const selected = document.querySelector('.quiz-option.selected');
+            if (!selected) return;
+
+            const idx = parseInt(selected.dataset.idx);
+            const correct = QUIZ.options[idx].correct;
+
+            document.querySelectorAll('.quiz-option').forEach((elem, i) => {
+                if (QUIZ.options[i].correct) {
+                    elem.classList.add('correct');
+                } else if (i === idx) {
+                    elem.classList.add('incorrect');
+                }
+                elem.style.pointerEvents = 'none';
+            });
+
+            const result = document.getElementById('quizResultBox');
+            result.classList.add('show');
+
+            if (correct) {
+                state.lives += 2;
+                result.className = 'quiz-result show success';
+                result.innerHTML = `${QUIZ.explanation}<br><br><strong>${QUIZ.reward}</strong>`;
+            } else {
+                result.className = 'quiz-result show fail';
+                result.innerHTML = `❌ 扫描失败<br>${QUIZ.explanation}`;
+            }
+
+            document.getElementById('quizSubmitBtn').textContent = '启动守护系统 🚀';
+            document.getElementById('quizSubmitBtn').onclick = startGame;
+            document.getElementById('quizSubmitBtn').disabled = false;
+        }
+
+        function startGame() {
+            document.getElementById('quizModal').style.display = 'none';
+
+            state.canvas = document.getElementById('gameCanvas');
+            state.ctx = state.canvas.getContext('2d');
+
+            // 响应式
+            const wrapper = document.querySelector('.canvas-wrapper');
+            const maxSize = Math.min(wrapper.clientWidth - 20, wrapper.clientHeight - 20, 650);
+            state.canvas.width = maxSize;
+            state.canvas.height = maxSize;
+
+            state.player.x = maxSize / 2;
+            state.player.y = maxSize * 0.85;
+
+            // 创建敌人
+            for (let i = 0; i < 4; i++) {
+                state.enemies.push({
+                    x: 70 + i * 90,
+                    y: 70,
+                    size: 28,
+                    vx: 1.5,
+                    vy: 0.9,
+                    lastShot: 0
+                });
+            }
+
+            attachControls();
+            updateDisplay();
+            state.active = true;
+            loop();
+        }
+
+        function attachControls() {
+            // D-Pad
+            document.querySelectorAll('.dpad-button').forEach(btn => {
+                const dir = btn.dataset.direction;
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    state.keys[dir] = true;
+                    if (dir === 'up') state.player.dir = 'up';
+                    else if (dir === 'down') state.player.dir = 'down';
+                    else if (dir === 'left') state.player.dir = 'left';
+                    else if (dir === 'right') state.player.dir = 'right';
+                });
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    state.keys[dir] = false;
+                });
+            });
+
+            // 发射
+            document.getElementById('fireBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                fire();
+            });
+
+            // 键盘
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') { state.keys.up = true; state.player.dir = 'up'; }
+                if (e.key === 'ArrowDown') { state.keys.down = true; state.player.dir = 'down'; }
+                if (e.key === 'ArrowLeft') { state.keys.left = true; state.player.dir = 'left'; }
+                if (e.key === 'ArrowRight') { state.keys.right = true; state.player.dir = 'right'; }
+                if (e.key === ' ') fire();
+                e.preventDefault();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp') state.keys.up = false;
+                if (e.key === 'ArrowDown') state.keys.down = false;
+                if (e.key === 'ArrowLeft') state.keys.left = false;
+                if (e.key === 'ArrowRight') state.keys.right = false;
+            });
+        }
+
+        function loop() {
+            if (!state.active) return;
+            update();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // 移动
+            if (state.keys.up) state.player.y -= state.player.speed;
+            if (state.keys.down) state.player.y += state.player.speed;
+            if (state.keys.left) state.player.x -= state.player.speed;
+            if (state.keys.right) state.player.x += state.player.speed;
+
+            // 边界
+            const s = state.player.size;
+            state.player.x = Math.max(s/2, Math.min(state.canvas.width - s/2, state.player.x));
+            state.player.y = Math.max(s/2, Math.min(state.canvas.height - s/2, state.player.y));
+
+            // 子弹
+            state.bullets = state.bullets.filter(b => {
+                b.y -= 8;
+                return b.y > -10;
+            });
+
+            // 敌人
+            state.enemies.forEach(e => {
+                e.x += e.vx;
+                e.y += e.vy;
+                if (e.x < e.size || e.x > state.canvas.width - e.size) e.vx *= -1;
+                if (e.y < e.size || e.y > state.canvas.height * 0.6) e.vy *= -1;
+
+                if (Date.now() - e.lastShot > 3000 && Math.random() < 0.025) {
+                    state.enemyBullets.push({ x: e.x, y: e.y + e.size/2, speed: 4.5 });
+                    e.lastShot = Date.now();
+                }
+            });
+
+            state.enemyBullets = state.enemyBullets.filter(b => {
+                b.y += b.speed;
+                return b.y < state.canvas.height + 10;
+            });
+
+            // 碰撞
+            state.bullets.forEach((b, bi) => {
+                state.enemies.forEach((e, ei) => {
+                    if (Math.abs(b.x - e.x) < e.size && Math.abs(b.y - e.y) < e.size) {
+                        state.bullets.splice(bi, 1);
+                        state.enemies.splice(ei, 1);
+                        state.score += 200;
+                        state.kills++;
+                        updateDisplay();
+                    }
+                });
+            });
+
+            state.enemyBullets.forEach((b, bi) => {
+                if (Math.abs(b.x - state.player.x) < state.player.size/2 && 
+                    Math.abs(b.y - state.player.y) < state.player.size/2) {
+                    state.enemyBullets.splice(bi, 1);
+                    state.lives--;
+                    updateDisplay();
+                    if (state.lives <= 0) finish(false);
+                }
+            });
+
+            if (state.enemies.length === 0) finish(true);
+        }
+
+        function render() {
+            const ctx = state.ctx;
+            const w = state.canvas.width;
+            const h = state.canvas.height;
+
+            // 深色科技背景
+            ctx.fillStyle = 'rgba(10, 25, 47, 0.85)';
+            ctx.fillRect(0, 0, w, h);
+
+            // 网格线
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < w; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, h);
+                ctx.stroke();
+            }
+            for (let i = 0; i < h; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(w, i);
+                ctx.stroke();
+            }
+
+            // 玩家
+            const p = state.player;
+            ctx.fillStyle = '#00ffff';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00ffff';
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#0099ff';
+            if (p.dir === 'up') ctx.fillRect(p.x - 4, p.y - p.size/2 - 10, 8, 12);
+            else if (p.dir === 'down') ctx.fillRect(p.x - 4, p.y + p.size/2 - 2, 8, 12);
+            else if (p.dir === 'left') ctx.fillRect(p.x - p.size/2 - 10, p.y - 4, 12, 8);
+            else if (p.dir === 'right') ctx.fillRect(p.x + p.size/2 - 2, p.y - 4, 12, 8);
+
+            // 敌人
+            ctx.fillStyle = '#ff0066';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ff0066';
+            state.enemies.forEach(e => {
+                ctx.fillRect(e.x - e.size/2, e.y - e.size/2, e.size, e.size);
+            });
+            ctx.shadowBlur = 0;
+
+            // 子弹
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ffff00';
+            state.bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            state.enemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        function fire() {
+            if (!state.active) return;
+            state.bullets.push({ x: state.player.x, y: state.player.y - 20 });
+        }
+
+        function updateDisplay() {
+            document.getElementById('scoreText').textContent = state.score;
+            document.getElementById('livesText').textContent = '❤️'.repeat(Math.max(0, state.lives));
+            document.getElementById('enemiesLeft').textContent = state.enemies.length;
+        }
+
+        function finish(won) {
+            state.active = false;
+            document.getElementById('endIcon').textContent = won ? '🎉' : '💔';
+            document.getElementById('endHeading').textContent = won ? '守护成功！' : '守护失败';
+            document.getElementById('endScore').textContent = state.score;
+            document.getElementById('endKills').textContent = state.kills;
+            document.getElementById('endLives').textContent = state.lives;
+            document.getElementById('gameEndModal').classList.add('visible');
+        }
+    </script>
+</body>
+</html>

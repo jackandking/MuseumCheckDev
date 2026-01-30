@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>v3a - 画廊模式：文物照片走马灯</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: #000;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* 照片轮播背景 - 每击败一个敌人切换一张文物照片 */
+        .photo-carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+
+        .photo-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            filter: blur(3px) brightness(0.35);
+        }
+
+        .photo-slide.active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .game-screen {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部信息栏 - 极简设计 */
+        .top-bar {
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 100%);
+            backdrop-filter: blur(20px);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .museum-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+        }
+
+        .badge-text {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stat {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 照片信息卡片 - 左上角浮动 */
+        .photo-info-card {
+            position: absolute;
+            top: 70px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: white;
+            max-width: 200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .photo-info-card.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .photo-name {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .photo-desc {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        /* 画布容器 - 居中最大化 */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7),
+                        0 0 0 2px rgba(255, 255, 255, 0.1);
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+        }
+
+        /* 照片缩略图条 - 底部小图展示 */
+        .photo-thumbnails {
+            position: absolute;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+        }
+
+        .thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .thumb.active {
+            border-color: #f093fb;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* 控制区域 - D-Pad布局 */
+        .controls-area {
+            background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 100%);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .dpad-container {
+            display: grid;
+            grid-template-columns: repeat(3, 58px);
+            grid-template-rows: repeat(3, 58px);
+            gap: 6px;
+            justify-self: start;
+        }
+
+        .dpad-btn {
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .dpad-btn:active {
+            background: rgba(240, 147, 251, 0.4);
+            transform: scale(0.92);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .dpad-up { grid-column: 2; grid-row: 1; }
+        .dpad-left { grid-column: 1; grid-row: 2; }
+        .dpad-right { grid-column: 3; grid-row: 2; }
+        .dpad-down { grid-column: 2; grid-row: 3; }
+
+        .dpad-center {
+            grid-column: 2;
+            grid-row: 2;
+            background: rgba(100, 100, 100, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .mission-display {
+            text-align: center;
+            color: white;
+        }
+
+        .mission-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .mission-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f093fb;
+        }
+
+        .fire-container {
+            justify-self: end;
+        }
+
+        .fire-btn {
+            width: 115px;
+            height: 115px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.5);
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .fire-btn:active {
+            transform: scale(0.9);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.7);
+        }
+
+        .fire-label {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 答题弹窗 */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .quiz-panel {
+            background: white;
+            border-radius: 25px;
+            max-width: 90%;
+            width: 480px;
+            padding: 35px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+        }
+
+        .quiz-artifact-preview {
+            width: 100%;
+            height: 180px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .quiz-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .quiz-hint {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .quiz-question {
+            background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .quiz-answers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-answer {
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-answer:active {
+            transform: scale(0.98);
+        }
+
+        .answer-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .quiz-answer.selected {
+            border-color: #f093fb;
+            background: #fef5ff;
+        }
+
+        .quiz-answer.selected .answer-letter {
+            background: #f093fb;
+            color: white;
+        }
+
+        .quiz-answer.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .quiz-answer.correct .answer-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .quiz-answer.wrong {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .quiz-answer.wrong .answer-letter {
+            background: #f44336;
+            color: white;
+        }
+
+        .quiz-feedback {
+            padding: 18px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.success {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+        }
+
+        .quiz-feedback.error {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+        }
+
+        .quiz-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .quiz-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 结束弹窗 */
+        .end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .end-modal.visible {
+            display: flex;
+        }
+
+        .end-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .end-emoji {
+            font-size: 75px;
+            margin-bottom: 18px;
+        }
+
+        .end-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .end-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .end-stat {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .end-stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #f093fb;
+            margin-bottom: 5px;
+        }
+
+        .end-stat-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .end-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 照片轮播背景 -->
+    <div class="photo-carousel" id="photoCarousel"></div>
+
+    <!-- 游戏屏幕 -->
+    <div class="game-screen">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <div class="museum-badge">
+                <div class="badge-icon">🏺</div>
+                <div class="badge-text">后母戊鼎</div>
+            </div>
+            <div class="stats-bar">
+                <div class="stat">
+                    <span>⭐</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+                <div class="stat" id="livesDisplay">❤️❤️❤️</div>
+            </div>
+        </div>
+
+        <!-- 照片信息卡片 -->
+        <div class="photo-info-card" id="photoInfoCard">
+            <div class="photo-name" id="photoName">后母戊鼎</div>
+            <div class="photo-desc" id="photoDesc">商朝 · 青铜礼器</div>
+        </div>
+
+        <!-- 画布 -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            
+            <!-- 照片缩略图 -->
+            <div class="photo-thumbnails" id="photoThumbs"></div>
+        </div>
+
+        <!-- 控制区 -->
+        <div class="controls-area">
+            <div class="dpad-container">
+                <button class="dpad-btn dpad-up" data-dir="up">⬆️</button>
+                <button class="dpad-btn dpad-left" data-dir="left">⬅️</button>
+                <div class="dpad-center">🎮</div>
+                <button class="dpad-btn dpad-right" data-dir="right">➡️</button>
+                <button class="dpad-btn dpad-down" data-dir="down">⬇️</button>
+            </div>
+
+            <div class="mission-display">
+                <div class="mission-label">击败敌人</div>
+                <div class="mission-value"><span id="enemyCount">4</span> 剩余</div>
+            </div>
+
+            <div class="fire-container">
+                <button class="fire-btn" id="fireBtn">
+                    🔥
+                    <span class="fire-label">发射</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答题弹窗 -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-panel">
+            <div class="quiz-artifact-preview" id="quizArtifactPreview"></div>
+            <div class="quiz-title">文物知识问答</div>
+            <div class="quiz-hint">答对可获得额外生命值 ❤️❤️</div>
+            <div class="quiz-question" id="quizQuestion">题目加载中...</div>
+            <div class="quiz-answers" id="quizAnswers"></div>
+            <div class="quiz-feedback" id="quizFeedback"></div>
+            <button class="quiz-btn" id="quizBtn" disabled>选择一个答案</button>
+        </div>
+    </div>
+
+    <!-- 结束弹窗 -->
+    <div class="end-modal" id="endModal">
+        <div class="end-panel">
+            <div class="end-emoji" id="endEmoji">🎉</div>
+            <div class="end-title" id="endTitle">守护成功！</div>
+            <div class="end-stats">
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalScore">0</div>
+                    <div class="end-stat-label">得分</div>
+                </div>
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalKills">0</div>
+                    <div class="end-stat-label">击败</div>
+                </div>
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalLives">3</div>
+                    <div class="end-stat-label">剩余生命</div>
+                </div>
+            </div>
+            <button class="end-btn" onclick="location.reload()">继续游览 →</button>
+        </div>
+    </div>
+
+    <script>
+        // 文物照片数据 - 多张照片轮播
+        const ARTIFACT_PHOTOS = [
+            {
+                name: '后母戊鼎',
+                desc: '商朝 · 青铜礼器',
+                url: 'https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=1200',
+                icon: '🏺'
+            },
+            {
+                name: '四羊方尊',
+                desc: '商朝 · 青铜器',
+                url: 'https://images.unsplash.com/photo-1596813338960-5e9c2daf5f48?w=1200',
+                icon: '🐏'
+            },
+            {
+                name: '越王勾践剑',
+                desc: '春秋 · 青铜宝剑',
+                url: 'https://images.unsplash.com/photo-1541060241461-a88b02b4d6e2?w=1200',
+                icon: '⚔️'
+            },
+            {
+                name: '曾侯乙编钟',
+                desc: '战国 · 青铜乐器',
+                url: 'https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?w=1200',
+                icon: '🔔'
+            }
+        ];
+
+        // 答题数据
+        const QUIZ_DATA = {
+            question: '后母戊鼎重达832公斤，是用什么材料铸造的？',
+            answers: [
+                { letter: 'A', text: '铁', correct: false },
+                { letter: 'B', text: '青铜', correct: true },
+                { letter: 'C', text: '黄金', correct: false },
+                { letter: 'D', text: '白银', correct: false }
+            ],
+            explanation: '后母戊鼎是商朝晚期的青铜礼器，用青铜铸造。青铜是铜和锡的合金，商朝的青铜冶炼技术已经非常发达。',
+            reward: '✅ 回答正确！获得额外 +2 生命值 ❤️❤️'
+        };
+
+        // 游戏状态
+        const game = {
+            canvas: null,
+            ctx: null,
+            running: false,
+            score: 0,
+            lives: 3,
+            kills: 0,
+            currentPhotoIndex: 0,
+            player: { x: 200, y: 350, size: 28, dir: 'up', speed: 3.5 },
+            enemies: [],
+            bullets: [],
+            enemyBullets: [],
+            controls: { up: false, down: false, left: false, right: false }
+        };
+
+        // 初始化
+        window.onload = () => {
+            initPhotoCarousel();
+            setupQuiz();
+        };
+
+        function initPhotoCarousel() {
+            const carousel = document.getElementById('photoCarousel');
+            const thumbs = document.getElementById('photoThumbs');
+            
+            ARTIFACT_PHOTOS.forEach((photo, index) => {
+                // 创建背景幻灯片
+                const slide = document.createElement('div');
+                slide.className = 'photo-slide' + (index === 0 ? ' active' : '');
+                slide.style.backgroundImage = `url(${photo.url})`;
+                carousel.appendChild(slide);
+
+                // 创建缩略图
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb' + (index === 0 ? ' active' : '');
+                thumb.style.backgroundImage = `url(${photo.url})`;
+                thumb.onclick = () => switchPhoto(index);
+                thumbs.appendChild(thumb);
+            });
+
+            // 设置答题预览图
+            document.getElementById('quizArtifactPreview').style.backgroundImage = 
+                `url(${ARTIFACT_PHOTOS[0].url})`;
+        }
+
+        function switchPhoto(index) {
+            game.currentPhotoIndex = index;
+            
+            // 更新背景
+            document.querySelectorAll('.photo-slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+
+            // 更新缩略图
+            document.querySelectorAll('.thumb').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+
+            // 更新信息卡片
+            const photo = ARTIFACT_PHOTOS[index];
+            document.getElementById('photoName').textContent = photo.name;
+            document.getElementById('photoDesc').textContent = photo.desc;
+            document.querySelector('.badge-icon').textContent = photo.icon;
+            document.querySelector('.badge-text').textContent = photo.name;
+
+            // 显示信息卡片
+            const card = document.getElementById('photoInfoCard');
+            card.classList.remove('show');
+            setTimeout(() => card.classList.add('show'), 100);
+            setTimeout(() => card.classList.remove('show'), 2500);
+        }
+
+        function setupQuiz() {
+            document.getElementById('quizQuestion').textContent = QUIZ_DATA.question;
+            
+            const answersDiv = document.getElementById('quizAnswers');
+            answersDiv.innerHTML = '';
+            
+            QUIZ_DATA.answers.forEach((ans, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-answer';
+                div.innerHTML = `
+                    <div class="answer-letter">${ans.letter}</div>
+                    <div>${ans.text}</div>
+                `;
+                div.onclick = () => selectAnswer(idx, div);
+                answersDiv.appendChild(div);
+            });
+
+            document.getElementById('quizBtn').onclick = checkAnswer;
+        }
+
+        function selectAnswer(idx, elem) {
+            document.querySelectorAll('.quiz-answer').forEach(a => a.classList.remove('selected'));
+            elem.classList.add('selected');
+            elem.dataset.index = idx;
+            document.getElementById('quizBtn').disabled = false;
+            document.getElementById('quizBtn').textContent = '确认答案';
+        }
+
+        function checkAnswer() {
+            const selected = document.querySelector('.quiz-answer.selected');
+            if (!selected) return;
+
+            const idx = parseInt(selected.dataset.index);
+            const isCorrect = QUIZ_DATA.answers[idx].correct;
+
+            document.querySelectorAll('.quiz-answer').forEach((elem, i) => {
+                if (QUIZ_DATA.answers[i].correct) {
+                    elem.classList.add('correct');
+                } else if (i === idx) {
+                    elem.classList.add('wrong');
+                }
+                elem.style.pointerEvents = 'none';
+            });
+
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.add('show');
+
+            if (isCorrect) {
+                game.lives += 2;
+                feedback.className = 'quiz-feedback show success';
+                feedback.innerHTML = `${QUIZ_DATA.explanation}<br><br><strong>${QUIZ_DATA.reward}</strong>`;
+            } else {
+                feedback.className = 'quiz-feedback show error';
+                feedback.innerHTML = `❌ 答错了<br>${QUIZ_DATA.explanation}`;
+            }
+
+            document.getElementById('quizBtn').textContent = '开始守护 🚀';
+            document.getElementById('quizBtn').onclick = startGame;
+            document.getElementById('quizBtn').disabled = false;
+        }
+
+        function startGame() {
+            document.getElementById('quizModal').style.display = 'none';
+
+            game.canvas = document.getElementById('gameCanvas');
+            game.ctx = game.canvas.getContext('2d');
+
+            // 响应式尺寸
+            const container = game.canvas.parentElement;
+            const size = Math.min(container.clientWidth - 20, container.clientHeight - 250, 650);
+            game.canvas.width = size;
+            game.canvas.height = size;
+
+            // 重置玩家位置
+            game.player.x = size / 2;
+            game.player.y = size * 0.85;
+
+            // 创建敌人
+            for (let i = 0; i < 4; i++) {
+                game.enemies.push({
+                    x: 70 + i * 90,
+                    y: 70,
+                    size: 28,
+                    vx: 1.5,
+                    vy: 0.9,
+                    lastShot: 0
+                });
+            }
+
+            setupControls();
+            updateUI();
+            game.running = true;
+            gameLoop();
+
+            // 显示照片信息
+            setTimeout(() => {
+                document.getElementById('photoInfoCard').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('photoInfoCard').classList.remove('show');
+                }, 2500);
+            }, 500);
+        }
+
+        function setupControls() {
+            // D-Pad按钮
+            document.querySelectorAll('.dpad-btn').forEach(btn => {
+                const dir = btn.dataset.dir;
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    game.controls[dir] = true;
+                    if (dir === 'up') game.player.dir = 'up';
+                    else if (dir === 'down') game.player.dir = 'down';
+                    else if (dir === 'left') game.player.dir = 'left';
+                    else if (dir === 'right') game.player.dir = 'right';
+                });
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    game.controls[dir] = false;
+                });
+            });
+
+            // 发射按钮
+            document.getElementById('fireBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                shoot();
+            });
+
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') { game.controls.up = true; game.player.dir = 'up'; }
+                if (e.key === 'ArrowDown') { game.controls.down = true; game.player.dir = 'down'; }
+                if (e.key === 'ArrowLeft') { game.controls.left = true; game.player.dir = 'left'; }
+                if (e.key === 'ArrowRight') { game.controls.right = true; game.player.dir = 'right'; }
+                if (e.key === ' ') shoot();
+                e.preventDefault();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp') game.controls.up = false;
+                if (e.key === 'ArrowDown') game.controls.down = false;
+                if (e.key === 'ArrowLeft') game.controls.left = false;
+                if (e.key === 'ArrowRight') game.controls.right = false;
+            });
+        }
+
+        function gameLoop() {
+            if (!game.running) return;
+            updateGame();
+            renderGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateGame() {
+            // 玩家移动
+            if (game.controls.up) game.player.y -= game.player.speed;
+            if (game.controls.down) game.player.y += game.player.speed;
+            if (game.controls.left) game.player.x -= game.player.speed;
+            if (game.controls.right) game.player.x += game.player.speed;
+
+            // 边界限制
+            const s = game.player.size;
+            game.player.x = Math.max(s/2, Math.min(game.canvas.width - s/2, game.player.x));
+            game.player.y = Math.max(s/2, Math.min(game.canvas.height - s/2, game.player.y));
+
+            // 子弹更新
+            game.bullets = game.bullets.filter(b => {
+                b.y -= 8;
+                return b.y > -10;
+            });
+
+            // 敌人更新
+            game.enemies.forEach(e => {
+                e.x += e.vx;
+                e.y += e.vy;
+                if (e.x < e.size || e.x > game.canvas.width - e.size) e.vx *= -1;
+                if (e.y < e.size || e.y > game.canvas.height * 0.6) e.vy *= -1;
+
+                // 敌人射击
+                if (Date.now() - e.lastShot > 3000 && Math.random() < 0.025) {
+                    game.enemyBullets.push({ x: e.x, y: e.y + e.size/2, speed: 4.5 });
+                    e.lastShot = Date.now();
+                }
+            });
+
+            game.enemyBullets = game.enemyBullets.filter(b => {
+                b.y += b.speed;
+                return b.y < game.canvas.height + 10;
+            });
+
+            // 碰撞检测
+            game.bullets.forEach((b, bi) => {
+                game.enemies.forEach((e, ei) => {
+                    if (Math.abs(b.x - e.x) < e.size && Math.abs(b.y - e.y) < e.size) {
+                        game.bullets.splice(bi, 1);
+                        game.enemies.splice(ei, 1);
+                        game.score += 200;
+                        game.kills++;
+                        updateUI();
+                        
+                        // 击败敌人时切换照片
+                        const nextIndex = (game.currentPhotoIndex + 1) % ARTIFACT_PHOTOS.length;
+                        switchPhoto(nextIndex);
+                    }
+                });
+            });
+
+            game.enemyBullets.forEach((b, bi) => {
+                if (Math.abs(b.x - game.player.x) < game.player.size/2 && 
+                    Math.abs(b.y - game.player.y) < game.player.size/2) {
+                    game.enemyBullets.splice(bi, 1);
+                    game.lives--;
+                    updateUI();
+                    if (game.lives <= 0) endGame(false);
+                }
+            });
+
+            // 胜利检测
+            if (game.enemies.length === 0) endGame(true);
+        }
+
+        function renderGame() {
+            const ctx = game.ctx;
+            const w = game.canvas.width;
+            const h = game.canvas.height;
+
+            // 背景
+            ctx.fillStyle = 'rgba(15, 15, 30, 0.85)';
+            ctx.fillRect(0, 0, w, h);
+
+            // 网格
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < w; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, h);
+                ctx.stroke();
+            }
+
+            // 玩家坦克
+            const p = game.player;
+            ctx.fillStyle = '#4ecca3';
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+
+            // 炮管
+            ctx.fillStyle = '#3ba886';
+            if (p.dir === 'up') ctx.fillRect(p.x - 4, p.y - p.size/2 - 10, 8, 12);
+            else if (p.dir === 'down') ctx.fillRect(p.x - 4, p.y + p.size/2 - 2, 8, 12);
+            else if (p.dir === 'left') ctx.fillRect(p.x - p.size/2 - 10, p.y - 4, 12, 8);
+            else if (p.dir === 'right') ctx.fillRect(p.x + p.size/2 - 2, p.y - 4, 12, 8);
+
+            // 敌人坦克
+            ctx.fillStyle = '#ff6b6b';
+            game.enemies.forEach(e => {
+                ctx.fillRect(e.x - e.size/2, e.y - e.size/2, e.size, e.size);
+            });
+
+            // 子弹
+            ctx.fillStyle = '#ffd93d';
+            game.bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            game.enemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function shoot() {
+            if (!game.running) return;
+            game.bullets.push({ x: game.player.x, y: game.player.y - 20 });
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = game.score;
+            document.getElementById('livesDisplay').textContent = '❤️'.repeat(Math.max(0, game.lives));
+            document.getElementById('enemyCount').textContent = game.enemies.length;
+        }
+
+        function endGame(victory) {
+            game.running = false;
+            document.getElementById('endEmoji').textContent = victory ? '🎉' : '💔';
+            document.getElementById('endTitle').textContent = victory ? '守护成功！' : '守护失败';
+            document.getElementById('finalScore').textContent = game.score;
+            document.getElementById('finalKills').textContent = game.kills;
+            document.getElementById('finalLives').textContent = game.lives;
+            document.getElementById('endModal').classList.add('visible');
+        }
+    </script>
+</body>
+</html>

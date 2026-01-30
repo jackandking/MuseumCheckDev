@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>坦克大战 v4 - 滑动控制</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .museum-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .museum-icon {
+            font-size: 22px;
+        }
+
+        .museum-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .stat-item {
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+                        0 0 30px rgba(100, 200, 255, 0.2);
+            max-width: 100%;
+            max-height: 100%;
+            background: #0f3460;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Control Hint */
+        .control-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .control-hint.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .hint-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .hint-text {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .hint-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-instructions {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .control-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .control-icon {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .control-label {
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .auto-shoot-toggle {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .auto-shoot-toggle.active {
+            background: rgba(76, 175, 80, 0.7);
+        }
+
+        /* Quiz Modal */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .quiz-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 30px;
+            max-width: 90%;
+            width: 500px;
+            padding: 40px;
+            color: white;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quiz-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .quiz-question {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            font-size: 17px;
+            line-height: 1.6;
+        }
+
+        .quiz-answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-answer {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .quiz-answer:active {
+            transform: scale(0.98);
+        }
+
+        .quiz-answer.selected {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: white;
+        }
+
+        .quiz-answer.correct {
+            background: rgba(76, 175, 80, 0.4);
+            border-color: #4CAF50;
+        }
+
+        .quiz-answer.wrong {
+            background: rgba(244, 67, 54, 0.4);
+            border-color: #f44336;
+        }
+
+        .quiz-feedback {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .quiz-btn:disabled {
+            opacity: 0.5;
+        }
+
+        /* End Modal */
+        .end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .end-modal.visible {
+            display: flex;
+        }
+
+        .end-panel {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .end-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .end-title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .end-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .end-stat {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .end-stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .end-stat-label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .end-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="museum-badge">
+                <span class="museum-icon">🏛️</span>
+                <span class="museum-name">故宫博物院</span>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span>⭐</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span id="livesDisplay">❤️❤️❤️</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            
+            <div class="control-hint show" id="controlHint">
+                <div class="hint-icon">☝️</div>
+                <div class="hint-text">滑动屏幕移动坦克</div>
+                <div class="hint-subtext">
+                    向任意方向滑动即可移动<br>
+                    自动瞄准并射击敌人
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <div class="control-instructions">
+                <div class="control-box">
+                    <div class="control-icon">👆</div>
+                    <div class="control-label">滑动移动</div>
+                </div>
+
+                <button class="auto-shoot-toggle active" id="autoShootBtn">
+                    <span>🎯</span>
+                    <span>自动射击</span>
+                </button>
+
+                <div class="control-box">
+                    <div class="control-icon">🎮</div>
+                    <div class="control-label">
+                        <span>敌人：</span>
+                        <span id="enemiesLeft">5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-panel">
+            <div class="quiz-header">
+                <div class="quiz-title">🏺 文物知识问答</div>
+                <div class="quiz-subtitle">答对可获得额外生命值</div>
+            </div>
+
+            <div class="quiz-question">
+                故宫始建于哪个朝代？
+            </div>
+
+            <div class="quiz-answers" id="quizAnswers">
+                <div class="quiz-answer" data-index="0">A. 唐朝</div>
+                <div class="quiz-answer" data-index="1">B. 明朝</div>
+                <div class="quiz-answer" data-index="2">C. 清朝</div>
+                <div class="quiz-answer" data-index="3">D. 宋朝</div>
+            </div>
+
+            <div class="quiz-feedback" id="quizFeedback"></div>
+
+            <button class="quiz-btn" id="quizBtn" disabled>选择一个答案</button>
+        </div>
+    </div>
+
+    <!-- End Modal -->
+    <div class="end-modal" id="endModal">
+        <div class="end-panel">
+            <div class="end-emoji" id="endEmoji">🎉</div>
+            <div class="end-title" id="endTitle">任务完成！</div>
+            <div class="end-stats">
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalScore">0</div>
+                    <div class="end-stat-label">得分</div>
+                </div>
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalKills">0</div>
+                    <div class="end-stat-label">击败</div>
+                </div>
+                <div class="end-stat">
+                    <div class="end-stat-value" id="finalLives">3</div>
+                    <div class="end-stat-label">剩余生命</div>
+                </div>
+            </div>
+            <button class="end-btn" onclick="location.reload()">继续游览 →</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const game = {
+            canvas: null,
+            ctx: null,
+            running: false,
+            autoShoot: true,
+            score: 0,
+            lives: 3,
+            kills: 0,
+            player: { x: 200, y: 350, size: 30, vx: 0, vy: 0, dir: 'up' },
+            enemies: [],
+            bullets: [],
+            enemyBullets: [],
+            lastShot: 0,
+            touch: { x: null, y: null, active: false }
+        };
+
+        // Quiz data
+        const quiz = {
+            question: '故宫始建于哪个朝代？',
+            answers: ['唐朝', '明朝', '清朝', '宋朝'],
+            correct: 1,
+            explanation: '故宫始建于明朝永乐四年（1406年），历时14年建成，是明清两代的皇宫。'
+        };
+
+        // Initialize
+        window.onload = () => {
+            setupQuiz();
+        };
+
+        function setupQuiz() {
+            const answers = document.querySelectorAll('.quiz-answer');
+            answers.forEach((elem, idx) => {
+                elem.onclick = () => selectQuizAnswer(idx, elem);
+            });
+            document.getElementById('quizBtn').onclick = submitQuiz;
+        }
+
+        function selectQuizAnswer(idx, elem) {
+            document.querySelectorAll('.quiz-answer').forEach(a => a.classList.remove('selected'));
+            elem.classList.add('selected');
+            elem.dataset.selected = idx;
+            document.getElementById('quizBtn').disabled = false;
+            document.getElementById('quizBtn').textContent = '提交答案';
+        }
+
+        function submitQuiz() {
+            const selected = document.querySelector('.quiz-answer.selected');
+            if (!selected) return;
+
+            const idx = parseInt(selected.dataset.selected);
+            const isCorrect = idx === quiz.correct;
+
+            document.querySelectorAll('.quiz-answer').forEach((elem, i) => {
+                if (i === quiz.correct) {
+                    elem.classList.add('correct');
+                } else if (i === idx) {
+                    elem.classList.add('wrong');
+                }
+                elem.style.pointerEvents = 'none';
+            });
+
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.add('show');
+
+            if (isCorrect) {
+                game.lives += 2;
+                feedback.innerHTML = `✅ 回答正确！${quiz.explanation}<br><br><strong>奖励：+2 生命值 ❤️❤️</strong>`;
+            } else {
+                feedback.innerHTML = `❌ 回答错误<br>${quiz.explanation}`;
+            }
+
+            document.getElementById('quizBtn').textContent = '开始游戏 🚀';
+            document.getElementById('quizBtn').onclick = startGame;
+            document.getElementById('quizBtn').disabled = false;
+        }
+
+        function startGame() {
+            document.getElementById('quizModal').style.display = 'none';
+
+            game.canvas = document.getElementById('gameCanvas');
+            game.ctx = game.canvas.getContext('2d');
+
+            // Responsive sizing
+            const area = game.canvas.parentElement;
+            const size = Math.min(area.clientWidth - 20, area.clientHeight - 20, 600);
+            game.canvas.width = size;
+            game.canvas.height = size;
+
+            // Center player
+            game.player.x = size / 2;
+            game.player.y = size * 0.8;
+
+            // Create enemies
+            const enemyCount = 5;
+            for (let i = 0; i < enemyCount; i++) {
+                game.enemies.push({
+                    x: 60 + i * 70,
+                    y: 60 + Math.random() * 50,
+                    size: 28,
+                    vx: 1.2 + Math.random() * 0.8,
+                    vy: 0.8 + Math.random() * 0.5,
+                    lastShot: 0
+                });
+            }
+
+            setupControls();
+            updateUI();
+            game.running = true;
+            gameLoop();
+
+            // Hide hint after 3 seconds
+            setTimeout(() => {
+                document.getElementById('controlHint').classList.remove('show');
+            }, 3000);
+        }
+
+        function setupControls() {
+            const canvas = game.canvas;
+
+            // Touch controls
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+            // Keyboard fallback
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') game.player.vy = -4;
+                if (e.key === 'ArrowDown') game.player.vy = 4;
+                if (e.key === 'ArrowLeft') game.player.vx = -4;
+                if (e.key === 'ArrowRight') game.player.vx = 4;
+                if (e.key === ' ') playerShoot();
+                e.preventDefault();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key.startsWith('Arrow')) {
+                    game.player.vx = 0;
+                    game.player.vy = 0;
+                }
+            });
+
+            // Auto-shoot toggle
+            document.getElementById('autoShootBtn').onclick = () => {
+                game.autoShoot = !game.autoShoot;
+                const btn = document.getElementById('autoShootBtn');
+                btn.classList.toggle('active');
+                btn.innerHTML = game.autoShoot 
+                    ? '<span>🎯</span><span>自动射击</span>' 
+                    : '<span>🔫</span><span>手动射击</span>';
+            };
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = game.canvas.getBoundingClientRect();
+            game.touch.x = touch.clientX - rect.left;
+            game.touch.y = touch.clientY - rect.top;
+            game.touch.active = true;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!game.touch.active) return;
+
+            const touch = e.touches[0];
+            const rect = game.canvas.getBoundingClientRect();
+            const newX = touch.clientX - rect.left;
+            const newY = touch.clientY - rect.top;
+
+            const dx = newX - game.touch.x;
+            const dy = newY - game.touch.y;
+
+            // Convert swipe to velocity
+            game.player.vx = dx * 0.3;
+            game.player.vy = dy * 0.3;
+
+            // Determine direction
+            if (Math.abs(dx) > Math.abs(dy)) {
+                game.player.dir = dx > 0 ? 'right' : 'left';
+            } else {
+                game.player.dir = dy > 0 ? 'down' : 'up';
+            }
+
+            game.touch.x = newX;
+            game.touch.y = newY;
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            game.touch.active = false;
+            game.player.vx *= 0.5;
+            game.player.vy *= 0.5;
+        }
+
+        function gameLoop() {
+            if (!game.running) return;
+
+            updateGame();
+            renderGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateGame() {
+            // Player movement
+            game.player.x += game.player.vx;
+            game.player.y += game.player.vy;
+
+            // Apply friction
+            game.player.vx *= 0.95;
+            game.player.vy *= 0.95;
+
+            // Boundaries
+            const s = game.player.size;
+            game.player.x = Math.max(s/2, Math.min(game.canvas.width - s/2, game.player.x));
+            game.player.y = Math.max(s/2, Math.min(game.canvas.height - s/2, game.player.y));
+
+            // Auto-shoot
+            if (game.autoShoot && Date.now() - game.lastShot > 400 && game.enemies.length > 0) {
+                playerShoot();
+            }
+
+            // Update bullets
+            game.bullets = game.bullets.filter(b => {
+                b.y -= 10;
+                return b.y > -10;
+            });
+
+            // Update enemies
+            game.enemies.forEach(e => {
+                e.x += e.vx;
+                e.y += e.vy;
+
+                if (e.x < e.size || e.x > game.canvas.width - e.size) e.vx *= -1;
+                if (e.y < e.size || e.y > game.canvas.height * 0.55) e.vy *= -1;
+
+                // Enemy shoots
+                if (Date.now() - e.lastShot > 2800 && Math.random() < 0.03) {
+                    game.enemyBullets.push({ x: e.x, y: e.y + e.size/2, speed: 5 });
+                    e.lastShot = Date.now();
+                }
+            });
+
+            game.enemyBullets = game.enemyBullets.filter(b => {
+                b.y += b.speed;
+                return b.y < game.canvas.height + 10;
+            });
+
+            // Collision detection
+            game.bullets.forEach((b, bi) => {
+                game.enemies.forEach((e, ei) => {
+                    if (Math.abs(b.x - e.x) < e.size && Math.abs(b.y - e.y) < e.size) {
+                        game.bullets.splice(bi, 1);
+                        game.enemies.splice(ei, 1);
+                        game.score += 150;
+                        game.kills++;
+                        updateUI();
+                    }
+                });
+            });
+
+            game.enemyBullets.forEach((b, bi) => {
+                if (Math.abs(b.x - game.player.x) < game.player.size/2 && 
+                    Math.abs(b.y - game.player.y) < game.player.size/2) {
+                    game.enemyBullets.splice(bi, 1);
+                    game.lives--;
+                    updateUI();
+                    if (game.lives <= 0) endGame(false);
+                }
+            });
+
+            // Check victory
+            if (game.enemies.length === 0) endGame(true);
+        }
+
+        function renderGame() {
+            const ctx = game.ctx;
+            const w = game.canvas.width;
+            const h = game.canvas.height;
+
+            // Background
+            ctx.fillStyle = '#0a1e3d';
+            ctx.fillRect(0, 0, w, h);
+
+            // Grid pattern
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.08)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < w; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, h);
+                ctx.stroke();
+            }
+
+            // Player tank
+            const p = game.player;
+            ctx.fillStyle = '#64dd17';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#64dd17';
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+            ctx.shadowBlur = 0;
+
+            // Barrel
+            ctx.fillStyle = '#43a047';
+            if (p.dir === 'up') ctx.fillRect(p.x - 5, p.y - p.size/2 - 12, 10, 14);
+            else if (p.dir === 'down') ctx.fillRect(p.x - 5, p.y + p.size/2 - 2, 10, 14);
+            else if (p.dir === 'left') ctx.fillRect(p.x - p.size/2 - 12, p.y - 5, 14, 10);
+            else if (p.dir === 'right') ctx.fillRect(p.x + p.size/2 - 2, p.y - 5, 14, 10);
+
+            // Enemies
+            ctx.fillStyle = '#ff1744';
+            game.enemies.forEach(e => {
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ff1744';
+                ctx.fillRect(e.x - e.size/2, e.y - e.size/2, e.size, e.size);
+            });
+            ctx.shadowBlur = 0;
+
+            // Bullets
+            ctx.fillStyle = '#ffd600';
+            game.bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            game.enemyBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function playerShoot() {
+            if (!game.running) return;
+            game.bullets.push({ x: game.player.x, y: game.player.y - 20 });
+            game.lastShot = Date.now();
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = game.score;
+            document.getElementById('livesDisplay').textContent = '❤️'.repeat(Math.max(0, game.lives));
+            document.getElementById('enemiesLeft').textContent = game.enemies.length;
+        }
+
+        function endGame(victory) {
+            game.running = false;
+            document.getElementById('endEmoji').textContent = victory ? '🎉' : '💔';
+            document.getElementById('endTitle').textContent = victory ? '任务完成！' : '任务失败';
+            document.getElementById('finalScore').textContent = game.score;
+            document.getElementById('finalKills').textContent = game.kills;
+            document.getElementById('finalLives').textContent = game.lives;
+            document.getElementById('endModal').classList.add('visible');
+        }
+    </script>
+</body>
+</html>
