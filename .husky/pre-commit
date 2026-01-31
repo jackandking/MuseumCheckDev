@@ -94,8 +94,39 @@ if [ -n "$STAGED_MD_FILES" ]; then
     fi
     echo "✅ Document location compliance passed!"
     echo ""
+    
+    # ====== Check document consistency ======
+    echo "� Checking document consistency..."
+    if ! bash scripts/check-docs-consistency.sh; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "❌ COMMIT BLOCKED: Document consistency check failed"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Fix the inconsistencies or run manually:"
+        echo "  npm run verify:docs-consistency"
+        echo "  npm run verify:docs-content"
+        echo ""
+        exit 1
+    fi
+    
+    # ====== Check document content consistency ======
+    echo "📖 Checking document content consistency..."
+    if ! node scripts/check-docs-content-consistency.js; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "❌ COMMIT BLOCKED: Document content conflicts detected"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Fix the content conflicts or run manually:"
+        echo "  npm run verify:docs-content"
+        echo ""
+        exit 1
+    fi
+    echo "✅ Document consistency checks passed!"
+    echo ""
 else
-    echo "📝 No MD files staged, skipping document location check."
+    echo "📝 No MD files staged, skipping document checks."
     echo ""
 fi
 

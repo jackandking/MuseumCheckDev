@@ -1,0 +1,302 @@
+/**
+ * Unified Game Controls - Enhanced Mobile UX
+ * 
+ * Design Principles (from ui-ux-pro-max):
+ * - Touch targets: minimum 44x44px (WCAG AAA)
+ * - Touch spacing: minimum 8px gap between targets
+ * - Haptic feedback: subtle vibration on press
+ * - Visual feedback: clear hover/active states
+ * - Playful style: bold colors, energetic feel
+ */
+
+.ugc-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    pointer-events: none;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ugc-controls {
+    pointer-events: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+/* D-Pad + Fire Layout */
+.ugc-dpad-fire {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    gap: 16px;
+}
+
+.ugc-dpad {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.ugc-dpad-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ugc-spacer {
+    width: 52px;
+    height: 52px;
+}
+
+.ugc-fire-column {
+    display: flex;
+    align-items: center;
+}
+
+/* Left-Right-Fire Layout */
+.ugc-lr-fire {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+}
+
+.ugc-lr-fire .ugc-btn {
+    flex: 1;
+    max-width: 120px;
+}
+
+/* Button Base Styles - Neubrutalism/Playful Gaming Style */
+.ugc-btn {
+    /* Touch target size - WCAG AA compliant (44px minimum) */
+    min-width: 52px;
+    min-height: 52px;
+    
+    /* Visual style - bold, playful, gaming aesthetic */
+    background: linear-gradient(135deg, #39FF14 0%, #00FF88 100%);
+    border: 3px solid #000000;
+    border-radius: 12px;
+    box-shadow: 
+        4px 4px 0px #000000,
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+    
+    /* Typography */
+    font-size: 24px;
+    font-weight: 700;
+    color: #000000;
+    
+    /* Layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    
+    /* Interaction */
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    
+    /* Smooth transitions */
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button Variants */
+.ugc-btn-up,
+.ugc-btn-down,
+.ugc-btn-left,
+.ugc-btn-right {
+    background: linear-gradient(135deg, #00FFFF 0%, #0099FF 100%);
+}
+
+.ugc-btn-fire {
+    background: linear-gradient(135deg, #FF5757 0%, #FF1493 100%);
+    color: #FFFFFF;
+    min-width: 80px;
+    min-height: 80px;
+    font-size: 32px;
+}
+
+/* Hover State - Desktop only */
+@media (hover: hover) {
+    .ugc-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            6px 6px 0px #000000,
+            inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Active/Pressed State - Enhanced visual feedback */
+.ugc-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 
+        2px 2px 0px #000000,
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    filter: brightness(0.9);
+}
+
+/* Focus State - Keyboard accessibility */
+.ugc-btn:focus {
+    outline: 3px solid #FFDE59;
+    outline-offset: 2px;
+}
+
+/* Disabled State */
+.ugc-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+/* Hints Section */
+.ugc-hints {
+    pointer-events: auto;
+    list-style: none;
+    margin: 0;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    border: 2px solid #39FF14;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ugc-hints li {
+    padding: 4px 8px;
+    background: rgba(57, 255, 20, 0.2);
+    border-radius: 4px;
+    border: 1px solid #39FF14;
+}
+
+/* Tablet Adjustments */
+@media (min-width: 768px) {
+    .ugc-container {
+        padding: 24px;
+    }
+    
+    .ugc-btn {
+        min-width: 72px;
+        min-height: 72px;
+        font-size: 28px;
+    }
+    
+    .ugc-btn-fire {
+        min-width: 96px;
+        min-height: 96px;
+        font-size: 36px;
+    }
+    
+    .ugc-spacer {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+/* Desktop Adjustments */
+@media (min-width: 1024px) {
+    .ugc-container {
+        max-width: 600px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* Landscape Mobile - Compact Layout */
+@media (max-height: 500px) and (orientation: landscape) {
+    .ugc-container {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .ugc-btn {
+        min-width: 52px;
+        min-height: 52px;
+        font-size: 20px;
+        border-width: 2px;
+        box-shadow: 3px 3px 0px #000000;
+    }
+    
+    .ugc-btn-fire {
+        min-width: 64px;
+        min-height: 64px;
+        font-size: 24px;
+    }
+    
+    .ugc-spacer {
+        width: 52px;
+        height: 52px;
+    }
+    
+    .ugc-hints {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+}
+
+/* Reduced Motion - Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .ugc-btn {
+        transition: none;
+    }
+    
+    .ugc-btn:hover {
+        transform: none;
+    }
+    
+    .ugc-btn:active {
+        transform: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .ugc-hints {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: #39FF14;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .ugc-btn {
+        border-width: 4px;
+        box-shadow: 6px 6px 0px #000000;
+    }
+    
+    .ugc-hints {
+        border-width: 3px;
+    }
+}
+
+/* Animation for button press feedback */
+@keyframes button-press {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.ugc-btn.pressing {
+    animation: button-press 150ms ease-out;
+}

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏃 迷宫冒险 - 博物馆探险游戏</title>
+    <link rel="stylesheet" href="../css/unified-game-ui.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        .game-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 顶部 */
+        .header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .game-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #3498db;
+            margin-right: 8px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+        }
+
+        /* 游戏区 */
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 10px;
+            box-shadow: 0 0 40px rgba(52, 152, 219, 0.3), 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        #mazeCanvas {
+            display: block;
+            border-radius: 18px;
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+            background: #2c3e50;
+        }
+
+        /* 提示文字 */
+        .game-hint {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        /* 虚拟键盘样式由 unified-game-controls.css 提供 */
+
+        /* 游戏结束弹窗 */
+        .game-end-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .game-end-modal.visible {
+            display: flex;
+        }
+
+        .end-box {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            border-radius: 28px;
+            padding: 42px;
+            text-align: center;
+            max-width: 92%;
+            box-shadow: 0 0 60px rgba(52, 152, 219, 0.6);
+        }
+
+        .end-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.8));
+        }
+
+        .end-heading {
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 28px;
+            text-shadow: 0 0 20px rgba(52, 152, 219, 0.8);
+        }
+
+        .end-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .end-stat-card {
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .end-stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(52, 152, 219, 1);
+        }
+
+        .end-stat-name {
+            font-size: 12px;
+            color: #3498db;
+        }
+
+        .end-continue-btn {
+            width: 100%;
+            padding: 19px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-content">
+            <!-- 顶部 -->
+            <div class="header">
+                <div class="game-title">🏃 迷宫冒险</div>
+                <div class="game-stats">
+                    <span class="stat-label">步数：</span>
+                    <span class="stat-value" id="mazeSteps">0</span>
+                </div>
+            </div>
+
+            <!-- 游戏区 -->
+            <div class="game-area">
+                <div class="canvas-wrapper">
+                    <canvas id="mazeCanvas" width="280" height="280"></canvas>
+                </div>
+                <div class="game-hint">滑动屏幕移动小人到出口</div>
+            </div>
+
+            <!-- 虚拟键盘由 UnifiedGameControls 自动创建 -->
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="game-end-modal" id="gameEndModal">
+        <div class="end-box">
+            <div class="end-icon">🎉</div>
+            <div class="end-heading">成功逃脱！</div>
+            <div class="end-stats-grid">
+                <div class="end-stat-card">
+                    <div class="end-stat-number" id="endSteps">0</div>
+                    <div class="end-stat-name">总步数</div>
+                </div>
+            </div>
+            <button class="end-continue-btn" onclick="closeGame()">继续游览 →</button>
+        </div>
+    </div>
+
+    <!-- 加载游戏脚本 -->
+    <script src="../js/unified-game-controls.js"></script>
+    <script src="../js/game-context-manager.js"></script>
+    <script src="../js/base-game.js"></script>
+    <script src="../js/unified-maze-game.js"></script>
+
+    <script>
+        // 获取游戏上下文
+        const gameContext = window.GameContextManager ? window.GameContextManager.getContext() : null;
+        
+        // 初始化游戏（暴露到全局以便调试）
+        window.gameInstance = new UnifiedMazeGame({
+            enableKeyboard: true,
+            enableTouchControls: true
+        });
+        const gameInstance = window.gameInstance;
+
+        // 启动游戏
+        async function startGame() {
+            try {
+                await gameInstance.init(0, {});
+                gameInstance.start();
+                
+                // 游戏启动后确保焦点
+                setTimeout(() => {
+                    document.body.focus();
+                    console.log('[Maze] Focus set to body, keyboard should work now');
+                }, 100);
+            } catch (error) {
+                console.error('Game initialization error:', error);
+            }
+        }
+
+        // 关闭游戏并返回
+        function closeGame() {
+            console.log('[Maze] closeGame called');
+            
+            // 保存游戏结果
+            if (window.GameContextManager && gameInstance) {
+                const startTime = gameInstance.startTime || Date.now();
+                const timeSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const score = gameInstance.steps || 0;
+                
+                console.log('[Maze] Saving game result:', { score, timeSeconds });
+                
+                const saved = window.GameContextManager.saveResult({
+                    gameType: 'maze',
+                    score: score,
+                    timeSeconds: timeSeconds,
+                    pointsEarned: Math.max(100 - score, 10), // 步数越少积分越高
+                    gameData: {
+                        steps: score,
+                        time: timeSeconds
+                    }
+                });
+                
+                console.log('[Maze] Game result saved:', saved);
+            } else {
+                console.warn('[Maze] Cannot save game result - GameContextManager or gameInstance not available');
+            }
+            
+            // 返回打卡页面
+            console.log('[Maze] Returning to checkin page');
+            window.location.href = '/museum-checkin.html';
+        }
+
+        // 页面加载时启动游戏
+        window.addEventListener('DOMContentLoaded', () => {
+            startGame();
+            
+            // 确保页面获得焦点以接收键盘事件
+            document.body.tabIndex = 0;
+            document.body.focus();
+            
+            // 添加点击事件确保焦点
+            document.body.addEventListener('click', () => {
+                document.body.focus();
+            });
+            
+            // 添加调试键盘监听器
+            document.addEventListener('keydown', (e) => {
+                console.log('[Maze Debug] Keydown event captured:', e.key, e.code);
+            }, true); // 使用捕获阶段
+        });
+
+        // 处理来自父窗口的消息
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'start-game') {
+                startGame();
+                // 确保焦点
+                setTimeout(() => {
+                    document.body.focus();
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>

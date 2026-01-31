@@ -292,14 +292,7 @@ class GameWrapper extends BaseGame {
 }
 
 // Specific wrapper classes for each game type
-class PuzzleGameWrapper extends GameWrapper {
-    constructor(gameType, config) {
-        super(gameType, config);
-        if (typeof initPuzzleGame === 'function') {
-            this.setOldFunctions(initPuzzleGame, resetPuzzle, closePuzzleGame);
-        }
-    }
-}
+// PuzzleGameWrapper removed - puzzle game deleted
 
 class MazeGameWrapper extends GameWrapper {
     constructor(gameType, config) {

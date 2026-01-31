@@ -92,6 +92,10 @@ class UnifiedSnakeGame extends BaseGame {
             clearInterval(this.moveInterval);
             this.moveInterval = null;
         }
+        if (this.virtualControls) {
+            this.virtualControls.teardown();
+            this.virtualControls = null;
+        }
         this.hideCompletionMessage();
     }
 
@@ -157,24 +161,44 @@ class UnifiedSnakeGame extends BaseGame {
     }
 
     setupTouchControls() {
-        const upBtn = document.getElementById('snakeUpBtn');
-        const downBtn = document.getElementById('snakeDownBtn');
-        const leftBtn = document.getElementById('snakeLeftBtn');
-        const rightBtn = document.getElementById('snakeRightBtn');
+        if (!this.config.enableTouchControls || typeof UnifiedGameControls === 'undefined') {
+            return;
+        }
 
-        const bind = (el, dir) => {
-            if (!el) return;
-            this.addTrackedEventListener(el, 'touchstart', (e) => {
-                e.preventDefault();
-                this.setDirection(dir);
-            });
-            this.addTrackedEventListener(el, 'mousedown', () => this.setDirection(dir));
+        const controlsMount = document.getElementById('snakeControls');
+        if (!controlsMount) {
+            console.warn('[snake] Controls mount not found');
+            return;
+        }
+
+        const labels = {
+            up: '⬆️',
+            down: '⬇️',
+            left: '⬅️',
+            right: '➡️'
         };
 
-        bind(upBtn, { x: 0, y: -1 });
-        bind(downBtn, { x: 0, y: 1 });
-        bind(leftBtn, { x: -1, y: 0 });
-        bind(rightBtn, { x: 1, y: 0 });
+        this.virtualControls = new UnifiedGameControls({
+            targetElement: controlsMount,
+            scheme: 'dpad-fire',
+            actions: ['up', 'down', 'left', 'right'],
+            labels,
+            hints: ['使用方向键控制蛇的移动'],
+            onActionStart: (action) => {
+                const dirMap = {
+                    up: { x: 0, y: -1 },
+                    down: { x: 0, y: 1 },
+                    left: { x: -1, y: 0 },
+                    right: { x: 1, y: 0 }
+                };
+                if (dirMap[action]) {
+                    this.setDirection(dirMap[action]);
+                }
+            },
+            onActionEnd: () => {
+                // No action needed on release
+            }
+        });
     }
 
     handleKeyDown(event) {

@@ -6,6 +6,7 @@ coverage/
 .nyc_output/
 test-results/
 regression-results/
+e2e-screenshots/
 
 # Temporary files
 .tmp/

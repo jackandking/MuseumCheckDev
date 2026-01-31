@@ -64,7 +64,8 @@ class UnifiedMazeGame extends BaseGame {
         // Find maze-specific elements
         this.canvas = document.getElementById('mazeCanvas');
         this.stepsDisplay = document.getElementById('mazeSteps');
-        this.completeMessage = document.getElementById('mazeCompleteMessage');
+        this.endModal = document.getElementById('gameEndModal');
+        this.endStepsDisplay = document.getElementById('endSteps');
         
         // Update title with pet data
         this.updateTitle();
@@ -72,7 +73,8 @@ class UnifiedMazeGame extends BaseGame {
         console.log(`[${this.gameType}] DOM elements found:`, {
             canvas: !!this.canvas,
             stepsDisplay: !!this.stepsDisplay,
-            completeMessage: !!this.completeMessage
+            endModal: !!this.endModal,
+            endStepsDisplay: !!this.endStepsDisplay
         });
         
         // Initialize maze
@@ -422,7 +424,8 @@ class UnifiedMazeGame extends BaseGame {
      * Setup touch controls for mobile (keyboard handled by base game)
      */
     setupControls() {
-        // Touch controls for mobile
+        // Touch controls for mobile (swipe gestures only)
+        // Virtual keyboard removed - maze uses swipe gestures
         this.setupTouchControls();
     }
     
@@ -430,7 +433,13 @@ class UnifiedMazeGame extends BaseGame {
      * Handle keyboard input
      */
     handleKeydownInput(e) {
-        if (this.state !== 'playing' || !this.overlay || !this.overlay.classList.contains('show')) {
+        // 检查游戏状态
+        if (this.state !== 'playing') {
+            return;
+        }
+        
+        // 如果有overlay（嵌入式模式），检查是否显示
+        if (this.overlay && !this.overlay.classList.contains('show')) {
             return;
         }
         
@@ -599,8 +608,15 @@ class UnifiedMazeGame extends BaseGame {
     completeMaze() {
         console.log(`[${this.gameType}] Maze completed in ${this.steps} steps`);
         
-        // Show completion message
-        this.showCustomCompletionMessage();
+        // Update end modal with stats
+        if (this.endStepsDisplay) {
+            this.endStepsDisplay.textContent = this.steps;
+        }
+        
+        // Show end modal
+        if (this.endModal) {
+            this.endModal.style.display = 'flex';
+        }
         
         // Complete the game with result
         this.complete({

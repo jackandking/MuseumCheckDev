@@ -1658,27 +1658,27 @@
         }
 
         // Complete a task
-        function loadPuzzleGameSetting() {
+        function loadGameRewardSetting() {
             try {
-                const saved = localStorage.getItem('puzzleGameEnabled');
-                return saved === 'true';
+                const saved = localStorage.getItem('gameRewardEnabled');
+                return saved === null ? true : saved === 'true';
             } catch (error) {
-                console.error('Failed to load puzzle game setting:', error);
+                console.error('Failed to load game reward setting:', error);
                 return true;
             }
         }
 
-        function savePuzzleGameSetting(enabled) {
+        function saveGameRewardSetting(enabled) {
             try {
-                localStorage.setItem('puzzleGameEnabled', enabled ? 'true' : 'false');
+                localStorage.setItem('gameRewardEnabled', enabled ? 'true' : 'false');
             } catch (error) {
-                console.error('Failed to save puzzle game setting:', error);
+                console.error('Failed to save game reward setting:', error);
             }
         }
 
         // Expose helpers for any global handlers that expect them
-        window.loadPuzzleGameSetting = loadPuzzleGameSetting;
-        window.savePuzzleGameSetting = savePuzzleGameSetting;
+        window.loadGameRewardSetting = loadGameRewardSetting;
+        window.saveGameRewardSetting = saveGameRewardSetting;
 
         async function completeTask() {
             if (currentTaskIndex === null) return;
@@ -1737,8 +1737,9 @@
             }
 
             const hasPhoto = !!taskPhotos[currentTaskIndex];
-            const puzzleEnabled = loadPuzzleGameSetting();
-            const showGame = hasPhoto && puzzleEnabled;
+            const gameRewardEnabled = loadGameRewardSetting();
+            // Show game reward only if photo was uploaded and setting is enabled
+            const showGame = hasPhoto && gameRewardEnabled;
 
             completedTasks.add(currentTaskIndex);
             saveCompletedTasks();
@@ -1801,11 +1802,9 @@
             // Upload firework to remote
             uploadFireworkEvent(currentTaskIndex);
             
-            // Check if all tasks complete
-            checkCompletion();
-
-            // Show game as reward if photo was uploaded and setting is enabled
+            // Show game as reward if setting is enabled
             // Present 3 random games for the user to choose
+            // IMPORTANT: Do this BEFORE checkCompletion to avoid any interruption
             if (showGame) {
                 // Delay slightly to let fireworks animation start
                 const taskIndexForGame = currentTaskIndex;
@@ -1815,6 +1814,9 @@
                     showGameChoiceOverlay(taskIndexForGame, options);
                 }, 800);
             }
+            
+            // Check if all tasks complete (do this after scheduling game reward)
+            checkCompletion();
         }
 
         // Celebrate with fireworks animation
@@ -4010,11 +4012,11 @@
                 };
             }
 
-            // Puzzle game settings toggle
-            const puzzleToggle = document.getElementById('puzzleGameToggle');
-            if (puzzleToggle) {
-                puzzleToggle.addEventListener('change', (e) => {
-                    savePuzzleGameSetting(e.target.checked);
+            // Game reward settings toggle
+            const gameRewardToggle = document.getElementById('gameRewardToggle');
+            if (gameRewardToggle) {
+                gameRewardToggle.addEventListener('change', (e) => {
+                    saveGameRewardSetting(e.target.checked);
                     updateGameSelectionVisibility(e.target.checked);
                 });
             }
@@ -4024,34 +4026,6 @@
             gameToggles.forEach(toggle => {
                 toggle.addEventListener('change', handleGameToggleChange);
             });
-
-            // Puzzle game controls
-            const exitPuzzleBtn = document.getElementById('exitPuzzle');
-            if (exitPuzzleBtn) {
-                exitPuzzleBtn.onclick = () => window.closeUnifiedGame();
-            }
-
-            const resetPuzzleBtn = document.getElementById('resetPuzzle');
-            if (resetPuzzleBtn) {
-                if (typeof isDebugMode === 'function' && !isDebugMode()) {
-                    resetPuzzleBtn.onclick = () => window.closeUnifiedGame();
-                } else {
-                    // Check if new game system is available
-                    if (typeof GameManager !== 'undefined' && GameManager.getCurrentGame()) {
-                        // Let the new system handle the button
-                        console.log('Using new game system for reset button');
-                    } else {
-                        // Fall back to old system
-                        resetPuzzleBtn.onclick = resetPuzzle;
-                    }
-                }
-            }
-
-            const toggleRefBtn = document.getElementById('toggleReference');
-            if (toggleRefBtn) {
-                // Reference image toggling is handled by the unified puzzle game
-                // toggleRefBtn.onclick = toggleReferenceImage;
-            }
 
             // Maze game controls
             const exitMazeBtn = document.getElementById('exitMaze');
@@ -5810,11 +5784,11 @@
                 ageGroupSelector.value = ageGroup;
             }
 
-            // Load puzzle game toggle state
-            const puzzleGameEnabled = loadPuzzleGameSetting();
-            const puzzleToggle = document.getElementById('puzzleGameToggle');
-            if (puzzleToggle) {
-                puzzleToggle.checked = puzzleGameEnabled;
+            // Load game reward toggle state
+            const gameRewardEnabled = loadGameRewardSetting();
+            const gameRewardToggle = document.getElementById('gameRewardToggle');
+            if (gameRewardToggle) {
+                gameRewardToggle.checked = gameRewardEnabled;
             }
 
             // Initialize treasure check-in configuration for parent mode
@@ -5827,7 +5801,7 @@
             updateGameSelectionUI();
             
             // Update game selection visibility based on main toggle
-            updateGameSelectionVisibility(puzzleGameEnabled);
+            updateGameSelectionVisibility(gameRewardEnabled);
 
             // Show modal
             document.getElementById('settingsModal').classList.add('show');
@@ -5948,7 +5922,7 @@
                     return 10; // Default XP
                 }
                 
-                // Fixed XP games (puzzle, maze)
+                // Fixed XP games (maze)
                 if (rewards.base) {
                     return rewards.base;
                 }
@@ -5970,7 +5944,6 @@
             // Fallback XP calculation when VirtualPet not available
             _getFallbackXP(gameType, score, timeSeconds) {
                 const fallbacks = {
-                    'puzzle': 15,
                     'maze': 20,
                     'space-invaders': Math.max(15, Math.min(30, Math.floor(score / 10))),
                     'tank-battle': Math.max(20, Math.min(30, Math.floor(score / 5))),
@@ -5982,7 +5955,6 @@
             // Get display name for game type
             _getGameName(gameType) {
                 const names = {
-                    'puzzle': '拼图游戏',
                     'maze': '迷宫游戏',
                     'space-invaders': '小蜜蜂游戏',
                     'tank-battle': '坦克大战',
@@ -6021,16 +5993,26 @@
             'snake': { name: '贪食蛇', icon: '🐍', desc: '越吃越长' }
         };
 
+        // Initialize GameLauncher for independent game HTML loading
+        const gameLauncher = new GameLauncher({
+            baseUrl: '/games/',
+            onClose: () => {
+                console.log('Game closed');
+            }
+        });
+
         function showGameChoiceOverlay(taskIndex, options = {}) {
             const overlay = document.getElementById('gameChoiceOverlay');
             const grid = document.getElementById('gameChoiceGrid');
             const skipBtn = document.getElementById('gameChoiceSkip');
+            
             if (!overlay || !grid) {
                 // Fallback to auto selection if overlay missing
                 const gameType = selectRandomGame();
-                if (typeof GameManager !== 'undefined') {
-                    GameManager.startGame(gameType, taskIndex, options);
-                }
+                gameLauncher.launchGame(gameType, {
+                    museumId: currentMuseum?.id,
+                    taskIndex: taskIndex
+                });
                 return;
             }
 
@@ -6051,9 +6033,23 @@
                 button.addEventListener('click', () => {
                     overlay.classList.remove('show');
                     overlay.setAttribute('aria-hidden', 'true');
-                    if (typeof GameManager !== 'undefined') {
-                        GameManager.startGame(gameType, taskIndex, options);
+                    
+                    // 保存游戏上下文
+                    if (window.GameContextManager) {
+                        window.GameContextManager.saveContext({
+                            museumId: currentMuseum?.id,
+                            museumName: currentMuseum?.name,
+                            taskIndex: taskIndex,
+                            museum: currentMuseum,
+                            currentTask: childTasks[taskIndex],
+                            completedTasks: Array.from(completedTasks),
+                            taskPhotos: taskPhotos,
+                            ageGroup: ageGroup
+                        });
                     }
+                    
+                    // 跳转到游戏页面
+                    window.location.href = `/games/${gameType}.html`;
                 });
                 grid.appendChild(button);
             });
@@ -6077,7 +6073,22 @@
 
             overlay.classList.add('show');
             overlay.setAttribute('aria-hidden', 'false');
+            // Clear any inline styles to let CSS take effect
+            overlay.style.cssText = '';
         }
+
+        // Listen for game completion messages from iframe games
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'game-complete') {
+                const { gameType, score, timeSeconds } = event.data;
+                console.log(`Game completed: ${gameType}, score: ${score}, time: ${timeSeconds}s`);
+                
+                // Award XP through GameRewardManager
+                if (typeof GameRewardManager !== 'undefined') {
+                    GameRewardManager.awardCompletion(gameType, score, timeSeconds);
+                }
+            }
+        });
 
         // ===== Fullscreen Image Viewer =====
         // Global state for fullscreen viewer
@@ -6247,4 +6258,49 @@
         window.addEventListener('DOMContentLoaded', function() {
             init();
             initFullscreenViewer();
+            
+            // Ensure game choice overlay is hidden on page load
+            const gameChoiceOverlay = document.getElementById('gameChoiceOverlay');
+            if (gameChoiceOverlay) {
+                gameChoiceOverlay.classList.remove('show');
+                gameChoiceOverlay.setAttribute('aria-hidden', 'true');
+            }
+            
+            // 检查是否从游戏页面返回
+            handleGameReturn();
         });
+        
+        /**
+         * 处理从游戏页面返回
+         */
+        function handleGameReturn() {
+            if (!window.GameContextManager) return;
+            
+            const gameResult = window.GameContextManager.getResult();
+            if (gameResult) {
+                console.log('[Game Return] Processing game result:', gameResult);
+                
+                // 显示游戏完成通知
+                if (window.achievementGamification) {
+                    const message = `${GAME_CHOICE_META[gameResult.gameType]?.name || '游戏'}完成！`;
+                    window.achievementGamification.showXPGainNotification(
+                        gameResult.pointsEarned || gameResult.score,
+                        message
+                    );
+                }
+                
+                // 奖励积分
+                if (gameResult.pointsEarned > 0 && window.achievementGamification) {
+                    window.achievementGamification.addXP(gameResult.pointsEarned);
+                }
+                
+                // 显示成就
+                if (gameResult.achievements && gameResult.achievements.length > 0) {
+                    // TODO: 显示成就通知
+                    console.log('[Game Return] Achievements unlocked:', gameResult.achievements);
+                }
+                
+                // 清除游戏结果
+                window.GameContextManager.clearResult();
+            }
+        }

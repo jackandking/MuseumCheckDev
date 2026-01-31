@@ -9,6 +9,11 @@
     <link rel="dns-prefetch" href="//hm.baidu.com">
     <link rel="dns-prefetch" href="//static.hotjar.com">
     
+    <!-- Google Fonts for game choice overlay -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="js/debug-mode.js"></script>
     
     <!-- Deferred Analytics Loading - Load after page becomes interactive -->
@@ -171,11 +176,135 @@
             .checkin-header h1 { font-size: 0.9em; }
             .menu-button, .settings-button { width: 40px; height: 40px; margin: 0 4px; }
         }
+
+        /* ===== Game Choice Overlay - Claymorphism Style (Inline for immediate effect) ===== */
+        .game-choice-overlay {
+            display: none !important;
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(0, 0, 0, 0.4) !important;
+            z-index: 4000 !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(8px) !important;
+        }
+
+        .game-choice-overlay.show {
+            display: flex !important;
+        }
+
+        .game-choice-modal {
+            background: linear-gradient(135deg, #FDBCB4 0%, #ADD8E6 100%) !important;
+            border-radius: 24px !important;
+            width: 100% !important;
+            max-width: 520px !important;
+            padding: 32px 24px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 2px 8px rgba(255, 255, 255, 0.5) !important;
+            text-align: center !important;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .game-choice-title {
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 28px !important;
+            font-weight: 700 !important;
+            color: #2D3748 !important;
+            margin-bottom: 8px !important;
+            text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .game-choice-subtitle {
+            font-family: 'Nunito', sans-serif !important;
+            font-size: 16px !important;
+            color: #4A5568 !important;
+            margin-bottom: 24px !important;
+            font-weight: 500 !important;
+        }
+
+        .game-choice-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 16px !important;
+            margin-bottom: 20px !important;
+        }
+
+        .game-choice-card {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 20px !important;
+            padding: 20px 12px !important;
+            border: 3px solid #2D3748 !important;
+            cursor: pointer !important;
+            box-shadow: 4px 4px 0 #2D3748, inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease-out !important;
+        }
+
+        .game-choice-card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 6px 6px 0 #2D3748, inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .game-choice-icon {
+            font-size: 48px !important;
+            margin-bottom: 8px !important;
+            display: block !important;
+            filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.1)) !important;
+        }
+
+        .game-choice-name {
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #2D3748 !important;
+            margin-bottom: 4px !important;
+        }
+
+        .game-choice-desc {
+            font-family: 'Nunito', sans-serif !important;
+            font-size: 12px !important;
+            color: #718096 !important;
+            font-weight: 500 !important;
+        }
+
+        .game-choice-skip {
+            width: 100% !important;
+            padding: 16px !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 3px solid #2D3748 !important;
+            border-radius: 16px !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #2D3748 !important;
+            cursor: pointer !important;
+            box-shadow: 4px 4px 0 #2D3748, inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease-out !important;
+        }
+
+        .game-choice-skip:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 5px 5px 0 #2D3748, inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        @media (max-width: 480px) {
+            .game-choice-modal { padding: 24px 16px !important; }
+            .game-choice-title { font-size: 24px !important; }
+            .game-choice-card { padding: 16px 8px !important; }
+            .game-choice-icon { font-size: 36px !important; }
+            .game-choice-name { font-size: 14px !important; }
+            .game-choice-desc { font-size: 11px !important; }
+        }
     </style>
     
     
     <!-- Main CSS - Extracted to external file for better caching -->
-    <link rel="stylesheet" href="css/museum-checkin.css">
+    <link rel="stylesheet" href="css/museum-checkin.css?v=claymorphism">
     <!-- Leaderboard Styles - Unified across all pages -->
     <link rel="stylesheet" href="css/leaderboard.css">
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
@@ -551,7 +680,7 @@
                             <div class="settings-hint" style="margin-top: 4px;">完成任务并上传照片后，随机解锁选中的小游戏作为奖励</div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="puzzleGameToggle">
+                            <input type="checkbox" id="gameRewardToggle">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -595,152 +724,6 @@
 
     <canvas class="fireworks-overlay" id="fireworksCanvas"></canvas>
 
-    <!-- Puzzle Game Overlay -->
-    <div class="puzzle-game-overlay" id="puzzleGameOverlay">
-        <div class="puzzle-header">
-            <div class="puzzle-title">🧩 拼图挑战</div>
-            <div class="puzzle-moves">移动次数：<span id="puzzleMoves">0</span></div>
-        </div>
-        <div class="puzzle-container">
-            <div class="puzzle-grid" id="puzzleGrid"></div>
-        </div>
-        <div class="puzzle-reference">
-            <button class="puzzle-reference-btn" id="toggleReference">查看原图 👀</button>
-            <img class="puzzle-reference-img" id="puzzleReferenceImg" alt="原图参考">
-        </div>
-        <div class="puzzle-buttons">
-            <button class="puzzle-button puzzle-button-reset" id="resetPuzzle">🔄 重新打乱</button>
-            <button class="puzzle-button puzzle-button-continue" id="exitPuzzle">继续游览 ➡️</button>
-        </div>
-        <div class="puzzle-complete-message" id="puzzleCompleteMessage">
-            🎉 恭喜完成！
-        </div>
-    </div>
-
-    <!-- Maze Game Overlay -->
-    <div class="maze-game-overlay game-overlay" id="mazeGameOverlay">
-        <div class="maze-header game-header">
-            <div class="maze-title game-title">🏃 迷宫冒险</div>
-            <div class="maze-steps game-stats">步数：<span id="mazeSteps">0</span></div>
-        </div>
-        <div class="maze-container game-container">
-            <canvas class="maze-canvas" id="mazeCanvas" width="280" height="280"></canvas>
-        </div>
-        <div class="maze-hint game-hint">使用下方方向键或滑动屏幕移动小人</div>
-        <div class="maze-controls">
-            <button class="maze-control-btn empty"></button>
-            <button class="maze-control-btn" id="mazeUp">⬆️</button>
-            <button class="maze-control-btn empty"></button>
-            <button class="maze-control-btn" id="mazeLeft">⬅️</button>
-            <button class="maze-control-btn empty"></button>
-            <button class="maze-control-btn" id="mazeRight">➡️</button>
-            <button class="maze-control-btn empty"></button>
-            <button class="maze-control-btn" id="mazeDown">⬇️</button>
-            <button class="maze-control-btn empty"></button>
-        </div>
-        <div class="maze-buttons game-buttons">
-            <button class="maze-button maze-button-reset game-button game-button-reset" id="resetMaze">🔄 重新开始</button>
-            <button class="maze-button maze-button-continue game-button game-button-continue" id="exitMaze">继续游览 ➡️</button>
-        </div>
-        <div class="maze-complete-message game-complete-message" id="mazeCompleteMessage">
-            🎉 成功逃脱！
-        </div>
-    </div>
-
-    <!-- Space Invaders (小蜜蜂) Game Overlay -->
-    <div class="space-invaders-overlay game-overlay" id="spaceInvadersOverlay">
-        <div class="space-invaders-header game-header">
-            <div class="space-invaders-title game-title">🐝 经典小蜜蜂 🐝</div>
-            <div class="space-invaders-stats game-stats">
-                得分：<span id="siScore">0</span> | 生命：<span id="siLives">3</span>
-            </div>
-        </div>
-        <div class="space-invaders-container game-container">
-            <canvas class="space-invaders-canvas" id="spaceInvadersCanvas" width="320" height="400"></canvas>
-        </div>
-        <div class="space-invaders-hint game-hint">移动飞船消灭小蜜蜂！</div>
-        <div class="si-touch-controls" id="siTouchControls">
-            <div class="si-touch-btn-group">
-                <button class="si-touch-btn" id="siLeftBtn">◀</button>
-                <button class="si-touch-btn" id="siRightBtn">▶</button>
-            </div>
-            <button class="si-touch-btn si-fire-btn" id="siFireBtn">🔥</button>
-        </div>
-        <div class="space-invaders-buttons game-buttons">
-            <button class="space-invaders-button space-invaders-button-reset game-button game-button-reset" id="resetSpaceInvaders">🔄 重新开始</button>
-            <button class="space-invaders-button space-invaders-button-continue game-button game-button-continue" id="exitSpaceInvaders">继续游览 ➡️</button>
-        </div>
-        <div class="space-invaders-complete-message game-complete-message" id="spaceInvadersCompleteMessage">
-            🎉 游戏结束！得分：<span id="siFinalScore">0</span>
-        </div>
-    </div>
-
-    <!-- Tank Battle (坦克大战) Game Overlay -->
-    <div class="tank-battle-overlay game-overlay tank-battle-ar" id="tank-battleGameOverlay">
-        <div class="tank-battle-ar-scan" aria-hidden="true">
-            <div class="tank-battle-scan-line"></div>
-        </div>
-        <div class="tank-battle-ar-floats" aria-hidden="true">
-            <div class="tank-battle-ar-card tank-battle-ar-card-1">
-                <img src="https://images.unsplash.com/photo-1563510804797-bcf5e47fa37b?w=400" alt="后母戊鼎">
-            </div>
-            <div class="tank-battle-ar-card tank-battle-ar-card-2">
-                <img src="https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=400" alt="四羊方尊">
-            </div>
-            <div class="tank-battle-ar-card tank-battle-ar-card-3">
-                <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400" alt="越王勾践剑">
-            </div>
-        </div>
-        <div class="tank-battle-header game-header">
-            <div class="tank-battle-title game-title">🎖️ AR坦克大战 🎖️</div>
-            <div class="tank-battle-subtitle">AR 文物守护系统</div>
-            <div class="tank-battle-stats game-stats">
-                得分：<span id="tbScore">0</span> | 生命：<span id="tbLives">3</span> | 敌人：<span id="tbEnemiesLeft">5</span>
-            </div>
-        </div>
-        <div class="tank-battle-container game-container">
-            <canvas class="tank-battle-canvas" id="tankBattleCanvas" width="320" height="320"></canvas>
-        </div>
-        <div id="tankBattleControls" class="ugc-mount"></div>
-        <div class="game-buttons">
-            <button class="game-button game-button-reset" id="resetTankBattle">🔄 重新开始</button>
-            <button class="game-button game-button-continue" id="exitTankBattle">继续游览 ➡️</button>
-        </div>
-    </div>
-
-    <!-- Snake (贪食蛇) Game Overlay -->
-    <div class="snake-overlay game-overlay" id="snakeGameOverlay">
-        <div class="snake-header game-header">
-            <div class="snake-title game-title">🐍 贪食蛇大作战</div>
-            <div class="snake-stats game-stats">
-                得分：<span id="snakeScore">0</span> | 长度：<span id="snakeLength">3</span>
-            </div>
-        </div>
-        <div class="snake-container game-container">
-            <canvas class="snake-canvas" id="snakeCanvas" width="320" height="320"></canvas>
-        </div>
-        <div class="snake-hint game-hint">滑动屏幕或使用下方按钮控制小蛇，吃到水果会变长！</div>
-        <div class="snake-touch-controls">
-            <div class="snake-touch-row">
-                <button class="snake-touch-btn empty"></button>
-                <button class="snake-touch-btn" id="snakeUpBtn">⬆️</button>
-                <button class="snake-touch-btn empty"></button>
-            </div>
-            <div class="snake-touch-row">
-                <button class="snake-touch-btn" id="snakeLeftBtn">⬅️</button>
-                <button class="snake-touch-btn" id="snakeDownBtn">⬇️</button>
-                <button class="snake-touch-btn" id="snakeRightBtn">➡️</button>
-            </div>
-        </div>
-        <div class="snake-buttons game-buttons">
-            <button class="snake-button snake-button-reset game-button game-button-reset" id="resetSnake">🔄 重新开始</button>
-            <button class="snake-button snake-button-continue game-button game-button-continue" id="exitSnake">继续游览 ➡️</button>
-        </div>
-        <div class="snake-complete-message game-complete-message" id="snakeCompleteMessage">
-            🎉 游戏结束！得分：<span id="snakeFinalScore">0</span>
-        </div>
-    </div>
-
     <!-- Game Choice Overlay -->
     <div class="game-choice-overlay" id="gameChoiceOverlay" aria-hidden="true">
         <div class="game-choice-modal" role="dialog" aria-modal="true" aria-labelledby="gameChoiceTitle">
@@ -778,6 +761,12 @@
     <!-- Leaderboard Modal Template -->
     <!-- 排行榜模态框将通过leaderboard-template.js动态生成 -->
 
+    <!-- Game Launcher for Independent Game HTML -->
+    <script src="js/game-launcher.js"></script>
+    
+    <!-- 加载游戏上下文管理器 -->
+    <script src="js/game-context-manager.js"></script>
+    
     <!-- Unified Game Architecture -->
     <script src="js/base-game.js"></script>
     <script src="js/game-manager.js"></script>
@@ -859,12 +848,12 @@
     <footer class="site-footer">
         <div class="footer-content">
             <p class="footer-text">
-                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="footer-link">京ICP备2024092319号-6</a>
+                京ICP备2024092319号-6
             </p>
             <p class="footer-text">
-                <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010802046500" target="_blank" rel="noopener noreferrer" class="footer-link">
+                
                     京公网安备11010802046500号
-                </a>
+                
             </p>
         </div>
     </footer>

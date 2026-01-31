@@ -64,14 +64,13 @@ class UnifiedGameUI {
         
         // 基础尺寸配置
         const baseSizes = {
-            puzzle: { min: 280, max: 400, aspectRatio: 1 },
             maze: { min: 280, max: 500, aspectRatio: 1 },
             'space-invaders': { min: 300, max: 600, aspectRatio: 4/3 },
             'tank-battle': { min: 300, max: 600, aspectRatio: 4/3 },
             snake: { min: 300, max: 500, aspectRatio: 1 }
         };
 
-        const gameConfig = baseSizes[gameType] || baseSizes.puzzle;
+        const gameConfig = baseSizes[gameType] || baseSizes.maze;
         
         // 计算最佳尺寸
         let optimalSize = Math.min(maxGameSize, gameConfig.max);
@@ -145,7 +144,6 @@ class UnifiedGameUI {
         const gameElement = containerElement.querySelector('[data-game-element]') || 
                            containerElement.querySelector('canvas') ||
                            containerElement.querySelector('.game-canvas') ||
-                           containerElement.querySelector('.puzzle-grid') ||
                            containerElement.querySelector('.maze-canvas');
 
         if (gameElement) {
@@ -219,10 +217,7 @@ class UnifiedGameUI {
         };
 
         // 游戏特定变量
-        if (gameType === 'puzzle') {
-            variables['--puzzle-grid-size'] = size.width + 'px';
-            variables['--puzzle-tile-size'] = Math.floor(size.width / 3) + 'px';
-        } else if (gameType === 'maze') {
+        if (gameType === 'maze') {
             variables['--maze-canvas-size'] = size.width + 'px';
             variables['--maze-cell-size'] = Math.floor(size.width / 9) + 'px';
         }

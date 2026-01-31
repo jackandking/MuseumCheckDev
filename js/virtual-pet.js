@@ -25,7 +25,6 @@
  * Points Earning:
  * - Check-in task: 5 XP
  * - Photo upload: 10 XP  
- * - Puzzle game completion: 15 XP
  * - Maze game completion: 20 XP
  * - Shooting game: score/10 XP (min 10, max 30)
  * - Space Invaders: score/10 XP (min 15, max 30)
@@ -104,7 +103,6 @@ class VirtualPet {
     // Game completion XP rewards
     static get GAME_XP_REWARDS() {
         return {
-            puzzle: { base: 15, name: '拼图游戏' },
             maze: { base: 20, name: '迷宫游戏' },
             shooting: { min: 10, max: 30, divisor: 10, name: '射击游戏' },
             'space-invaders': { min: 15, max: 30, divisor: 10, name: '小蜜蜂' },
@@ -918,7 +916,7 @@ class VirtualPet {
         }
         
         if (gameReward.base) {
-            // Fixed reward games (puzzle, maze)
+            // Fixed reward games (maze)
             return gameReward.base;
         }
         

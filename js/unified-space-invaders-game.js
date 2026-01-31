@@ -53,12 +53,14 @@ class UnifiedSpaceInvadersGame extends BaseGame {
 
     findUIElements() {
         this.overlay = document.getElementById('spaceInvadersOverlay');
-        this.completeMessage = document.getElementById('spaceInvadersCompleteMessage');
+        this.endModal = document.getElementById('gameEndModal');
+        this.endIcon = document.getElementById('endIcon');
+        this.endHeading = document.getElementById('endHeading');
         this.resetButton = null; // use custom reset handler instead of BaseGame button logic
         this.customResetButton = document.getElementById('resetSpaceInvaders');
 
         if (!this.overlay) {
-            console.error('[space-invaders] Overlay element not found: spaceInvadersOverlay');
+            console.warn('[space-invaders] Running in standalone mode (no overlay element)');
         }
     }
 
@@ -191,7 +193,9 @@ class UnifiedSpaceInvadersGame extends BaseGame {
 
     onClose() {
         this.gameOver = true;
-        this.hideCompletionMessage();
+        if (this.endModal) {
+            this.endModal.style.display = 'none';
+        }
         console.log('[space-invaders] Space invaders game cleanup completed');
     }
 
@@ -289,9 +293,9 @@ class UnifiedSpaceInvadersGame extends BaseGame {
     }
 
     setupTouchControls() {
-        const leftBtn = document.getElementById('siLeftBtn');
-        const rightBtn = document.getElementById('siRightBtn');
-        const fireBtn = document.getElementById('siFireBtn');
+        const leftBtn = document.getElementById('siLeft');
+        const rightBtn = document.getElementById('siRight');
+        const fireBtn = document.getElementById('siFire');
 
         if (leftBtn) {
             this.addTrackedEventListener(leftBtn, 'touchstart', (e) => { e.preventDefault(); this.touchState.left = true; });
@@ -570,17 +574,31 @@ class UnifiedSpaceInvadersGame extends BaseGame {
             this.score += 100;
         }
 
-        this.showCustomCompletionMessage(() => {
-            this.updateCompletionField('#siFinalScore', this.score);
-        });
-
-        if (typeof GameRewardManager !== 'undefined') {
-            GameRewardManager.awardCompletion('space-invaders', this.score);
+        // Update end modal
+        if (this.finalScoreDisplay) {
+            this.finalScoreDisplay.textContent = this.score;
+        }
+        
+        // Update icon and heading based on victory
+        if (this.endIcon) {
+            this.endIcon.textContent = victory ? '🎉' : '💥';
+        }
+        if (this.endHeading) {
+            this.endHeading.textContent = victory ? '防卫成功！' : '游戏结束';
+        }
+        
+        // Show end modal
+        if (this.endModal) {
+            this.endModal.style.display = 'flex';
         }
 
-        console.log(`[space-invaders] Game ended. Victory: ${victory}, Score: ${this.score}`);
+        // Complete the game
+        this.complete({
+            score: this.score,
+            victory: victory
+        });
 
-        setTimeout(() => this.close(), this.config.autoCloseDelay);
+        console.log(`[space-invaders] Game ended. Victory: ${victory}, Score: ${this.score}`);
     }
 }
 

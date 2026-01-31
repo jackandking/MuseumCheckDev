@@ -121,6 +121,8 @@
             align-items: center;
             justify-content: center;
             padding: 12px;
+            min-height: 0; /* 防止flex子元素溢出 */
+            overflow: hidden;
         }
 
         .canvas-wrapper {
@@ -169,8 +171,46 @@
         .controls-section {
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(20px);
-            padding: 18px;
+            padding: 12px;
             border-top: 2px solid rgba(50, 255, 100, 0.3);
+            flex-shrink: 0; /* 防止被压缩 */
+        }
+
+        /* 覆盖虚拟键盘的fixed定位，让它在文档流中 */
+        #snakeControls .ugc-container {
+            position: relative;
+            padding: 0 20px; /* 增加padding确保按钮不超出屏幕 */
+            bottom: auto;
+            left: auto;
+            right: auto;
+        }
+
+        #snakeControls .ugc-dpad-fire {
+            justify-content: center !important;
+        }
+
+        /* 确保虚拟键盘按钮大小合适 */
+        #snakeControls .ugc-btn {
+            width: 52px !important;
+            height: 52px !important;
+            font-size: 18px !important;
+        }
+
+        #snakeControls .ugc-dpad-fire {
+            gap: 6px !important;
+        }
+
+        #snakeControls .ugc-dpad {
+            gap: 4px !important;
+        }
+
+        /* 小屏幕优化 */
+        @media (max-width: 480px) {
+            #snakeControls .ugc-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 16px !important;
+            }
         }
 
         /* 游戏结束弹窗 */
@@ -273,11 +313,11 @@
                 <div class="game-stats">
                     <div class="stat-item">
                         <div class="stat-label">SCORE</div>
-                        <div class="stat-value" id="scoreText">0</div>
+                        <div class="stat-value" id="snakeScore">0</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">LENGTH</div>
-                        <div class="stat-value" id="lengthText">3</div>
+                        <div class="stat-value" id="snakeLength">3</div>
                     </div>
                 </div>
             </div>
@@ -285,7 +325,7 @@
             <!-- 游戏区 -->
             <div class="game-area">
                 <div class="canvas-wrapper">
-                    <canvas id="gameCanvas" width="420" height="420"></canvas>
+                    <canvas id="snakeCanvas" width="420" height="420"></canvas>
                 </div>
             </div>
 
@@ -303,7 +343,7 @@
             <div class="end-heading" id="endHeading">收集成功！</div>
             <div class="end-stats-grid">
                 <div class="end-stat-card">
-                    <div class="end-stat-number" id="endScore">0</div>
+                    <div class="end-stat-number" id="snakeFinalScore">0</div>
                     <div class="end-stat-name">得分</div>
                 </div>
                 <div class="end-stat-card">
@@ -321,33 +361,59 @@
 
     <!-- 加载游戏脚本 -->
     <script src="../js/unified-game-controls.js"></script>
+    <script src="../js/game-context-manager.js"></script>
     <script src="../js/base-game.js"></script>
     <script src="../js/unified-snake-game.js"></script>
 
     <script>
-        // 初始化游戏
-        const gameInstance = new UnifiedSnakeGame({
+        // 初始化游戏（暴露到全局以便调试）
+        window.gameInstance = new UnifiedSnakeGame({
             enableKeyboard: true,
             enableTouchControls: true
         });
+        const gameInstance = window.gameInstance;
 
         // 启动游戏
         async function startGame() {
             try {
                 await gameInstance.init(2, {});
-                gameInstance.show();
+                gameInstance.start();
+                
+                // 确保焦点以便键盘事件能被捕获
+                document.body.tabIndex = 0;
+                document.body.focus();
             } catch (error) {
                 console.error('Game initialization error:', error);
             }
         }
 
-        // 关闭游戏
+        // 关闭游戏并返回
         function closeGame() {
-            window.close() || (window.parent && window.parent.postMessage({ type: 'game-close' }, '*'));
+            // 保存游戏结果
+            if (window.GameContextManager && gameInstance) {
+                const timeSeconds = Math.floor((Date.now() - gameInstance.startTime) / 1000);
+                const score = gameInstance.score || 0;
+                
+                window.GameContextManager.saveResult({
+                    gameType: 'snake',
+                    score: score,
+                    timeSeconds: timeSeconds,
+                    pointsEarned: score,
+                    gameData: {
+                        length: gameInstance.snake?.length || 3,
+                        foodEaten: Math.floor(score / 10)
+                    }
+                });
+            }
+            
+            // 返回打卡页面
+            window.location.href = '/museum-checkin.html';
         }
 
         // 页面加载时启动游戏
-        window.addEventListener('DOMContentLoaded', startGame);
+        window.addEventListener('DOMContentLoaded', () => {
+            startGame();
+        });
 
         // 处理来自父窗口的消息
         window.addEventListener('message', (event) => {

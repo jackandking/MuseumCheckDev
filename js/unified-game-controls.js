@@ -3,6 +3,12 @@
  * Responsible for rendering touch controls (d-pad, buttons, hints) and piping
  * pointer/touch events into game callbacks. Designed to be reusable by all
  * mini-games so they can provide consistent UX and avoid bespoke HTML wiring.
+ * 
+ * Enhanced Features:
+ * - Haptic feedback for touch interactions (10ms vibration)
+ * - Visual press animations
+ * - WCAG AAA compliant touch targets (44x44px minimum)
+ * - Proper touch event handling with pointer events
  */
 
 class UnifiedGameControls {
@@ -16,6 +22,7 @@ class UnifiedGameControls {
             hints = [],
             onActionStart = () => {},
             onActionEnd = () => {},
+            enableHaptics = true,
         } = options;
 
         this.scheme = scheme;
@@ -24,6 +31,7 @@ class UnifiedGameControls {
         this.hints = hints;
         this.onActionStart = onActionStart;
         this.onActionEnd = onActionEnd;
+        this.enableHaptics = enableHaptics;
         this.root = null;
         this.buttons = new Map();
 
@@ -34,6 +42,25 @@ class UnifiedGameControls {
         }
 
         this.render();
+        this.loadCSS();
+    }
+
+    loadCSS() {
+        if (document.getElementById('ugc-styles')) return;
+        
+        const link = document.createElement('link');
+        link.id = 'ugc-styles';
+        link.rel = 'stylesheet';
+        link.href = '../css/unified-game-controls.css';
+        document.head.appendChild(link);
+    }
+
+    triggerHapticFeedback() {
+        if (!this.enableHaptics) return;
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
     }
 
     resolveTarget(targetElement, targetSelector) {
@@ -134,13 +161,28 @@ class UnifiedGameControls {
         btn.className = `ugc-btn ugc-btn-${action}`;
         btn.dataset.action = action;
         btn.textContent = this.labels[action] || this.defaultLabel(action);
+        btn.setAttribute('aria-label', `${action} button`);
 
         const startHandler = (e) => {
             e.preventDefault();
+            
+            // Haptic feedback
+            this.triggerHapticFeedback();
+            
+            // Visual feedback
+            btn.classList.add('pressing');
+            
+            // Game callback
             this.onActionStart(action);
         };
+        
         const endHandler = (e) => {
             if (e) e.preventDefault();
+            
+            // Remove visual feedback
+            btn.classList.remove('pressing');
+            
+            // Game callback
             this.onActionEnd(action);
         };
 
