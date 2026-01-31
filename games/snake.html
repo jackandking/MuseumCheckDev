@@ -274,6 +274,20 @@
     </div>
 
     <script>
+        // Utility function to get app base path for subdirectory deployments (e.g., /MuseumCheckDev/)
+        function getAppBasePath() {
+            const path = window.location.pathname;
+            const pathParts = path.split('/').filter(p => p);
+            if (pathParts.length > 0) {
+                const firstPart = pathParts[0];
+                if (!firstPart.endsWith('.html') && 
+                    !['admin', 'quiz', 'survey', 'tests', 'core', 'js', 'css', 'data', 'games', 'assets'].includes(firstPart)) {
+                    return '/' + firstPart;
+                }
+            }
+            return '';
+        }
+
         // ============ 游戏配置 ============
         const CONFIG = {
             GRID_SIZE: 20,      // 格子大小
@@ -486,9 +500,9 @@
                 }
             });
             
-            // 按钮事件
+            // 按钮事件 (使用 getAppBasePath 支持子目录部署)
             document.getElementById('btnContinue').addEventListener('click', () => {
-                window.location.href = '/museum-checkin.html';
+                window.location.href = getAppBasePath() + '/museum-checkin.html';
             });
         }
 

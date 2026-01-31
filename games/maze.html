@@ -247,6 +247,20 @@
     <script src="../js/unified-maze-game.js"></script>
 
     <script>
+        // Utility function to get app base path for subdirectory deployments (e.g., /MuseumCheckDev/)
+        function getAppBasePath() {
+            const path = window.location.pathname;
+            const pathParts = path.split('/').filter(p => p);
+            if (pathParts.length > 0) {
+                const firstPart = pathParts[0];
+                if (!firstPart.endsWith('.html') && 
+                    !['admin', 'quiz', 'survey', 'tests', 'core', 'js', 'css', 'data', 'games', 'assets'].includes(firstPart)) {
+                    return '/' + firstPart;
+                }
+            }
+            return '';
+        }
+
         // 获取游戏上下文
         const gameContext = window.GameContextManager ? window.GameContextManager.getContext() : null;
         
@@ -301,9 +315,9 @@
                 console.warn('[Maze] Cannot save game result - GameContextManager or gameInstance not available');
             }
             
-            // 返回打卡页面
+            // 返回打卡页面 (使用 getAppBasePath 支持子目录部署)
             console.log('[Maze] Returning to checkin page');
-            window.location.href = '/museum-checkin.html';
+            window.location.href = getAppBasePath() + '/museum-checkin.html';
         }
 
         // 页面加载时启动游戏

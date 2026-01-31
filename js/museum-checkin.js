@@ -1,3 +1,19 @@
+        // Utility function to get app base path for subdirectory deployments (e.g., /MuseumCheckDev/)
+        function getAppBasePath() {
+            const path = window.location.pathname;
+            const pathParts = path.split('/').filter(p => p);
+            
+            // Check if first path segment is a project subdirectory (not an html file or known folder)
+            if (pathParts.length > 0) {
+                const firstPart = pathParts[0];
+                if (!firstPart.endsWith('.html') && 
+                    !['admin', 'quiz', 'survey', 'tests', 'core', 'js', 'css', 'data', 'games', 'assets'].includes(firstPart)) {
+                    return '/' + firstPart;
+                }
+            }
+            return '';
+        }
+
         // Configuration
         const REMOTE_STORAGE_CONFIG = {
             API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
@@ -6060,8 +6076,8 @@
                         });
                     }
                     
-                    // 跳转到游戏页面
-                    window.location.href = `/games/${gameType}.html`;
+                    // 跳转到游戏页面 (使用 getAppBasePath 支持子目录部署)
+                    window.location.href = `${getAppBasePath()}/games/${gameType}.html`;
                 });
                 grid.appendChild(button);
             });
