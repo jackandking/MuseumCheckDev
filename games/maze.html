@@ -315,9 +315,11 @@
                 console.warn('[Maze] Cannot save game result - GameContextManager or gameInstance not available');
             }
             
-            // 返回打卡页面 (使用 getAppBasePath 支持子目录部署)
-            console.log('[Maze] Returning to checkin page');
-            window.location.href = getAppBasePath() + '/museum-checkin.html';
+            // 返回打卡页面 (使用 getAppBasePath 支持子目录部署，携带博物馆ID)
+            const context = window.GameContextManager ? window.GameContextManager.getContext() : null;
+            const museumId = context?.museumId || 'forbidden-city';
+            console.log('[Maze] Returning to checkin page with museumId:', museumId);
+            window.location.href = getAppBasePath() + '/museum-checkin.html?id=' + encodeURIComponent(museumId);
         }
 
         // 页面加载时启动游戏

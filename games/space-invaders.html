@@ -775,9 +775,11 @@
                 if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') gameState.keys.right = false;
             });
 
-            // 继续游览按钮 (使用 getAppBasePath 支持子目录部署)
+            // 继续游览按钮 (使用 getAppBasePath 支持子目录部署，携带博物馆ID)
             document.getElementById('btnContinue').addEventListener('click', () => {
-                window.location.href = getAppBasePath() + '/museum-checkin.html';
+                const context = window.GameContextManager ? window.GameContextManager.getContext() : null;
+                const museumId = context?.museumId || 'forbidden-city';
+                window.location.href = getAppBasePath() + '/museum-checkin.html?id=' + encodeURIComponent(museumId);
             });
         }
 
