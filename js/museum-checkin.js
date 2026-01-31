@@ -1690,7 +1690,9 @@
             
             if (isAddTreasureTask) {
                 const treasureName = document.getElementById('modalTreasureName').value.trim();
-                const treasureImage = document.getElementById('modalTreasureUpload').value.trim();
+                // Get image URL from preview dataset (file inputs can't store URLs in value)
+                const treasurePreview = document.getElementById('modalTreasurePreview');
+                const treasureImage = (treasurePreview && treasurePreview.dataset.imageUrl) || '';
                 
                 // Validate: treasure name is required
                 if (!treasureName) {
@@ -2699,14 +2701,7 @@
                         onProgress: (stage, progress) => updateUploadProgress(preview, stage)
                     });
                     
-                    // Update the image input with the URL
-                    if (imageInput) {
-                        imageInput.value = url;
-                        // Trigger input event to update any dependent UI
-                        imageInput.dispatchEvent(new Event('input'));
-                    }
-                    
-                    // Update preview with the uploaded image
+                    // Update preview with the uploaded image and store URL
                     if (preview) {
                         const img = document.createElement('img');
                         img.src = url;
@@ -2715,6 +2710,21 @@
                         preview.innerHTML = '';
                         preview.className = 'image-preview-container';
                         preview.appendChild(img);
+                        // Store URL in dataset for later retrieval
+                        preview.dataset.imageUrl = url;
+                    }
+                    
+                    // Store URL - use dataset for file inputs, value for text inputs
+                    if (imageInput) {
+                        if (imageInput.type === 'file') {
+                            // For file inputs, store in dataset
+                            imageInput.dataset.uploadedUrl = url;
+                        } else {
+                            // For text inputs, set value directly
+                            imageInput.value = url;
+                        }
+                        // Trigger input event to update any dependent UI
+                        imageInput.dispatchEvent(new Event('input'));
                     }
                     
                     console.log('✅ 图片上传成功:', url);
@@ -5139,11 +5149,12 @@
          */
         async function addUserTreasure() {
             const nameInput = document.getElementById('newTreasureName');
-            const imageInput = document.getElementById('newTreasureImage');
+            const imagePreview = document.getElementById('newTreasurePreview');
             const successEl = document.getElementById('addTreasureSuccess');
             
             const name = nameInput.value.trim();
-            const imageUrl = imageInput.value.trim() || DEFAULT_TREASURE_IMAGE;
+            // Get image URL from preview dataset (file inputs can't store URLs in value)
+            const imageUrl = (imagePreview && imagePreview.dataset.imageUrl) || DEFAULT_TREASURE_IMAGE;
             
             if (!name) {
                 showNotification('请输入镇馆之宝名称');
@@ -5485,12 +5496,6 @@
             const previewId = window.currentPreviewId || 'newTreasurePreview';
             
             try {
-                // Update input field
-                const imageInput = document.getElementById(inputId);
-                if (imageInput) {
-                    imageInput.value = imageUrl;
-                }
-                
                 // Update preview using DOM methods to prevent XSS
                 const preview = document.getElementById(previewId);
                 if (preview) {
@@ -5500,15 +5505,22 @@
                     img.alt = '预览';
                     preview.textContent = '';
                     preview.appendChild(img);
-                    // Store image URL for museum photo submission
+                    // Store image URL in dataset for later retrieval
                     preview.dataset.imageUrl = imageUrl;
-                    
-                    // Show museum photo submit button if this is museum photo preview
-                    if (previewId === 'modalMuseumPhotoPreview') {
-                        const submitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
-                        if (submitBtn) submitBtn.style.display = 'block';
-                    }
                 }
+                
+                // Update input field (skip for file inputs which can't store URLs)
+                const imageInput = document.getElementById(inputId);
+                if (imageInput && imageInput.type !== 'file') {
+                    imageInput.value = imageUrl;
+                }
+                
+                // Show museum photo submit button if this is museum photo preview
+                if (previewId === 'modalMuseumPhotoPreview') {
+                    const submitBtn = document.getElementById('modalMuseumPhotoSubmitBtn');
+                    if (submitBtn) submitBtn.style.display = 'block';
+                }
+                
                 // Also update settings modal preview if we're using that one
                 if (inputId === 'newTreasureImage') {
                     updateNewTreasurePreview(imageUrl);
