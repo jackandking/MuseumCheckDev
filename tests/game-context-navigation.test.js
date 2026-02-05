@@ -85,7 +85,7 @@ describe('Game Navigation Context Manager', () => {
 });
 
 describe('GameContextManager Integration', () => {
-    let GameContextManager;
+    let manager;
     
     beforeEach(() => {
         // Mock localStorage
@@ -96,17 +96,21 @@ describe('GameContextManager Integration', () => {
             clear: jest.fn()
         };
         
+        // Mock window object for the script
+        global.window = global;
+        
         // Load GameContextManager
         const contextManagerPath = path.join(__dirname, '..', 'js', 'game-context-manager.js');
         const contextManagerCode = fs.readFileSync(contextManagerPath, 'utf8');
         
-        // Execute in current context
+        // Execute in current context (this will set window.GameContextManager)
         eval(contextManagerCode);
-        GameContextManager = global.GameContextManager;
+        
+        // Get the global instance that was created
+        manager = global.GameContextManager;
     });
     
     test('should save and retrieve museum context', () => {
-        const manager = new GameContextManager();
         const testContext = {
             museumId: 'test-museum',
             museumName: '测试博物馆',
@@ -129,7 +133,6 @@ describe('GameContextManager Integration', () => {
     });
     
     test('should return null for missing context', () => {
-        const manager = new GameContextManager();
         global.localStorage.getItem.mockReturnValue(null);
         
         const retrieved = manager.getContext();
@@ -137,7 +140,6 @@ describe('GameContextManager Integration', () => {
     });
     
     test('should return null for expired context', () => {
-        const manager = new GameContextManager();
         
         // Create context that's older than 1 hour
         const oldContext = {
