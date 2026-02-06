@@ -824,6 +824,12 @@
 
             document.getElementById('museumName').textContent = currentMuseum.name;
             
+            // Track museum check-in page visit to event wall
+            if (eventWallService && currentMuseum) {
+                eventWallService.trackMuseumVisit(museumId, currentMuseum.name);
+                console.log('[Event Tracking] Recorded museum check-in page visit:', currentMuseum.name);
+            }
+            
             // Get child tasks for the age group
             if (currentMuseum.checklists && currentMuseum.checklists.child) {
                 childTasks = currentMuseum.checklists.child[ageGroup] || [];
