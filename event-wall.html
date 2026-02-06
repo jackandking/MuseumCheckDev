@@ -227,6 +227,16 @@
             color: #2e7d32;
         }
 
+        .event-type.search {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .event-type.page_view {
+            background: #e1f5fe;
+            color: #0277bd;
+        }
+
         .event-type.checklist {
             background: #e3f2fd;
             color: #1565c0;
@@ -420,6 +430,8 @@
             <span class="filter-label">筛选：</span>
             <button class="filter-btn active" data-filter="all">全部</button>
             <button class="filter-btn" data-filter="visit">博物馆参观</button>
+            <button class="filter-btn" data-filter="search">搜索活动</button>
+            <button class="filter-btn" data-filter="page_view">页面访问</button>
             <button class="filter-btn" data-filter="task">任务完成</button>
             <button class="filter-btn" data-filter="checklist">清单完成</button>
             <button class="filter-btn" data-filter="achievement">成就解锁</button>
@@ -447,6 +459,8 @@
             EVENT_KEY: 'museumcheck-events',
             EVENT_TYPE_ICONS: {
                 'visit': '🏛️',
+                'search': '🔍',
+                'page_view': '📄',
                 'task': '📝',
                 'checklist': '✅',
                 'achievement': '🏆',
@@ -455,6 +469,8 @@
             },
             EVENT_TYPE_LABELS: {
                 'visit': '博物馆参观',
+                'search': '搜索活动',
+                'page_view': '页面访问',
                 'task': '任务完成',
                 'checklist': '清单完成',
                 'achievement': '成就解锁',

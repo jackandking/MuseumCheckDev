@@ -3090,6 +3090,16 @@ const EventHandlers = {
                     query_length: query.length,
                     results_count: app.filteredMuseums.length 
                 });
+                
+                // Track search to event wall
+                if (app.eventWallService) {
+                    app.eventWallService.recordEvent(
+                        'search',
+                        '搜索博物馆',
+                        `搜索关键字：${query}`,
+                        { query: query, resultsCount: app.filteredMuseums.length }
+                    );
+                }
             }
         }, APP_CONFIG.SEARCH.DEBOUNCE_DELAY);
     },
@@ -4170,6 +4180,40 @@ class MuseumCheckApp {
         this.initGlobalFireworksWall();
         // Auto-hide age selector after 10 seconds
         this.setupAgeSelectorAutoHide();
+        
+        // Track page view to event wall
+        if (this.eventWallService) {
+            const pageName = this.getPageName();
+            this.eventWallService.recordEvent(
+                'page_view',
+                '访问页面',
+                `访问 ${pageName}`,
+                { pageName: pageName, pageUrl: window.location.href }
+            );
+        }
+    }
+    
+    /**
+     * Get current page name for tracking
+     */
+    getPageName() {
+        const path = window.location.pathname;
+        const fileName = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
+        
+        // Map file names to Chinese page names
+        const pageNames = {
+            'index.html': '首页',
+            'event-wall.html': '事件墙',
+            'fireworks-wall.html': '烟花墙',
+            'fireworks.html': '烟花',
+            'achievements.html': '成就',
+            'leaderboard.html': '排行榜',
+            'treasures.html': '宝藏',
+            'museum-checkin.html': '博物馆签到',
+            'everyone-achievements.html': '全民成就'
+        };
+        
+        return pageNames[fileName] || fileName;
     }
     
     /**
@@ -8126,6 +8170,16 @@ class MuseumCheckApp {
         // In child mode, always default to child tab (activeTab has default 'parent')
         if (this.childModeEnabled) {
             activeTab = 'child';
+        }
+
+        // Track museum visit to event wall
+        if (this.eventWallService && museum) {
+            this.eventWallService.recordEvent(
+                'visit',
+                '访问博物馆',
+                `查看 ${museum.name} 的详细信息`,
+                { museumId: museum.id, museumName: museum.name }
+            );
         }
 
         const modal = document.getElementById('museumModal');
