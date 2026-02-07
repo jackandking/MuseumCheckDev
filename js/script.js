@@ -4754,11 +4754,21 @@ class MuseumCheckApp {
             this.renderMuseums();
             this.toggleClearButton();
             
-            // Track search usage
+            // Track search usage to Google Analytics
             if (this.searchQuery.length > 0) {
                 this.trackEvent('search_used', {
                     'search_query_length': this.searchQuery.length
                 });
+            }
+            
+            // Track search to event wall (minimum 2 characters)
+            if (this.searchQuery.length >= 2 && this.eventWallService) {
+                this.eventWallService.recordEvent(
+                    'search',
+                    '搜索博物馆',
+                    `搜索关键字：${this.searchQuery}`,
+                    { query: this.searchQuery, resultsCount: this.filteredMuseums.length }
+                );
             }
         });
         
