@@ -1415,6 +1415,21 @@ window.MUSEUMS_META = [
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/96/North_gate_of_Xiannongtan_and_Beijing_Yucai_School_%2820221001165539%29.jpg",
     "hasCollections": false,
     "level": "二级"
+  },
+  {
+    "id": "beijing-aerospace-museum",
+    "name": "北京航空航天博物馆",
+    "location": "北京",
+    "tags": [
+      "航空",
+      "航天",
+      "科技",
+      "历史",
+      "军事"
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/8/83/Beijing_Air_and_Space_Museum.jpg",
+    "hasCollections": true,
+    "level": "未定级"
   }
 ];
 
