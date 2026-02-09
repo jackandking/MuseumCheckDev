@@ -244,7 +244,7 @@
             if (userRecord) {
                 return {
                     rank: userRecord.rank,
-                    score: this.currentTab === 'visits' ? userRecord.visitedCount : userRecord.petLevel
+                    score: this.currentTab === 'visits' ? userRecord.visits : userRecord.petLevel
                 };
             }
             
