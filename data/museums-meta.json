@@ -1433,5 +1433,19 @@
     "image": "https://upload.wikimedia.org/wikipedia/commons/8/83/Beijing_Air_and_Space_Museum.jpg",
     "hasCollections": true,
     "level": "未定级"
+  },
+  {
+    "id": "dehua-ceramics-museum",
+    "name": "德化县陶瓷博物馆",
+    "location": "福建",
+    "tags": [
+      "陶瓷",
+      "艺术",
+      "工艺",
+      "文化"
+    ],
+    "image": "https://img2.baidu.com/it/u=4244108941,2042509085&fm=253&fmt=auto&app=138&f=JPEG&w=1067&h=800",
+    "hasCollections": true,
+    "level": "二级"
   }
 ]
