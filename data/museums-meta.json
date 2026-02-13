@@ -806,6 +806,21 @@
     "level": "一级"
   },
   {
+    "id": "quanzhou-huaqiao-museum",
+    "name": "泉州华侨历史博物馆",
+    "location": "泉州",
+    "tags": [
+      "华侨历史",
+      "文化遗产",
+      "泉州文化",
+      "海外华人",
+      "历史"
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/d/dd/%E6%B3%89%E5%B7%9E%E5%8D%8E%E4%BE%A8%E5%8E%86%E5%8F%B2%E5%8D%9A%E7%89%A9%E9%A6%86.jpg",
+    "hasCollections": true,
+    "level": "三级"
+  },
+  {
     "id": "xiamen-museum",
     "name": "厦门市博物馆",
     "location": "厦门",
