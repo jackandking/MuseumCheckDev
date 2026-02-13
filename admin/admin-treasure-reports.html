@@ -338,7 +338,23 @@
           const data = await res.json();
           const reports = [];
           
-          const itemsArray = data.items || data.Items || [];
+          // Support multiple response formats:
+          // 1. { items: [...] } or { Items: [...] } - DynamoDB direct format
+          // 2. { value: '[{...}]' } - JSON string in value field (used by KV store wildcard queries)
+          let itemsArray = [];
+          
+          if (data.items || data.Items) {
+            // Format 1: Direct items array
+            itemsArray = data.items || data.Items;
+          } else if (data.value && typeof data.value === 'string') {
+            // Format 2: JSON string in value field
+            try {
+              itemsArray = JSON.parse(data.value);
+            } catch (e) {
+              console.error('Failed to parse value field as JSON array:', e);
+            }
+          }
+          
           for (const item of itemsArray) {
             const sortKey = item.sortKey || item.sk || '';
             if (!sortKey.startsWith('treasure-')) continue;

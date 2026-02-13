@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Report API Format Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Treasure Report API Format Test</h1>
+    <p>This page tests the dual-format API response handling for treasure reports.</p>
+
+    <div class="test-section">
+        <h2>Test 1: Format 1 - Direct Items Array</h2>
+        <p>Simulates API response with <code>{items: [...]}</code> format</p>
+        <button onclick="testFormat1()">Run Test</button>
+        <div id="result1"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Format 2 - JSON String in Value Field</h2>
+        <p>Simulates API response with <code>{value: '[...]'}</code> format</p>
+        <button onclick="testFormat2()">Run Test</button>
+        <div id="result2"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Empty Response</h2>
+        <p>Simulates API response with no data</p>
+        <button onclick="testEmpty()">Run Test</button>
+        <div id="result3"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Malformed JSON in Value Field</h2>
+        <p>Simulates API response with invalid JSON in value field</p>
+        <button onclick="testMalformed()">Run Test</button>
+        <div id="result4"></div>
+    </div>
+
+    <script>
+        // Extract the fetchReports logic from admin-treasure-reports.html
+        async function parseApiResponse(data) {
+            const reports = [];
+            
+            // Support multiple response formats:
+            // 1. { items: [...] } or { Items: [...] } - DynamoDB direct format
+            // 2. { value: '[{...}]' } - JSON string in value field (used by KV store wildcard queries)
+            let itemsArray = [];
+            
+            if (data.items || data.Items) {
+                // Format 1: Direct items array
+                itemsArray = data.items || data.Items;
+            } else if (data.value && typeof data.value === 'string') {
+                // Format 2: JSON string in value field
+                try {
+                    itemsArray = JSON.parse(data.value);
+                } catch (e) {
+                    console.error('Failed to parse value field as JSON array:', e);
+                }
+            }
+            
+            for (const item of itemsArray) {
+                const sortKey = item.sortKey || item.sk || '';
+                if (!sortKey.startsWith('treasure-')) continue;
+                
+                try {
+                    const parsed = JSON.parse(item.value);
+                    parsed._sortKey = sortKey;
+                    reports.push(parsed);
+                } catch (e) {
+                    console.warn('Failed to parse report:', e);
+                }
+            }
+            
+            return reports;
+        }
+
+        function showResult(elementId, success, message, data = null) {
+            const div = document.getElementById(elementId);
+            div.innerHTML = `
+                <div class="test-result ${success ? 'success' : 'error'}">
+                    <strong>${success ? '✅ Success' : '❌ Error'}</strong>: ${message}
+                </div>
+                ${data ? '<pre>' + JSON.stringify(data, null, 2) + '</pre>' : ''}
+            `;
+        }
+
+        async function testFormat1() {
+            const mockResponse = {
+                items: [
+                    {
+                        sortKey: 'treasure-test1',
+                        value: JSON.stringify({
+                            museumId: 'forbidden-city',
+                            museumName: '故宫博物院',
+                            treasureName: '清明上河图',
+                            reportCount: 3,
+                            reporters: ['user1', 'user2', 'user3'],
+                            lastReportAt: Date.now()
+                        })
+                    },
+                    {
+                        sortKey: 'treasure-test2',
+                        value: JSON.stringify({
+                            museumId: 'national-museum',
+                            museumName: '中国国家博物馆',
+                            treasureName: '后母戊鼎',
+                            reportCount: 1,
+                            reporters: ['user4'],
+                            lastReportAt: Date.now()
+                        })
+                    }
+                ]
+            };
+
+            try {
+                const reports = await parseApiResponse(mockResponse);
+                if (reports.length === 2) {
+                    showResult('result1', true, 'Successfully parsed 2 reports from Format 1', reports);
+                } else {
+                    showResult('result1', false, `Expected 2 reports, got ${reports.length}`, reports);
+                }
+            } catch (error) {
+                showResult('result1', false, error.message);
+            }
+        }
+
+        async function testFormat2() {
+            const mockItems = [
+                {
+                    sortKey: 'treasure-test1',
+                    value: JSON.stringify({
+                        museumId: 'shanghai-museum',
+                        museumName: '上海博物馆',
+                        treasureName: '大克鼎',
+                        reportCount: 5,
+                        reporters: ['user1', 'user2', 'user3', 'user4', 'user5'],
+                        lastReportAt: Date.now()
+                    })
+                }
+            ];
+
+            const mockResponse = {
+                value: JSON.stringify(mockItems)
+            };
+
+            try {
+                const reports = await parseApiResponse(mockResponse);
+                if (reports.length === 1) {
+                    showResult('result2', true, 'Successfully parsed 1 report from Format 2', reports);
+                } else {
+                    showResult('result2', false, `Expected 1 report, got ${reports.length}`, reports);
+                }
+            } catch (error) {
+                showResult('result2', false, error.message);
+            }
+        }
+
+        async function testEmpty() {
+            const mockResponse = {};
+
+            try {
+                const reports = await parseApiResponse(mockResponse);
+                if (reports.length === 0) {
+                    showResult('result3', true, 'Successfully handled empty response (0 reports)', reports);
+                } else {
+                    showResult('result3', false, `Expected 0 reports, got ${reports.length}`, reports);
+                }
+            } catch (error) {
+                showResult('result3', false, error.message);
+            }
+        }
+
+        async function testMalformed() {
+            const mockResponse = {
+                value: 'this is not valid JSON'
+            };
+
+            try {
+                const reports = await parseApiResponse(mockResponse);
+                if (reports.length === 0) {
+                    showResult('result4', true, 'Successfully handled malformed JSON (graceful fallback to 0 reports)', reports);
+                } else {
+                    showResult('result4', false, `Expected 0 reports after error, got ${reports.length}`, reports);
+                }
+            } catch (error) {
+                showResult('result4', false, error.message);
+            }
+        }
+
+        // Run all tests automatically on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded. Click buttons to run tests manually.');
+        });
+    </script>
+</body>
+</html>
