@@ -3037,22 +3037,30 @@ const EventHandlers = {
         }
     },
     
-    // Search functionality
+    // Search functionality - MVP Phase 1: Use official museum search API
     handleSearchInput: (app, event) => {
-        const query = UtilityFunctions.sanitizeString(event.target.value).toLowerCase();
+        const query = UtilityFunctions.sanitizeString(event.target.value);
         app.searchQuery = query;
         
         // Apply debouncing for performance
         clearTimeout(app.searchTimeout);
-        app.searchTimeout = setTimeout(() => {
-            app.filterMuseums(query);
+        app.searchTimeout = setTimeout(async () => {
+            // MVP: Use official museum search if available and query is not empty
+            if (app.officialMuseumSearch && query.trim().length > 0) {
+                await app.performOfficialSearch(query);
+            } else {
+                // Fallback to local filtering
+                app.filterMuseums(query);
+            }
+            
             app.renderMuseums();
             
             // Track search events
             if (query.length >= 2) {
                 app.trackEvent('search_performed', { 
                     query_length: query.length,
-                    results_count: app.filteredMuseums.length 
+                    results_count: app.filteredMuseums.length,
+                    search_type: app.usingOfficialSearch ? 'official-api' : 'local'
                 });
             }
         }, APP_CONFIG.SEARCH.DEBOUNCE_DELAY);
@@ -3995,6 +4003,11 @@ class MuseumCheckApp {
         if (typeof AchievementGamification !== 'undefined') {
             this.achievementGamification = new AchievementGamification();
         }
+        
+        // MVP Phase 1 & 2: Initialize official museum search and dynamic creator
+        this.officialMuseumSearch = (typeof OfficialMuseumSearch !== 'undefined') ? new OfficialMuseumSearch() : null;
+        this.dynamicMuseumCreator = (typeof DynamicMuseumCreator !== 'undefined') ? new DynamicMuseumCreator() : null;
+        this.usingOfficialSearch = false; // Flag to track if official search is active
         
         // Initialize homepage adapter for museum data management
         this.homepageAdapter = null;  // Will be initialized in async init()
@@ -5313,6 +5326,36 @@ class MuseumCheckApp {
                 ticking = true;
             }
         }, { passive: true });
+    }
+
+    // MVP Phase 1: Official museum search integration
+    async performOfficialSearch(query) {
+        if (!this.officialMuseumSearch) {
+            console.warn('[MVP] OfficialMuseumSearch not available, falling back to local search');
+            this.usingOfficialSearch = false;
+            this.filterMuseums();
+            return;
+        }
+
+        try {
+            console.log(`[MVP] Performing official search for: "${query}"`);
+            this.usingOfficialSearch = true;
+
+            const result = await this.officialMuseumSearch.search(query);
+
+            if (result.success && result.museums) {
+                this.filteredMuseums = result.museums;
+                console.log(`[MVP] Official search returned ${result.museums.length} museums`, result.cached ? '(cached)' : '(fresh)');
+            } else {
+                console.warn('[MVP] Official search failed, falling back to local search');
+                this.usingOfficialSearch = false;
+                this.filterMuseums();
+            }
+        } catch (error) {
+            console.error('[MVP] Official search error:', error);
+            this.usingOfficialSearch = false;
+            this.filterMuseums();
+        }
     }
 
     // Search functionality methods
@@ -15010,6 +15053,42 @@ class MuseumCheckApp {
      */
     async getMuseumByIdWithLoader(museumId, useCache = true) {
         try {
+            // MVP Phase 2: Check if museum exists in KV Store, create if not
+            if (this.dynamicMuseumCreator) {
+                // First check if museum exists in KV Store
+                const exists = await this.dynamicMuseumCreator.checkMuseumInKVStore(museumId);
+                
+                if (!exists) {
+                    console.log(`[MVP] Museum ${museumId} not in KV Store, will create dynamically`);
+                    
+                    // Get museum data from search results or MUSEUMS_META
+                    let museumData = this.filteredMuseums.find(m => m.id === museumId);
+                    
+                    // Fallback to MUSEUMS array if not in filtered results
+                    if (!museumData && typeof MUSEUMS !== 'undefined') {
+                        museumData = MUSEUMS.find(m => m.id === museumId);
+                    }
+                    
+                    // Fallback to MUSEUMS_META if available
+                    if (!museumData && typeof window.MUSEUMS_META !== 'undefined') {
+                        museumData = window.MUSEUMS_META.find(m => m.id === museumId);
+                    }
+                    
+                    if (museumData) {
+                        console.log(`[MVP] Creating museum record for ${museumId}`);
+                        const createdMuseum = await this.dynamicMuseumCreator.createMuseumFromOfficial(museumData);
+                        
+                        if (createdMuseum) {
+                            console.log(`[MVP] Successfully created museum ${museumId}`);
+                            // Return the created museum if it has checklists
+                            if (createdMuseum.checklists) {
+                                return createdMuseum;
+                            }
+                        }
+                    }
+                }
+            }
+            
             // Use museumDataLoader if available (respects tier priority)
             if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
                 const museum = await window.museumDataLoader.loadMuseum(museumId, useCache);
