@@ -3954,6 +3954,73 @@ main[role="main"] {
     background-color: #1e4085;
 }
 
+/* Search Prompt Message Styles (API-based architecture) */
+.search-prompt-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    min-height: 300px;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.search-prompt-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.search-prompt-message h3 {
+    color: #2d3748;
+    font-size: 1.5em;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.search-prompt-message p {
+    color: #4a5568;
+    font-size: 1em;
+    margin: 0 0 20px 0;
+}
+
+.search-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.example-btn {
+    background-color: white;
+    color: #2d3748;
+    border: 2px solid var(--primary-color);
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.example-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
 /* Checklist Header Styles */
 .checklist-header {
     display: flex;

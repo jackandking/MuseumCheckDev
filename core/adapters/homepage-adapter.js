@@ -3,9 +3,9 @@
  * 负责主页博物馆列表的数据加载与事件管理
  * 
  * 设计原则：
- * - 优先使用 MUSEUMS_META 快速加载列表
+ * - 使用 OfficialMuseumSearch 进行动态API搜索
  * - 通过 DataManager 和 museum-data-loader 实现数据访问
- * - 详细数据按需加载（Tier 2 → Tier 1，无 Tier 3 回退）
+ * - 详细数据按需加载（KV Store）
  * - 支持搜索、过滤、排序等功能
  * - 发布事件供其他模块订阅
  */
@@ -15,6 +15,9 @@ class HomepageAdapter {
     this.dataManager = dataManager || (typeof DataManager !== 'undefined' ? DataManager.getInstance() : null);
     this.eventBus = eventBus || (typeof EventBus !== 'undefined' ? EventBus.getInstance() : null);
     this.museumDataLoader = museumDataLoader || (typeof window !== 'undefined' ? window.museumDataLoader : null);
+    
+    // Initialize OfficialMuseumSearch for API-based searching
+    this.officialSearch = typeof OfficialMuseumSearch !== 'undefined' ? new OfficialMuseumSearch() : null;
     
     // 状态管理
     this.initialized = false;
@@ -27,6 +30,7 @@ class HomepageAdapter {
       hasCollections: false
     };
     this.sortBy = 'default';
+    this.isSearching = false;
   }
 
   /**
@@ -46,17 +50,17 @@ class HomepageAdapter {
     }
 
     try {
-      // 加载所有博物馆元数据（使用 MUSEUMS_META）
-      this.museums = await this.museumDataLoader.loadAllMuseums();
-      this.filteredMuseums = [...this.museums];
+      // No longer loading museums from meta - will use API search instead
+      this.museums = [];
+      this.filteredMuseums = [];
       
-      console.log(`HomepageAdapter initialized with ${this.museums.length} museums`);
+      console.log('HomepageAdapter initialized (museums will be loaded via API search)');
       
       // 发布初始化完成事件
       if (this.eventBus) {
         this.eventBus.emit('homepage:museums:loaded', {
-          count: this.museums.length,
-          source: 'museums-meta'
+          count: 0,
+          source: 'api-search-ready'
         });
       }
       
@@ -117,19 +121,66 @@ class HomepageAdapter {
   }
 
   /**
-   * 搜索博物馆
+   * 搜索博物馆（使用官方API）
    * @param {string} searchText - 搜索关键词
+   * @returns {Promise<void>}
    */
-  search(searchText) {
-    this.currentFilters.searchText = searchText.toLowerCase().trim();
-    this.applyFilters();
+  async search(searchText) {
+    this.currentFilters.searchText = searchText.trim();
     
-    // 发布搜索事件
-    if (this.eventBus) {
-      this.eventBus.emit('homepage:search', {
-        searchText,
-        resultCount: this.filteredMuseums.length
-      });
+    // If empty search, clear results
+    if (!this.currentFilters.searchText) {
+      this.museums = [];
+      this.filteredMuseums = [];
+      
+      if (this.eventBus) {
+        this.eventBus.emit('homepage:search', {
+          searchText: '',
+          resultCount: 0,
+          source: 'cleared'
+        });
+      }
+      return;
+    }
+    
+    // Use OfficialMuseumSearch for API-based search
+    if (!this.officialSearch) {
+      console.warn('OfficialMuseumSearch not available, cannot perform search');
+      return;
+    }
+    
+    try {
+      this.isSearching = true;
+      console.log(`[HomepageAdapter] Searching via API: "${this.currentFilters.searchText}"`);
+      
+      const result = await this.officialSearch.search(this.currentFilters.searchText);
+      
+      if (result.success) {
+        this.museums = result.museums || [];
+        this.applyFilters();
+        
+        console.log(`[HomepageAdapter] Found ${this.filteredMuseums.length} museums from API`);
+        
+        // 发布搜索事件
+        if (this.eventBus) {
+          this.eventBus.emit('homepage:search', {
+            searchText: this.currentFilters.searchText,
+            resultCount: this.filteredMuseums.length,
+            source: result.cached ? 'cached' : 'api',
+            totalResults: result.totalResults
+          });
+        }
+      } else {
+        console.error('[HomepageAdapter] Search failed:', result.error);
+        this.museums = [];
+        this.filteredMuseums = [];
+      }
+    } catch (error) {
+      console.error('[HomepageAdapter] Search error:', error);
+      this.museums = [];
+      this.filteredMuseums = [];
+    } finally {
+      this.isSearching = false;
     }
   }
 
@@ -183,20 +234,14 @@ class HomepageAdapter {
 
   /**
    * 应用所有过滤条件
+   * Note: Now only applies client-side filters after API search results are received
    */
   applyFilters() {
     let filtered = [...this.museums];
 
-    // 搜索文本过滤
-    if (this.currentFilters.searchText) {
-      const searchText = this.currentFilters.searchText;
-      filtered = filtered.filter(m => 
-        (m.name && m.name.toLowerCase().includes(searchText)) ||
-        (m.location && m.location.toLowerCase().includes(searchText)) ||
-        (m.tags && m.tags.some(tag => tag.toLowerCase().includes(searchText)))
-      );
-    }
-
+    // 搜索文本过滤 - Already done by API, but keep for client-side refinement
+    // (This filter is redundant when using API search, but kept for compatibility)
+    
     // 地区过滤
     if (this.currentFilters.location) {
       filtered = filtered.filter(m => m.location === this.currentFilters.location);

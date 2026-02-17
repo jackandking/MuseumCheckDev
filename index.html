@@ -501,27 +501,18 @@
     <!-- 排行榜模态框将通过leaderboard-template.js动态生成 -->
 
     <script>
-      // Meta cache shim (versioned)
+      // MUSEUMS_META cache removed - using official API search instead
+      // Empty initialization for backward compatibility
       (function(){
-        try{
-          const V='v1';
-          const KEY='museumsMeta:'+V;
-          const cached=localStorage.getItem(KEY);
-          if(cached){
-            window.MUSEUMS_META = JSON.parse(cached);
-          }
-          window.__updateMuseumsMetaCache = function(meta){
-            try{ localStorage.setItem(KEY, JSON.stringify(meta||[])); }catch(e){}
-          };
-        }catch(e){}
+        window.MUSEUMS_META = [];
       })();
     </script>
     <!-- Core data loading - must be synchronous for initial render -->
     <script src="js/museum-data-loader.js"></script>
-    <script src="js/museums-meta.js" onload="window.__updateMuseumsMetaCache && window.__updateMuseumsMetaCache(window.MUSEUMS_META)"></script>
+    <!-- museums-meta.js removed - using official API search instead -->
     <script>
-      // Adopt meta as default dataset before main script executes
-      (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
+      // Initialize empty MUSEUMS array - will be populated via API search
+      (function(){ if(!window.MUSEUMS){ window.MUSEUMS = []; } })();
     </script>
     
     <!-- Phase 2 Core Architecture (DataManager + EventBus + Adapters) -->
@@ -602,12 +593,9 @@
     <!-- Placeholder for dynamic section museum count (for tests and UI hooks) -->
     <span id="sectionMuseumCount" style="display:none"></span>
     <script>
-      // Use meta as initial MUSEUMS, lazy-load full data on first interaction
+      // Initialize empty MUSEUMS array - will be populated via API search
       (function(){
-        function adoptMeta(){
-          if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; }
-        }
-        adoptMeta();
+        if(!window.MUSEUMS){ window.MUSEUMS = []; }
         // No longer needed: treasure workflow generator is now in treasures.html with TreasuresAdapter
         const once = (type)=>{
           const fn = async ()=>{ window.removeEventListener(type, fn, {capture:true}); };

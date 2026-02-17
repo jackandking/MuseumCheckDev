@@ -211,45 +211,41 @@ class MuseumDataLoader {
     /**
      * Load all museums for listing (homepage display only)
      * 
-     * This method uses the MUSEUMS_META array for the complete list.
-     * It provides lightweight metadata efficiently for homepage display.
+     * UPDATED: This method now returns an empty array as homepage will use
+     * OfficialMuseumSearch for dynamic search-based loading.
+     * 
+     * The homepage no longer preloads a full museum list. Instead, museums
+     * are loaded dynamically based on user search queries via the official API.
      * 
      * IMPORTANT: For detailed museum data (checklists, collections, etc.),
-     * always use loadMuseum() which tries dynamic data first.
+     * always use loadMuseum() which loads from KV Store.
      * 
-     * @returns {Array<Object>} Array of museum metadata (id, name, location, etc.)
+     * @returns {Array<Object>} Empty array (museums loaded via API search)
      */
     async loadAllMuseums() {
         try {
-            // Priority 1: Use MUSEUMS_META if available (lightweight, fast)
-            if (typeof MUSEUMS_META !== 'undefined' && MUSEUMS_META.length > 0) {
-                console.log('Loaded museums from MUSEUMS_META (optimized for homepage)');
-                // MUSEUMS_META already contains: id, name, location, tags, image, hasCollections
-                // This is sufficient for homepage listing and search
-                return MUSEUMS_META;
+            // Return empty array - museums are now loaded via OfficialMuseumSearch API
+            // when user searches. This eliminates the need for static meta files.
+            console.log('Museums will be loaded via OfficialMuseumSearch API on search');
+            
+            // Check if there's a browsed museums history to show initial content
+            try {
+                const browsedMuseumsRaw = localStorage.getItem('browsedMuseums');
+                if (browsedMuseumsRaw) {
+                    const browsedMuseums = JSON.parse(browsedMuseumsRaw);
+                    const browsedIds = Object.keys(browsedMuseums);
+                    console.log(`Found ${browsedIds.length} previously browsed museums`);
+                    
+                    // Return empty - the app will load browsed museums from KV Store if needed
+                    // or prompt user to search
+                }
+            } catch (error) {
+                console.warn('Error checking browsed museums:', error);
             }
             
-            // Fallback: Use MUSEUMS array if MUSEUMS_META is not available
-            // This provides backward compatibility during migration
-            if (typeof MUSEUMS !== 'undefined') {
-                console.warn('MUSEUMS_META not found, using MUSEUMS array as fallback');
-                // Return shallow copy with basic metadata only
-                // Detailed data should be loaded via loadMuseum() for fresh dynamic content
-                return MUSEUMS.map(m => ({
-                    id: m.id,
-                    name: m.name,
-                    location: m.location,
-                    description: m.description,
-                    tags: m.tags,
-                    image: m.image,
-                    hasCollections: m.collections && m.collections.length > 0
-                }));
-            }
-            
-            console.error('Neither MUSEUMS_META nor MUSEUMS array found in global scope');
             return [];
         } catch (error) {
-            console.error('Error loading all museums:', error);
+            console.error('Error in loadAllMuseums:', error);
             return [];
         }
     }

@@ -186,9 +186,11 @@ describe('MuseumDataLoader', () => {
   });
 
   describe('loadAllMuseums', () => {
-    test('returns current MUSEUMS array', async () => {
+    test('returns empty array (API-based search architecture)', async () => {
+      // With new architecture, museums are loaded via API search, not preloaded
       const museums = await loader.loadAllMuseums();
-      expect(museums).toHaveLength(sampleMuseums.length);
+      expect(museums).toHaveLength(0);
+      expect(museums).toEqual([]);
     });
 
     test('returns empty array when fallback data missing', async () => {
