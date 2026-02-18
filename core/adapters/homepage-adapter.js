@@ -9,6 +9,14 @@
  * - 支持搜索、过滤、排序等功能
  * - 发布事件供其他模块订阅
  */
+
+// Error message constants for consistency (internal identifiers, not user-facing text)
+const ERROR_MESSAGES = {
+  SEARCH_SERVICE_UNAVAILABLE: 'Search service unavailable',
+  SEARCH_FAILED: 'Search failed',
+  SEARCH_ERROR: 'Search error occurred'
+};
+
 class HomepageAdapter {
   constructor({ dataManager, eventBus, museumDataLoader } = {}) {
     // 核心依赖
@@ -132,6 +140,7 @@ class HomepageAdapter {
     if (!this.currentFilters.searchText) {
       this.museums = [];
       this.filteredMuseums = [];
+      this.lastSearchError = null;
       
       if (this.eventBus) {
         this.eventBus.emit('homepage:search', {
@@ -146,11 +155,13 @@ class HomepageAdapter {
     // Use OfficialMuseumSearch for API-based search
     if (!this.officialSearch) {
       console.warn('OfficialMuseumSearch not available, cannot perform search');
+      this.lastSearchError = ERROR_MESSAGES.SEARCH_SERVICE_UNAVAILABLE;
       return;
     }
     
     try {
       this.isSearching = true;
+      this.lastSearchError = null;
       console.log(`[HomepageAdapter] Searching via API: "${this.currentFilters.searchText}"`);
       
       const result = await this.officialSearch.search(this.currentFilters.searchText);
@@ -167,18 +178,41 @@ class HomepageAdapter {
             searchText: this.currentFilters.searchText,
             resultCount: this.filteredMuseums.length,
             source: result.cached ? 'cached' : 'api',
-            totalResults: result.totalResults
+            totalResults: result.totalResults,
+            error: null
           });
         }
       } else {
         console.error('[HomepageAdapter] Search failed:', result.error);
         this.museums = [];
         this.filteredMuseums = [];
+        this.lastSearchError = result.error || ERROR_MESSAGES.SEARCH_FAILED;
+        
+        // Emit error event
+        if (this.eventBus) {
+          this.eventBus.emit('homepage:search', {
+            searchText: this.currentFilters.searchText,
+            resultCount: 0,
+            source: 'api',
+            error: this.lastSearchError
+          });
+        }
       }
     } catch (error) {
       console.error('[HomepageAdapter] Search error:', error);
       this.museums = [];
       this.filteredMuseums = [];
+      this.lastSearchError = error.message || ERROR_MESSAGES.SEARCH_ERROR;
+      
+      // Emit error event
+      if (this.eventBus) {
+        this.eventBus.emit('homepage:search', {
+          searchText: this.currentFilters.searchText,
+          resultCount: 0,
+          source: 'api',
+          error: this.lastSearchError
+        });
+      }
     } finally {
       this.isSearching = false;
     }

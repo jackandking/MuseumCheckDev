@@ -185,7 +185,8 @@ describe('HomepageAdapter', () => {
         searchText: '故宫',
         resultCount: 1,
         source: 'api',
-        totalResults: 1
+        totalResults: 1,
+        error: null
       });
     });
 

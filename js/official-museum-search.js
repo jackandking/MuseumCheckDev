@@ -142,7 +142,9 @@ class OfficialMuseumSearch {
     
     // Simple hash-based ID for Chinese characters
     const hash = this.simpleHash(cleanName + cleanLocation);
-    return `museum-${location.slice(0, 2)}-${hash}`.toLowerCase();
+    // Use cleanLocation (which is guaranteed to be a string) instead of location
+    const locationPrefix = cleanLocation.slice(0, 2) || 'xx';
+    return `museum-${locationPrefix}-${hash}`.toLowerCase();
   }
 
   /**

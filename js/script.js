@@ -170,6 +170,17 @@ const UtilityFunctions = {
     // String helpers
     sanitizeString: (str) => str ? str.trim() : '',
     
+    // HTML escaping to prevent XSS
+    escapeHtml: (str) => {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+    
     truncateString: (str, maxLength) => {
         if (!str || str.length <= maxLength) return str;
         return str.substring(0, maxLength) + '...';
@@ -5397,6 +5408,9 @@ class MuseumCheckApp {
                 await this.homepageAdapter.search(this.searchQuery);
                 this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
                 
+                // Capture search error if any
+                this.lastSearchError = this.homepageAdapter.lastSearchError || null;
+                
                 // Sort search results by recency (most recently browsed first)
                 this.filteredMuseums.sort((a, b) => {
                     const timeA = this.browsedMuseums[a.id] || 0;
@@ -5406,6 +5420,7 @@ class MuseumCheckApp {
                 return;
             } else {
                 this.homepageAdapter.clearFilters();
+                this.lastSearchError = null;
                 
                 // No search query - show empty list with prompt to search
                 // Since we no longer have MUSEUMS_META, we can't show "all museums"
@@ -7401,7 +7416,12 @@ class MuseumCheckApp {
             if (grid.children.length === 0) {
                 // Check if it's a search with no results vs initial empty state
                 if (this.searchQuery && this.searchQuery.trim() !== '') {
-                    this.showNoSearchResults(this.searchQuery);
+                    // Check if there was a search error
+                    if (this.lastSearchError) {
+                        this.showSearchError(this.searchQuery, this.lastSearchError);
+                    } else {
+                        this.showNoSearchResults(this.searchQuery);
+                    }
                 } else {
                     // Show friendly prompt to search (API-based architecture)
                     this.showSearchPrompt();
@@ -7429,6 +7449,67 @@ class MuseumCheckApp {
                 <button onclick="location.reload()" class="retry-button">重新载入</button>
             </div>
         `;
+    }
+    
+    showSearchError(query, errorMessage) {
+        const grid = document.getElementById('museumGrid');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // Hide loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        // Escape HTML to prevent XSS (using utility function for consistency)
+        const sanitizedQuery = UtilityFunctions.escapeHtml(query);
+        const sanitizedError = UtilityFunctions.escapeHtml(errorMessage);
+        
+        // Determine if it's a network/blocking error
+        const isNetworkError = errorMessage && (
+            errorMessage.includes('fetch') || 
+            errorMessage.includes('Failed to fetch') ||
+            errorMessage.includes('NetworkError') ||
+            errorMessage.includes('net::')
+        );
+        
+        const helpText = isNetworkError 
+            ? '搜索服务暂时无法访问。可能原因：<br>• 网络连接问题<br>• 浏览器广告拦截器阻止了请求<br>• 防火墙或代理设置'
+            : '搜索服务遇到问题，请稍后重试';
+        
+        grid.innerHTML = `
+            <div class="search-error-message">
+                <div class="error-icon">🔍❌</div>
+                <h3>搜索"${sanitizedQuery}"时发生错误</h3>
+                <p class="error-detail">${helpText}</p>
+                <div class="error-actions">
+                    <button id="retrySearchBtn" class="retry-button">🔄 重试搜索</button>
+                    <button id="clearSearchBtn" class="clear-button">✕ 清空搜索</button>
+                </div>
+                <details class="error-technical">
+                    <summary>技术详情</summary>
+                    <code>${sanitizedError || '未知错误'}</code>
+                </details>
+            </div>
+        `;
+        
+        // Add event listeners instead of inline handlers (XSS prevention)
+        const retryBtn = document.getElementById('retrySearchBtn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', async () => {
+                // Use original query (not sanitized HTML) for search input
+                document.getElementById('museumSearch').value = query || '';
+                await this.filterMuseums();
+                this.renderMuseums();
+            });
+        }
+        
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                document.getElementById('museumSearch').value = '';
+                this.clearSearch();
+            });
+        }
     }
     
     showSearchPrompt() {
