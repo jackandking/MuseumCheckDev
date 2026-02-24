@@ -1459,6 +1459,21 @@ window.MUSEUMS_META = [
     "image": "https://img2.baidu.com/it/u=4244108941,2042509085&fm=253&fmt=auto&app=138&f=JPEG&w=1067&h=800",
     "hasCollections": true,
     "level": "二级"
+  },
+  {
+    "id": "china-mintaiyuan-museum",
+    "name": "中国闽台缘博物馆",
+    "location": "福建",
+    "tags": [
+      "历史",
+      "文化",
+      "闽台关系",
+      "民俗",
+      "闽南文化"
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Mintaiyuan_Museum.jpg",
+    "hasCollections": true,
+    "level": "一级"
   }
 ];
 
