@@ -170,17 +170,6 @@ const UtilityFunctions = {
     // String helpers
     sanitizeString: (str) => str ? str.trim() : '',
     
-    // HTML escaping to prevent XSS
-    escapeHtml: (str) => {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    },
-    
     truncateString: (str, maxLength) => {
         if (!str || str.length <= maxLength) return str;
         return str.substring(0, maxLength) + '...';
@@ -4161,7 +4150,7 @@ class MuseumCheckApp {
         this.requestUserLocation();
         
         // Apply default filtering (show visited/favorited/browsed museums when no search)
-        await this.filterMuseums();
+        this.filterMuseums();
         
         this.renderMuseums();
         this.updateStats();
@@ -4759,9 +4748,9 @@ class MuseumCheckApp {
         const clearButton = document.getElementById('clearSearch');
         
         // Search input event listener
-        searchInput.addEventListener('input', async (e) => {
+        searchInput.addEventListener('input', (e) => {
             this.searchQuery = e.target.value.trim();
-            await this.filterMuseums();
+            this.filterMuseums();
             this.renderMuseums();
             this.toggleClearButton();
             
@@ -5393,7 +5382,7 @@ class MuseumCheckApp {
     }
 
     // Search functionality methods
-    async filterMuseums() {
+    filterMuseums() {
         console.log('🔍 [DEBUG] filterMuseums called:', {
             searchQuery: this.searchQuery,
             hasHomepageAdapter: !!this.homepageAdapter,
@@ -5404,12 +5393,8 @@ class MuseumCheckApp {
         if (this.homepageAdapter) {
             // Apply search
             if (this.searchQuery) {
-                // Search is now async and uses OfficialMuseumSearch API
-                await this.homepageAdapter.search(this.searchQuery);
+                this.homepageAdapter.search(this.searchQuery);
                 this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
-                
-                // Capture search error if any
-                this.lastSearchError = this.homepageAdapter.lastSearchError || null;
                 
                 // Sort search results by recency (most recently browsed first)
                 this.filteredMuseums.sort((a, b) => {
@@ -5420,16 +5405,34 @@ class MuseumCheckApp {
                 return;
             } else {
                 this.homepageAdapter.clearFilters();
-                this.lastSearchError = null;
                 
-                // No search query - show empty list with prompt to search
-                // Since we no longer have MUSEUMS_META, we can't show "all museums"
-                // User must search to find museums
-                this.filteredMuseums = [];
+                // No search query - show only browsed museums (by viewing history)
+                // Get IDs of museums to display from browsing history
+                const browsedIds = Object.keys(this.browsedMuseums);
                 
-                console.log('🔍 [DEBUG] filterMuseums (HomepageAdapter) - no search query, showing empty:', {
-                    message: 'User must search to find museums'
-                });
+                // If user has browsing history, filter to show only those
+                if (browsedIds.length > 0) {
+                    const allMuseums = this.homepageAdapter.getFilteredMuseums();
+                    this.filteredMuseums = allMuseums.filter(museum => this.browsedMuseums.hasOwnProperty(museum.id));
+                    
+                    // Sort by recency (most recently browsed first)
+                    this.filteredMuseums.sort((a, b) => {
+                        const timeA = this.browsedMuseums[a.id] || 0;
+                        const timeB = this.browsedMuseums[b.id] || 0;
+                        return timeB - timeA; // Most recent first
+                    });
+                    
+                    console.log('🔍 [DEBUG] filterMuseums (HomepageAdapter) - browsed:', {
+                        filteredCount: this.filteredMuseums.length,
+                        filteredIds: this.filteredMuseums.map(m => m.id)
+                    });
+                } else {
+                    // No browsing history, show all
+                    this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                    console.log('🔍 [DEBUG] filterMuseums (HomepageAdapter) - no browsed, showing all:', {
+                        totalCount: this.filteredMuseums.length
+                    });
+                }
             }
             
             return;
@@ -5496,11 +5499,11 @@ class MuseumCheckApp {
         });
     }
     
-    async clearSearch() {
+    clearSearch() {
         this.searchQuery = '';
         document.getElementById('museumSearch').value = '';
         // Apply default filtering (shows browsed museums by viewing history)
-        await this.filterMuseums();
+        this.filterMuseums();
         this.renderMuseums();
         this.toggleClearButton();
     }
@@ -7414,17 +7417,11 @@ class MuseumCheckApp {
             
             // If no museums were rendered, show appropriate message
             if (grid.children.length === 0) {
-                // Check if it's a search with no results vs initial empty state
+                // Check if it's a search with no results vs actual data loading failure
                 if (this.searchQuery && this.searchQuery.trim() !== '') {
-                    // Check if there was a search error
-                    if (this.lastSearchError) {
-                        this.showSearchError(this.searchQuery, this.lastSearchError);
-                    } else {
-                        this.showNoSearchResults(this.searchQuery);
-                    }
+                    this.showNoSearchResults(this.searchQuery);
                 } else {
-                    // Show friendly prompt to search (API-based architecture)
-                    this.showSearchPrompt();
+                    this.showError('博物馆数据载入失败，请刷新页面重试');
                 }
             }
         } catch (error) {
@@ -7451,91 +7448,6 @@ class MuseumCheckApp {
         `;
     }
     
-    showSearchError(query, errorMessage) {
-        const grid = document.getElementById('museumGrid');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        
-        // Hide loading indicator
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-        
-        // Escape HTML to prevent XSS (using utility function for consistency)
-        const sanitizedQuery = UtilityFunctions.escapeHtml(query);
-        const sanitizedError = UtilityFunctions.escapeHtml(errorMessage);
-        
-        // Determine if it's a network/blocking error
-        const isNetworkError = errorMessage && (
-            errorMessage.includes('fetch') || 
-            errorMessage.includes('Failed to fetch') ||
-            errorMessage.includes('NetworkError') ||
-            errorMessage.includes('net::')
-        );
-        
-        const helpText = isNetworkError 
-            ? '搜索服务暂时无法访问。可能原因：<br>• 网络连接问题<br>• 浏览器广告拦截器阻止了请求<br>• 防火墙或代理设置'
-            : '搜索服务遇到问题，请稍后重试';
-        
-        grid.innerHTML = `
-            <div class="search-error-message">
-                <div class="error-icon">🔍❌</div>
-                <h3>搜索"${sanitizedQuery}"时发生错误</h3>
-                <p class="error-detail">${helpText}</p>
-                <div class="error-actions">
-                    <button id="retrySearchBtn" class="retry-button">🔄 重试搜索</button>
-                    <button id="clearSearchBtn" class="clear-button">✕ 清空搜索</button>
-                </div>
-                <details class="error-technical">
-                    <summary>技术详情</summary>
-                    <code>${sanitizedError || '未知错误'}</code>
-                </details>
-            </div>
-        `;
-        
-        // Add event listeners instead of inline handlers (XSS prevention)
-        const retryBtn = document.getElementById('retrySearchBtn');
-        if (retryBtn) {
-            retryBtn.addEventListener('click', async () => {
-                // Use original query (not sanitized HTML) for search input
-                document.getElementById('museumSearch').value = query || '';
-                await this.filterMuseums();
-                this.renderMuseums();
-            });
-        }
-        
-        const clearBtn = document.getElementById('clearSearchBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                document.getElementById('museumSearch').value = '';
-                this.clearSearch();
-            });
-        }
-    }
-    
-    showSearchPrompt() {
-        const grid = document.getElementById('museumGrid');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        
-        // Hide loading indicator
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-        
-        grid.innerHTML = `
-            <div class="search-prompt-message">
-                <div class="search-prompt-icon">🔍</div>
-                <h3>搜索博物馆，开始探索之旅！</h3>
-                <p class="search-prompt-hint">试试搜索：</p>
-                <div class="search-examples">
-                    <button onclick="document.getElementById('museumSearch').value='故宫';document.getElementById('museumSearch').dispatchEvent(new Event('input'));" class="example-btn">🏯 故宫</button>
-                    <button onclick="document.getElementById('museumSearch').value='自然博物馆';document.getElementById('museumSearch').dispatchEvent(new Event('input'));" class="example-btn">🦕 自然博物馆</button>
-                    <button onclick="document.getElementById('museumSearch').value='科技馆';document.getElementById('museumSearch').dispatchEvent(new Event('input'));" class="example-btn">🚀 科技馆</button>
-                    <button onclick="document.getElementById('museumSearch').value='上海';document.getElementById('museumSearch').dispatchEvent(new Event('input'));" class="example-btn">🌆 上海</button>
-                </div>
-            </div>
-        `;
-    }
-    
     showNoSearchResults(query) {
         const grid = document.getElementById('museumGrid');
         const loadingIndicator = document.getElementById('loadingIndicator');
@@ -7555,7 +7467,7 @@ class MuseumCheckApp {
         `;
     }
 
-    async toggleMuseumVisit(museumId) {
+    toggleMuseumVisit(museumId) {
         const index = this.visitedMuseums.indexOf(museumId);
         const museum = MUSEUMS.find(m => m.id === museumId);
         
@@ -7571,7 +7483,7 @@ class MuseumCheckApp {
                 }
             } catch (e) { console.warn('Error removing visitedMuseumsMeta entry:', e); }
             // Re-filter museums to update display (in case no search is active)
-            await this.filterMuseums();
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track museum visit toggle
@@ -7609,7 +7521,7 @@ class MuseumCheckApp {
      * @param {Object} museum - The museum object
      * @param {string} ageGroup - The current age group (e.g., '7-12')
      */
-    async checkAutoCheckin(museumId, museum, ageGroup) {
+    checkAutoCheckin(museumId, museum, ageGroup) {
         // Skip if museum is already visited
         if (this.visitedMuseums.includes(museumId)) {
             return;
@@ -7685,7 +7597,7 @@ class MuseumCheckApp {
         this.triggerLargeRocket();
         this.saveVisitedMuseums();
         // Re-filter museums to update display (in case no search is active)
-        await this.filterMuseums();
+        this.filterMuseums();
         this.renderMuseums();
         
         // Show completion notification
@@ -7775,7 +7687,7 @@ class MuseumCheckApp {
         }
     }
 
-    async toggleFavorite(museumId) {
+    toggleFavorite(museumId) {
         const index = this.favoriteMuseums.indexOf(museumId);
         const museum = MUSEUMS.find(m => m.id === museumId);
         
@@ -7784,7 +7696,7 @@ class MuseumCheckApp {
             this.favoriteMuseums.splice(index, 1);
             this.saveFavoriteMuseums();
             // Re-filter museums to update display (in case no search is active)
-            await this.filterMuseums();
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track favorite toggle
@@ -7798,7 +7710,7 @@ class MuseumCheckApp {
             this.favoriteMuseums.push(museumId);
             this.saveFavoriteMuseums();
             // Re-filter museums to update display (in case no search is active)
-            await this.filterMuseums();
+            this.filterMuseums();
             this.renderMuseums();
             
             // Track favorite toggle

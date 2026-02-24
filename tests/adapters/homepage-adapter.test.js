@@ -9,7 +9,6 @@ describe('HomepageAdapter', () => {
   let mockDataManager;
   let mockEventBus;
   let mockMuseumDataLoader;
-  let mockOfficialSearch;
 
   beforeEach(() => {
     // Mock dependencies
@@ -28,12 +27,6 @@ describe('HomepageAdapter', () => {
       loadMuseum: jest.fn()
     };
 
-    // Mock OfficialMuseumSearch
-    mockOfficialSearch = {
-      search: jest.fn(),
-      clearCache: jest.fn()
-    };
-
     // Mock localStorage
     global.localStorage = {
       getItem: jest.fn(),
@@ -46,9 +39,6 @@ describe('HomepageAdapter', () => {
       eventBus: mockEventBus,
       museumDataLoader: mockMuseumDataLoader
     });
-    
-    // Inject mock OfficialMuseumSearch
-    adapter.officialSearch = mockOfficialSearch;
   });
 
   describe('Constructor', () => {
@@ -67,35 +57,33 @@ describe('HomepageAdapter', () => {
   });
 
   describe('init()', () => {
-    test('should initialize with API-based search (no preload)', async () => {
-      // With new architecture, no museums are loaded until search
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+    test('should load museums from museumDataLoader', async () => {
+      const mockMuseums = [
+        { id: 'museum-1', name: '博物馆1', location: '北京', tags: ['历史'] },
+        { id: 'museum-2', name: '博物馆2', location: '上海', tags: ['艺术'] }
+      ];
+      
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue(mockMuseums);
 
       const result = await adapter.init();
 
       expect(result).toBe(true);
       expect(adapter.initialized).toBe(true);
-      expect(adapter.museums).toEqual([]);
-      expect(adapter.filteredMuseums).toEqual([]);
+      expect(adapter.museums).toEqual(mockMuseums);
+      expect(adapter.filteredMuseums).toEqual(mockMuseums);
       expect(mockEventBus.emit).toHaveBeenCalledWith('homepage:museums:loaded', {
-        count: 0,
-        source: 'api-search-ready'
+        count: 2,
+        source: 'museums-meta'
       });
     });
 
     test('should handle initialization failure gracefully', async () => {
-      // With API-based architecture, init() doesn't load museums so it won't fail from loadAllMuseums
-      // Instead, test that it fails when museumDataLoader is missing
-      const adapterWithoutLoader = new HomepageAdapter({
-        dataManager: mockDataManager,
-        eventBus: mockEventBus,
-        museumDataLoader: null
-      });
+      mockMuseumDataLoader.loadAllMuseums.mockRejectedValue(new Error('Load failed'));
 
-      const result = await adapterWithoutLoader.init();
+      const result = await adapter.init();
 
       expect(result).toBe(false);
-      expect(adapterWithoutLoader.initialized).toBe(false);
+      expect(adapter.initialized).toBe(false);
     });
 
     test('should not reinitialize if already initialized', async () => {
@@ -161,95 +149,48 @@ describe('HomepageAdapter', () => {
 
   describe('search()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-1', name: '故宫博物院', location: '北京', tags: ['历史'] },
+        { id: 'museum-2', name: '上海博物馆', location: '上海', tags: ['艺术'] },
+        { id: 'museum-3', name: '北京天文馆', location: '北京', tags: ['科学'] }
+      ]);
       await adapter.init();
     });
 
-    test('should search via API and filter museums by name', async () => {
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '故宫博物院', location: '北京', tags: ['历史'] }
-        ],
-        totalResults: 1,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
+    test('should filter museums by name', () => {
+      adapter.search('故宫');
 
-      await adapter.search('故宫');
-
-      expect(mockOfficialSearch.search).toHaveBeenCalledWith('故宫');
       expect(adapter.filteredMuseums).toHaveLength(1);
       expect(adapter.filteredMuseums[0].id).toBe('museum-1');
       expect(mockEventBus.emit).toHaveBeenCalledWith('homepage:search', {
         searchText: '故宫',
-        resultCount: 1,
-        source: 'api',
-        totalResults: 1,
-        error: null
+        resultCount: 1
       });
     });
 
-    test('should search via API and filter museums by location', async () => {
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '故宫博物院', location: '北京', tags: ['历史'] },
-          { id: 'museum-3', name: '北京天文馆', location: '北京', tags: ['科学'] }
-        ],
-        totalResults: 2,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-
-      await adapter.search('北京');
+    test('should filter museums by location', () => {
+      adapter.search('北京');
 
       expect(adapter.filteredMuseums).toHaveLength(2);
       expect(adapter.filteredMuseums.map(m => m.id)).toContain('museum-1');
       expect(adapter.filteredMuseums.map(m => m.id)).toContain('museum-3');
     });
 
-    test('should search via API and filter museums by tags', async () => {
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '故宫博物院', location: '北京', tags: ['历史'] }
-        ],
-        totalResults: 1,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-
-      await adapter.search('历史');
+    test('should filter museums by tags', () => {
+      adapter.search('历史');
 
       expect(adapter.filteredMuseums).toHaveLength(1);
       expect(adapter.filteredMuseums[0].id).toBe('museum-1');
     });
 
-    test('should handle empty search', async () => {
-      await adapter.search('');
+    test('should handle empty search', () => {
+      adapter.search('');
 
-      expect(mockOfficialSearch.search).not.toHaveBeenCalled();
-      expect(adapter.filteredMuseums).toHaveLength(0);
-      expect(mockEventBus.emit).toHaveBeenCalledWith('homepage:search', {
-        searchText: '',
-        resultCount: 0,
-        source: 'cleared'
-      });
+      expect(adapter.filteredMuseums).toHaveLength(3);
     });
 
-    test('should be case-insensitive', async () => {
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '故宫博物院', location: '北京', tags: ['历史'] }
-        ],
-        totalResults: 1,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-
-      await adapter.search('故宫');
+    test('should be case-insensitive', () => {
+      adapter.search('故宫');
 
       expect(adapter.filteredMuseums).toHaveLength(1);
     });
@@ -257,22 +198,12 @@ describe('HomepageAdapter', () => {
 
   describe('filterByLocation()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-1', name: '博物馆1', location: '北京' },
+        { id: 'museum-2', name: '博物馆2', location: '上海' },
+        { id: 'museum-3', name: '博物馆3', location: '北京' }
+      ]);
       await adapter.init();
-      
-      // Simulate API search results being loaded
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '博物馆1', location: '北京' },
-          { id: 'museum-2', name: '博物馆2', location: '上海' },
-          { id: 'museum-3', name: '博物馆3', location: '北京' }
-        ],
-        totalResults: 3,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆');
     });
 
     test('should filter museums by location', () => {
@@ -288,22 +219,12 @@ describe('HomepageAdapter', () => {
 
   describe('filterByCollections()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-1', name: '博物馆1', hasCollections: true },
+        { id: 'museum-2', name: '博物馆2', hasCollections: false },
+        { id: 'museum-3', name: '博物馆3', hasCollections: true }
+      ]);
       await adapter.init();
-      
-      // Simulate API search results being loaded
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '博物馆1', hasCollections: true },
-          { id: 'museum-2', name: '博物馆2', hasCollections: false },
-          { id: 'museum-3', name: '博物馆3', hasCollections: true }
-        ],
-        totalResults: 3,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆');
     });
 
     test('should filter museums with collections', () => {
@@ -319,29 +240,17 @@ describe('HomepageAdapter', () => {
 
   describe('clearFilters()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-1', name: '博物馆1', location: '北京' },
+        { id: 'museum-2', name: '博物馆2', location: '上海' }
+      ]);
       await adapter.init();
-      
-      // Simulate API search results
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '博物馆1', location: '北京' },
-          { id: 'museum-2', name: '博物馆2', location: '上海' }
-        ],
-        totalResults: 2,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆');
     });
 
-    test('should clear all filters and restore search results', async () => {
-      // Apply a location filter
-      adapter.filterByLocation('北京');
+    test('should clear all filters and restore full list', () => {
+      adapter.search('博物馆1');
       expect(adapter.filteredMuseums).toHaveLength(1);
 
-      // Clear filters should restore to original search results
       adapter.clearFilters();
 
       expect(adapter.filteredMuseums).toHaveLength(2);
@@ -354,22 +263,12 @@ describe('HomepageAdapter', () => {
 
   describe('sort()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-b', name: 'B博物馆', location: '上海' },
+        { id: 'museum-a', name: 'A博物馆', location: '北京' },
+        { id: 'museum-c', name: 'C博物馆', location: '北京' }
+      ]);
       await adapter.init();
-      
-      // Simulate API search results
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-b', name: 'B博物馆', location: '上海' },
-          { id: 'museum-a', name: 'A博物馆', location: '北京' },
-          { id: 'museum-c', name: 'C博物馆', location: '北京' }
-        ],
-        totalResults: 3,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆');
     });
 
     test('should sort by name', () => {
@@ -393,22 +292,12 @@ describe('HomepageAdapter', () => {
 
   describe('getStatistics()', () => {
     beforeEach(async () => {
-      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([]);
+      mockMuseumDataLoader.loadAllMuseums.mockResolvedValue([
+        { id: 'museum-1', name: '博物馆1' },
+        { id: 'museum-2', name: '博物馆2' },
+        { id: 'museum-3', name: '博物馆3' }
+      ]);
       await adapter.init();
-      
-      // Simulate API search results
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '博物馆1' },
-          { id: 'museum-2', name: '博物馆2' },
-          { id: 'museum-3', name: '博物馆3' }
-        ],
-        totalResults: 3,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆');
 
       localStorage.getItem.mockReturnValue(JSON.stringify(['museum-1', 'museum-2']));
     });
@@ -422,19 +311,8 @@ describe('HomepageAdapter', () => {
       expect(stats.filtered).toBe(3);
     });
 
-    test('should handle filtered results', async () => {
-      // Perform a new search with 1 result
-      const mockApiResponse = {
-        success: true,
-        museums: [
-          { id: 'museum-1', name: '博物馆1' }
-        ],
-        totalResults: 1,
-        cached: false
-      };
-      mockOfficialSearch.search.mockResolvedValue(mockApiResponse);
-      await adapter.search('博物馆1');
-      
+    test('should handle filtered results', () => {
+      adapter.search('博物馆1');
       const stats = adapter.getStatistics();
 
       expect(stats.filtered).toBe(1);
