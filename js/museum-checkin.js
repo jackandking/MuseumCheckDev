@@ -2111,11 +2111,69 @@
 
         // Save photos to localStorage
         function savePhotos() {
+            const photosKey = `museumPhotos_${museumId}_${ageGroup}`;
             try {
-                const photosKey = `museumPhotos_${museumId}_${ageGroup}`;
                 localStorage.setItem(photosKey, JSON.stringify(taskPhotos));
             } catch (error) {
                 console.error('Error saving photos:', error);
+                if (error.name === 'QuotaExceededError') {
+                    // Storage full: remove oldest other-museum photos first, then retry
+                    cleanupOldMuseumPhotos(photosKey, taskPhotos);
+                    try {
+                        localStorage.setItem(photosKey, JSON.stringify(taskPhotos));
+                    } catch (retryError) {
+                        console.error('Still not enough space after cleanup:', retryError);
+                    }
+                }
+            }
+        }
+
+        // Remove old museum photo entries (oldest first) until the current key can be saved
+        function cleanupOldMuseumPhotos(currentKey, currentPhotos) {
+            // Collect all museumPhotos_* keys except the current museum's key
+            const otherKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('museumPhotos_') && key !== currentKey) {
+                    otherKeys.push(key);
+                }
+            }
+            if (otherKeys.length === 0) return;
+
+            // Use poster timestamps to sort: oldest poster first (most likely safe to remove)
+            let postersData = {};
+            try {
+                postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
+            } catch (e) { /* ignore */ }
+
+            const AGE_GROUPS = ['3-6', '7-12', '13-18'];
+            otherKeys.sort((a, b) => {
+                const getMuseumTimestamp = (key) => {
+                    // Key format: museumPhotos_{museumId}_{ageGroup}
+                    // ageGroup is one of '3-6', '7-12', '13-18'
+                    const withoutPrefix = key.slice('museumPhotos_'.length);
+                    let museumIdPart = withoutPrefix;
+                    for (const ag of AGE_GROUPS) {
+                        if (withoutPrefix.endsWith('_' + ag)) {
+                            museumIdPart = withoutPrefix.slice(0, -(ag.length + 1));
+                            break;
+                        }
+                    }
+                    return (postersData[museumIdPart] && postersData[museumIdPart].timestamp) || 0;
+                };
+                return getMuseumTimestamp(a) - getMuseumTimestamp(b); // oldest first
+            });
+
+            // Delete entries one by one (oldest first) until save succeeds
+            for (const key of otherKeys) {
+                localStorage.removeItem(key);
+                try {
+                    localStorage.setItem(currentKey, JSON.stringify(currentPhotos));
+                    console.log(`[cleanupOldMuseumPhotos] Freed space by removing: ${key}`);
+                    return; // Successfully saved, stop removing
+                } catch (e) {
+                    // Need to remove more
+                }
             }
         }
 
