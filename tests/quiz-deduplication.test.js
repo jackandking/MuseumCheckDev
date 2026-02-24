@@ -291,3 +291,93 @@ describe('Quiz Anti-Grinding - Questions Exhausted', () => {
         expect(warning).toBeNull();
     });
 });
+
+describe('Quiz Question Type Changes', () => {
+    const museums = [
+        {
+            id: 'museum1',
+            name: '故宫博物院',
+            location: '北京',
+            description: '世界上现存规模最大的木质古建筑群',
+            tags: ['历史'],
+            image: 'https://example.com/museum1.jpg',
+            collections: [
+                { name: '清明上河图', imageUrl: 'https://example.com/qmshht.jpg', description: '北宋画家张择端的传世名作' },
+                { name: '翠玉白菜', imageUrl: 'https://example.com/baicai.jpg', description: '清代宫廷珍品' }
+            ]
+        },
+        { id: 'museum2', name: '上海博物馆', location: '上海', collections: [{ name: '大克鼎', description: '西周时期青铜器' }] },
+        { id: 'museum3', name: '南京博物院', location: '南京', collections: [{ name: '越王勾践剑', description: '春秋时期青铜剑' }] },
+        { id: 'museum4', name: '陕西历史博物馆', location: '西安', collections: [{ name: '后母戊鼎', description: '商代青铜器' }] }
+    ];
+
+    const mockAdapter = {
+        init: async () => museums,
+        preloadMuseums: async () => {},
+        getMuseums: () => museums
+    };
+
+    beforeEach(async () => {
+        localStorage.clear();
+        localStorage.setItem('visitedMuseums', JSON.stringify(['museum1', 'museum2', 'museum3', 'museum4']));
+        QuizData.resetForTests();
+        await QuizData.init(mockAdapter);
+    });
+
+    test('city museum count questions are no longer generated', () => {
+        const questions = QuizData.generateQuestionsForMuseum('museum1', '7-12');
+        const cityCountQuestions = questions.filter(q => q.id && q.id.includes('city_museums'));
+        expect(cityCountQuestions.length).toBe(0);
+    });
+
+    test('generates treasure image identification questions when collection has imageUrl', () => {
+        const questions = QuizData.generateQuestionsForMuseum('museum1', '7-12');
+        const treasureImageQuestions = questions.filter(q => q.id && q.id.includes('treasure_image'));
+        expect(treasureImageQuestions.length).toBeGreaterThan(0);
+
+        const q = treasureImageQuestions[0];
+        expect(q.type).toBe('image-choice');
+        expect(q.question).toBe('看图猜一猜，这是哪件镇馆之宝？');
+        expect(q.image).toBeDefined();
+        expect(q.options).toHaveLength(4);
+        expect(q.correctAnswer).toBeGreaterThanOrEqual(0);
+        expect(q.correctAnswer).toBeLessThan(4);
+        // Correct answer option must be one of the museum's treasure names
+        const museumTreasureNames = ['清明上河图', '翠玉白菜'];
+        expect(museumTreasureNames).toContain(q.options[q.correctAnswer]);
+    });
+
+    test('does not generate treasure image questions when collections have no imageUrl', () => {
+        const questions = QuizData.generateQuestionsForMuseum('museum2', '7-12');
+        const treasureImageQuestions = questions.filter(q => q.id && q.id.includes('treasure_image'));
+        expect(treasureImageQuestions.length).toBe(0);
+    });
+
+    test('generates treasure-to-museum reverse questions when collections exist', () => {
+        const questions = QuizData.generateQuestionsForMuseum('museum1', '7-12');
+        const reverseQuestions = questions.filter(q => q.id && q.id.includes('treasure_to_museum'));
+        expect(reverseQuestions.length).toBeGreaterThan(0);
+
+        const q = reverseQuestions[0];
+        expect(q.type).toBe('single-choice');
+        expect(q.question).toContain('哪个博物馆');
+        expect(q.options).toHaveLength(4);
+        expect(q.correctAnswer).toBeGreaterThanOrEqual(0);
+        expect(q.correctAnswer).toBeLessThan(4);
+        // Correct answer must be the museum name
+        expect(q.options[q.correctAnswer]).toBe('故宫博物院');
+        expect(q.points).toBe(15);
+    });
+
+    test('treasure-to-museum question text includes treasure name', () => {
+        const questions = QuizData.generateQuestionsForMuseum('museum1', '7-12');
+        const reverseQuestions = questions.filter(q => q.id && q.id.includes('treasure_to_museum'));
+        expect(reverseQuestions.length).toBeGreaterThan(0);
+        // Question should contain one of the museum's treasure names
+        const treasureNames = ['清明上河图', '翠玉白菜'];
+        reverseQuestions.forEach(q => {
+            const matchesTreasure = treasureNames.some(name => q.question.includes(name));
+            expect(matchesTreasure).toBe(true);
+        });
+    });
+});

@@ -41,6 +41,9 @@ class QuizData {
         this.readyPromise = null;
         this.museumsMeta = [];
         this.museumCache = new Map();
+        // Restore original implementations if they were replaced by mocks in tests
+        if (this._originalGetMuseums) this.getMuseums = this._originalGetMuseums;
+        if (this._originalGetVisitedMuseums) this.getVisitedMuseums = this._originalGetVisitedMuseums;
     }
 
     static ensureReady() {
@@ -115,6 +118,16 @@ class QuizData {
         // Image recognition questions (guess museum by photo)
         if (museum.image) {
             questions.push(...this.generateImageQuestions(museum, ageGroup));
+        }
+
+        // Treasure image identification questions (show treasure photo, guess treasure name)
+        if (museum.collections && museum.collections.some(c => c.imageUrl)) {
+            questions.push(...this.generateTreasureImageQuestions(museum, ageGroup));
+        }
+
+        // Treasure-to-museum reverse questions (guess museum from treasure name)
+        if (museum.collections && museum.collections.length > 0) {
+            questions.push(...this.generateTreasureToMuseumQuestions(museum, ageGroup));
         }
         
         return questions;
@@ -223,32 +236,115 @@ class QuizData {
      * @private
      */
     static generateLocationQuestions(museum, ageGroup) {
+        // City museum count questions removed per requirement change
+        return [];
+    }
+
+    /**
+     * Generate treasure photo identification questions (guess treasure name from photo)
+     * @private
+     */
+    static generateTreasureImageQuestions(museum, ageGroup) {
         const questions = [];
-        
-        // Only generate if we have location data
-        if (!museum.location) return questions;
-        
-        // Museum count in same city (requires checking all museums)
-        const museums = this.getMuseums();
-        const sameCity = museums.filter(m => m.location === museum.location);
-        
-        if (sameCity.length > 2) {
-            const countOpts = this.shuffleOptions(this.generateCountOptions(sameCity.length));
+        const museumId = museum.id;
+
+        if (!museum.collections) return questions;
+
+        const collectionsWithImages = museum.collections.filter(c => c.imageUrl);
+        if (collectionsWithImages.length === 0) return questions;
+
+        // Gather distractor treasure names from other museums
+        const allMuseums = this.getMuseums();
+        const otherTreasureNames = [];
+        allMuseums.forEach(m => {
+            if (m.id !== museumId && m.collections) {
+                m.collections.forEach(c => {
+                    if (c.name && !otherTreasureNames.includes(c.name)) {
+                        otherTreasureNames.push(c.name);
+                    }
+                });
+            }
+        });
+
+        // Fallback static treasures if not enough cross-museum distractors
+        const famousTreasures = [
+            '清明上河图', '翠玉白菜', '后母戊鼎', '越王勾践剑',
+            '兵马俑', '金缕玉衣', '大克鼎', '毛公鼎'
+        ];
+
+        collectionsWithImages.forEach((collection, index) => {
+            const distractors = otherTreasureNames
+                .filter(n => n !== collection.name)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+
+            // Fill up to 3 distractors with famous treasures if needed
+            famousTreasures.forEach(t => {
+                if (distractors.length < 3 && t !== collection.name && !distractors.includes(t)) {
+                    distractors.push(t);
+                }
+            });
+
+            if (distractors.length < 3) return;
+
+            const opts = this.shuffleOptions([collection.name, ...distractors.slice(0, 3)]);
             questions.push({
-                id: `${museum.id}_city_museums`,
-                museumId: museum.id,
-                type: 'single-choice',
+                id: `${museumId}_treasure_image_${index}`,
+                museumId: museumId,
+                type: 'image-choice',
                 difficulty: 'medium',
-                question: `在${museum.location}，我们收录了多少家博物馆？`,
-                options: countOpts.options,
-                correctAnswer: countOpts.correctAnswer,
-                explanation: `在${museum.location}，我们收录了${sameCity.length}家博物馆。`,
+                question: '看图猜一猜，这是哪件镇馆之宝？',
+                image: collection.imageUrl,
+                options: opts.options,
+                correctAnswer: opts.correctAnswer,
+                explanation: `这是${museum.name}的镇馆之宝：${collection.name}。${collection.description || ''}`,
                 points: 15,
-                tags: ['地理', '统计'],
+                tags: ['图片识别', '文物'],
                 ageGroup: '7-12'
             });
-        }
-        
+        });
+
+        return questions;
+    }
+
+    /**
+     * Generate treasure-to-museum reverse questions (guess museum from treasure name)
+     * @private
+     */
+    static generateTreasureToMuseumQuestions(museum, ageGroup) {
+        const questions = [];
+        const museumId = museum.id;
+
+        if (!museum.collections || museum.collections.length === 0) return questions;
+
+        const allMuseums = this.getMuseums();
+        const otherMuseums = allMuseums.filter(m => m.id !== museumId);
+
+        if (otherMuseums.length < 3) return questions;
+
+        museum.collections.forEach((collection, index) => {
+            const distractors = otherMuseums
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(m => m.name);
+
+            const opts = this.shuffleOptions([museum.name, ...distractors]);
+            questions.push({
+                id: `${museumId}_treasure_to_museum_${index}`,
+                museumId: museumId,
+                type: 'single-choice',
+                difficulty: 'medium',
+                question: `"${collection.name}"是哪个博物馆的镇馆之宝？`,
+                options: opts.options,
+                correctAnswer: opts.correctAnswer,
+                explanation: `${collection.name}是${museum.name}的镇馆之宝。`,
+                points: 15,
+                tags: ['藏品', '博物馆'],
+                ageGroup: '7-12',
+                image: collection.imageUrl
+            });
+        });
+
         return questions;
     }
     
@@ -515,3 +611,6 @@ QuizData.adapter = null;
 QuizData.readyPromise = null;
 QuizData.museumCache = new Map();
 QuizData.museumsMeta = [];
+// Store original method implementations for test restoration
+QuizData._originalGetMuseums = QuizData.getMuseums;
+QuizData._originalGetVisitedMuseums = QuizData.getVisitedMuseums;
