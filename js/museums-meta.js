@@ -833,6 +833,21 @@ window.MUSEUMS_META = [
     "level": "三级"
   },
   {
+    "id": "quanzhou-city-museum",
+    "name": "泉州博物馆",
+    "location": "泉州",
+    "tags": [
+      "历史",
+      "文化",
+      "闽南文化",
+      "考古",
+      "海丝文化"
+    ],
+    "image": "https://img2.baidu.com/it/u=3862590014,3235502598&fm=253&fmt=auto&app=138&f=JPEG&w=889&h=500",
+    "hasCollections": false,
+    "level": "二级"
+  },
+  {
     "id": "xiamen-museum",
     "name": "厦门市博物馆",
     "location": "厦门",
