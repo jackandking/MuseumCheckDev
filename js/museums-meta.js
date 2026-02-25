@@ -1489,6 +1489,20 @@ window.MUSEUMS_META = [
     "image": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Mintaiyuan_Museum.jpg",
     "hasCollections": true,
     "level": "一级"
+  },
+  {
+    "id": "quanzhou-intangible-heritage-museum",
+    "name": "泉州非物质文化遗产馆",
+    "location": "福建",
+    "tags": [
+      "非物质文化遗产",
+      "民俗",
+      "文化",
+      "传统技艺"
+    ],
+    "image": "",
+    "hasCollections": true,
+    "level": "三级"
   }
 ];
 
