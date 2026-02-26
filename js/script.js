@@ -7340,7 +7340,7 @@ class MuseumCheckApp {
                 // Generate museum image HTML if image URL is available
                 const museumImageHtml = museum.image 
                     ? `<div class="museum-image">
-                         <img src="${museum.image}" alt="${museum.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                         <img src="${museum.image}" alt="${museum.name}" loading="lazy">
                          ${isVisited ? '<div class="visit-tag">已打卡</div>' : ''}
                        </div>`
                     : '';
@@ -7366,6 +7366,35 @@ class MuseumCheckApp {
                         ${tagsHtml}
                     </div>
                 `;
+
+                // Set up KV Store image fallback when meta image is unavailable
+                const cardImgEl = card.querySelector('.museum-image img');
+                if (cardImgEl) {
+                    cardImgEl.addEventListener('error', async function handleImgError() {
+                        cardImgEl.removeEventListener('error', handleImgError);
+                        const loader = window.museumDataLoader;
+                        if (loader && typeof loader.getMuseumImageUrl === 'function') {
+                            try {
+                                const fallbackUrl = await loader.getMuseumImageUrl(museum.id);
+                                if (fallbackUrl && fallbackUrl !== museum.image) {
+                                    // Hide container if fallback also fails to load
+                                    cardImgEl.addEventListener('error', function() {
+                                        if (cardImgEl.parentElement) {
+                                            cardImgEl.parentElement.style.display = 'none';
+                                        }
+                                    }, { once: true });
+                                    cardImgEl.src = fallbackUrl;
+                                    return;
+                                }
+                            } catch (e) {
+                                // fall through to hide
+                            }
+                        }
+                        if (cardImgEl.parentElement) {
+                            cardImgEl.parentElement.style.display = 'none';
+                        }
+                    });
+                }
 
                 // Add click event for the card (excluding checkbox, buttons)
                 // Navigate to v2 (museum-checkin.html) when clicking the card

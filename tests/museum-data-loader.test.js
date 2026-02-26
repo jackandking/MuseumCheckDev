@@ -204,4 +204,81 @@ describe('MuseumDataLoader', () => {
       window.MUSEUMS = original;
     });
   });
+
+  describe('getMuseumImageUrl', () => {
+    beforeEach(() => {
+      // Ensure image URL cache keys are clean before each test
+      window.localStorage.removeItem('museum-image-url-forbidden-city');
+      window.localStorage.removeItem('museum-image-url-missing-museum');
+    });
+
+    test('fetches image URL from KV Store and caches result', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院', image: 'https://example.com/kv-image.jpg' };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+
+      const url = await loader.getMuseumImageUrl('forbidden-city');
+      expect(url).toBe('https://example.com/kv-image.jpg');
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      // Second call should use cached URL without fetching again
+      const url2 = await loader.getMuseumImageUrl('forbidden-city');
+      expect(url2).toBe('https://example.com/kv-image.jpg');
+      expect(fetch).toHaveBeenCalledTimes(1); // Still 1, not 2
+    });
+
+    test('returns cached image URL without fetching KV Store again', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院', image: 'https://example.com/cached.jpg' };
+      global.fetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+
+      // First call caches the URL
+      await loader.getMuseumImageUrl('forbidden-city');
+      global.fetch.mockClear();
+
+      // Second call should use localStorage cache, no new fetch
+      const url = await loader.getMuseumImageUrl('forbidden-city');
+      expect(url).toBe('https://example.com/cached.jpg');
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    test('re-fetches when cache is expired', async () => {
+      const oldTimestamp = Date.now() - ((loader.cacheExpirationDays + 1) * 24 * 60 * 60 * 1000);
+      window.localStorage.setItem('museum-image-url-forbidden-city', JSON.stringify({ url: 'https://old.jpg', timestamp: oldTimestamp }));
+      const payload = { id: 'forbidden-city', name: '故宫博物院', image: 'https://example.com/new-image.jpg' };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+
+      const url = await loader.getMuseumImageUrl('forbidden-city');
+
+      expect(url).toBe('https://example.com/new-image.jpg');
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns null when KV Store has no image field', async () => {
+      const payload = { id: 'forbidden-city', name: '故宫博物院' };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+
+      const url = await loader.getMuseumImageUrl('forbidden-city');
+
+      expect(url).toBeNull();
+    });
+
+    test('returns null when KV Store fetch fails', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 404 });
+
+      const url = await loader.getMuseumImageUrl('missing-museum');
+
+      expect(url).toBeNull();
+    });
+  });
 });

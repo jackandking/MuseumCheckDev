@@ -269,6 +269,51 @@ class MuseumDataLoader {
     }
 
     /**
+     * Get museum image URL, falling back to KV Store when meta image is unavailable.
+     * Caches the resolved URL in localStorage to avoid repeated KV Store requests.
+     * @param {string} museumId - Museum identifier
+     * @returns {Promise<string|null>} Image URL or null if not found
+     */
+    async getMuseumImageUrl(museumId) {
+        const cacheKey = `museum-image-url-${museumId}`;
+
+        // Check localStorage cache first
+        try {
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                const { url, timestamp } = JSON.parse(cached);
+                const expirationMs = this.cacheExpirationDays * 24 * 60 * 60 * 1000;
+                if (Date.now() - timestamp < expirationMs) {
+                    return url;
+                }
+                localStorage.removeItem(cacheKey);
+            }
+        } catch (error) {
+            console.warn(`Error reading image URL cache for ${museumId}:`, error);
+        }
+
+        // Fetch from KV Store
+        try {
+            const data = await this.loadFromKVStore(museumId);
+            if (data && data.image) {
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify({
+                        url: data.image,
+                        timestamp: Date.now()
+                    }));
+                } catch (error) {
+                    console.warn(`Error caching image URL for ${museumId}:`, error);
+                }
+                return data.image;
+            }
+        } catch (error) {
+            console.warn(`Error fetching image URL from KV Store for ${museumId}:`, error);
+        }
+
+        return null;
+    }
+
+    /**
      * Save museum data to KV store (Tier 2)
      * @param {string} museumId - Museum identifier
      * @param {Object} data - Museum data object
