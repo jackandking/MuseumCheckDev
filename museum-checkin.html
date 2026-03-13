@@ -402,7 +402,32 @@
             
             <h3 class="task-detail-title" id="modalTaskTitle"></h3>
             <div class="task-detail-description" id="modalDescription"></div>
-            
+
+            <!-- Parent Guide Section (China Film Museum custom experience) -->
+            <div class="parent-guide-section" id="parentGuideSection" style="display: none;">
+                <div class="parent-guide-header">
+                    <span class="parent-guide-icon">💡</span>
+                    <span class="parent-guide-title">家长讲解提示</span>
+                </div>
+                <ul class="parent-guide-list" id="parentGuideList"></ul>
+            </div>
+
+            <!-- Child Review Section (China Film Museum custom experience) -->
+            <div class="child-review-section" id="childReviewSection" style="display: none;">
+                <div class="child-review-header">
+                    <span class="child-review-icon">✏️</span>
+                    <span class="child-review-title">宝贝的评价</span>
+                </div>
+                <div class="child-review-prompts">
+                    <span class="review-prompt">我觉得…</span>
+                    <span class="review-prompt">我最喜欢…</span>
+                    <span class="review-prompt">这个宝物很…</span>
+                </div>
+                <textarea class="child-review-input" id="childReviewInput"
+                    placeholder="写下你对这件宝物的感受吧！（一句话就好）"
+                    maxlength="100" rows="2"></textarea>
+            </div>
+
             <!-- Treasure Photo Contributor Section (when treasure has no image) -->
             <div class="treasure-photo-contributor-modal" id="treasurePhotoContributorSection" style="display: none;">
                 <div class="treasure-photo-contributor-hint">

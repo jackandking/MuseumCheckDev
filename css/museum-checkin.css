@@ -4133,6 +4133,139 @@
         }
 
 /* =====================================================
+   China Film Museum Custom Tour - Parent Guide & Child Review
+   ===================================================== */
+
+        /* ── Parent Guide ── */
+        .parent-guide-section {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1.5px solid #fbbf24;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 12px 0;
+        }
+
+        .parent-guide-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .parent-guide-icon {
+            font-size: 20px;
+        }
+
+        .parent-guide-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #92400e;
+            letter-spacing: 0.02em;
+        }
+
+        .parent-guide-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .parent-guide-list li {
+            font-size: 14px;
+            color: #78350f;
+            line-height: 1.55;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .parent-guide-list li::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #f59e0b;
+            font-size: 11px;
+            top: 3px;
+        }
+
+        /* ── Child Review ── */
+        .child-review-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1.5px solid #86efac;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 12px 0;
+        }
+
+        .child-review-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .child-review-icon {
+            font-size: 20px;
+        }
+
+        .child-review-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #166534;
+        }
+
+        .child-review-prompts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .review-prompt {
+            background: rgba(134, 239, 172, 0.4);
+            color: #166534;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #86efac;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .review-prompt:hover {
+            background: rgba(134, 239, 172, 0.75);
+        }
+
+        .child-review-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1.5px solid #86efac;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+                         'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            color: #1a1a1a;
+            background: white;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            line-height: 1.5;
+        }
+
+        .child-review-input:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+        }
+
+        .child-review-input::placeholder {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+/* =====================================================
    END OF MUSEUM-CHECKIN.CSS
    
    Leaderboard styles moved to css/leaderboard.css

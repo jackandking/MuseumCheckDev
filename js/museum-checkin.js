@@ -62,6 +62,112 @@
         // Task type identifier for treasure tasks (for internationalization)
         const TREASURE_TASK_IDENTIFIER = '镇馆之宝';
 
+        // =====================================================
+        // 中国电影博物馆定制导览体验
+        // China Film Museum Custom Guided Tour Experience
+        // =====================================================
+
+        const CHINA_FILM_MUSEUM_ID = 'china-film-museum';
+
+        /**
+         * Custom tour configuration for China Film Museum
+         * 6 treasures with parent explanation guides
+         */
+        const CHINA_FILM_MUSEUM_CONFIG = {
+            totalTreasures: 6,
+            treasures: [
+                {
+                    name: '任庆泰金属底版及照片',
+                    parentGuide: [
+                        '任庆泰1905年拍摄《定军山》，是中国电影的起点，这些底版是百年前真实的历史见证',
+                        '金属底版比纸质底片耐久百倍，历经百年仍保存完好，极为珍贵',
+                        '可以问孩子：底版上记录的是清末北京，和今天的北京有什么不一样？'
+                    ]
+                },
+                {
+                    name: '郑正秋书房原状陈列',
+                    parentGuide: [
+                        '郑正秋是"中国电影之父"，他的电影关注普通人生活，让无数人第一次看到了电影',
+                        '这个书房还原了他写剧本的地方——那时候没有电脑，所有故事都靠手写',
+                        '他的代表作《难夫难妻》《姊妹花》影响了整整一代中国人，那时的"爆款"就是他'
+                    ]
+                },
+                {
+                    name: '老式手摇无声电影放映机',
+                    parentGuide: [
+                        '放映员要手摇把手让胶片转动——摇快了快进，摇慢了像"僵尸走路"，全凭经验',
+                        '没有声音的时代，影院请钢琴师或乐队现场配乐，观众跟着音乐感受剧情',
+                        '早期电影每秒只有16帧，远少于现代电影的24帧，所以动作看起来有点快'
+                    ]
+                },
+                {
+                    name: '延安电影团老摄影机',
+                    parentGuide: [
+                        '1938年延安电影团用这种笨重的摄影机记录了战争年代最真实的中国，条件极其艰苦',
+                        '他们没有足够的胶片和灯光，却坚持把历史记录下来，这需要极大的勇气',
+                        '这台摄影机拍下的画面，是今天我们了解那段历史最重要的影像资料'
+                    ]
+                },
+                {
+                    name: '《大闹天宫》动画相关展品',
+                    parentGuide: [
+                        '1961年《大闹天宫》上映，团队历时4年手绘超过十万张画稿，每一秒都是真功夫',
+                        '孙悟空的形象融合了京剧脸谱设计，这种中国风动画在全世界独一无二',
+                        '这部动画在44个国家放映，是中国文化走向世界的先驱，令人骄傲'
+                    ]
+                },
+                {
+                    name: '《林则徐》电影美术设计原稿',
+                    parentGuide: [
+                        '《林则徐》1959年拍摄，讲述虎门销烟的历史，是建国十周年的重要献礼片',
+                        '美术设计师先手绘这样的草稿，确定每个场景的颜色和道具，再交给布景师制作',
+                        '从铅笔草图到最终银幕，这些原稿展示了电影不为人知的幕后创作过程'
+                    ]
+                }
+            ]
+        };
+
+        /**
+         * Get parent guide points for a treasure in China Film Museum
+         * @param {string} treasureName - Treasure name
+         * @returns {string[]|null} Array of guide points, or null if not found
+         */
+        function getChinaFilmMuseumParentGuide(treasureName) {
+            if (!treasureName) return null;
+            const found = CHINA_FILM_MUSEUM_CONFIG.treasures.find(t => t.name === treasureName);
+            return found ? found.parentGuide : null;
+        }
+
+        /**
+         * Load child reviews for the current museum visit from localStorage
+         * @returns {Object} reviews keyed by treasure name
+         */
+        function getChildReviews() {
+            const key = `childReviews_${museumId}`;
+            try {
+                return JSON.parse(localStorage.getItem(key)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        /**
+         * Save a child review for a specific treasure
+         * @param {string} treasureName - Treasure name
+         * @param {string} review - Child's review text
+         */
+        function saveChildReview(treasureName, review) {
+            if (!treasureName) return;
+            const key = `childReviews_${museumId}`;
+            const reviews = getChildReviews();
+            if (review) {
+                reviews[treasureName] = review;
+            } else {
+                delete reviews[treasureName];
+            }
+            localStorage.setItem(key, JSON.stringify(reviews));
+        }
+
         /**
          * Generate a unique sort key for a treasure report
          * @param {string} museumId - Museum ID
@@ -838,6 +944,20 @@
                 console.debug(`Merged ${userTreasures.length} user-added treasures into museum collections`);
             }
 
+            // ── China Film Museum: seed 6 configured treasures if not already present ──
+            // Ensures the 6 specific treasures are always available locally,
+            // even before the remote KV store record includes them.
+            if (museumId === CHINA_FILM_MUSEUM_ID) {
+                if (!Array.isArray(currentMuseum.collections)) {
+                    currentMuseum.collections = [];
+                }
+                CHINA_FILM_MUSEUM_CONFIG.treasures.forEach(t => {
+                    if (!currentMuseum.collections.some(c => c.name === t.name)) {
+                        currentMuseum.collections.push({ name: t.name, imageUrl: '' });
+                    }
+                });
+            }
+
             document.getElementById('museumName').textContent = currentMuseum.name;
             
             // Track museum check-in page visit to event wall
@@ -864,28 +984,37 @@
             
             // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 亲子合影)
             // Automatically applied to any museum that has collections data
-            // Uses selected treasures from configuration, defaults to first 3
-            const totalTreasuresNeeded = 3;
+            // China Film Museum uses 6 treasures; all other museums use 3
+            const isChinaFilmMuseum = museumId === CHINA_FILM_MUSEUM_ID;
+            const totalTreasuresNeeded = isChinaFilmMuseum ? CHINA_FILM_MUSEUM_CONFIG.totalTreasures : 3;
             const collections = currentMuseum.collections || [];
             
             if (Array.isArray(collections) && collections.length >= totalTreasuresNeeded) {
-                // Museum has 3+ treasures - use standard treasure hunt workflow
-                // Get selected treasures from configuration (defaults to first 3)
-                const selectedTreasureNames = getSelectedTreasuresForMuseum();
-                const selectedCollections = collections.filter(c => selectedTreasureNames.includes(c.name));
-                
-                // If no valid selections, fall back to first 3
-                const colls = selectedCollections.length >= MIN_TREASURES_REQUIRED 
-                    ? selectedCollections 
-                    : collections.slice(0, Math.min(3, collections.length));
-                
-                // Use the shared helper with selected collections
-                childTasks = buildTreasureWorkflowTasks(colls);
+                if (isChinaFilmMuseum) {
+                    // China Film Museum: use the 6 configured treasures in order
+                    const configuredNames = CHINA_FILM_MUSEUM_CONFIG.treasures.map(t => t.name);
+                    const orderedColls = configuredNames
+                        .map(name => collections.find(c => c.name === name))
+                        .filter(Boolean);
+                    childTasks = buildTreasureWorkflowTasks(
+                        orderedColls.length >= totalTreasuresNeeded ? orderedColls : collections.slice(0, totalTreasuresNeeded),
+                        totalTreasuresNeeded
+                    );
+                } else {
+                    // Standard museums: get selected treasures from configuration (defaults to first 3)
+                    const selectedTreasureNames = getSelectedTreasuresForMuseum();
+                    const selectedCollections = collections.filter(c => selectedTreasureNames.includes(c.name));
+                    
+                    // If no valid selections, fall back to first 3
+                    const colls = selectedCollections.length >= MIN_TREASURES_REQUIRED 
+                        ? selectedCollections 
+                        : collections.slice(0, Math.min(3, collections.length));
+                    
+                    childTasks = buildTreasureWorkflowTasks(colls);
+                }
             } else {
-                // Museum has 0-2 treasures - show mix of treasure tasks and "add treasure" tasks
-                // This allows incremental discovery: as users add treasures, tasks update
-                // Use the shared helper to build the task list
-                childTasks = buildTreasureWorkflowTasks(collections);
+                // Museum has fewer treasures than needed - show mix of treasure tasks and "add treasure" tasks
+                childTasks = buildTreasureWorkflowTasks(collections, totalTreasuresNeeded);
             }
 
             renderTasks();
@@ -1692,6 +1821,48 @@
                 contributorSection.style.display = 'none';
             }
 
+            // ── China Film Museum: Parent Guide & Child Review ──
+            const parentGuideSection = document.getElementById('parentGuideSection');
+            const childReviewSection = document.getElementById('childReviewSection');
+            const isTreasureTaskCFM = title && title.includes(TREASURE_TASK_IDENTIFIER);
+
+            if (museumId === CHINA_FILM_MUSEUM_ID && isTreasureTaskCFM && subtitle) {
+                const cfmNameMatch = subtitle.match(/「([^」]+)」/);
+                const cfmTreasureName = cfmNameMatch && cfmNameMatch[1];
+
+                // Show parent guide
+                const guidePoints = cfmTreasureName ? getChinaFilmMuseumParentGuide(cfmTreasureName) : null;
+                if (parentGuideSection) {
+                    if (guidePoints && guidePoints.length) {
+                        const guideList = document.getElementById('parentGuideList');
+                        if (guideList) {
+                            guideList.innerHTML = guidePoints
+                                .map(p => `<li>${p}</li>`)
+                                .join('');
+                        }
+                        parentGuideSection.style.display = 'block';
+                    } else {
+                        parentGuideSection.style.display = 'none';
+                    }
+                }
+
+                // Show child review input
+                if (childReviewSection) {
+                    childReviewSection.style.display = 'block';
+                    const reviewInput = document.getElementById('childReviewInput');
+                    if (reviewInput && cfmTreasureName) {
+                        const savedReviews = getChildReviews();
+                        reviewInput.value = savedReviews[cfmTreasureName] || '';
+                        reviewInput.placeholder = savedReviews[cfmTreasureName]
+                            ? '已保存的评价'
+                            : '写下你对这件宝物的感受吧！（一句话就好）';
+                    }
+                }
+            } else {
+                if (parentGuideSection) parentGuideSection.style.display = 'none';
+                if (childReviewSection) childReviewSection.style.display = 'none';
+            }
+
             document.getElementById('taskModal').classList.add('show');
         }
 
@@ -1826,6 +1997,17 @@
             
             // Close modal
             document.getElementById('taskModal').classList.remove('show');
+
+            // ── China Film Museum: save child review on task completion ──
+            if (museumId === CHINA_FILM_MUSEUM_ID && title && title.includes(TREASURE_TASK_IDENTIFIER) && subtitle) {
+                const cfmMatch = subtitle.match(/「([^」]+)」/);
+                const cfmTName = cfmMatch && cfmMatch[1];
+                if (cfmTName) {
+                    const reviewInput = document.getElementById('childReviewInput');
+                    const reviewText = reviewInput ? reviewInput.value.trim() : '';
+                    saveChildReview(cfmTName, reviewText);
+                }
+            }
             
             // Show fireworks celebration
             celebrateWithFireworks();
@@ -2994,6 +3176,14 @@
             Promise.all([...photos.map(loadImage), loadQRCode()]).then(results => {
                 const qrImage = results.pop(); // Last item is QR code
                 const validImages = results.filter(img => img !== null);
+
+                // Build a map from taskIndex → loaded image for CFM poster layout
+                // photos is ordered by sorted string keys of taskPhotos, so results[i] maps to the i-th key
+                const sortedTaskIndices = Object.keys(taskPhotos).sort().map(Number);
+                const photosByTaskIdx = {};
+                sortedTaskIndices.forEach((taskIdx, i) => {
+                    if (results[i] !== null) photosByTaskIdx[taskIdx] = results[i];
+                });
                 
                 // Pre-calculate required canvas height to avoid canvas clearing
                 // Updated: Changed from 260 to 210 after removing duplicate museum name line
@@ -3013,25 +3203,30 @@
                 // Height for photos section
                 let photoSectionHeight = 0;
                 if (validImages.length > 0) {
-                    let photoSize = 280;
-                    let cols = 2;
-                    let padding = 20;
-                    
-                    if (validImages.length <= 2) {
-                        cols = 2;
-                        photoSize = 280;
-                    } else if (validImages.length <= 4) {
-                        cols = 2;
-                        photoSize = 200;
-                        padding = 15;
+                    if (museumId === CHINA_FILM_MUSEUM_ID) {
+                        // Vertical layout: each photo (180px) + optional review text (50px) + padding (14px)
+                        photoSectionHeight = 40 + validImages.length * (180 + 50 + 14);
                     } else {
-                        cols = 3;
-                        photoSize = 180;
-                        padding = 12;
+                        let photoSize = 280;
+                        let cols = 2;
+                        let padding = 20;
+                        
+                        if (validImages.length <= 2) {
+                            cols = 2;
+                            photoSize = 280;
+                        } else if (validImages.length <= 4) {
+                            cols = 2;
+                            photoSize = 200;
+                            padding = 15;
+                        } else {
+                            cols = 3;
+                            photoSize = 180;
+                            padding = 12;
+                        }
+                        
+                        const rows = Math.ceil(validImages.length / cols);
+                        photoSectionHeight = 40 + rows * (photoSize + padding); // Header + grid
                     }
-                    
-                    const rows = Math.ceil(validImages.length / cols);
-                    photoSectionHeight = 40 + rows * (photoSize + padding); // Header + grid
                 }
                 
                 // Calculate total required height
@@ -3137,32 +3332,95 @@
                     ctx.textAlign = 'left';
                     ctx.fillText('📸 精彩瞬间：', 40, currentY);
                     currentY += 40;
-                    
-                    const startY = currentY;
-                    
-                    // Draw photos in grid
-                    validImages.forEach((img, idx) => {
-                        const row = Math.floor(idx / cols);
-                        const col = idx % cols;
-                        const x = 40 + col * (photoSize + padding);
-                        const y = startY + row * (photoSize + padding);
+
+                    if (museumId === CHINA_FILM_MUSEUM_ID) {
+                        // ── China Film Museum: vertical layout with child reviews ──
+                        const childReviews = getChildReviews();
+                        const cfmPhotoSize = 180;
+                        const cfmPadding = 14;
+                        // Use photosByTaskIdx map for correct photo-to-task alignment
+                        // (avoids misalignment if some photos fail to load)
+                        const sortedPhotoKeys = Object.keys(photosByTaskIdx).map(Number).sort((a, b) => a - b);
+                        sortedPhotoKeys.forEach(taskIdx => {
+                            const img = photosByTaskIdx[taskIdx];
+                            if (!img) return;
+                            const cfmTask = childTasks[taskIdx];
+                            const { subtitle: cfmSubtitle } = parseTaskString(cfmTask || '');
+                            const cfmNameMatch = cfmSubtitle && cfmSubtitle.match(/「([^」]+)」/);
+                            const cfmTName = cfmNameMatch && cfmNameMatch[1];
+                            const review = cfmTName ? (childReviews[cfmTName] || '') : '';
+
+                            // Photo (left side)
+                            const px = 40;
+                            const py = currentY;
+                            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                            ctx.fillRect(px - 4, py - 4, cfmPhotoSize + 8, cfmPhotoSize + 8);
+                            const cfmScale = Math.min(cfmPhotoSize / img.width, cfmPhotoSize / img.height);
+                            const cfmScaledW = img.width * cfmScale;
+                            const cfmScaledH = img.height * cfmScale;
+                            ctx.drawImage(img,
+                                px + (cfmPhotoSize - cfmScaledW) / 2,
+                                py + (cfmPhotoSize - cfmScaledH) / 2,
+                                cfmScaledW, cfmScaledH);
+
+                            // Treasure name (right of photo)
+                            const textX = px + cfmPhotoSize + 16;
+                            const maxTextW = W - textX - 40;
+                            if (cfmTName) {
+                                ctx.fillStyle = '#ffffff';
+                                ctx.font = 'bold 17px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                                ctx.textAlign = 'left';
+                                ctx.fillText(cfmTName, textX, py + 24);
+                            }
+
+                            // Review text (word-wrapped below name)
+                            if (review) {
+                                ctx.fillStyle = 'rgba(255,255,220,0.95)';
+                                ctx.font = '15px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
+                                let ry = py + 52;
+                                let line = '💬 ';
+                                Array.from(review).forEach(ch => {
+                                    const test = line + ch;
+                                    if (ctx.measureText(test).width > maxTextW) {
+                                        ctx.fillText(line, textX, ry);
+                                        ry += 22;
+                                        line = ch;
+                                    } else {
+                                        line = test;
+                                    }
+                                });
+                                if (line) ctx.fillText(line, textX, ry);
+                            }
+
+                            currentY += cfmPhotoSize + cfmPadding;
+                        });
+                        currentY += 20; // footer spacing
+                    } else {
+                        // Standard grid layout
+                        const startY = currentY;
+                        validImages.forEach((img, idx) => {
+                            const row = Math.floor(idx / cols);
+                            const col = idx % cols;
+                            const x = 40 + col * (photoSize + padding);
+                            const y = startY + row * (photoSize + padding);
+                            
+                            // White border
+                            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                            ctx.fillRect(x - 6, y - 6, photoSize + 12, photoSize + 12);
+                            
+                            // Draw photo with aspect ratio
+                            const scale = Math.min(photoSize / img.width, photoSize / img.height);
+                            const scaledW = img.width * scale;
+                            const scaledH = img.height * scale;
+                            const offsetX = (photoSize - scaledW) / 2;
+                            const offsetY = (photoSize - scaledH) / 2;
+                            
+                            ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
+                        });
                         
-                        // White border
-                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                        ctx.fillRect(x - 6, y - 6, photoSize + 12, photoSize + 12);
-                        
-                        // Draw photo with aspect ratio
-                        const scale = Math.min(photoSize / img.width, photoSize / img.height);
-                        const scaledW = img.width * scale;
-                        const scaledH = img.height * scale;
-                        const offsetX = (photoSize - scaledW) / 2;
-                        const offsetY = (photoSize - scaledH) / 2;
-                        
-                        ctx.drawImage(img, x + offsetX, y + offsetY, scaledW, scaledH);
-                    });
-                    
-                    const rows = Math.ceil(validImages.length / cols);
-                    currentY = startY + rows * (photoSize + padding) + 40;
+                        const rows = Math.ceil(validImages.length / cols);
+                        currentY = startY + rows * (photoSize + padding) + 40;
+                    }
                 } else if (photos.length > 0) {
                     // Photos exist but failed to load - show message
                     ctx.fillStyle = 'rgba(255,255,255,0.8)';
@@ -3894,6 +4152,18 @@
             if (taskPhotoInput) taskPhotoInput.onchange = handlePhotoCapture;
 
             if (retakeBtn) retakeBtn.onclick = clearPhotoPreview;
+
+            // China Film Museum: review prompt chips — click to insert starter text
+            document.querySelectorAll('.review-prompt').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const reviewInput = document.getElementById('childReviewInput');
+                    if (reviewInput) {
+                        reviewInput.value = chip.textContent;
+                        reviewInput.focus();
+                        reviewInput.setSelectionRange(reviewInput.value.length, reviewInput.value.length);
+                    }
+                });
+            });
 
             // Modal treasure contributor search buttons
             const modalSearchWikiBtn = document.getElementById('modalSearchWikiBtn');
@@ -5033,15 +5303,16 @@
         /**
          * Build treasure workflow task list based on available collections
          * @param {Array} collections - Array of treasure/collection objects
+         * @param {number} [totalNeeded] - Total treasures required (default: 3; China Film Museum: 6)
          * @returns {Array} Array of task strings
          */
-        function buildTreasureWorkflowTasks(collections) {
-            const totalTreasuresNeeded = 3;
+        function buildTreasureWorkflowTasks(collections, totalNeeded) {
+            const totalTreasuresNeeded = totalNeeded || 3;
             const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
             const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
             
             if (collections.length >= totalTreasuresNeeded) {
-                // All 3 treasures available - standard treasure hunt
+                // All treasures available - standard treasure hunt
                 const colls = collections.slice(0, totalTreasuresNeeded);
                 const treasureTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
                 return [start].concat(treasureTasks, [end]);
