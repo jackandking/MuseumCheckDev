@@ -1156,7 +1156,7 @@ window.MUSEUMS_META = [
       "艺术发展"
     ],
     "image": "",
-    "hasCollections": false,
+    "hasCollections": true,
     "level": "一级"
   },
   {

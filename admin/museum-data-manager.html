@@ -954,6 +954,24 @@
             showStatus(`⚠️ 无数据找到，创建新博物馆（请填写信息）`, 'warning');
           }
           
+          // Special handling: Pre-populate China Film Museum treasures if collections are empty
+          if (museumId === 'china-film-museum' && (!currentData.collections || currentData.collections.length === 0)) {
+            const CHINA_FILM_TREASURES = [
+              { name: '任庆泰金属底版及照片', description: '任庆泰1905年拍摄《定军山》所用的金属底版，是中国电影诞生的历史见证，历经百年仍保存完好。' },
+              { name: '郑正秋书房原状陈列', description: '"中国电影之父"郑正秋的书房还原陈列，展示了早期电影创作者的生活与创作环境。' },
+              { name: '老式手摇无声电影放映机', description: '早期无声电影时代使用的手摇放映机，放映员通过手摇控制胶片转动速度，配合现场乐队演奏。' },
+              { name: '延安电影团老摄影机', description: '1938年延安电影团用于记录战争年代历史的摄影机，是那段岁月最重要的影像记录工具。' },
+              { name: '《大闹天宫》动画相关展品', description: '1961年经典动画《大闹天宫》相关展品，包括手绘画稿，团队历时4年创作超过十万张画稿。' },
+              { name: '《林则徐》电影美术设计原稿', description: '1959年献礼片《林则徐》的美术设计手绘原稿，展示了电影幕后的美术创作过程。' }
+            ];
+            currentData.collections = CHINA_FILM_TREASURES.map(t => ({
+              name: t.name,
+              imageUrl: '',
+              description: t.description
+            }));
+            showStatus('📽️ 已预填充中国电影博物馆6件镇馆之宝（请为每件填写图片URL并保存）', 'info');
+          }
+
           populateEditors(currentData);
           updatePreview();
         } catch (error) {
