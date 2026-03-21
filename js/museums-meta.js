@@ -1160,6 +1160,20 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
+    "id": "prince-kung-mansion",
+    "name": "恭王府",
+    "location": "北京",
+    "tags": [
+      "皇家府邸",
+      "清代建筑",
+      "园林艺术",
+      "福文化"
+    ],
+    "image": "",
+    "hasCollections": true,
+    "level": "一级"
+  },
+  {
     "id": "china-tea-museum",
     "name": "中国茶叶博物馆",
     "location": "杭州",

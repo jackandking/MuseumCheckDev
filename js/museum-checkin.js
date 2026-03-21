@@ -63,79 +63,165 @@
         const TREASURE_TASK_IDENTIFIER = '镇馆之宝';
 
         // =====================================================
-        // 中国电影博物馆定制导览体验
-        // China Film Museum Custom Guided Tour Experience
+        // 定制导览体验 (Custom Guided Tour Experience)
+        // Supports multiple museums with parent guides & child reviews
         // =====================================================
 
         const CHINA_FILM_MUSEUM_ID = 'china-film-museum';
+        const PRINCE_KUNG_MANSION_ID = 'prince-kung-mansion';
 
         /**
-         * Custom tour configuration for China Film Museum
-         * 6 treasures with parent explanation guides
+         * Registry of custom museum configurations.
+         * Each museum has a set of curated treasures with parent guide points
+         * for an enriched parent-child visiting experience.
          */
-        const CHINA_FILM_MUSEUM_CONFIG = {
-            totalTreasures: 6,
-            treasures: [
-                {
-                    name: '任庆泰金属底版及照片',
-                    parentGuide: [
-                        '任庆泰1905年拍摄《定军山》，是中国电影的起点，这些底版是百年前真实的历史见证',
-                        '金属底版比纸质底片耐久百倍，历经百年仍保存完好，极为珍贵',
-                        '可以问孩子：底版上记录的是清末北京，和今天的北京有什么不一样？'
-                    ]
-                },
-                {
-                    name: '郑正秋书房原状陈列',
-                    parentGuide: [
-                        '郑正秋是"中国电影之父"，他的电影关注普通人生活，让无数人第一次看到了电影',
-                        '这个书房还原了他写剧本的地方——那时候没有电脑，所有故事都靠手写',
-                        '他的代表作《难夫难妻》《姊妹花》影响了整整一代中国人，那时的"爆款"就是他'
-                    ]
-                },
-                {
-                    name: '老式手摇无声电影放映机',
-                    parentGuide: [
-                        '放映员要手摇把手让胶片转动——摇快了快进，摇慢了像"僵尸走路"，全凭经验',
-                        '没有声音的时代，影院请钢琴师或乐队现场配乐，观众跟着音乐感受剧情',
-                        '早期电影每秒只有16帧，远少于现代电影的24帧，所以动作看起来有点快'
-                    ]
-                },
-                {
-                    name: '延安电影团老摄影机',
-                    parentGuide: [
-                        '1938年延安电影团用这种笨重的摄影机记录了战争年代最真实的中国，条件极其艰苦',
-                        '他们没有足够的胶片和灯光，却坚持把历史记录下来，这需要极大的勇气',
-                        '这台摄影机拍下的画面，是今天我们了解那段历史最重要的影像资料'
-                    ]
-                },
-                {
-                    name: '《大闹天宫》动画相关展品',
-                    parentGuide: [
-                        '1961年《大闹天宫》上映，团队历时4年手绘超过十万张画稿，每一秒都是真功夫',
-                        '孙悟空的形象融合了京剧脸谱设计，这种中国风动画在全世界独一无二',
-                        '这部动画在44个国家放映，是中国文化走向世界的先驱，令人骄傲'
-                    ]
-                },
-                {
-                    name: '《林则徐》电影美术设计原稿',
-                    parentGuide: [
-                        '《林则徐》1959年拍摄，讲述虎门销烟的历史，是建国十周年的重要献礼片',
-                        '美术设计师先手绘这样的草稿，确定每个场景的颜色和道具，再交给布景师制作',
-                        '从铅笔草图到最终银幕，这些原稿展示了电影不为人知的幕后创作过程'
-                    ]
-                }
-            ]
+        const CUSTOM_MUSEUM_CONFIGS = {
+            'china-film-museum': {
+                totalTreasures: 6,
+                treasures: [
+                    {
+                        name: '任庆泰金属底版及照片',
+                        parentGuide: [
+                            '任庆泰1905年拍摄《定军山》，是中国电影的起点，这些底版是百年前真实的历史见证',
+                            '金属底版比纸质底片耐久百倍，历经百年仍保存完好，极为珍贵',
+                            '可以问孩子：底版上记录的是清末北京，和今天的北京有什么不一样？'
+                        ]
+                    },
+                    {
+                        name: '郑正秋书房原状陈列',
+                        parentGuide: [
+                            '郑正秋是"中国电影之父"，他的电影关注普通人生活，让无数人第一次看到了电影',
+                            '这个书房还原了他写剧本的地方——那时候没有电脑，所有故事都靠手写',
+                            '他的代表作《难夫难妻》《姊妹花》影响了整整一代中国人，那时的"爆款"就是他'
+                        ]
+                    },
+                    {
+                        name: '老式手摇无声电影放映机',
+                        parentGuide: [
+                            '放映员要手摇把手让胶片转动——摇快了快进，摇慢了像"僵尸走路"，全凭经验',
+                            '没有声音的时代，影院请钢琴师或乐队现场配乐，观众跟着音乐感受剧情',
+                            '早期电影每秒只有16帧，远少于现代电影的24帧，所以动作看起来有点快'
+                        ]
+                    },
+                    {
+                        name: '延安电影团老摄影机',
+                        parentGuide: [
+                            '1938年延安电影团用这种笨重的摄影机记录了战争年代最真实的中国，条件极其艰苦',
+                            '他们没有足够的胶片和灯光，却坚持把历史记录下来，这需要极大的勇气',
+                            '这台摄影机拍下的画面，是今天我们了解那段历史最重要的影像资料'
+                        ]
+                    },
+                    {
+                        name: '《大闹天宫》动画相关展品',
+                        parentGuide: [
+                            '1961年《大闹天宫》上映，团队历时4年手绘超过十万张画稿，每一秒都是真功夫',
+                            '孙悟空的形象融合了京剧脸谱设计，这种中国风动画在全世界独一无二',
+                            '这部动画在44个国家放映，是中国文化走向世界的先驱，令人骄傲'
+                        ]
+                    },
+                    {
+                        name: '《林则徐》电影美术设计原稿',
+                        parentGuide: [
+                            '《林则徐》1959年拍摄，讲述虎门销烟的历史，是建国十周年的重要献礼片',
+                            '美术设计师先手绘这样的草稿，确定每个场景的颜色和道具，再交给布景师制作',
+                            '从铅笔草图到最终银幕，这些原稿展示了电影不为人知的幕后创作过程'
+                        ]
+                    }
+                ]
+            },
+            'prince-kung-mansion': {
+                totalTreasures: 6,
+                treasures: [
+                    {
+                        name: '福字碑（康熙御笔）',
+                        parentGuide: [
+                            '这个"福"字是康熙皇帝为生病的祖母孝庄太后亲笔所写，一笔写成，被称为"天下第一福"',
+                            '这个"福"字里暗藏"多子、多才、多田、多寿、多福"，是古人的智慧和祝愿',
+                            '可以问孩子：你能在这个"福"字里找到几个隐藏的字？（提示：子、田、才、寿、福）'
+                        ]
+                    },
+                    {
+                        name: '西洋门',
+                        parentGuide: [
+                            '这座汉白玉拱门是当时大贪官和珅修建的，融合了西方石雕和中国园林设计，非常罕见',
+                            '清代普通人家根本见不到西方建筑，和珅用这座门炫耀自己的见识和财富',
+                            '可以问孩子：200年前的中国人看到这座"洋门"会是什么反应？和今天我们看到外国建筑有什么不同？'
+                        ]
+                    },
+                    {
+                        name: '大戏楼',
+                        parentGuide: [
+                            '这是清代保存最完好的三座私家戏楼之一，能容纳200多人，声学设计精妙绝伦',
+                            '当年王府过节时，请名角唱戏能连唱三天三夜，台下还有人递茶送点心',
+                            '可以问孩子：站在戏台中央说话试试——不用话筒声音也能传很远，这是200年前的"黑科技"！'
+                        ]
+                    },
+                    {
+                        name: '后罩楼（88扇窗）',
+                        parentGuide: [
+                            '后罩楼长达160米，有88扇窗户，每扇窗的花纹都不一样，是中国现存最长的"后罩楼"',
+                            '"88"在中国文化里谐音"发发"，寓意发财，和珅就是用这种方式偷偷许愿',
+                            '可以问孩子：走一遍数数看，你能发现几种不同的窗户花纹？试试找到两扇一样的！'
+                        ]
+                    },
+                    {
+                        name: '银安殿',
+                        parentGuide: [
+                            '银安殿是王府的正殿，只有最高等级的亲王才能拥有，相当于王府里的"金銮殿"',
+                            '注意看屋顶的琉璃瓦是绿色的——黄色只有皇帝能用，亲王只能用绿色，等级森严',
+                            '可以问孩子：想想如果你是王爷，每天在这么大的房子里上班是什么感觉？会不会觉得很威风？'
+                        ]
+                    },
+                    {
+                        name: '蝠池',
+                        parentGuide: [
+                            '从高处看，这个水池的形状像一只展翅的蝙蝠！"蝠"谐音"福"，这是中国人的吉祥设计',
+                            '整座恭王府里藏着一万多个蝙蝠图案——窗棂上、屋檐下、石雕里到处都是，所以也叫"万福园"',
+                            '可以问孩子：从这里开始，看看一路上你能找到多少个蝙蝠图案？这是一场"寻蝠"大冒险！'
+                        ]
+                    }
+                ]
+            }
         };
 
+        // Backward-compatible alias
+        const CHINA_FILM_MUSEUM_CONFIG = CUSTOM_MUSEUM_CONFIGS[CHINA_FILM_MUSEUM_ID];
+
         /**
-         * Get parent guide points for a treasure in China Film Museum
+         * Get the custom museum config for a given museum ID, if one exists.
+         * @param {string} id - Museum ID
+         * @returns {Object|null} Config object or null
+         */
+        function getCustomMuseumConfig(id) {
+            return CUSTOM_MUSEUM_CONFIGS[id] || null;
+        }
+
+        /**
+         * Check if a museum has a custom guided tour configuration.
+         * @param {string} id - Museum ID
+         * @returns {boolean}
+         */
+        function isCustomGuidedMuseum(id) {
+            return !!CUSTOM_MUSEUM_CONFIGS[id];
+        }
+
+        /**
+         * Get parent guide points for a treasure in any custom-configured museum.
+         * @param {string} museumId - Museum ID
          * @param {string} treasureName - Treasure name
          * @returns {string[]|null} Array of guide points, or null if not found
          */
-        function getChinaFilmMuseumParentGuide(treasureName) {
+        function getCustomMuseumParentGuide(museumId, treasureName) {
             if (!treasureName) return null;
-            const found = CHINA_FILM_MUSEUM_CONFIG.treasures.find(t => t.name === treasureName);
+            const config = getCustomMuseumConfig(museumId);
+            if (!config) return null;
+            const found = config.treasures.find(t => t.name === treasureName);
             return found ? found.parentGuide : null;
+        }
+
+        // Backward-compatible wrapper
+        function getChinaFilmMuseumParentGuide(treasureName) {
+            return getCustomMuseumParentGuide(CHINA_FILM_MUSEUM_ID, treasureName);
         }
 
         /**
@@ -944,14 +1030,15 @@
                 console.debug(`Merged ${userTreasures.length} user-added treasures into museum collections`);
             }
 
-            // ── China Film Museum: seed 6 configured treasures if not already present ──
-            // Ensures the 6 specific treasures are always available locally,
+            // ── Custom museums: seed configured treasures if not already present ──
+            // Ensures the specific treasures are always available locally,
             // even before the remote KV store record includes them.
-            if (museumId === CHINA_FILM_MUSEUM_ID) {
+            const customConfig = getCustomMuseumConfig(museumId);
+            if (customConfig) {
                 if (!Array.isArray(currentMuseum.collections)) {
                     currentMuseum.collections = [];
                 }
-                CHINA_FILM_MUSEUM_CONFIG.treasures.forEach(t => {
+                customConfig.treasures.forEach(t => {
                     if (!currentMuseum.collections.some(c => c.name === t.name)) {
                         currentMuseum.collections.push({ name: t.name, imageUrl: '' });
                     }
@@ -984,15 +1071,16 @@
             
             // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 亲子合影)
             // Automatically applied to any museum that has collections data
-            // China Film Museum uses 6 treasures; all other museums use 3
-            const isChinaFilmMuseum = museumId === CHINA_FILM_MUSEUM_ID;
-            const totalTreasuresNeeded = isChinaFilmMuseum ? CHINA_FILM_MUSEUM_CONFIG.totalTreasures : 3;
+            // Custom-configured museums use their own treasure count; standard museums use 3
+            const isCustomMuseum = isCustomGuidedMuseum(museumId);
+            const museumConfig = getCustomMuseumConfig(museumId);
+            const totalTreasuresNeeded = museumConfig ? museumConfig.totalTreasures : 3;
             const collections = currentMuseum.collections || [];
-            
+
             if (Array.isArray(collections) && collections.length >= totalTreasuresNeeded) {
-                if (isChinaFilmMuseum) {
-                    // China Film Museum: use the 6 configured treasures in order
-                    const configuredNames = CHINA_FILM_MUSEUM_CONFIG.treasures.map(t => t.name);
+                if (isCustomMuseum && museumConfig) {
+                    // Custom museum: use the configured treasures in order
+                    const configuredNames = museumConfig.treasures.map(t => t.name);
                     const orderedColls = configuredNames
                         .map(name => collections.find(c => c.name === name))
                         .filter(Boolean);
@@ -1821,17 +1909,16 @@
                 contributorSection.style.display = 'none';
             }
 
-            // ── China Film Museum: Parent Guide & Child Review ──
+            // ── Custom Museums: Parent Guide & Child Review ──
             const parentGuideSection = document.getElementById('parentGuideSection');
             const childReviewSection = document.getElementById('childReviewSection');
-            const isTreasureTaskCFM = title && title.includes(TREASURE_TASK_IDENTIFIER);
 
-            if (museumId === CHINA_FILM_MUSEUM_ID && isTreasureTaskCFM && subtitle) {
-                const cfmNameMatch = subtitle.match(/「([^」]+)」/);
-                const cfmTreasureName = cfmNameMatch && cfmNameMatch[1];
+            if (isCustomGuidedMuseum(museumId) && isTreasureTask && subtitle) {
+                const nameMatch = subtitle.match(/「([^」]+)」/);
+                const treasureName = nameMatch && nameMatch[1];
 
                 // Show parent guide
-                const guidePoints = cfmTreasureName ? getChinaFilmMuseumParentGuide(cfmTreasureName) : null;
+                const guidePoints = treasureName ? getCustomMuseumParentGuide(museumId, treasureName) : null;
                 if (parentGuideSection) {
                     if (guidePoints && guidePoints.length) {
                         const guideList = document.getElementById('parentGuideList');
@@ -1850,10 +1937,10 @@
                 if (childReviewSection) {
                     childReviewSection.style.display = 'block';
                     const reviewInput = document.getElementById('childReviewInput');
-                    if (reviewInput && cfmTreasureName) {
+                    if (reviewInput && treasureName) {
                         const savedReviews = getChildReviews();
-                        reviewInput.value = savedReviews[cfmTreasureName] || '';
-                        reviewInput.placeholder = savedReviews[cfmTreasureName]
+                        reviewInput.value = savedReviews[treasureName] || '';
+                        reviewInput.placeholder = savedReviews[treasureName]
                             ? '已保存的评价'
                             : '写下你对这件宝物的感受吧！（一句话就好）';
                     }
@@ -1998,14 +2085,14 @@
             // Close modal
             document.getElementById('taskModal').classList.remove('show');
 
-            // ── China Film Museum: save child review on task completion ──
-            if (museumId === CHINA_FILM_MUSEUM_ID && title && title.includes(TREASURE_TASK_IDENTIFIER) && subtitle) {
-                const cfmMatch = subtitle.match(/「([^」]+)」/);
-                const cfmTName = cfmMatch && cfmMatch[1];
-                if (cfmTName) {
+            // ── Custom museums: save child review on task completion ──
+            if (isCustomGuidedMuseum(museumId) && title && title.includes(TREASURE_TASK_IDENTIFIER) && subtitle) {
+                const reviewMatch = subtitle.match(/「([^」]+)」/);
+                const reviewTName = reviewMatch && reviewMatch[1];
+                if (reviewTName) {
                     const reviewInput = document.getElementById('childReviewInput');
                     const reviewText = reviewInput ? reviewInput.value.trim() : '';
-                    saveChildReview(cfmTName, reviewText);
+                    saveChildReview(reviewTName, reviewText);
                 }
             }
             
@@ -3203,7 +3290,7 @@
                 // Height for photos section
                 let photoSectionHeight = 0;
                 if (validImages.length > 0) {
-                    if (museumId === CHINA_FILM_MUSEUM_ID) {
+                    if (isCustomGuidedMuseum(museumId)) {
                         // Vertical layout: each photo (180px) + optional review text (50px) + padding (14px)
                         photoSectionHeight = 40 + validImages.length * (180 + 50 + 14);
                     } else {
@@ -3333,8 +3420,8 @@
                     ctx.fillText('📸 精彩瞬间：', 40, currentY);
                     currentY += 40;
 
-                    if (museumId === CHINA_FILM_MUSEUM_ID) {
-                        // ── China Film Museum: vertical layout with child reviews ──
+                    if (isCustomGuidedMuseum(museumId)) {
+                        // ── Custom museums: vertical layout with child reviews ──
                         const childReviews = getChildReviews();
                         const cfmPhotoSize = 180;
                         const cfmPadding = 14;

@@ -972,6 +972,24 @@
             showStatus('📽️ 已预填充中国电影博物馆6件镇馆之宝（请为每件填写图片URL并保存）', 'info');
           }
 
+          // Special handling: Pre-populate Prince Kung's Mansion treasures if collections are empty
+          if (museumId === 'prince-kung-mansion' && (!currentData.collections || currentData.collections.length === 0)) {
+            const PRINCE_KUNG_TREASURES = [
+              { name: '福字碑（康熙御笔）', description: '康熙皇帝为祖母孝庄太后祈福亲笔书写的"福"字，一笔写成，暗藏"多子多才多田多寿多福"，被誉为"天下第一福"。' },
+              { name: '西洋门', description: '和珅所建的汉白玉西式拱门，融合西方石雕与中国园林设计，是清代王府中极为罕见的中西合璧建筑。' },
+              { name: '大戏楼', description: '清代保存最完好的三座私家戏楼之一，可容纳200余人，声学设计精妙，不用扩音设备也能声传全场。' },
+              { name: '后罩楼（88扇窗）', description: '长达160米的后罩楼拥有88扇窗户，每扇窗的花纹各不相同，是中国现存最长的后罩楼。' },
+              { name: '银安殿', description: '恭王府正殿，只有最高等级的亲王才有资格修建，绿色琉璃瓦屋顶彰显亲王等级。' },
+              { name: '蝠池', description: '从高处俯瞰呈蝙蝠形状的水池，"蝠"谐音"福"。整座王府藏有一万多个蝙蝠图案，故有"万福园"之称。' }
+            ];
+            currentData.collections = PRINCE_KUNG_TREASURES.map(t => ({
+              name: t.name,
+              imageUrl: '',
+              description: t.description
+            }));
+            showStatus('🏯 已预填充恭王府6件镇馆之宝（请为每件填写图片URL并保存）', 'info');
+          }
+
           populateEditors(currentData);
           updatePreview();
         } catch (error) {
