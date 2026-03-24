@@ -186,12 +186,15 @@
     "name": "天津博物馆",
     "location": "天津",
     "tags": [
-      "近代史",
-      "文化",
+      "历史",
+      "青铜器",
+      "书画",
+      "瓷器",
+      "非遗",
       "天津"
     ],
     "image": "",
-    "hasCollections": false,
+    "hasCollections": true,
     "level": "一级"
   },
   {

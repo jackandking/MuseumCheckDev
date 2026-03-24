@@ -181,6 +181,89 @@
                         ]
                     }
                 ]
+            },
+            'tianjin-museum': {
+                totalTreasures: 6,
+                treasures: [
+                    {
+                        name: '西周太保鼎',
+                        parentGuide: [
+                            '太保鼎是西周重臣召公奭的礼器，"太保"是当时的最高官职之一，相当于现在的国务院总理',
+                            '这件鼎是"梁山七器"中唯一留在中国的一件，其他六件全在海外博物馆，所以格外珍贵',
+                            '可以问孩子：数数这个鼎有几条腿？（四条！）大多数鼎是三条腿，四条腿的方鼎非常少见'
+                        ],
+                        crossMuseumLinks: [
+                            {
+                                museumId: 'national-museum',
+                                museumName: '中国国家博物馆',
+                                visitedHint: '还记得在国家博物馆看到的司母戊鼎吗？那是商朝的，重875公斤！太保鼎是西周的，比它晚了几百年但只有26公斤——问问孩子，为什么后来的鼎反而变小了？',
+                                unvisitedHint: '下次去中国国家博物馆，找找司母戊鼎——它重875公斤，是太保鼎的33倍！可以和孩子比比两个鼎的大小差异'
+                            }
+                        ]
+                    },
+                    {
+                        name: '北宋范宽《雪景寒林图》',
+                        parentGuide: [
+                            '这幅画高近2米，站在面前会感觉自己真的走进了一场大雪——群山、密林、小寺庙全被白雪覆盖',
+                            '范宽画山的秘诀是"师法自然"——他搬到终南山住了好几年，每天对着真山画，所以画得特别像',
+                            '画上盖满了历代收藏家的印章，像一本"通关文牒"，记录了这幅画一千年来的旅程'
+                        ],
+                        crossMuseumLinks: [
+                            {
+                                museumId: 'forbidden-city',
+                                museumName: '故宫博物院',
+                                visitedHint: '故宫也收藏了很多宋代名画，你们在故宫有没有留意书画展厅？宋代画家喜欢画雄伟的大山，和今天拍风景照追求"壮观"是一样的心理',
+                                unvisitedHint: '下次去故宫博物院，记得留意书画展厅——那里也有宋代名画，可以和孩子比比风格有什么不同'
+                            }
+                        ]
+                    },
+                    {
+                        name: '清乾隆珐琅彩芍药雉鸡图玉壶春瓶',
+                        parentGuide: [
+                            '这件瓶子是从清朝皇宫里流出来的，上面融合了诗、书、画、印四种艺术，乾隆皇帝最爱这种"全能型"瓷器',
+                            '珐琅彩是当时最贵的瓷器工艺，全程在皇宫里制作，一年只烧几十件，普通人一辈子也见不到',
+                            '可以问孩子：瓶子上画的是什么花和什么鸟？（芍药花和雉鸡）芍药在古代被称为"花中宰相"'
+                        ],
+                        crossMuseumLinks: [
+                            {
+                                museumId: 'forbidden-city',
+                                museumName: '故宫博物院',
+                                visitedHint: '还记得故宫的瓷器馆吗？故宫也有珐琅彩瓷器，但这件玉壶春瓶是从宫里流出的孤品——问问孩子，皇帝的宝贝怎么会跑到天津来的？',
+                                unvisitedHint: '下次去故宫博物院，记得去看瓷器馆的珐琅彩——和天津这件对比，看看皇帝的审美是不是一致的'
+                            },
+                            {
+                                museumId: 'prince-kung-mansion',
+                                museumName: '恭王府',
+                                visitedHint: '在恭王府看到的那些精美装饰还记得吗？清代贵族追求"精致到极致"，这件珐琅彩瓶子就是那个时代审美的巅峰',
+                                unvisitedHint: '下次去恭王府，感受一下清代贵族的生活品味——和这件珐琅彩瓶子是同一个时代的审美'
+                            }
+                        ]
+                    },
+                    {
+                        name: '翡翠蝈蝈白菜',
+                        parentGuide: [
+                            '这棵翡翠白菜上趴着一只栩栩如生的蝈蝈！古人把蝈蝈当宠物养，冬天揣在怀里听它叫，是最早的"随身听"',
+                            '台北故宫有一棵著名的"翠玉白菜"，但天津这棵多了一只蝈蝈，更加生动有趣',
+                            '可以问孩子：仔细看看蝈蝈的触须和腿——是不是和真的一模一样？古代工匠的观察力比相机还厉害！'
+                        ]
+                    },
+                    {
+                        name: '泥人张彩塑',
+                        parentGuide: [
+                            '第一代"泥人张"张明山有个绝活：看戏的时候，把泥巴藏在袖子里，边看边捏，散场时就捏好了台上演员的肖像',
+                            '泥人张彩塑是天津最有名的非遗技艺，每个泥人都是纯手工制作，没有两个完全一样的',
+                            '可以问孩子：如果让你用橡皮泥捏一个家人，你会先捏谁？想想泥人张是怎么把人捏得那么像的'
+                        ]
+                    },
+                    {
+                        name: '杨柳青木版年画',
+                        parentGuide: [
+                            '杨柳青年画有400多年历史，制作方法是先在木板上刻好图案印出轮廓，再由画师手工上色——像古代的"半自动彩印"',
+                            '最经典的图案是胖娃娃抱着大鲤鱼，寓意"年年有余"（鱼和余谐音），过年时家家户户都要贴',
+                            '可以问孩子：年画上的娃娃为什么都那么胖？（古人觉得胖代表福气和富裕，和今天的审美完全不同！）'
+                        ]
+                    }
+                ]
             }
         };
 
@@ -222,6 +305,20 @@
         // Backward-compatible wrapper
         function getChinaFilmMuseumParentGuide(treasureName) {
             return getCustomMuseumParentGuide(CHINA_FILM_MUSEUM_ID, treasureName);
+        }
+
+        /**
+         * Get cross-museum links for a treasure in any custom-configured museum.
+         * @param {string} museumId - Museum ID
+         * @param {string} treasureName - Treasure name
+         * @returns {Array|null} Array of cross-museum link objects, or null
+         */
+        function getTreasureCrossMuseumLinks(museumId, treasureName) {
+            if (!treasureName) return null;
+            const config = getCustomMuseumConfig(museumId);
+            if (!config) return null;
+            const found = config.treasures.find(t => t.name === treasureName);
+            return found && found.crossMuseumLinks ? found.crossMuseumLinks : null;
         }
 
         /**
@@ -1926,6 +2023,21 @@
                             guideList.innerHTML = guidePoints
                                 .map(p => `<li>${p}</li>`)
                                 .join('');
+                            // Cross-museum links: personalized based on visit history
+                            const links = getTreasureCrossMuseumLinks(museumId, treasureName);
+                            if (links && links.length) {
+                                const visited = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+                                links.forEach(link => {
+                                    const li = document.createElement('li');
+                                    li.classList.add('cross-museum-link');
+                                    if (visited.includes(link.museumId)) {
+                                        li.innerHTML = `🔗 <strong>${link.museumName}</strong>：${link.visitedHint}`;
+                                    } else {
+                                        li.innerHTML = `💡 ${link.unvisitedHint || '下次去<strong>' + link.museumName + '</strong>时，可以找找相关的宝物对比看看！'}`;
+                                    }
+                                    guideList.appendChild(li);
+                                });
+                            }
                         }
                         parentGuideSection.style.display = 'block';
                     } else {
