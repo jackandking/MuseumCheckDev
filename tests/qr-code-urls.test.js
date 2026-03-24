@@ -58,7 +58,7 @@ describe('Museum QR Code URLs', () => {
 
     describe('QR Code Generation Tool', () => {
         test('generate-museum-qr.js should exist and be executable', () => {
-            const scriptPath = path.join(__dirname, '..', 'tools', 'generate-museum-qr.js');
+            const scriptPath = path.join(__dirname, '..', 'devops', 'tools', 'generate-museum-qr.js');
             expect(fs.existsSync(scriptPath)).toBe(true);
             
             const scriptContent = fs.readFileSync(scriptPath, 'utf8');
@@ -67,7 +67,7 @@ describe('Museum QR Code URLs', () => {
         });
 
         test('QR code generator should not append age parameter', () => {
-            const scriptPath = path.join(__dirname, '..', 'tools', 'generate-museum-qr.js');
+            const scriptPath = path.join(__dirname, '..', 'devops', 'tools', 'generate-museum-qr.js');
             const scriptContent = fs.readFileSync(scriptPath, 'utf8');
             
             // Generator should build URL with only museum parameter
@@ -93,7 +93,7 @@ describe('Museum QR Code URLs', () => {
         });
 
         test('QR code generator should validate museum ID format', () => {
-            const scriptPath = path.join(__dirname, '..', 'tools', 'generate-museum-qr.js');
+            const scriptPath = path.join(__dirname, '..', 'devops', 'tools', 'generate-museum-qr.js');
             const scriptContent = fs.readFileSync(scriptPath, 'utf8');
             
             // Should have validation function
