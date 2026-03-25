@@ -541,16 +541,9 @@ class VirtualPet {
         // Hunger starts at MAX_HUNGER when fed, decreases by HUNGER_DECREASE_PER_MINUTE per minute
         const expectedHunger = VirtualPet.MAX_HUNGER - (minutesSinceLastFed * VirtualPet.HUNGER_DECREASE_PER_MINUTE);
         pet.hunger = Math.max(0, expectedHunger);
-        
-        // Check if pet has starved (hunger = 0 for long enough - now checked based on minutes)
-        // Pet dies after reaching 0 hunger plus grace period
-        // Use cached constant for minutes to zero hunger
-        const deathThresholdMinutes = VirtualPet.MINUTES_TO_ZERO_HUNGER + VirtualPet.HUNGER_GRACE_PERIOD_MINUTES;
-        if (pet.hunger <= 0 && minutesSinceLastFed >= deathThresholdMinutes) {
-            pet.isDead = true;
-            pet.deathDate = now;
-            this.onPetDeath();
-        }
+
+        // Pet no longer dies from hunger - stays at 0 hunger but alive
+        // This increases user retention by not punishing infrequent visitors
 
         this.savePetData();
         this.updateUI();
