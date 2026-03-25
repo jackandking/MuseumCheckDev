@@ -7345,6 +7345,10 @@ class MuseumCheckApp {
                        </div>`
                     : '';
                 
+                const wishList = JSON.parse(localStorage.getItem('wishMuseums') || '[]');
+                const isWished = wishList.includes(museum.id);
+                const wishBtnHtml = isVisited ? '' : `<button class="wish-btn ${isWished ? 'wished' : ''}" data-museum-id="${museum.id}" data-museum-name="${museum.name}" title="${isWished ? '已标记想去' : '标记想去'}">${isWished ? '✅ 已标记' : '🌟 想去'}</button>`;
+
                 card.innerHTML = `
                     ${museumImageHtml}
                     <div class="museum-card-content">
@@ -7352,10 +7356,10 @@ class MuseumCheckApp {
                             <div class="museum-info">
                                 <h3>
                                     ${museum.name}
-                                    ${isVisited && !this.assessmentHidden 
-                                        ? (hasAssessment 
+                                    ${isVisited && !this.assessmentHidden
+                                        ? (hasAssessment
                                             ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
-                                            : '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>') 
+                                            : '<button class="assessment-button" data-museum="' + museum.id + '" title="亲子关系测评">🧡 亲子测评</button>')
                                         : ''}
                                 </h3>
                                 <div class="museum-location">📍 ${locText}</div>
@@ -7364,6 +7368,7 @@ class MuseumCheckApp {
                         </div>
                         ${descHtml}
                         ${tagsHtml}
+                        ${wishBtnHtml}
                     </div>
                 `;
 
@@ -7399,9 +7404,10 @@ class MuseumCheckApp {
                 // Add click event for the card (excluding checkbox, buttons)
                 // Navigate to v2 (museum-checkin.html) when clicking the card
                 card.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('visit-checkbox') && 
+                    if (!e.target.classList.contains('visit-checkbox') &&
                         !e.target.classList.contains('assessment-button') &&
-                        !e.target.classList.contains('favorite-button')) {
+                        !e.target.classList.contains('favorite-button') &&
+                        !e.target.classList.contains('wish-btn')) {
                         // Mark museum as browsed
                         this.markMuseumAsBrowsed(museum.id);
                         
@@ -7433,6 +7439,26 @@ class MuseumCheckApp {
                     assessmentButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         this.openAssessmentModal(museum.id);
+                    });
+                }
+
+                // Add wish button event
+                const wishBtn = card.querySelector('.wish-btn');
+                if (wishBtn) {
+                    wishBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const mid = wishBtn.dataset.museumId;
+                        const mname = wishBtn.dataset.museumName;
+                        const wishes = JSON.parse(localStorage.getItem('wishMuseums') || '[]');
+                        if (!wishes.includes(mid)) {
+                            wishes.push(mid);
+                            localStorage.setItem('wishMuseums', JSON.stringify(wishes));
+                            wishBtn.textContent = '✅ 已标记';
+                            wishBtn.classList.add('wished');
+                            if (this.eventWallService) {
+                                this.eventWallService.trackWish(mid, mname);
+                            }
+                        }
                     });
                 }
 

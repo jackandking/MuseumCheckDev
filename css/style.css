@@ -1656,6 +1656,32 @@ header h1 {
     transform: var(--btn-active-transform);
 }
 
+/* Wish Button - "想去" for unvisited museums */
+.wish-btn {
+    background: #fff8e1;
+    color: #ff8f00;
+    border: 2px solid #ffe082;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.wish-btn:hover {
+    background: #fff3c4;
+    border-color: #ffb300;
+    transform: translateY(-1px);
+}
+
+.wish-btn.wished {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+    cursor: default;
+}
+
 /* Museum Fireworks Button - Feature button for fireworks */
 .museum-fireworks-button {
     /* Extends .btn-feature-fireworks */

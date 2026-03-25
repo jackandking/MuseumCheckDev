@@ -4,7 +4,7 @@ class EventWallService {
     constructor() {
         this.kvStoreEndpoint = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
         this.eventKey = 'museumcheck-events';
-        this.eventTTL = 86400; // 1 day in seconds (24 hours)
+        this.eventTTL = 2592000; // 30 days in seconds
         this.batchSize = 10; // Batch events before sending
         this.pendingEvents = [];
         this.sendTimer = null;
@@ -132,6 +132,16 @@ class EventWallService {
     
     trackAssessmentComplete(museumId, museumName, score, totalScore) {
         this.recordEvent('assessment', '完成亲子测评', `${museumName} - 得分 ${score}/${totalScore}`, { museumId, museumName, score, totalScore });
+    }
+
+    trackFeedback(feedbackType, content) {
+        const typeLabels = { bug: '🐛 问题报告', feature: '💡 功能建议', experience: '❤️ 体验感受', museum: '🏛️ 想去的博物馆' };
+        const label = typeLabels[feedbackType] || feedbackType;
+        this.recordEvent('feedback', '用户反馈', `${label}：${content}`, { feedbackType, content });
+    }
+
+    trackWish(museumId, museumName) {
+        this.recordEvent('wish', '想去的博物馆', `🌟 想去 ${museumName}`, { museumId, museumName });
     }
 }
 
