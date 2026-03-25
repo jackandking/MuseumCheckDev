@@ -375,7 +375,7 @@ window.MUSEUMS_META = [
       "科普教育"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Beijing_Planetarium_%2820221112164636%29.jpg/1280px-Beijing_Planetarium_%2820221112164636%29.jpg",
-    "hasCollections": false,
+    "hasCollections": true,
     "level": "一级"
   },
   {
