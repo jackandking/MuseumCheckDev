@@ -78,6 +78,13 @@
         const CUSTOM_MUSEUM_CONFIGS = {
             'china-film-museum': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '这是中国唯一的国家级电影专业博物馆，建筑面积近6万平方米——走进去就像走进了一部电影',
+                        '可以告诉孩子：中国第一部电影《定军山》就诞生在北京，从那时到现在已经120年了',
+                        '博物馆里有很多互动体验——录音棚、绿幕特效、电影配音，让孩子亲手"拍一部电影"'
+                    ]
+                },
                 treasures: [
                     {
                         name: '任庆泰金属底版及照片',
@@ -131,6 +138,21 @@
             },
             'prince-kung-mansion': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '恭王府是清代规模最大的王府，先后住过和珅和恭亲王奕訢——一个是清朝最大的贪官，一个是推动洋务运动的改革派',
+                        '整座府邸有"三绝"：西洋门、大戏楼、后罩楼——可以问孩子：进去之后帮我找到这三个地方！',
+                        '传说王府里藏了9999只蝙蝠图案（"蝠"谐音"福"），走的时候看看你能找到多少只？'
+                    ],
+                    crossMuseumLinks: [
+                        {
+                            museumId: 'forbidden-city',
+                            museumName: '故宫博物院',
+                            visitedHint: '还记得故宫的金碧辉煌吗？恭王府是王爷的家，规格比皇宫低一级——进去对比看看，哪里不如皇宫？',
+                            unvisitedHint: '故宫是皇帝住的，恭王府是王爷住的——等去了故宫就能对比，皇帝和王爷的"家"差多远'
+                        }
+                    ]
+                },
                 treasures: [
                     {
                         name: '福字碑（康熙御笔）',
@@ -184,6 +206,21 @@
             },
             'tianjin-museum': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '天津博物馆是国家一级博物馆，收藏了20多万件文物——从商周青铜器到近代天津开埠的珍贵史料',
+                        '镇馆之宝太保鼎是"梁山七器"中唯一留在中国的一件，其余六件都在海外，格外珍贵',
+                        '天津自古是漕运重镇，南来北往的文化在这里交汇——可以问孩子：天津最有名的民间艺术是什么？（泥人张、杨柳青年画！）'
+                    ],
+                    crossMuseumLinks: [
+                        {
+                            museumId: 'tianjin-natural-history-museum',
+                            museumName: '天津自然博物馆',
+                            visitedHint: '天津自然博物馆展的是上亿年的自然生命，这里展的是几千年的人类文明——问孩子觉得哪个时间跨度更震撼？',
+                            unvisitedHint: '天津还有天津自然博物馆，展示恐龙化石和地球生命故事——和这里的人类文明是完全不同的"时间旅行"'
+                        }
+                    ]
+                },
                 treasures: [
                     {
                         name: '西周太保鼎',
@@ -267,6 +304,21 @@
             },
             'tianjin-natural-history-museum': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '这是中国最早的自然博物馆之一，始建于1914年，比很多大学都"老"！馆藏标本超过40万件',
+                        '进门就能看到巨大的马门溪龙骨架——18米长，脖子占了一半！让孩子猜猜它有多高',
+                        '博物馆按"家园"主题布展，从最早的生命到恐龙、冰河时代、再到现代非洲草原——就像乘时光机穿越地球46亿年'
+                    ],
+                    crossMuseumLinks: [
+                        {
+                            museumId: 'tianjin-museum',
+                            museumName: '天津博物馆',
+                            visitedHint: '天津博物馆展的是人类几千年的文明，这里展的是地球几十亿年的生命——两个馆连着看就是一部完整的"天津大百科"',
+                            unvisitedHint: '隔壁还有天津博物馆，展示天津几千年的人类文明历史，和这里的自然生命故事刚好互补'
+                        }
+                    ]
+                },
                 treasures: [
                     {
                         name: '井研马门溪龙化石骨架',
@@ -378,6 +430,27 @@
             },
             'forbidden-city': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '故宫有9999间半房间（传说天上有1万间，人间不敢超过天宫），是世界上最大的宫殿建筑群',
+                        '从午门走到神武门全长961米——可以问孩子：如果用脚量，大概要走多少步？（大约1500步）',
+                        '故宫的屋顶颜色几乎全是黄色琉璃瓦（皇帝专用色），只有一个地方是绿色的——文渊阁（藏书楼，绿色代表水，防火）'
+                    ],
+                    crossMuseumLinks: [
+                        {
+                            museumId: 'national-museum',
+                            museumName: '中国国家博物馆',
+                            visitedHint: '国家博物馆就在天安门广场东侧，和故宫是邻居——故宫看建筑和皇家收藏，国博看通史和国宝重器，搭配着逛最过瘾',
+                            unvisitedHint: '出了故宫往南走就是天安门广场，东侧就是中国国家博物馆——后母戊鼎、四羊方尊都在那里'
+                        },
+                        {
+                            museumId: 'prince-kung-mansion',
+                            museumName: '恭王府',
+                            visitedHint: '还记得恭王府吗？那是王爷的家，规模只有故宫的几十分之一——进去感受一下皇帝和王爷的"住房差距"',
+                            unvisitedHint: '北京还有恭王府——和珅和恭亲王住过的王府，和故宫对比能感受皇帝与王爷的天壤之别'
+                        }
+                    ]
+                },
                 treasures: [
                     {
                         name: '清明上河图',
@@ -461,6 +534,21 @@
             },
             'national-museum': {
                 totalTreasures: 6,
+                entranceGuide: {
+                    parentGuide: [
+                        '国家博物馆是世界上单体建筑面积最大的博物馆（近20万平方米），馆藏超过143万件——一天根本看不完',
+                        '建议告诉孩子今天的"寻宝路线"：先看"古代中国"展厅的几件镇馆之宝，每件停留5分钟细看',
+                        '入口大厅的穹顶非常壮观——让孩子抬头看看，感受"国家殿堂"的气势'
+                    ],
+                    crossMuseumLinks: [
+                        {
+                            museumId: 'forbidden-city',
+                            museumName: '故宫博物院',
+                            visitedHint: '故宫在天安门北边，国博在天安门东边——两个顶级博物馆走路只要10分钟。故宫偏皇家收藏，国博偏中华通史',
+                            unvisitedHint: '出门往北穿过天安门就是故宫——故宫看皇家建筑和珍宝，国博看中华五千年通史，两个搭配最完美'
+                        }
+                    ]
+                },
                 treasures: [
                     {
                         name: '后母戊鼎',
@@ -569,6 +657,16 @@
             if (!config) return null;
             const found = config.treasures.find(t => t.name === treasureName);
             return found ? found.parentGuide : null;
+        }
+
+        /**
+         * Get entrance guide for a custom-configured museum (门口打卡 task).
+         * @param {string} museumId - Museum ID
+         * @returns {Object|null} { parentGuide: string[], crossMuseumLinks?: Array } or null
+         */
+        function getEntranceGuide(museumId) {
+            const config = getCustomMuseumConfig(museumId);
+            return config && config.entranceGuide || null;
         }
 
         // Backward-compatible wrapper
@@ -2279,43 +2377,61 @@
             const parentGuideSection = document.getElementById('parentGuideSection');
             const childReviewSection = document.getElementById('childReviewSection');
 
-            if (isCustomGuidedMuseum(museumId) && isTreasureTask && subtitle) {
-                const nameMatch = subtitle.match(/「([^」]+)」/);
-                const treasureName = nameMatch && nameMatch[1];
+            // Determine guide points and cross-museum links
+            let guidePoints = null;
+            let crossLinks = null;
+            const isDoorCheckin = title && title.includes('门口打卡');
 
-                // Show parent guide
-                const guidePoints = treasureName ? getCustomMuseumParentGuide(museumId, treasureName) : null;
-                if (parentGuideSection) {
-                    if (guidePoints && guidePoints.length) {
-                        const guideList = document.getElementById('parentGuideList');
-                        if (guideList) {
-                            guideList.innerHTML = guidePoints
-                                .map(p => `<li>${p}</li>`)
-                                .join('');
-                            // Cross-museum links: personalized based on visit history
-                            const links = getTreasureCrossMuseumLinks(museumId, treasureName);
-                            if (links && links.length) {
-                                const visited = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
-                                links.forEach(link => {
-                                    const li = document.createElement('li');
-                                    li.classList.add('cross-museum-link');
-                                    if (visited.includes(link.museumId)) {
-                                        li.innerHTML = `🔗 <strong>${link.museumName}</strong>：${link.visitedHint}`;
-                                    } else {
-                                        li.innerHTML = `💡 ${link.unvisitedHint || '下次去<strong>' + link.museumName + '</strong>时，可以找找相关的宝物对比看看！'}`;
-                                    }
-                                    guideList.appendChild(li);
-                                });
-                            }
-                        }
-                        parentGuideSection.style.display = 'block';
-                    } else {
-                        parentGuideSection.style.display = 'none';
+            if (isCustomGuidedMuseum(museumId)) {
+                if (isDoorCheckin) {
+                    // Entrance guide for 门口打卡 task
+                    const entrance = getEntranceGuide(museumId);
+                    if (entrance) {
+                        guidePoints = entrance.parentGuide || null;
+                        crossLinks = entrance.crossMuseumLinks || null;
                     }
+                } else if (isTreasureTask && subtitle) {
+                    // Treasure guide
+                    const nameMatch = subtitle.match(/「([^」]+)」/);
+                    const treasureName = nameMatch && nameMatch[1];
+                    guidePoints = treasureName ? getCustomMuseumParentGuide(museumId, treasureName) : null;
+                    crossLinks = treasureName ? getTreasureCrossMuseumLinks(museumId, treasureName) : null;
                 }
+            }
 
-                // Show child review input
-                if (childReviewSection) {
+            if (parentGuideSection) {
+                if (guidePoints && guidePoints.length) {
+                    const guideList = document.getElementById('parentGuideList');
+                    if (guideList) {
+                        guideList.innerHTML = guidePoints
+                            .map(p => `<li>${p}</li>`)
+                            .join('');
+                        // Cross-museum links: personalized based on visit history
+                        if (crossLinks && crossLinks.length) {
+                            const visited = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+                            crossLinks.forEach(link => {
+                                const li = document.createElement('li');
+                                li.classList.add('cross-museum-link');
+                                if (visited.includes(link.museumId)) {
+                                    li.innerHTML = `🔗 <strong>${link.museumName}</strong>：${link.visitedHint}`;
+                                } else {
+                                    li.innerHTML = `💡 ${link.unvisitedHint || '下次去<strong>' + link.museumName + '</strong>时，可以找找相关的宝物对比看看！'}`;
+                                }
+                                guideList.appendChild(li);
+                            });
+                        }
+                    }
+                    parentGuideSection.style.display = 'block';
+                } else {
+                    parentGuideSection.style.display = 'none';
+                }
+            }
+
+            // Show child review input (treasures only, not entrance)
+            if (childReviewSection) {
+                if (isCustomGuidedMuseum(museumId) && isTreasureTask && subtitle) {
+                    const nameMatch = subtitle.match(/「([^」]+)」/);
+                    const treasureName = nameMatch && nameMatch[1];
                     childReviewSection.style.display = 'block';
                     const reviewInput = document.getElementById('childReviewInput');
                     if (reviewInput && treasureName) {
@@ -2325,10 +2441,9 @@
                             ? '已保存的评价'
                             : '写下你对这件宝物的感受吧！（一句话就好）';
                     }
+                } else {
+                    childReviewSection.style.display = 'none';
                 }
-            } else {
-                if (parentGuideSection) parentGuideSection.style.display = 'none';
-                if (childReviewSection) childReviewSection.style.display = 'none';
             }
 
             document.getElementById('taskModal').classList.add('show');
