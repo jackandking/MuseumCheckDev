@@ -1380,8 +1380,8 @@ window.MUSEUMS_META = [
       "生物多样性",
       "地球演化"
     ],
-    "image": "",
-    "hasCollections": false,
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/%E5%A4%A9%E6%B4%A5%E8%87%AA%E7%84%B6%E5%8D%9A%E7%89%A9%E9%A6%86_-_panoramio.jpg/960px-%E5%A4%A9%E6%B4%A5%E8%87%AA%E7%84%B6%E5%8D%9A%E7%89%A9%E9%A6%86_-_panoramio.jpg",
+    "hasCollections": true,
     "level": "一级"
   },
   {
