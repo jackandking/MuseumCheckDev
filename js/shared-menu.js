@@ -18,7 +18,6 @@
         { action: 'leaderboard', icon: '🏅', text: '排行榜', alwaysShow: true },
         { action: 'quiz', icon: '🎓', text: '考一考', alwaysShow: true },
         { action: 'surveyIndex', icon: '🎯', text: '统一统', alwaysShow: true },
-        { action: 'eventWall', icon: '📋', text: '事件墙', alwaysShow: true },
         { action: 'home', icon: '🏠', text: '返回主页', showOnSubPages: true }
     ];
 

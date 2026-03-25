@@ -55,27 +55,12 @@
     
     /**
      * Track page view when page loads
+     * Disabled: page views create noise in the event wall and are already
+     * tracked by Baidu Analytics. The event wall now focuses on actionable
+     * feedback (feedback, wish, visit, task, achievement events).
      */
     function trackPageView() {
-        if (window.eventWallService) {
-            const pageName = getPageName();
-            const pageUrl = window.location.href;
-            
-            console.log('[Event Tracking] Recording page view:', pageName);
-            
-            window.eventWallService.recordEvent(
-                'page_view',
-                '访问页面',
-                `访问 ${pageName}`,
-                { 
-                    pageName: pageName, 
-                    pageUrl: pageUrl,
-                    timestamp: Date.now()
-                }
-            );
-        } else {
-            console.warn('[Event Tracking] EventWallService not available for page view tracking');
-        }
+        // No-op: page views no longer recorded to KV store
     }
     
     // Track page view when DOM is ready
