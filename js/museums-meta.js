@@ -86,7 +86,7 @@ window.MUSEUMS_META = [
       "青铜器"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Hubei_Provincial_Museum.JPG",
-    "hasCollections": false,
+    "hasCollections": true,
     "level": "一级"
   },
   {
