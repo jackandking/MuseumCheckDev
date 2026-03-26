@@ -5442,6 +5442,30 @@ class MuseumCheckApp {
         // If there's a search query, filter museums by search criteria (all museums)
         if (this.searchQuery) {
             const query = this.searchQuery.toLowerCase();
+            // Pinyin-to-Chinese city mapping for pinyin search support
+            const PINYIN_MAP = {
+                'beijing': '北京', 'tianjin': '天津', 'shanghai': '上海', 'guangzhou': '广州',
+                'shenzhen': '深圳', 'chengdu': '成都', 'hangzhou': '杭州', 'wuhan': '武汉',
+                'xian': '西安', 'nanjing': '南京', 'chongqing': '重庆', 'suzhou': '苏州',
+                'kunming': '昆明', 'zhengzhou': '郑州', 'changsha': '长沙', 'jinan': '济南',
+                'shenyang': '沈阳', 'dalian': '大连', 'qingdao': '青岛', 'xiamen': '厦门',
+                'fuzhou': '福州', 'hefei': '合肥', 'nanchang': '南昌', 'guiyang': '贵阳',
+                'taiyuan': '太原', 'shijiazhuang': '石家庄', 'haerbin': '哈尔滨',
+                'changchun': '长春', 'lasa': '拉萨', 'huhehaote': '呼和浩特',
+                'yinchuan': '银川', 'xining': '西宁', 'wulumuqi': '乌鲁木齐',
+                'nanning': '南宁', 'haikou': '海口', 'lanzhou': '兰州',
+                'gugong': '故宫', 'bowuguan': '博物馆', 'bowuyuan': '博物院',
+                'lishi': '历史', 'ziran': '自然', 'kexue': '科学', 'yishu': '艺术',
+                'quanzhou': '泉州', 'luoyang': '洛阳', 'kaifeng': '开封',
+                'dunhuang': '敦煌', 'sanxingdui': '三星堆'
+            };
+            // Find Chinese equivalent for pinyin query (supports partial match)
+            let expandedQueries = [query];
+            for (const [pinyin, chinese] of Object.entries(PINYIN_MAP)) {
+                if (pinyin.startsWith(query) || query.startsWith(pinyin)) {
+                    expandedQueries.push(chinese.toLowerCase());
+                }
+            }
             this.filteredMuseums = MUSEUMS.filter(museum => {
                 // Safety check for undefined values
                 const name = museum.name || '';
@@ -5449,10 +5473,12 @@ class MuseumCheckApp {
                 const description = museum.description || '';
                 const tags = museum.tags || [];
                 
-                return name.toLowerCase().includes(query) ||
-                       location.toLowerCase().includes(query) ||
-                       description.toLowerCase().includes(query) ||
-                       tags.some(tag => (tag || '').toLowerCase().includes(query));
+                return expandedQueries.some(q =>
+                       name.toLowerCase().includes(q) ||
+                       location.toLowerCase().includes(q) ||
+                       description.toLowerCase().includes(q) ||
+                       tags.some(tag => (tag || '').toLowerCase().includes(q))
+                );
             });
             
             // Sort search results by recency (most recently browsed first)
@@ -7305,6 +7331,28 @@ class MuseumCheckApp {
                 // Show notification to user
                 if (notificationMessage && UIManager && UIManager.showNotification) {
                     UIManager.showNotification(notificationMessage, 4000, 'info');
+                }
+            }
+
+            // Show welcome guide for new users (first visit only)
+            const welcomeGuide = document.getElementById('welcomeGuide');
+            if (welcomeGuide) {
+                if (isNewUser && !localStorage.getItem('welcomeGuideSeen')) {
+                    welcomeGuide.style.display = '';
+                    const closeBtn = document.getElementById('welcomeClose');
+                    const ctaBtn = document.getElementById('welcomeCta');
+                    const dismissGuide = () => {
+                        welcomeGuide.style.display = 'none';
+                        localStorage.setItem('welcomeGuideSeen', '1');
+                    };
+                    if (closeBtn) closeBtn.onclick = dismissGuide;
+                    if (ctaBtn) ctaBtn.onclick = () => {
+                        dismissGuide();
+                        const grid = document.getElementById('museumGrid');
+                        if (grid) grid.scrollIntoView({ behavior: 'smooth' });
+                    };
+                } else {
+                    welcomeGuide.style.display = 'none';
                 }
             }
 

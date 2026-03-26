@@ -1682,6 +1682,77 @@ header h1 {
     cursor: default;
 }
 
+/* Welcome Guide for new users */
+.welcome-guide {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.welcome-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.welcome-close:hover {
+    color: white;
+}
+
+.welcome-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.welcome-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.welcome-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    opacity: 0.95;
+}
+
+.step-num {
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.welcome-cta {
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.welcome-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 /* Museum Fireworks Button - Feature button for fireworks */
 .museum-fireworks-button {
     /* Extends .btn-feature-fireworks */
