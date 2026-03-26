@@ -1068,6 +1068,76 @@
                 delete reviews[treasureName];
             }
             localStorage.setItem(key, JSON.stringify(reviews));
+
+            // Upload to KV Store for peer display (only if review is meaningful)
+            if (review && review.length >= 5) {
+                uploadChildReviewToKVStore(museumId, treasureName, review);
+            }
+        }
+
+        /**
+         * Upload a child review to KV Store for other families to see.
+         */
+        function uploadChildReviewToKVStore(mId, treasureName, review) {
+            try {
+                const childNickname = localStorage.getItem('childNickname') || '小朋友';
+                const userId = localStorage.getItem('user_id') || 'anon';
+                const reviewData = {
+                    museumId: mId,
+                    treasureName: treasureName,
+                    review: review,
+                    childNickname: childNickname,
+                    userId: userId,
+                    timestamp: Date.now()
+                };
+                const sortKey = `${mId}_${btoa(unescape(encodeURIComponent(treasureName)))}_${userId}`;
+                const endpoint = (typeof REMOTE_STORAGE_CONFIG !== 'undefined' && REMOTE_STORAGE_CONFIG.API_ENDPOINT)
+                    || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: 'museumcheck-child-reviews',
+                        sortKey: sortKey,
+                        value: JSON.stringify(reviewData),
+                        expireAt: Math.floor(Date.now() / 1000) + 7776000 // 90 days
+                    })
+                }).catch(e => console.error('Failed to upload child review:', e));
+            } catch (e) {
+                console.error('Error uploading child review:', e);
+            }
+        }
+
+        /**
+         * Fetch peer reviews for a specific treasure from KV Store.
+         * Returns up to 3 most recent reviews from other users.
+         */
+        async function fetchPeerReviews(mId, treasureName) {
+            try {
+                const endpoint = (typeof REMOTE_STORAGE_CONFIG !== 'undefined' && REMOTE_STORAGE_CONFIG.API_ENDPOINT)
+                    || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
+                const url = `${endpoint}?key=museumcheck-child-reviews&sortKey=*`;
+                const response = await fetch(url);
+                if (!response.ok) return [];
+                const data = await response.json();
+                if (!data.value) return [];
+                const parsed = JSON.parse(data.value);
+                const items = Array.isArray(parsed) ? parsed : [parsed];
+                const myUserId = localStorage.getItem('user_id') || '';
+                const reviews = items
+                    .map(item => {
+                        try { return typeof item.value === 'string' ? JSON.parse(item.value) : item.value; }
+                        catch (e) { return null; }
+                    })
+                    .filter(r => r && r.museumId === mId && r.treasureName === treasureName
+                        && r.userId !== myUserId && r.review && r.review.length >= 5)
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+                    .slice(0, 3);
+                return reviews;
+            } catch (e) {
+                console.error('Error fetching peer reviews:', e);
+                return [];
+            }
         }
 
         /**
@@ -2793,8 +2863,30 @@
                             ? '已保存的评价'
                             : '写下你对这件宝物的感受吧！（一句话就好）';
                     }
+
+                    // Load and display peer reviews ("童言童语")
+                    const peerSection = document.getElementById('peerReviewsSection');
+                    if (peerSection && treasureName) {
+                        peerSection.style.display = 'none'; // Hide until loaded
+                        fetchPeerReviews(museumId, treasureName).then(peers => {
+                            if (peers.length > 0) {
+                                const list = document.getElementById('peerReviewsList');
+                                if (list) {
+                                    list.innerHTML = peers.map(p =>
+                                        `<div class="peer-review-item">
+                                            <span class="peer-nickname">${p.childNickname || '小朋友'}</span>
+                                            <span class="peer-text">${p.review}</span>
+                                        </div>`
+                                    ).join('');
+                                    peerSection.style.display = 'block';
+                                }
+                            }
+                        });
+                    }
                 } else {
                     childReviewSection.style.display = 'none';
+                    const peerSection = document.getElementById('peerReviewsSection');
+                    if (peerSection) peerSection.style.display = 'none';
                 }
             }
 

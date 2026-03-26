@@ -4265,6 +4265,59 @@
             font-size: 14px;
         }
 
+        /* Peer Reviews Section ("童言童语") */
+        .peer-reviews-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1.5px solid #fbbf24;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 12px 0;
+        }
+
+        .peer-reviews-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .peer-reviews-icon {
+            font-size: 20px;
+        }
+
+        .peer-reviews-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .peer-review-item {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .peer-review-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .peer-nickname {
+            color: #b45309;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .peer-nickname::before {
+            content: '🧒 ';
+        }
+
+        .peer-text {
+            color: #1a1a1a;
+        }
+
 /* =====================================================
    END OF MUSEUM-CHECKIN.CSS
    
