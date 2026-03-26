@@ -73,7 +73,7 @@ window.MUSEUMS_META = [
       "民俗"
     ],
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/31/Nanjing_Museum1.jpg",
-    "hasCollections": false,
+    "hasCollections": true,
     "level": "一级"
   },
   {
