@@ -5382,6 +5382,34 @@ class MuseumCheckApp {
     }
 
     // Search functionality methods
+
+    // Pinyin-to-Chinese expansion helper (shared by both adapter and fallback paths)
+    _expandPinyinQuery(query) {
+        const PINYIN_MAP = {
+            'beijing': '北京', 'tianjin': '天津', 'shanghai': '上海', 'guangzhou': '广州',
+            'shenzhen': '深圳', 'chengdu': '成都', 'hangzhou': '杭州', 'wuhan': '武汉',
+            'xian': '西安', 'nanjing': '南京', 'chongqing': '重庆', 'suzhou': '苏州',
+            'kunming': '昆明', 'zhengzhou': '郑州', 'changsha': '长沙', 'jinan': '济南',
+            'shenyang': '沈阳', 'dalian': '大连', 'qingdao': '青岛', 'xiamen': '厦门',
+            'fuzhou': '福州', 'hefei': '合肥', 'nanchang': '南昌', 'guiyang': '贵阳',
+            'taiyuan': '太原', 'shijiazhuang': '石家庄', 'haerbin': '哈尔滨',
+            'changchun': '长春', 'lasa': '拉萨', 'huhehaote': '呼和浩特',
+            'yinchuan': '银川', 'xining': '西宁', 'wulumuqi': '乌鲁木齐',
+            'nanning': '南宁', 'haikou': '海口', 'lanzhou': '兰州',
+            'gugong': '故宫', 'bowuguan': '博物馆', 'bowuyuan': '博物院',
+            'lishi': '历史', 'ziran': '自然', 'kexue': '科学', 'yishu': '艺术',
+            'quanzhou': '泉州', 'luoyang': '洛阳', 'kaifeng': '开封',
+            'dunhuang': '敦煌', 'sanxingdui': '三星堆'
+        };
+        const q = query.toLowerCase();
+        for (const [pinyin, chinese] of Object.entries(PINYIN_MAP)) {
+            if (pinyin.startsWith(q) || q.startsWith(pinyin)) {
+                return chinese;
+            }
+        }
+        return query;
+    }
+
     filterMuseums() {
         console.log('🔍 [DEBUG] filterMuseums called:', {
             searchQuery: this.searchQuery,
@@ -5393,8 +5421,21 @@ class MuseumCheckApp {
         if (this.homepageAdapter) {
             // Apply search
             if (this.searchQuery) {
-                this.homepageAdapter.search(this.searchQuery);
-                this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                // Try pinyin expansion before adapter search
+                const expandedQuery = this._expandPinyinQuery(this.searchQuery);
+                if (expandedQuery !== this.searchQuery) {
+                    // Search with both original and expanded query, merge results
+                    this.homepageAdapter.search(this.searchQuery);
+                    const origResults = [...this.homepageAdapter.getFilteredMuseums()];
+                    this.homepageAdapter.search(expandedQuery);
+                    const expandedResults = this.homepageAdapter.getFilteredMuseums();
+                    const seen = new Set(origResults.map(m => m.id));
+                    expandedResults.forEach(m => { if (!seen.has(m.id)) origResults.push(m); });
+                    this.filteredMuseums = origResults;
+                } else {
+                    this.homepageAdapter.search(this.searchQuery);
+                    this.filteredMuseums = this.homepageAdapter.getFilteredMuseums();
+                }
                 
                 // Sort search results by recency (most recently browsed first)
                 this.filteredMuseums.sort((a, b) => {
@@ -5442,29 +5483,12 @@ class MuseumCheckApp {
         // If there's a search query, filter museums by search criteria (all museums)
         if (this.searchQuery) {
             const query = this.searchQuery.toLowerCase();
-            // Pinyin-to-Chinese city mapping for pinyin search support
-            const PINYIN_MAP = {
-                'beijing': '北京', 'tianjin': '天津', 'shanghai': '上海', 'guangzhou': '广州',
-                'shenzhen': '深圳', 'chengdu': '成都', 'hangzhou': '杭州', 'wuhan': '武汉',
-                'xian': '西安', 'nanjing': '南京', 'chongqing': '重庆', 'suzhou': '苏州',
-                'kunming': '昆明', 'zhengzhou': '郑州', 'changsha': '长沙', 'jinan': '济南',
-                'shenyang': '沈阳', 'dalian': '大连', 'qingdao': '青岛', 'xiamen': '厦门',
-                'fuzhou': '福州', 'hefei': '合肥', 'nanchang': '南昌', 'guiyang': '贵阳',
-                'taiyuan': '太原', 'shijiazhuang': '石家庄', 'haerbin': '哈尔滨',
-                'changchun': '长春', 'lasa': '拉萨', 'huhehaote': '呼和浩特',
-                'yinchuan': '银川', 'xining': '西宁', 'wulumuqi': '乌鲁木齐',
-                'nanning': '南宁', 'haikou': '海口', 'lanzhou': '兰州',
-                'gugong': '故宫', 'bowuguan': '博物馆', 'bowuyuan': '博物院',
-                'lishi': '历史', 'ziran': '自然', 'kexue': '科学', 'yishu': '艺术',
-                'quanzhou': '泉州', 'luoyang': '洛阳', 'kaifeng': '开封',
-                'dunhuang': '敦煌', 'sanxingdui': '三星堆'
-            };
-            // Find Chinese equivalent for pinyin query (supports partial match)
+            // Use shared pinyin expansion helper
+            const expandedChinese = this._expandPinyinQuery(this.searchQuery);
             let expandedQueries = [query];
-            for (const [pinyin, chinese] of Object.entries(PINYIN_MAP)) {
-                if (pinyin.startsWith(query) || query.startsWith(pinyin)) {
-                    expandedQueries.push(chinese.toLowerCase());
-                }
+            if (expandedChinese !== this.searchQuery) {
+                expandedQueries.push(expandedChinese.toLowerCase());
+            }
             }
             this.filteredMuseums = MUSEUMS.filter(museum => {
                 // Safety check for undefined values
