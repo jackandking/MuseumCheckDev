@@ -264,6 +264,15 @@ async function setupPageContent() {
         titleElement.textContent = surveyConfig.title;
     }
 
+    // Set document title
+    document.title = surveyConfig.title;
+
+    // Set museum name
+    const museumNameEl = document.getElementById('museumName');
+    if (museumNameEl) {
+        museumNameEl.textContent = surveyConfig.museumName || '';
+    }
+
     // Set museum image
     const museumImage = document.getElementById('museumImage');
     if (museumImage && museumData && museumData.image) {

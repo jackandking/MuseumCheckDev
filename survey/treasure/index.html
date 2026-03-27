@@ -15,7 +15,7 @@
             s.parentNode.insertBefore(hm, s);
         })();
     </script>
-    <title>猜猜哪个是首都博物馆的镇馆之宝？</title>
+    <title>猜猜镇馆之宝</title>
     <script src="../../js/debug-mode.js"></script>
     <script src="../util.js"></script>
     <script src="app.js"></script>
@@ -23,18 +23,18 @@
 </head>
 <body>
     <div class="survey-container">
-        <h1 id="pageTitle">猜猜哪个是首都博物馆的镇馆之宝？</h1>
-        
+        <h1 id="pageTitle">猜猜镇馆之宝</h1>
+
         <!-- Museum Image Section -->
         <div class="museum-section" id="museumSection">
-            <img id="museumImage" class="museum-image" alt="首都博物馆" />
-            <p class="museum-name">首都博物馆</p>
+            <img id="museumImage" class="museum-image" alt="" />
+            <p class="museum-name" id="museumName"></p>
         </div>
 
         <!-- Question Section -->
         <form id="questionnaire">
             <div class="question" id="question1">
-                <p id="questionText" class="question-text">以下哪个是首都博物馆的镇馆之宝？</p>
+                <p id="questionText" class="question-text">请选择镇馆之宝</p>
                 <div class="treasure-options" id="optionsContainer">
                     <p class="loading-text">正在加载藏品信息...</p>
                 </div>
