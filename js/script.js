@@ -5489,7 +5489,6 @@ class MuseumCheckApp {
             if (expandedChinese !== this.searchQuery) {
                 expandedQueries.push(expandedChinese.toLowerCase());
             }
-            }
             this.filteredMuseums = MUSEUMS.filter(museum => {
                 // Safety check for undefined values
                 const name = museum.name || '';
