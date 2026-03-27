@@ -457,8 +457,12 @@ document.addEventListener('DOMContentLoaded', initializeApp);
  */
 function showAd() {
     if (typeof ks !== 'undefined' && ks.navigateTo) {
+        // Pass museum param through ad flow so results load the right museum
+        const museumParam = surveyConfig.museumId !== 'beijing-capital-museum'
+            ? `&museum=${encodeURIComponent(surveyConfig.museumId)}`
+            : '';
         ks.navigateTo({
-            url: "/pages/rewardedWebview/rewardedWebview?target=survey/treasure&flow=rewarded",
+            url: `/pages/rewardedWebview/rewardedWebview?target=survey/treasure${museumParam}&flow=rewarded`,
         });
     } else {
         // Fallback for web browser - show results directly
