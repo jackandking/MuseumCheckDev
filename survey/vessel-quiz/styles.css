@@ -1,0 +1,188 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.survey-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header { text-align: center; margin-bottom: 20px; }
+.header h1 { color: white; font-size: 24px; }
+.subtitle { color: rgba(255,255,255,0.85); font-size: 15px; margin-top: 6px; }
+
+/* Progress Bar */
+.progress-bar {
+    background: rgba(255,255,255,0.3);
+    border-radius: 20px;
+    height: 28px;
+    position: relative;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.progress-fill {
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+.progress-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Treasure Card */
+.treasure-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    text-align: center;
+}
+.treasure-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: #f5f5f5;
+}
+.treasure-name {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 12px 16px 4px;
+    color: #333;
+}
+.treasure-museum {
+    font-size: 13px;
+    color: #999;
+    padding: 0 16px 14px;
+}
+
+.question-text {
+    color: white;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* Options */
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.option-btn {
+    background: white;
+    border: 3px solid transparent;
+    border-radius: 14px;
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.option-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+.option-btn:active { transform: translateY(0); }
+.option-emoji { font-size: 32px; }
+.option-text { font-size: 16px; font-weight: 700; color: #333; }
+
+/* Feedback Overlay */
+.feedback-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.feedback-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.feedback-icon { font-size: 48px; margin-bottom: 10px; }
+.feedback-text { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.feedback-tip { font-size: 14px; color: #667eea; margin-bottom: 6px; }
+.feedback-detail { font-size: 13px; color: #666; line-height: 1.5; }
+
+/* Results */
+.result {
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 30px 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.result-emoji { font-size: 64px; text-align: center; }
+.result-title { font-size: 20px; font-weight: 700; text-align: center; margin: 10px 0 20px; color: #333; }
+
+.score-big {
+    font-size: 56px;
+    font-weight: 800;
+    text-align: center;
+    color: #667eea;
+}
+.score-slash { font-size: 28px; color: #999; }
+.score-label { text-align: center; color: #999; font-size: 14px; margin-bottom: 24px; }
+
+/* Comparison */
+.comparison-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.comparison-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+.comparison-item { }
+.comparison-type { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.comparison-bars { display: flex; flex-direction: column; gap: 4px; }
+.comparison-bar { display: flex; align-items: center; gap: 8px; }
+.bar-label { width: 30px; font-size: 12px; color: #999; text-align: right; }
+.bar-track { flex: 1; height: 16px; background: #f0f0f0; border-radius: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 8px; min-width: 2px; transition: width 0.5s; }
+.bar-mine { background: linear-gradient(90deg, #667eea, #764ba2); }
+.bar-crowd { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.bar-pct { width: 35px; font-size: 13px; font-weight: 600; color: #666; }
+
+/* Buttons */
+.result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+.btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+
+@media (max-width: 400px) {
+    .treasure-image { height: 180px; }
+    .option-emoji { font-size: 26px; }
+    .option-text { font-size: 14px; }
+    .score-big { font-size: 44px; }
+}
