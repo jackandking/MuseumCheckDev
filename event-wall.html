@@ -4,18 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>事件墙 - 博物馆打卡</title>
-    
-    <!-- Baidu Analytics (百度统计) -->
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?10856afa2ea23687b7e8f5b901795c57";
-            var s = document.getElementsByTagName("script")[0]; 
-            s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
-    <script src="js/debug-mode.js"></script>
+<script src="js/debug-mode.js"></script>
     
     <style>
         * {
@@ -343,6 +332,101 @@
             opacity: 0.9;
         }
 
+        /* Analytics Dashboard */
+        .analytics-panel {
+            margin-bottom: 20px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .analytics-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .analytics-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .analytics-rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .analytics-rank-item:last-child {
+            border-bottom: none;
+        }
+
+        .analytics-rank-name {
+            color: #333;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .analytics-rank-count {
+            color: #667eea;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .analytics-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .analytics-bar-label {
+            width: 45px;
+            text-align: right;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        .analytics-bar-track {
+            flex: 1;
+            height: 18px;
+            background: #f0f0f0;
+            border-radius: 9px;
+            overflow: hidden;
+        }
+
+        .analytics-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 9px;
+            min-width: 2px;
+        }
+
+        .analytics-bar-count {
+            width: 30px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Feedback floating button */
         .feedback-fab {
             position: fixed;
@@ -582,6 +666,36 @@
             <div class="stat-item">
                 <span class="stat-value" id="uniqueUsers">0</span>
                 <span class="stat-label">活跃用户</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="todayPV">0</span>
+                <span class="stat-label">今日PV</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="totalTasks">0</span>
+                <span class="stat-label">任务完成</span>
+            </div>
+        </div>
+
+        <!-- Analytics Dashboard -->
+        <div class="analytics-panel" id="analyticsPanel" style="display: none;">
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-card-title">🏛️ 热门博物馆</div>
+                    <div class="analytics-card-body" id="topMuseums"></div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-title">🔍 搜索热词</div>
+                    <div class="analytics-card-body" id="topSearches"></div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-title">📈 每日活跃</div>
+                    <div class="analytics-card-body" id="dailyChart"></div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-title">📄 页面访问</div>
+                    <div class="analytics-card-body" id="topPages"></div>
+                </div>
             </div>
         </div>
 
@@ -869,17 +983,97 @@
         function updateStats() {
             const totalEvents = allEvents.length;
             document.getElementById('totalEvents').textContent = totalEvents;
-            
+
             // Count today's events
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const todayTimestamp = today.getTime();
             const todayEvents = allEvents.filter(event => event.timestamp >= todayTimestamp).length;
             document.getElementById('todayEvents').textContent = todayEvents;
-            
+
             // Count unique users
             const uniqueUsers = new Set(allEvents.map(event => event.userId).filter(Boolean)).size;
             document.getElementById('uniqueUsers').textContent = uniqueUsers;
+
+            // Today's PV
+            const todayPV = allEvents.filter(e => e.timestamp >= todayTimestamp && getEventType(e) === 'page_view').length;
+            document.getElementById('todayPV').textContent = todayPV;
+
+            // Total tasks completed
+            const totalTasks = allEvents.filter(e => getEventType(e) === 'task').length;
+            document.getElementById('totalTasks').textContent = totalTasks;
+
+            // Build analytics dashboard
+            buildAnalytics();
+        }
+
+        function buildAnalytics() {
+            const panel = document.getElementById('analyticsPanel');
+            if (allEvents.length === 0) { panel.style.display = 'none'; return; }
+            panel.style.display = '';
+
+            // Top museums (by visit count)
+            const museumCounts = {};
+            allEvents.filter(e => getEventType(e) === 'visit').forEach(e => {
+                const name = (e.parameters && e.parameters.museumName) || '';
+                if (name) museumCounts[name] = (museumCounts[name] || 0) + 1;
+            });
+            const topMuseums = Object.entries(museumCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+            document.getElementById('topMuseums').innerHTML = topMuseums.length
+                ? topMuseums.map(([name, count]) =>
+                    `<div class="analytics-rank-item"><span class="analytics-rank-name">${name}</span><span class="analytics-rank-count">${count}</span></div>`
+                ).join('')
+                : '<div style="color:#999;font-size:13px">暂无数据</div>';
+
+            // Top searches
+            const searchCounts = {};
+            allEvents.filter(e => getEventType(e) === 'search').forEach(e => {
+                const q = (e.parameters && e.parameters.query) || '';
+                if (q && q.length >= 2) searchCounts[q] = (searchCounts[q] || 0) + 1;
+            });
+            const topSearches = Object.entries(searchCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+            document.getElementById('topSearches').innerHTML = topSearches.length
+                ? topSearches.map(([q, count]) =>
+                    `<div class="analytics-rank-item"><span class="analytics-rank-name">"${q}"</span><span class="analytics-rank-count">${count}</span></div>`
+                ).join('')
+                : '<div style="color:#999;font-size:13px">暂无数据</div>';
+
+            // Daily activity chart (last 7 days)
+            const dayCounts = {};
+            const now = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                dayCounts[`${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`] = 0;
+            }
+            allEvents.forEach(e => {
+                if (!e.timestamp) return;
+                const d = new Date(e.timestamp);
+                const key = `${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+                if (key in dayCounts) dayCounts[key]++;
+            });
+            const maxDay = Math.max(...Object.values(dayCounts), 1);
+            document.getElementById('dailyChart').innerHTML = Object.entries(dayCounts).map(([day, count]) =>
+                `<div class="analytics-bar">
+                    <span class="analytics-bar-label">${day}</span>
+                    <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${(count/maxDay*100).toFixed(0)}%"></div></div>
+                    <span class="analytics-bar-count">${count}</span>
+                </div>`
+            ).join('');
+
+            // Top pages
+            const pageCounts = {};
+            allEvents.filter(e => getEventType(e) === 'page_view').forEach(e => {
+                const page = (e.parameters && e.parameters.pageName) || e.description || '';
+                const name = page.replace('访问 ', '');
+                if (name) pageCounts[name] = (pageCounts[name] || 0) + 1;
+            });
+            const topPages = Object.entries(pageCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+            document.getElementById('topPages').innerHTML = topPages.length
+                ? topPages.map(([name, count]) =>
+                    `<div class="analytics-rank-item"><span class="analytics-rank-name">${name}</span><span class="analytics-rank-count">${count}</span></div>`
+                ).join('')
+                : '<div style="color:#999;font-size:13px">暂无数据</div>';
         }
 
         // Load and display events
