@@ -4199,9 +4199,20 @@
                 img.src = dataUrl;
             });
             
-            // Load photos and QR code in parallel
-            Promise.all([...photos.map(loadImage), loadQRCode()]).then(results => {
-                const qrImage = results.pop(); // Last item is QR code
+            // Load avatar image if available
+            const loadAvatar = () => new Promise((resolve) => {
+                const avatarDataURL = getChildAvatar();
+                if (!avatarDataURL) return resolve(null);
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = avatarDataURL;
+            });
+
+            // Load photos, QR code, and avatar in parallel
+            Promise.all([...photos.map(loadImage), loadQRCode(), loadAvatar()]).then(results => {
+                const avatarImage = results.pop(); // Last item is avatar
+                const qrImage = results.pop(); // Second to last is QR code
                 const validImages = results.filter(img => img !== null);
 
                 // Build a map from taskIndex → loaded image for CFM poster layout
@@ -4284,12 +4295,31 @@
                 ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                 const museumTitle = currentMuseum ? `${currentMuseum.name}探索` : '博物馆探索';
                 ctx.fillText(museumTitle, 40, 100);
-                
-                // Nickname - moved up to remove duplicate museum name line
+
+                // Nickname with optional avatar
                 const nickname = getChildNickname();
+                const avatarSize = 50;
+                let textX = 40;
+                if (avatarImage) {
+                    const ax = 40, ay = 120;
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(ax + avatarSize / 2, ay + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(avatarImage, ax, ay, avatarSize, avatarSize);
+                    ctx.restore();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(ax + avatarSize / 2, ay + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+                    ctx.stroke();
+                    textX = 40 + avatarSize + 12;
+                }
+                ctx.fillStyle = '#ffffff';
                 ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 160);
-                
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, textX, 160);
+
                 // Reset currentY for actual drawing - adjusted for removed line
                 currentY = 210;
                 
@@ -4622,12 +4652,30 @@
                 ctx.font = 'bold 44px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                 const museumTitle = currentMuseum ? `${currentMuseum.name}探索` : '博物馆探索';
                 ctx.fillText(museumTitle, 40, 100);
-                
-                // Nickname - moved up to remove duplicate museum name line
+
+                // Nickname with optional avatar
                 const nickname = getChildNickname();
+                let nickTextX = 40;
+                if (avatarImage) {
+                    const avatarSz = 50, ax = 40, ay = 120;
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(ax + avatarSz / 2, ay + avatarSz / 2, avatarSz / 2, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(avatarImage, ax, ay, avatarSz, avatarSz);
+                    ctx.restore();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(ax + avatarSz / 2, ay + avatarSz / 2, avatarSz / 2, 0, Math.PI * 2);
+                    ctx.stroke();
+                    nickTextX = 40 + avatarSz + 12;
+                }
+                ctx.fillStyle = '#ffffff';
                 ctx.font = '28px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
-                ctx.fillText(`${nickname} 今天完成了所有挑战！`, 40, 160);
-                
+                ctx.fillText(`${nickname} 今天完成了所有挑战！`, nickTextX, 160);
+
                 // Completion message
                 ctx.font = '24px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC';
                 ctx.fillText('🎉 恭喜完成所有任务！', 40, 250);
@@ -5786,11 +5834,41 @@
             });
         }
 
-        // Update page title with child nickname
+        // Update page title with child nickname and avatar
         function updatePageTitle() {
             const nickname = loadChildNickname();
             const title = `${nickname}的任务`;
-            
+
+            // Update header avatar
+            const headerAvatar = document.getElementById('headerAvatar');
+            const headerAvatarInput = document.getElementById('headerAvatarInput');
+            const avatarDataURL = getChildAvatar();
+            if (headerAvatar) {
+                if (avatarDataURL) {
+                    headerAvatar.src = avatarDataURL;
+                    headerAvatar.style.display = 'inline';
+                } else {
+                    headerAvatar.style.display = 'none';
+                }
+                headerAvatar.onclick = () => headerAvatarInput && headerAvatarInput.click();
+            }
+            if (headerAvatarInput) {
+                headerAvatarInput.onchange = async function() {
+                    const file = this.files[0];
+                    if (!file) return;
+                    try {
+                        const dataURL = await compressAvatarImage(file);
+                        saveChildAvatar(dataURL);
+                        if (headerAvatar) {
+                            headerAvatar.src = dataURL;
+                            headerAvatar.style.display = 'inline';
+                        }
+                    } catch (err) {
+                        console.error('Avatar upload failed:', err);
+                    }
+                };
+            }
+
             // Update new unified header nickname display
             const nicknameDisplay = document.getElementById('nicknameDisplay');
             if (nicknameDisplay) {
@@ -5861,9 +5939,41 @@
             const input = document.getElementById('onboardingNicknameInput');
             const confirmBtn = document.getElementById('confirmOnboardingNickname');
             const skipBtn = document.getElementById('skipOnboardingNickname');
-            
+            const avatarFileInput = document.getElementById('avatarFileInput');
+            const avatarPreview = document.getElementById('avatarPreview');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+
             if (!modal) return;
-            
+
+            // Load existing avatar if any
+            const existingAvatar = getChildAvatar();
+            if (existingAvatar && avatarPreview) {
+                avatarPreview.src = existingAvatar;
+                avatarPreview.style.display = 'block';
+                if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+            }
+
+            // Avatar file input handler
+            if (avatarFileInput) {
+                avatarFileInput.onchange = async function() {
+                    const file = this.files[0];
+                    if (!file) return;
+                    try {
+                        const dataURL = await compressAvatarImage(file);
+                        saveChildAvatar(dataURL);
+                        if (avatarPreview) {
+                            avatarPreview.src = dataURL;
+                            avatarPreview.style.display = 'block';
+                        }
+                        if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                        const uploadArea = document.getElementById('avatarUploadArea');
+                        if (uploadArea) uploadArea.style.borderStyle = 'solid';
+                    } catch (err) {
+                        console.error('Avatar upload failed:', err);
+                    }
+                };
+            }
+
             // Show modal
             modal.style.display = 'flex';
             
@@ -5930,7 +6040,48 @@
                 return { success: false, message: '保存失败，请重试' };
             }
         }
-        
+
+        // Avatar image compression and storage
+        function compressAvatarImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const size = 150;
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        // Center-crop to square
+                        const min = Math.min(img.width, img.height);
+                        const sx = (img.width - min) / 2;
+                        const sy = (img.height - min) / 2;
+                        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function saveChildAvatar(dataURL) {
+            try {
+                localStorage.setItem('childAvatarDataURL', dataURL);
+                return true;
+            } catch (e) {
+                console.error('Failed to save avatar:', e);
+                return false;
+            }
+        }
+
+        function getChildAvatar() {
+            return localStorage.getItem('childAvatarDataURL') || null;
+        }
+
         // Inline nickname editing for the page title
         function startInlineNicknameEditOnTitle(titleElement) {
             // Prevent multiple editing sessions

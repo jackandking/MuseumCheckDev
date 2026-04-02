@@ -427,6 +427,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
                 </button>
+                <img id="achievementAvatar" style="display:none; width:28px; height:28px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:4px;">
                 <span>🏆 我的成就</span>
                 <div class="header-actions">
                     <a class="link-button" href="everyone-achievements.html" title="查看大家的成就">👥 <span class="link-text">大家的成就</span></a>
@@ -498,6 +499,13 @@
         function init() {
             loadPosters();
             renderPosters();
+            // Load avatar into header
+            const avatar = localStorage.getItem('childAvatarDataURL');
+            const avatarEl = document.getElementById('achievementAvatar');
+            if (avatar && avatarEl) {
+                avatarEl.src = avatar;
+                avatarEl.style.display = 'inline';
+            }
         }
 
         // Refresh posters from localStorage
