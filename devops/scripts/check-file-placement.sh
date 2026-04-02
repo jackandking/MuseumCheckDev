@@ -40,7 +40,8 @@ check_file_placement() {
         "README.md"|"CHANGELOG.md"|"CONTRIBUTING.md"|"LICENSE.md"|\
         "package.json"|".gitignore"|"CNAME"|"robots.txt"|\
         "index.html"|"script.js"|"style.css"|"util.js"|\
-        "netlify.toml"|".copilot-mcp.json")
+        "netlify.toml"|".copilot-mcp.json"|\
+        ".nojekyll"|"404.html"|"sitemap.xml"|"logo-og.png")
             return 0
             ;;
         
@@ -80,7 +81,7 @@ check_file_placement() {
         
         # 工具脚本
         *.sh)
-            if [[ ! "$file" =~ ^scripts/ ]]; then
+            if [[ ! "$file" =~ ^(scripts/|devops/scripts/) ]]; then
                 echo "  ❌ $file (Shell脚本应在scripts/目录)"
                 return 1
             fi

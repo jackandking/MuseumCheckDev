@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>大家的成就 - MuseumCheck</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/achievement-gamification.css">
   <script src="js/debug-mode.js"></script>
@@ -33,14 +34,15 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (!window.API_ENDPOINTS) {
         console.warn('API_ENDPOINTS not loaded, using fallback configuration');
+        var fallbackBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000' : 'https://letmetry.cloud';
         window.API_ENDPOINTS = {
-          BASE_URL: 'http://localhost:3000',
+          BASE_URL: fallbackBase,
           MYSQL: {
-            BASE: 'http://localhost:3000/mysql',
-            QUERY: 'http://localhost:3000/mysql/query',
-            INSERT: 'http://localhost:3000/mysql/insert',
-            UPDATE: 'http://localhost:3000/mysql/update',
-            DELETE: 'http://localhost:3000/mysql/delete'
+            BASE: fallbackBase + '/mysql',
+            QUERY: fallbackBase + '/mysql/query',
+            INSERT: fallbackBase + '/mysql/insert',
+            UPDATE: fallbackBase + '/mysql/update',
+            DELETE: fallbackBase + '/mysql/delete'
           }
         };
       }
