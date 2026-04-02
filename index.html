@@ -671,6 +671,50 @@
             </div>
         </div>
     </div>
+    <script>
+    // Avatar upload handler for onboarding modal (index.html context)
+    (function() {
+        var fileInput = document.getElementById('avatarFileInput');
+        if (!fileInput) return;
+        fileInput.addEventListener('change', function() {
+            var file = this.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var size = 150;
+                    canvas.width = size;
+                    canvas.height = size;
+                    var ctx = canvas.getContext('2d');
+                    var min = Math.min(img.width, img.height);
+                    var sx = (img.width - min) / 2;
+                    var sy = (img.height - min) / 2;
+                    ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                    var dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                    try { localStorage.setItem('childAvatarDataURL', dataURL); } catch(err) {}
+                    var preview = document.getElementById('avatarPreview');
+                    var placeholder = document.getElementById('avatarPlaceholder');
+                    var area = document.getElementById('avatarUploadArea');
+                    if (preview) { preview.src = dataURL; preview.style.display = 'block'; }
+                    if (placeholder) placeholder.style.display = 'none';
+                    if (area) area.style.borderStyle = 'solid';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        // Load existing avatar on modal show
+        var existing = localStorage.getItem('childAvatarDataURL');
+        if (existing) {
+            var preview = document.getElementById('avatarPreview');
+            var placeholder = document.getElementById('avatarPlaceholder');
+            if (preview) { preview.src = existing; preview.style.display = 'block'; }
+            if (placeholder) placeholder.style.display = 'none';
+        }
+    })();
+    </script>
 
     <!-- 汉堡菜单模态框 -->
     <div class="modal" id="mobileMenuModal" style="display: none;">

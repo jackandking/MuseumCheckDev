@@ -7327,6 +7327,35 @@
                 nicknameInput.value = nickname;
             }
 
+            // Load avatar into settings
+            const settingsAvatarPreview = document.getElementById('settingsAvatarPreview');
+            const settingsAvatarPlaceholder = document.getElementById('settingsAvatarPlaceholder');
+            const settingsAvatarInput = document.getElementById('settingsAvatarInput');
+            const avatarData = getChildAvatar();
+            if (settingsAvatarPreview && avatarData) {
+                settingsAvatarPreview.src = avatarData;
+                settingsAvatarPreview.style.display = 'block';
+                if (settingsAvatarPlaceholder) settingsAvatarPlaceholder.style.display = 'none';
+            }
+            if (settingsAvatarInput) {
+                settingsAvatarInput.onchange = async function() {
+                    const file = this.files[0];
+                    if (!file) return;
+                    try {
+                        const dataURL = await compressAvatarImage(file);
+                        saveChildAvatar(dataURL);
+                        if (settingsAvatarPreview) {
+                            settingsAvatarPreview.src = dataURL;
+                            settingsAvatarPreview.style.display = 'block';
+                        }
+                        if (settingsAvatarPlaceholder) settingsAvatarPlaceholder.style.display = 'none';
+                        updatePageTitle(); // Refresh header avatar
+                    } catch (err) {
+                        console.error('Settings avatar upload failed:', err);
+                    }
+                };
+            }
+
             // Display current age group
             const ageGroupMap = {
                 '3-6': '3-6岁 (学龄前)',
