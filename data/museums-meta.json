@@ -1373,6 +1373,19 @@
     "level": "一级"
   },
   {
+    "id": "zhou-enlai-deng-yingchao-memorial",
+    "name": "周恩来邓颖超纪念馆",
+    "location": "天津",
+    "tags": [
+      "红色文化",
+      "伟人纪念",
+      "近代史"
+    ],
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Memorial_to_Zhou_Enlai_and_Deng_Yingchao_4.jpg/960px-Memorial_to_Zhou_Enlai_and_Deng_Yingchao_4.jpg",
+    "hasCollections": true,
+    "level": "一级"
+  },
+  {
     "id": "wuhan-revolution-museum",
     "name": "武汉革命博物馆",
     "location": "武汉",
