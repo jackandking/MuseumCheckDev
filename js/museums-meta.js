@@ -1533,6 +1533,21 @@ window.MUSEUMS_META = [
     "image": "",
     "hasCollections": true,
     "level": "三级"
+  },
+  {
+    "id": "yueyang-museum",
+    "name": "岳阳博物馆",
+    "location": "岳阳",
+    "tags": [
+      "历史",
+      "青铜器",
+      "楚文化",
+      "龙舟",
+      "湖湘文化"
+    ],
+    "image": "https://letmetry.cloud/images/building.jpg",
+    "hasCollections": true,
+    "level": "二级"
   }
 ];
 

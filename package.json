@@ -35,7 +35,9 @@
     "regression:test": "node devops/scripts/regression-gatekeeper.js",
     "regression:full": "npm test -- --coverage --verbose",
     "regression:affected": "npm test -- --findRelatedTests",
-    "regression:report": "node devops/scripts/regression-gatekeeper.js --dry-run"
+    "regression:report": "node devops/scripts/regression-gatekeeper.js --dry-run",
+    "add-museum": "node devops/tools/add-museum-workflow.js",
+    "upload-image": "node devops/tools/upload-image-to-cdn.js"
   },
   "keywords": [
     "museum",
