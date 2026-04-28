@@ -1375,6 +1375,10 @@ function createFireworksSystem(container) {
             if (localAnimationId) {
                 cancelAnimationFrame(localAnimationId);
             }
+            // Clear canvas to prevent dark overlay accumulation
+            if (localCtx && localCanvas) {
+                localCtx.clearRect(0, 0, localCanvas.width, localCanvas.height);
+            }
         },
         
         launchFirework: function(ageGroup, childNickname) {

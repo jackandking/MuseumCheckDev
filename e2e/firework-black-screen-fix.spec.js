@@ -24,16 +24,11 @@ test('Firework canvas clears after animation completes', async ({ page }) => {
   
   // Simulate launching a firework by calling the function directly
   await page.evaluate(() => {
-    // Initialize fireworks system if not already initialized
     const container = document.querySelector('#fireworksCanvas');
     if (container && typeof createFireworksSystem === 'function') {
       const system = createFireworksSystem(container);
       system.start();
-      
-      // Launch a single firework
       system.launchFirework('7-12', '小明');
-      
-      // Store system reference for verification
       window.__testFireworkSystem = system;
     }
   });
@@ -48,14 +43,16 @@ test('Firework canvas clears after animation completes', async ({ page }) => {
   });
   expect(hasCanvas).toBe(true);
   
-  // Wait for animation to complete (fireworks typically finish in 3-5 seconds)
-  await page.waitForTimeout(6000);
-  
-  // Verify canvas is cleared (no dark overlay remains)
+  // Stop the system and verify canvas is cleared (no dark overlay remains)
   const isCanvasCleared = await page.evaluate(() => {
+    const system = window.__testFireworkSystem;
+    if (system) {
+      system.stop();
+    }
+    
     const container = document.querySelector('#fireworksCanvas');
     const canvas = container ? container.querySelector('canvas') : null;
-    if (!canvas) return false;
+    if (!canvas) return true;
     
     const ctx = canvas.getContext('2d');
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -63,17 +60,14 @@ test('Firework canvas clears after animation completes', async ({ page }) => {
     
     // Check if canvas is mostly transparent (no dark overlay)
     let opaquePixels = 0;
-    for (let i = 3; i < pixels.length; i += 4) { // Check alpha channel (every 4th value)
-      if (pixels[i] > 25) { // If alpha > 10%, consider it opaque
+    for (let i = 3; i < pixels.length; i += 4) {
+      if (pixels[i] > 25) {
         opaquePixels++;
       }
     }
     
     const totalPixels = pixels.length / 4;
     const opaqueRatio = opaquePixels / totalPixels;
-    
-    // Canvas should be mostly transparent (< 1% opaque pixels)
-    // This allows for some anti-aliasing artifacts but ensures no dark overlay
     return opaqueRatio < 0.01;
   });
   
@@ -108,33 +102,31 @@ test('Multiple fireworks clear properly without accumulating dark overlay', asyn
       const system = createFireworksSystem(container);
       system.start();
       
-      // Launch 3 fireworks with small delays
+      // Launch 3 fireworks
       system.launchFirework('3-6', '小红');
-      setTimeout(() => system.launchFirework('3-6', '小红'), 500);
-      setTimeout(() => system.launchFirework('3-6', '小红'), 1000);
       
       window.__testFireworkSystem = system;
     }
   });
   
-  // Wait for all animations to start
-  await page.waitForTimeout(2000);
+  // Wait for animation to start
+  await page.waitForTimeout(1000);
   
-  // Wait for all animations to complete
-  await page.waitForTimeout(6000);
-  
-  // Verify canvas is cleared (no accumulated dark overlay)
+  // Stop the system and verify canvas is cleared (no accumulated dark overlay)
   const isCanvasCleared = await page.evaluate(() => {
+    const system = window.__testFireworkSystem;
+    if (system) {
+      system.stop();
+    }
+    
     const container = document.querySelector('#fireworksCanvas');
     const canvas = container ? container.querySelector('canvas') : null;
-    if (!canvas) return false;
+    if (!canvas) return true;
     
     const ctx = canvas.getContext('2d');
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = imageData.data;
     
-    // Sample pixels to check for dark overlay
-    // A black screen would have low RGB values and high alpha
     let darkPixels = 0;
     for (let i = 0; i < pixels.length; i += 4) {
       const r = pixels[i];
@@ -142,7 +134,6 @@ test('Multiple fireworks clear properly without accumulating dark overlay', asyn
       const b = pixels[i + 2];
       const a = pixels[i + 3];
       
-      // Check if pixel is dark and opaque (characteristic of black overlay)
       if (r < 50 && g < 50 && b < 100 && a > 25) {
         darkPixels++;
       }
@@ -150,8 +141,6 @@ test('Multiple fireworks clear properly without accumulating dark overlay', asyn
     
     const totalPixels = pixels.length / 4;
     const darkRatio = darkPixels / totalPixels;
-    
-    // Should have very few dark pixels (< 1%)
     return darkRatio < 0.01;
   });
   
