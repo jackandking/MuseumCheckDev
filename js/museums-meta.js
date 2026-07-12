@@ -1545,9 +1545,23 @@ window.MUSEUMS_META = [
       "龙舟",
       "湖湘文化"
     ],
-    "image": "https://letmetry.cloud/images/building.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/Auckland_War_Memorial_Museum.jpg",
     "hasCollections": true,
     "level": "二级"
+  },
+  {
+    "id": "auckland-war-memorial-museum",
+    "name": "奥克兰战争纪念馆",
+    "location": "新西兰·奥克兰",
+    "tags": [
+      "历史",
+      "战争纪念",
+      "毛利文化",
+      "海外博物馆"
+    ],
+    "image": "https://letmetry.cloud/images/building.jpg",
+    "hasCollections": true,
+    "level": "未定级"
   }
 ];
 
