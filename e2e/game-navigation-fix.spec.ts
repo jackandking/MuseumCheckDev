@@ -159,12 +159,19 @@ test.describe('GameContextManager Script Loading', () => {
             expect(hasGCM).toBe(true);
             console.log(`✅ ${game}.html has GameContextManager loaded`);
 
-            // Verify it has required methods
+            // Verify it has required methods (supports both class and instance exports)
             const hasMethods = await page.evaluate(() => {
                 if (!window.GameContextManager) return false;
-                const instance = new window.GameContextManager();
-                return typeof instance.getContext === 'function' &&
-                       typeof instance.saveContext === 'function';
+                const gcm = window.GameContextManager;
+                if (typeof gcm === 'function') {
+                    // It's a constructor class
+                    const instance = new (gcm as any)();
+                    return typeof instance.getContext === 'function' &&
+                           typeof instance.saveContext === 'function';
+                }
+                // It's already an instance
+                return typeof (gcm as any).getContext === 'function' &&
+                       typeof (gcm as any).saveContext === 'function';
             });
 
             expect(hasMethods).toBe(true);

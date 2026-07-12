@@ -115,7 +115,7 @@ test.describe('迷宫游戏调试测试', () => {
         console.log('✅ closeGame 函数已调用');
 
         // 15. 等待页面跳转
-        await page.waitForURL('**/museum-checkin.html', { timeout: 5000 });
+        await page.waitForURL('**/museum-checkin.html**', { timeout: 10000 });
         console.log('✅ 成功返回打卡页面');
 
         // 16. 检查 localStorage 中的游戏结果

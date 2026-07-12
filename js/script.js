@@ -7481,7 +7481,17 @@ class MuseumCheckApp {
                         !e.target.classList.contains('wish-btn')) {
                         // Mark museum as browsed
                         this.markMuseumAsBrowsed(museum.id);
-                        
+
+                        // Track museum visit to event wall before navigation
+                        if (this.eventWallService) {
+                            this.eventWallService.recordEvent(
+                                'visit',
+                                '访问博物馆',
+                                `查看 ${museum.name} 的详细信息`,
+                                { museumId: museum.id, museumName: museum.name }
+                            );
+                        }
+
                         // Navigate to v2 check-in page (museum-checkin.html)
                         const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
                         const ageGroup = checkedRadio ? checkedRadio.value : (this.currentAge || APP_CONFIG.DEFAULT_AGE);

@@ -7758,7 +7758,9 @@
             overlay.style.cssText = '';
         }
 
-        // Listen for game completion messages from iframe games
+        // Expose showGameChoiceOverlay for external integrations
+        window.showGameChoiceOverlay = showGameChoiceOverlay;
+
         window.addEventListener('message', (event) => {
             if (event.data.type === 'game-complete') {
                 const { gameType, score, timeSeconds } = event.data;
