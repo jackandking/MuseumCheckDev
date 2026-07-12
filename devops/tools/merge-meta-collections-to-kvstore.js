@@ -79,6 +79,23 @@ function getCollectionsForMuseum(museumId) {
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Tang_Dynasty_tomb_pottery_3_color_horse.jpg',
         description: '唐代陶制骏马，彩釉工艺完美'
       }
+    ],
+    'auckland-war-memorial-museum': [
+      {
+        name: 'Te Taua Moana o Tainui（毛利战争独木舟）',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Auckland_Museum_Waka.jpg/1280px-Auckland_Museum_Waka.jpg',
+        description: '世界上保存最完好的毛利战争独木舟之一，长约25米，可容纳100名桨手，是奥克兰战争纪念馆的标志性藏品，体现了毛利人精湛的造船工艺和航海技术。'
+      },
+      {
+        name: '毛利会议屋（Maori Meeting House）',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Auckland_Museum_Maori_Meeting_House.jpg/1280px-Auckland_Museum_Maori_Meeting_House.jpg',
+        description: '博物馆内收藏的传统毛利会议屋，屋内精美的木雕和编织装饰展示了毛利人的艺术与文化，是太平洋地区最重要的毛利文化珍品之一。'
+      },
+      {
+        name: '恐鸟骨架（Moa Skeleton）',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Giant_Moa.jpg/640px-Giant_Moa.jpg',
+        description: '新西兰已灭绝的巨型不飞鸟恐鸟的完整骨架，恐鸟曾是世界上最高的鸟类，高达3.6米。该骨架是馆内自然历史展区的镇馆之宝，展示了新西兰独特的史前生态。'
+      }
     ]
   };
   return collectionsMap[museumId] || [];

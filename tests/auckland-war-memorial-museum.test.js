@@ -15,7 +15,19 @@ describe('Auckland War Memorial Museum metadata', () => {
       expect.arrayContaining(['历史', '战争纪念', '毛利文化', '海外博物馆'])
     );
     expect(museum.image).toMatch(/^https?:\/\/.+/);
+    // Must use the correct Auckland War Memorial Museum building photo
+    expect(museum.image).not.toBe('https://letmetry.cloud/images/building.jpg');
+    expect(museum.image).toContain('Auckland_War_Memorial_Museum');
     expect(museum.hasCollections).toBe(true);
     expect(museum.level).toBe('未定级');
+  });
+
+  test('yueyang museum does not use Auckland museum image', () => {
+    const yueyang = museums.find(m => m.id === 'yueyang-museum');
+    expect(yueyang).toBeTruthy();
+    // Yueyang museum should not have Auckland museum's building photo
+    expect(yueyang.image).not.toContain('Auckland_War_Memorial_Museum');
+    // Yueyang museum should still have a valid image URL
+    expect(yueyang.image).toMatch(/^https?:\/\/.+/);
   });
 });

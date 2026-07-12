@@ -1545,7 +1545,7 @@ window.MUSEUMS_META = [
       "龙舟",
       "湖湘文化"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/Auckland_War_Memorial_Museum.jpg",
+    "image": "https://letmetry.cloud/images/building.jpg",
     "hasCollections": true,
     "level": "二级"
   },
@@ -1559,7 +1559,7 @@ window.MUSEUMS_META = [
       "毛利文化",
       "海外博物馆"
     ],
-    "image": "https://letmetry.cloud/images/building.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/Auckland_War_Memorial_Museum.jpg",
     "hasCollections": true,
     "level": "未定级"
   }
