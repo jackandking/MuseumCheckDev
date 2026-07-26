@@ -196,8 +196,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'search_official_museums': {
         const { museumName } = args;
         
-        // 调用 letmetry.cloud 的博物馆搜索 API
-        const response = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://letmetry.cloud/museum/search', {
+        // 调用 MuseumCheck 的博物馆搜索 API
+        const response = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://museumcheck.cn/museum/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ museumName }),

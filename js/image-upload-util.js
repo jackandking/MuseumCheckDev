@@ -2,13 +2,13 @@
  * Image Upload Utility for MuseumCheck
  * 
  * Provides image upload functionality with compression for mobile optimization.
- * Uploads images to letmetry.cloud storage service.
+ * Uploads images to the MuseumCheck storage service.
  */
 
 class ImageUploader {
     constructor(config = {}) {
         this.config = {
-            endpoint: config.endpoint || ((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload'),
+            endpoint: config.endpoint || ((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://museumcheck.cn/image/upload'),
             maxFileSizeMB: config.maxFileSizeMB || 10,
             // Compression settings optimized for mobile display
             targetWidth: config.targetWidth || 1200,   // Max width for mobile
@@ -92,7 +92,7 @@ class ImageUploader {
     }
 
     /**
-     * Upload image to letmetry.cloud
+     * Upload image to the MuseumCheck storage service
      * @param {File|Blob} file - The file or blob to upload
      * @param {Object} options - Upload options
      * @returns {Promise<string>} - URL of uploaded image
@@ -162,8 +162,8 @@ class ImageUploader {
         } else if (data.data && data.data.url) {
             return data.data.url;
         } else if (data.success && data.filename) {
-            // Handle letmetry.cloud response format: {success: true, filename: "...", path: "...", destination: "..."}
-            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/image/upload" -> "https://letmetry.cloud")
+            // Handle upload response format: {success: true, filename: "...", path: "...", destination: "..."}
+            // Extract base URL from endpoint (e.g., "https://museumcheck.cn/image/upload" -> "https://museumcheck.cn")
             const url = new URL(this.config.endpoint);
             const baseUrl = `${url.protocol}//${url.host}`;
             

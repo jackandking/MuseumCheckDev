@@ -12,7 +12,7 @@ class SQLAdapter extends StorageAdapter {
       ...config
     });
     
-    this.endpoint = config.endpoint || ((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.BASE : 'https://letmetry.cloud/mysql');
+    this.endpoint = config.endpoint || ((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.BASE : 'https://museumcheck.cn/mysql');
     this.timeout = config.timeout || 10000; // 10秒超时
     this.defaultTable = config.defaultTable || 'kv_store';
   }

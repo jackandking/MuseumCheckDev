@@ -34,7 +34,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (!window.API_ENDPOINTS) {
         console.warn('API_ENDPOINTS not loaded, using fallback configuration');
-        var fallbackBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000' : 'https://letmetry.cloud';
+        var fallbackBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000' : 'https://museumcheck.cn';
         window.API_ENDPOINTS = {
           BASE_URL: fallbackBase,
           MYSQL: {

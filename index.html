@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>让孩子爱上博物馆</title>
-    
+
     <!-- SEO Meta Tags -->
     <meta name="description" content="通过博物馆亲子游改善亲子关系的专业指南应用。收录全国主要博物馆，提供分龄参观清单和亲子互动指导，让博物馆成为增进亲子感情的最佳场所。">
     <meta name="keywords" content="博物馆,亲子游,儿童教育,文化旅游,故宫博物院,中国国家博物馆,上海博物馆,参观指南,家庭出游,文化传承,历史教育,艺术欣赏">
@@ -121,7 +121,7 @@
             }
         })();
     </script>
-    
+
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -544,6 +544,9 @@
       (function(){ if(!window.MUSEUMS && window.MUSEUMS_META){ window.MUSEUMS = window.MUSEUMS_META; } })();
     </script>
     
+    <!-- API Endpoints Configuration -->
+    <script src="config/api-endpoints.js"></script>
+
     <!-- Phase 2 Core Architecture (DataManager + EventBus + Adapters) -->
     <script src="core/event-bus.js"></script>
     <script src="core/data-manager.js"></script>
@@ -572,8 +575,6 @@
     <script src="js/shared-menu.js"></script>
     <!-- Leaderboard Template Component -->
     <script src="js/leaderboard-template.js"></script>
-    <!-- API Endpoints Configuration -->
-    <script src="config/api-endpoints.js"></script>
     <!-- Main application script - must run to render museum list -->
     <script src="js/script.js"></script>
     <script>

@@ -1,9 +1,9 @@
-// Helper for interacting with letmetry.cloud minimal API (file upload + poster publish)
+// Helper for interacting with the MuseumCheck API (file upload + poster publish)
 // Supports configurable base URL and optional API key stored in localStorage under 'letmetry_api_key'
 
 const LetmetryAPI = (function(){
   // 使用集中配置，如果可用
-  const DEFAULT_BASE = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.BASE_URL : 'https://letmetry.cloud';
+  const DEFAULT_BASE = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.BASE_URL : 'https://museumcheck.cn';
   let base = DEFAULT_BASE;
   let apiKey = (typeof window !== 'undefined') ? (localStorage.getItem('letmetry_api_key') || window.LETMETRY_API_KEY || '') : '';
 

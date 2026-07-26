@@ -1,7 +1,7 @@
 /**
  * Baidu Image Search Library
  * Browser-compatible version for searching museum and treasure photos
- * Uses letmetry.cloud API for Baidu image search
+ * Uses the MuseumCheck API for Baidu image search
  * 
  * Usage:
  *   const searcher = new BaiduImageSearch();
@@ -12,12 +12,12 @@
 class BaiduImageSearch {
   constructor() {
     // API endpoint for Baidu image search
-    this.apiEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.SEARCH : 'https://letmetry.cloud/image/search';
+    this.apiEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.SEARCH : 'https://museumcheck.cn/image/search';
     this.defaultImageCount = 10;
   }
 
   /**
-   * Search Baidu Images using letmetry.cloud API
+   * Search Baidu Images using the MuseumCheck API
    * @param {string} query - Search query
    * @param {number} limit - Number of results to return
    * @returns {Promise<Array>} - Array of image results
@@ -26,7 +26,7 @@ class BaiduImageSearch {
     // Request double the limit because some results may be filtered out as ads/placeholders
     const requestCount = limit * 2;
     
-    console.log(`🔍 通过 letmetry.cloud API 搜索百度图片: ${query}`);
+    console.log(`🔍 通过 MuseumCheck API 搜索百度图片: ${query}`);
     
     try {
       const response = await fetch(this.apiEndpoint, {
@@ -71,18 +71,18 @@ class BaiduImageSearch {
   parseApiResponse(data, limit) {
     const results = [];
     
-    // Handle the letmetry.cloud API response format: { success: true, images: ["url1", "url2", ...] }
+    // Handle the API response format: { success: true, images: ["url1", "url2", ...] }
     // Also handle array or object with image objects for flexibility
     const items = Array.isArray(data) ? data : (data.images || data.data || data.results || []);
     
     for (const item of items) {
       if (results.length >= limit) break;
       
-      // Handle both string URLs (from letmetry.cloud) and object formats
+      // Handle both string URLs and object formats
       let imageUrl, thumbUrl;
       
       if (typeof item === 'string') {
-        // letmetry.cloud API returns simple string URLs
+        // API may return simple string URLs
         imageUrl = item;
         thumbUrl = item;
       } else {

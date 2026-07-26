@@ -23,14 +23,14 @@ class MultiCloudConfig {
   _initializeProviders(config) {
     return {
       primary: {
-        name: 'Letmetry',
+        name: 'MuseumCheck API',
         kvEndpoint: config.letmetryKV || 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
-        mysqlEndpoint: config.letmetryMySQL || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.MYSQL.BASE : 'https://letmetry.cloud/mysql'),
-        fileEndpoint: config.letmetryFile || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload'),
-        cdnBaseUrl: config.letmetryCDN || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.CDN.BASE : 'https://letmetry.cloud/cdn'),
+        mysqlEndpoint: config.letmetryMySQL || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.MYSQL.BASE : 'https://museumcheck.cn/mysql'),
+        fileEndpoint: config.letmetryFile || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://museumcheck.cn/image/upload'),
+        cdnBaseUrl: config.letmetryCDN || (typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.CDN.BASE : 'https://museumcheck.cn/cdn'),
         priority: 1,
         enabled: config.enableLetmetry !== false,
-        healthCheck: async () => this.checkHealth(typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.HEALTH : 'https://letmetry.cloud/health')
+        healthCheck: async () => this.checkHealth(typeof API_ENDPOINTS !== 'undefined' ? API_ENDPOINTS.HEALTH : 'https://museumcheck.cn/health')
       },
       secondary: {
         name: 'Cloudflare',

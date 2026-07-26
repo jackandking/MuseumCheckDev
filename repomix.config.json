@@ -1,0 +1,75 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "input": {
+    "maxFileSize": 1000000
+  },
+  "output": {
+    "filePath": ".tmp/repomix-output.xml",
+    "style": "xml",
+    "filePathStyle": "target-relative",
+    "parsableStyle": false,
+    "compress": false,
+    "fileSummary": true,
+    "directoryStructure": true,
+    "files": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "showLineNumbers": false,
+    "truncateBase64": true,
+    "copyToClipboard": false,
+    "topFilesLength": 20,
+    "includeEmptyDirectories": false,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100,
+      "includeDiffs": false,
+      "includeLogs": false,
+      "includeLogsCount": 20
+    }
+  },
+  "include": [
+    "**/*"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDotIgnore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      ".tmp/**",
+      ".playwright-mcp/**",
+      ".agents/**",
+      ".shared/**",
+      ".venv/**",
+      ".vscode/**",
+      ".windsurf/**",
+      "node_modules/**",
+      "coverage/**",
+      "test-results/**",
+      "regression-results/**",
+      "e2e-screenshots/**",
+      "backup/**",
+      "docs/archive/**",
+      "assets/**",
+      "package-lock.json",
+      "bdunion.txt",
+      "repomix-output.*",
+      "**/*.log",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.gif",
+      "**/*.ico",
+      "**/*.pdf",
+      "**/*.wav",
+      "**/*.mp3",
+      "**/*.tar.gz",
+      "**/*.zip"
+    ]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  }
+}

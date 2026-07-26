@@ -83,7 +83,7 @@ const APP_CONFIG = {
     // Treasure Contributor Configuration
     TREASURE_CONTRIBUTOR: {
         REQUIRED_TREASURES: 3,              // Default number of treasures required to complete
-        FILE_UPLOAD_ENDPOINT: (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload',  // File upload API
+        FILE_UPLOAD_ENDPOINT: (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://museumcheck.cn/image/upload',  // File upload API
         MAX_FILE_SIZE_MB: 10                // Maximum file size in MB
     },
     
@@ -9046,7 +9046,7 @@ class MuseumCheckApp {
                 // Use Wikimedia Commons search
                 images = await this.searchWikimediaImages(query);
             } else {
-                // Use Baidu Image search via letmetry.cloud
+                // Use Baidu Image search via MuseumCheck API
                 if (typeof BaiduImageSearch !== 'undefined') {
                     const searcher = new BaiduImageSearch();
                     images = await searcher.searchTreasurePhotos(null, query);
@@ -9176,7 +9176,7 @@ class MuseumCheckApp {
         }
         
         try {
-            // Upload to letmetry.cloud
+            // Upload to MuseumCheck API
             const imageUrl = await this.uploadFileToLetMeTry(file);
             
             // Update preview
@@ -9202,7 +9202,7 @@ class MuseumCheckApp {
     }
     
     /**
-     * Upload file to letmetry.cloud
+     * Upload file to MuseumCheck API
      * @param {File} file - File to upload
      * @returns {Promise<string>} URL of uploaded file
      */
@@ -9229,8 +9229,8 @@ class MuseumCheckApp {
         } else if (data.data && data.data.url) {
             return data.data.url;
         } else if (data.success && data.filename) {
-            // Handle letmetry.cloud response format: {success: true, filename: "...", path: "...", destination: "..."}
-            // Extract base URL from endpoint (e.g., "https://letmetry.cloud/image/upload" -> "https://letmetry.cloud")
+            // Handle upload response format: {success: true, filename: "...", path: "...", destination: "..."}
+            // Extract base URL from endpoint (e.g., "https://museumcheck.cn/image/upload" -> "https://museumcheck.cn")
             const url = new URL(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT);
             const baseUrl = `${url.protocol}//${url.host}`;
             

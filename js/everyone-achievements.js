@@ -26,7 +26,7 @@
     }
 
     // Fallback: direct fetch to endpoint
-    const resp = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.QUERY : 'https://letmetry.cloud/mysql/query', {
+    const resp = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.QUERY : 'https://museumcheck.cn/mysql/query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sql, params: [] })
@@ -144,7 +144,7 @@
         console.log('Poster deleted from database, ID:', poster.id);
       } else {
         // Fallback: direct fetch
-        const resp = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.DELETE : 'https://letmetry.cloud/mysql/delete', {
+        const resp = await fetch((typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.DELETE : 'https://museumcheck.cn/mysql/delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ table: 'achievement_posters', id: poster.id })

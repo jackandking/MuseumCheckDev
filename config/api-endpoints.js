@@ -12,16 +12,25 @@
   // 主配置 - 只需修改这里即可切换环境
   // ============================================
   
-  // 自动检测环境：如果是本地开发，使用 localhost；生产环境使用 letmetry.cloud
-  const isLocalDevelopment = window && window.location && 
-    (window.location.hostname === 'localhost' || 
-     window.location.hostname === '127.0.0.1' || 
-     window.location.hostname === '0.0.0.0');
+  // 自动检测环境：如果是本地开发，使用 localhost；生产环境使用 MuseumCheck 同源后端
+  const currentLocation = (typeof window !== 'undefined' && window.location) ? window.location : null;
+  const currentHostname = currentLocation ? currentLocation.hostname : '';
+
+  const isLocalDevelopment =
+    currentHostname === 'localhost' ||
+    currentHostname === '127.0.0.1' ||
+    currentHostname === '0.0.0.0';
   
-  const BASE_URL = isLocalDevelopment ? 'http://localhost:3000' : 'https://letmetry.cloud';
+  const isMuseumCheckDomain =
+    currentHostname === 'museumcheck.cn' ||
+    currentHostname === 'www.museumcheck.cn';
+
+  const BASE_URL = isLocalDevelopment
+    ? 'http://localhost:3000'
+    : (isMuseumCheckDomain ? currentLocation.origin : 'https://museumcheck.cn');
   
   // 手动覆盖（取消注释切换）
-  // const BASE_URL = 'https://letmetry.cloud';
+  // const BASE_URL = 'https://museumcheck.cn';
   // const BASE_URL = 'http://localhost:3000';
 
   // ============================================

@@ -525,6 +525,7 @@
     </div>
   </div>
 
+  <script src="../config/api-endpoints.js"></script>
   <script src="../js/wikimedia-image-search.js"></script>
   <script src="../js/baidu-image-search.js"></script>
   <script src="../js/deepseek-api.js"></script>
@@ -2250,7 +2251,7 @@
     }
 
     /**
-     * Upload a local image file to letmetry.cloud
+     * Upload a local image file to the MuseumCheck API
      * Compresses the image for mobile-optimized display
      */
     async function uploadLocalImage() {
@@ -2309,7 +2310,7 @@
             <img src="${escapeHtml(url)}" alt="已上传图片" class="result-image" />
             <div class="result-info">
               <div class="result-name">📤 已上传的照片</div>
-              <div class="result-meta">存储于 letmetry.cloud</div>
+              <div class="result-meta">存储于 MuseumCheck</div>
             </div>
           </div>
         `;

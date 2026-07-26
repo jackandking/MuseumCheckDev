@@ -49,7 +49,7 @@ class DataManager {
       },
       mysql: {
         enabled: true,
-        endpoint: (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.BASE : 'https://letmetry.cloud/mysql'
+        endpoint: (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.MYSQL.BASE : 'https://museumcheck.cn/mysql'
       },
       fileStorage: {
         enabled: true,

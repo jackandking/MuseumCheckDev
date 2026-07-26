@@ -17,7 +17,7 @@ test.describe('Forbidden City museum check-in', () => {
           text.includes('Failed to fetch') ||
           text.includes('fetchPeerReviews') ||
           text.includes('peer review') ||
-          text.includes('letmetry.cloud') ||
+          text.includes('museumcheck.cn') ||
           text.includes('kv-store') ||
           text.includes('sendBatch') ||
           text.includes('loadTreasureReports') ||

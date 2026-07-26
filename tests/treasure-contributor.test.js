@@ -181,13 +181,13 @@ describe('Treasure Contributor Feature', () => {
     });
     
     describe('File Upload Configuration', () => {
-        test('should have letmetry.cloud file upload endpoint in config', () => {
+        test('should have MuseumCheck file upload endpoint in config', () => {
             // Check via APP_CONFIG if available, otherwise validate the expected value
             if (APP_CONFIG && APP_CONFIG.TREASURE_CONTRIBUTOR) {
-                expect(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT).toContain('letmetry.cloud');
+                expect(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT).toContain('museumcheck.cn');
             } else {
                 // Just validate the expected configuration value
-                const expectedEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://letmetry.cloud/image/upload';
+                const expectedEndpoint = (typeof API_ENDPOINTS !== 'undefined') ? API_ENDPOINTS.IMAGE.UPLOAD : 'https://museumcheck.cn/image/upload';
                 expect(expectedEndpoint).toContain('image/upload');
             }
         });
@@ -206,4 +206,3 @@ describe('Treasure Contributor Feature', () => {
         });
     });
 });
-
