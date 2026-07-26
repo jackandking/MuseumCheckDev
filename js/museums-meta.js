@@ -1545,7 +1545,7 @@ window.MUSEUMS_META = [
       "龙舟",
       "湖湘文化"
     ],
-    "image": "https://letmetry.cloud/images/building.jpg",
+    "image": "https://museumcheck.cn/images/building.jpg",
     "hasCollections": true,
     "level": "二级"
   },

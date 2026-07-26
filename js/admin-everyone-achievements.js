@@ -11,7 +11,10 @@
   function renderRow(r){
     const tr = document.createElement('tr');
     const id = r.id || r._id || r.ID || r.id_value || '';
-    const imgUrl = (r.imageUrl || r.image_url || r.url || null) || '';
+    const rawImgUrl = (r.imageUrl || r.image_url || r.url || null) || '';
+    const imgUrl = (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function')
+      ? API_ENDPOINTS.normalizeImageUrl(rawImgUrl)
+      : rawImgUrl;
 
     tr.innerHTML = `
       <td>${id}</td>

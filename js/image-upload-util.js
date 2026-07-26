@@ -18,6 +18,16 @@ class ImageUploader {
         };
     }
 
+    normalizeImageUrl(url) {
+        if (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function') {
+            return API_ENDPOINTS.normalizeImageUrl(url);
+        }
+        if (typeof window !== 'undefined' && typeof window.normalizeMuseumCheckImageUrl === 'function') {
+            return window.normalizeMuseumCheckImageUrl(url);
+        }
+        return url;
+    }
+
     /**
      * Compress image before upload for mobile optimization
      * @param {File} file - The image file to compress
@@ -156,11 +166,11 @@ class ImageUploader {
         
         // Handle different response formats
         if (data.url) {
-            return data.url;
+            return this.normalizeImageUrl(data.url);
         } else if (data.fileUrl) {
-            return data.fileUrl;
+            return this.normalizeImageUrl(data.fileUrl);
         } else if (data.data && data.data.url) {
-            return data.data.url;
+            return this.normalizeImageUrl(data.data.url);
         } else if (data.success && data.filename) {
             // Handle upload response format: {success: true, filename: "...", path: "...", destination: "..."}
             // Extract base URL from endpoint (e.g., "https://museumcheck.cn/image/upload" -> "https://museumcheck.cn")
@@ -191,7 +201,7 @@ class ImageUploader {
             sanitizedFilename = sanitizedFilename.split(/[\/\\]/).pop() || 'unnamed';
             
             // Files are served from /images/ directory on the server
-            return `${baseUrl}/images/${encodeURIComponent(sanitizedFilename)}`;
+            return this.normalizeImageUrl(`${baseUrl}/images/${encodeURIComponent(sanitizedFilename)}`);
         }
         
         throw new Error('上传响应格式无效');

@@ -747,10 +747,15 @@
 
                 // Publish poster record to MySQL (achievement_posters) via Letmetry API if available
                 const title = `${currentPoster.museumName || '打卡'} 海报`;
+                const rawImageUrl = (typeof imageUrl === 'object' && imageUrl.url) ? imageUrl.url : imageUrl;
+                const normalizedImageUrl = (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function')
+                    ? API_ENDPOINTS.normalizeImageUrl(rawImageUrl)
+                    : rawImageUrl;
+                imageUrl = normalizedImageUrl;
+                const safeImageUrl = (typeof normalizedImageUrl === 'string') ? encodeURI(normalizedImageUrl) : normalizedImageUrl;
+
                 if (LetmetryAPI && LetmetryAPI.insertRecord) {
                     try {
-                        const rawImageUrl = (typeof imageUrl === 'object' && imageUrl.url) ? imageUrl.url : imageUrl;
-                        const safeImageUrl = (typeof rawImageUrl === 'string') ? encodeURI(rawImageUrl) : rawImageUrl;
                         const record = {
                             image_url: safeImageUrl,
                             title: title,

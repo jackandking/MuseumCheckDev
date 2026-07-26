@@ -16,6 +16,16 @@ const LetmetryAPI = (function(){
   function setBaseUrl(url){ if (url) base = url.replace(/\/+$/,''); }
   function getBaseUrl(){ return base; }
 
+  function _normalizeLegacyImageUrl(url) {
+    if (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function') {
+      return API_ENDPOINTS.normalizeImageUrl(url);
+    }
+    if (typeof window !== 'undefined' && typeof window.normalizeMuseumCheckImageUrl === 'function') {
+      return window.normalizeMuseumCheckImageUrl(url);
+    }
+    return url;
+  }
+
   async function _fetchJson(url, opts = {}){
     const headers = opts.headers || {};
     if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
@@ -34,7 +44,7 @@ const LetmetryAPI = (function(){
     // If it's already a full URL, return as-is
     try {
       const u = new URL(pathOrFilename);
-      if (u.protocol && u.host) return pathOrFilename;
+      if (u.protocol && u.host) return _normalizeLegacyImageUrl(pathOrFilename);
     } catch (e) {}
 
     // If contains '/images/' segment, take the basename after that
@@ -64,6 +74,7 @@ const LetmetryAPI = (function(){
         const candidate = json && (json.path || json.filename || json.originalname || json.file || (json.data && (json.data.path || json.data.filename)));
         extracted = _normalizeToPublicImageUrl(candidate);
       }
+      extracted = _normalizeLegacyImageUrl(extracted);
       return { ok: true, raw: json, url: extracted };
     } catch (e) {
       return { ok: false, error: e };

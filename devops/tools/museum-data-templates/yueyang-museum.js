@@ -35,24 +35,24 @@ module.exports = {
   ],
   
   // 博物馆建筑照片 - Wikimedia Commons 免费授权
-  image: 'https://letmetry.cloud/images/building.jpg',
+  image: 'https://museumcheck.cn/images/building.jpg',
   
   // 镇馆之宝（宁缺毋滥，仅添加有可靠图片的）
   collections: [
     {
       name: '商代鱼纹铜罍',
       description: '1982年岳阳县鲂鱼山出土，国家一级文物。高50厘米，重10.75千克。肩部饰四牺首和四只扁身凤鸟，腹部及圈足有四道扉棱，饰饕餮纹、夔龙纹、圆涡纹、云雷纹、鱼纹和米字纹。鱼纹和米字纹为中原商代青铜器中所不见或少见，体现岳阳"鱼米之乡"的地域特色，对研究商文化在南方的传播具有重要价值。',
-      imageUrl: 'https://letmetry.cloud/images/yuwen-tonglei.jpg'
+      imageUrl: 'https://museumcheck.cn/images/yuwen-tonglei.jpg'
     },
     {
       name: '春秋愠儿铜盏',
       description: '1986年岳阳县筻口镇莲塘村凤形咀山出土，国家一级文物。通高18厘米，口径19.5厘米。器作扁圆形，盖隆起，中部有蛇盘结而成的镂空圆形提手。是全国出土的十余件楚式铜盏中唯一有铭文的，器盖与内壁有"愠儿自乍铸其盏盂"八字铭文，为研究楚人入湘时间及路线提供了珍贵实物资料。',
-      imageUrl: 'https://letmetry.cloud/images/yuner-tongzhan2.jpg'
+      imageUrl: 'https://museumcheck.cn/images/yuner-tongzhan2.jpg'
     },
     {
       name: '西周龙纹铜铙',
       description: '1990年岳阳县荆州乡出土，国家一级文物。铜铙为古代祭祀山川湖泊时使用的礼乐器，口朝上，合瓦状内腔形成共鸣箱。此铙饰有龙纹（爬虫纹），是湖南地区西周时期代表性铜器，具有浓厚的地方特征。',
-      imageUrl: 'https://letmetry.cloud/images/pachong-tongnao.jpg'
+      imageUrl: 'https://museumcheck.cn/images/pachong-tongnao.jpg'
     }
   ],
   

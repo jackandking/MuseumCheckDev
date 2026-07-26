@@ -809,6 +809,9 @@
         }
         
         function getImageUrl(url) {
+            if (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function') {
+                url = API_ENDPOINTS.normalizeImageUrl(url);
+            }
             // Check if proxy mode is enabled
             if (proxyModeEnabled || localStorage.getItem('museumcheck_proxy_mode') === 'true') {
                 // Use weserv.nl proxy for images

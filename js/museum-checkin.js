@@ -14,6 +14,29 @@
             return '';
         }
 
+        function normalizeImageUrl(url) {
+            if (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function') {
+                return API_ENDPOINTS.normalizeImageUrl(url);
+            }
+            if (typeof window !== 'undefined' && typeof window.normalizeMuseumCheckImageUrl === 'function') {
+                return window.normalizeMuseumCheckImageUrl(url);
+            }
+            return url;
+        }
+
+        function normalizeMuseumImageUrls(museum) {
+            if (!museum) return museum;
+            museum.image = normalizeImageUrl(museum.image);
+            if (Array.isArray(museum.collections)) {
+                museum.collections.forEach(collection => {
+                    if (!collection) return;
+                    collection.imageUrl = normalizeImageUrl(collection.imageUrl);
+                    collection.url = normalizeImageUrl(collection.url);
+                });
+            }
+            return museum;
+        }
+
         // Configuration
         const REMOTE_STORAGE_CONFIG = {
             API_ENDPOINT: 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore',
@@ -2026,6 +2049,8 @@
                 });
             }
 
+            normalizeMuseumImageUrls(currentMuseum);
+
             document.getElementById('museumName').textContent = currentMuseum.name;
             
             // Track museum check-in page visit to event wall
@@ -3669,7 +3694,14 @@
         function getContributedMuseumPhoto(musId) {
             try {
                 const all = JSON.parse(localStorage.getItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY) || '{}');
-                return all[musId] || null;
+                const photo = all[musId] || null;
+                if (photo && photo.imageUrl) {
+                    return {
+                        ...photo,
+                        imageUrl: normalizeImageUrl(photo.imageUrl)
+                    };
+                }
+                return photo;
             } catch (e) {
                 console.error('Error getting contributed museum photo:', e);
                 return null;
@@ -3680,8 +3712,12 @@
         function saveContributedMuseumPhoto(musId, photoData) {
             try {
                 const all = JSON.parse(localStorage.getItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY) || '{}');
-                all[musId] = {
+                const normalizedPhotoData = {
                     ...photoData,
+                    imageUrl: normalizeImageUrl(photoData && photoData.imageUrl)
+                };
+                all[musId] = {
+                    ...normalizedPhotoData,
                     contributedAt: Date.now()
                 };
                 localStorage.setItem(CONTRIBUTED_MUSEUM_PHOTOS_KEY, JSON.stringify(all));
@@ -3689,7 +3725,7 @@
                 
                 // Also update currentMuseum.image so it shows immediately
                 if (currentMuseum && currentMuseum.id === musId) {
-                    currentMuseum.image = photoData.imageUrl;
+                    currentMuseum.image = normalizedPhotoData.imageUrl;
                 }
                 
                 return true;
@@ -3740,6 +3776,7 @@
         function showMuseumPhotoPreview(imageUrl) {
             const preview = document.getElementById('modalMuseumPhotoPreview');
             if (!preview || !imageUrl) return;
+            imageUrl = normalizeImageUrl(imageUrl);
             
             // Replace placeholder with image
             preview.innerHTML = `<img src="${imageUrl}" alt="博物馆门口" class="image-preview-thumb">`;
@@ -3756,7 +3793,7 @@
             const preview = document.getElementById('modalMuseumPhotoPreview');
             if (!preview) return;
             
-            const imageUrl = preview.dataset.imageUrl;
+            const imageUrl = normalizeImageUrl(preview.dataset.imageUrl);
             if (!imageUrl) {
                 alert('请先添加博物馆门口照片');
                 return;
@@ -3790,6 +3827,7 @@
         
         // Update task card image after contribution
         function updateTaskCardImage(taskIndex, imageUrl) {
+            imageUrl = normalizeImageUrl(imageUrl);
             const taskCards = document.querySelectorAll('.task-card');
             if (taskCards[taskIndex]) {
                 const card = taskCards[taskIndex];
@@ -3819,7 +3857,14 @@
             try {
                 const all = JSON.parse(localStorage.getItem(CONTRIBUTED_TREASURE_PHOTOS_KEY) || '{}');
                 const museumPhotos = all[musId] || {};
-                return museumPhotos[treasureName] || null;
+                const photo = museumPhotos[treasureName] || null;
+                if (photo && photo.imageUrl) {
+                    return {
+                        ...photo,
+                        imageUrl: normalizeImageUrl(photo.imageUrl)
+                    };
+                }
+                return photo;
             } catch (e) {
                 console.error('Error getting contributed treasure photo:', e);
                 return null;
@@ -3835,8 +3880,12 @@
                 if (!all[musId]) {
                     all[musId] = {};
                 }
-                all[musId][treasureName] = {
+                const normalizedPhotoData = {
                     ...photoData,
+                    imageUrl: normalizeImageUrl(photoData && photoData.imageUrl)
+                };
+                all[musId][treasureName] = {
+                    ...normalizedPhotoData,
                     contributedAt: Date.now()
                 };
                 localStorage.setItem(CONTRIBUTED_TREASURE_PHOTOS_KEY, JSON.stringify(all));
@@ -3851,12 +3900,12 @@
                     // Find existing collection or add new one
                     const existing = currentMuseum.collections.find(c => c.name === treasureName);
                     if (existing) {
-                        existing.imageUrl = photoData.imageUrl;
+                        existing.imageUrl = normalizedPhotoData.imageUrl;
                     } else {
                         currentMuseum.collections.push({
                             name: treasureName,
-                            imageUrl: photoData.imageUrl,
-                            description: photoData.description || '由亲子探索者贡献'
+                            imageUrl: normalizedPhotoData.imageUrl,
+                            description: normalizedPhotoData.description || '由亲子探索者贡献'
                         });
                     }
                 }
@@ -3872,6 +3921,7 @@
         function showTreasurePhotoPreview(imageUrl) {
             const preview = document.getElementById('modalTreasurePhotoPreview');
             if (!preview || !imageUrl) return;
+            imageUrl = normalizeImageUrl(imageUrl);
             
             // Replace placeholder with image
             preview.innerHTML = `<img src="${imageUrl}" alt="镇馆之宝" class="image-preview-thumb">`;
@@ -3888,7 +3938,7 @@
             const preview = document.getElementById('modalTreasurePhotoPreview');
             if (!preview) return;
             
-            const imageUrl = preview.dataset.imageUrl;
+            const imageUrl = normalizeImageUrl(preview.dataset.imageUrl);
             if (!imageUrl) {
                 alert('请先添加镇馆之宝照片');
                 return;
@@ -4995,7 +5045,9 @@
                 
                 // Normalize image URL
                 const rawImageUrl = (typeof imageUrl === 'object' && imageUrl.url) ? imageUrl.url : imageUrl;
-                const safeImageUrl = (typeof rawImageUrl === 'string') ? encodeURI(rawImageUrl) : rawImageUrl;
+                const normalizedImageUrl = normalizeImageUrl(rawImageUrl);
+                imageUrl = normalizedImageUrl;
+                const safeImageUrl = (typeof normalizedImageUrl === 'string') ? encodeURI(normalizedImageUrl) : normalizedImageUrl;
                 
                 // Publish poster record to MySQL database
                 const title = `${currentPoster.museumName || '打卡'} 海报`;
@@ -6706,7 +6758,13 @@
             try {
                 const key = `userAddedTreasures_${musId || museumId}`;
                 const saved = localStorage.getItem(key);
-                return saved ? JSON.parse(saved) : [];
+                const treasures = saved ? JSON.parse(saved) : [];
+                return Array.isArray(treasures)
+                    ? treasures.map(treasure => ({
+                        ...treasure,
+                        imageUrl: normalizeImageUrl(treasure && treasure.imageUrl)
+                    }))
+                    : [];
             } catch (error) {
                 console.error('Failed to load user-added treasures:', error);
                 return [];
@@ -6720,7 +6778,13 @@
         function saveUserAddedTreasures(treasures) {
             try {
                 const key = `userAddedTreasures_${museumId}`;
-                localStorage.setItem(key, JSON.stringify(treasures));
+                const normalizedTreasures = Array.isArray(treasures)
+                    ? treasures.map(treasure => ({
+                        ...treasure,
+                        imageUrl: normalizeImageUrl(treasure && treasure.imageUrl)
+                    }))
+                    : [];
+                localStorage.setItem(key, JSON.stringify(normalizedTreasures));
                 return true;
             } catch (error) {
                 console.error('Failed to save user-added treasures:', error);
@@ -6794,7 +6858,7 @@
             
             const name = nameInput.value.trim();
             // Get image URL from preview dataset (file inputs can't store URLs in value)
-            const imageUrl = (imagePreview && imagePreview.dataset.imageUrl) || DEFAULT_TREASURE_IMAGE;
+            const imageUrl = normalizeImageUrl((imagePreview && imagePreview.dataset.imageUrl) || DEFAULT_TREASURE_IMAGE);
             
             if (!name) {
                 showNotification('请输入镇馆之宝名称');
@@ -6959,7 +7023,7 @@
             let html = '<div style="margin-top: 12px; font-size: 13px; color: #0369a1; font-weight: 600;">我添加的镇馆之宝：</div>';
             
             userTreasures.forEach(treasure => {
-                const imgSrc = treasure.imageUrl || DEFAULT_TREASURE_IMAGE;
+                const imgSrc = normalizeImageUrl(treasure.imageUrl || DEFAULT_TREASURE_IMAGE);
                 html += `
                     <div class="user-added-treasure-item">
                         <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(treasure.name)}" class="treasure-thumb" onerror="this.src='${DEFAULT_TREASURE_IMAGE}'">
@@ -6981,6 +7045,7 @@
         function updateNewTreasurePreview(imageUrl) {
             const previewEl = document.getElementById('newTreasurePreview');
             if (!previewEl) return;
+            imageUrl = normalizeImageUrl(imageUrl);
             
             if (!imageUrl || !imageUrl.trim()) {
                 previewEl.innerHTML = '📷';

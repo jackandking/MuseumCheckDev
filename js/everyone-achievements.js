@@ -4,7 +4,10 @@
   // Normalize database/API rows to the internal poster format
   function normalizeRow(r){
     if(!r) return null;
-    const imageUrl = r.imageUrl || r.image_url || r.url || r.path || (r.data && r.data.image_url);
+    const rawImageUrl = r.imageUrl || r.image_url || r.url || r.path || (r.data && r.data.image_url);
+    const imageUrl = (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function')
+      ? API_ENDPOINTS.normalizeImageUrl(rawImageUrl)
+      : rawImageUrl;
     if(!imageUrl) return null;
     return {
       id: r.id,

@@ -39,6 +39,9 @@
     // 默认使用云服务器后端
     BASE_URL = 'https://museumcheck.cn';
   }
+
+  const LEGACY_IMAGE_HOSTS = ['letmetry.cloud', 'www.letmetry.cloud'];
+  const CANONICAL_IMAGE_ORIGIN = 'https://museumcheck.cn';
   
   // 手动覆盖（取消注释切换）
   // const BASE_URL = 'https://museumcheck.cn';
@@ -82,6 +85,9 @@
       IMAGES: `${BASE_URL}/images`
     },
 
+    LEGACY_IMAGE_HOSTS: LEGACY_IMAGE_HOSTS.slice(),
+    CANONICAL_IMAGE_ORIGIN,
+
     // 健康检查
     HEALTH: `${BASE_URL}/health`,
 
@@ -100,8 +106,33 @@
    */
   API_ENDPOINTS.getImageUrl = function(filename) {
     if (!filename) return null;
-    if (filename.startsWith('http')) return filename;
+    const normalized = this.normalizeImageUrl(filename);
+    if (normalized && normalized !== filename) return normalized;
+    if (filename.startsWith('http') || filename.startsWith('data:') || filename.startsWith('/')) return filename;
     return `${this.CDN.IMAGES}/${encodeURIComponent(filename)}`;
+  };
+
+  /**
+   * Rewrite legacy Letmetry-hosted image URLs to the MuseumCheck canonical host.
+   * This keeps old database rows working without rewriting stored data.
+   * @param {string} url - Image URL or path
+   * @returns {string} URL with legacy image host replaced, or original input
+   */
+  API_ENDPOINTS.normalizeImageUrl = function(url) {
+    if (!url || typeof url !== 'string') return url;
+    if (!url.includes('letmetry.cloud')) return url;
+
+    try {
+      const parsed = new URL(url);
+      if (!LEGACY_IMAGE_HOSTS.includes(parsed.hostname)) return url;
+      if (!parsed.pathname.startsWith('/images/')) return url;
+      return `${CANONICAL_IMAGE_ORIGIN}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch (e) {
+      return url.replace(
+        /^https?:\/\/(?:www\.)?letmetry\.cloud(?=\/images\/)/,
+        CANONICAL_IMAGE_ORIGIN
+      );
+    }
   };
 
   /**
@@ -137,6 +168,7 @@
   // Browser
   if (typeof window !== 'undefined') {
     window.API_ENDPOINTS = API_ENDPOINTS;
+    window.normalizeMuseumCheckImageUrl = API_ENDPOINTS.normalizeImageUrl.bind(API_ENDPOINTS);
   }
 
   // Node.js / CommonJS
