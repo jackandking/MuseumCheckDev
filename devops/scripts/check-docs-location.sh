@@ -14,6 +14,7 @@ ALLOWED_FILES=(
     "CHANGELOG.md"
     "CONTRIBUTING.md"
     "LICENSE.md"
+    "AGENTS.md"
 )
 
 # 获取根目录所有大写开头的 MD 文件
