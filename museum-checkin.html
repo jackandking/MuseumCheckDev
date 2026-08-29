@@ -313,7 +313,7 @@
     
     
     <!-- Main CSS - Extracted to external file for better caching -->
-    <link rel="stylesheet" href="css/museum-checkin.css?v=claymorphism">
+    <link rel="stylesheet" href="css/museum-checkin.css?v=first-task-path-20260802">
     <!-- Leaderboard Styles - Unified across all pages -->
     <link rel="stylesheet" href="css/leaderboard.css">
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
@@ -354,6 +354,20 @@
     <h1 class="title" id="pageTitle" title="点击修改昵称" style="display:none;">孩子任务</h1>
     <div class="museum-name" id="museumName">加载中...</div>
 
+    <section class="visit-coach" id="visitCoach" aria-live="polite">
+        <div class="visit-coach-copy">
+            <div class="visit-coach-kicker" id="visitCoachKicker">现场参观</div>
+            <h2 class="visit-coach-title" id="visitCoachTitle">先完成第 1 个任务</h2>
+            <p class="visit-coach-description" id="visitCoachDescription">打开任务卡，孩子看展品，家长帮忙拍照或确认。</p>
+            <ol class="visit-coach-steps" id="visitCoachSteps" aria-label="现场快速开始">
+                <li><span>1</span>看实物</li>
+                <li><span>2</span>拍照或确认</li>
+                <li><span>3</span>收起手机继续逛</li>
+            </ol>
+        </div>
+        <button class="visit-coach-button" id="visitCoachButton" type="button">2分钟开始</button>
+    </section>
+
     <div class="progress-container">
         <div class="progress-text" id="progressText">
             已完成 <span id="completedCount">0</span> 个任务
@@ -365,6 +379,33 @@
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
         </div>
     </div>
+
+    <section class="visit-feedback" id="visitFeedback" aria-live="polite" hidden>
+        <div class="visit-feedback-main">
+            <div class="visit-feedback-copy">
+                <div class="visit-feedback-kicker">帮助我们改进</div>
+                <div class="visit-feedback-question" id="visitFeedbackQuestion">刚才这一步有帮助吗？</div>
+            </div>
+            <div class="visit-feedback-actions" id="visitFeedbackActions">
+                <button class="visit-feedback-button" type="button" data-feedback-rating="helpful">👍 有帮助</button>
+                <button class="visit-feedback-button secondary" type="button" data-feedback-rating="not_helpful">👎 不顺</button>
+            </div>
+        </div>
+        <form class="visit-feedback-form" id="visitFeedbackForm" hidden>
+            <label class="visit-feedback-label" for="visitFeedbackText">哪里不顺？一句话就好</label>
+            <textarea id="visitFeedbackText" maxlength="120" rows="2" placeholder="例如找不到展品、说明看不懂、按钮不明显"></textarea>
+            <div class="visit-feedback-form-actions">
+                <button class="visit-feedback-submit" type="submit">提交</button>
+                <button class="visit-feedback-skip" type="button" id="visitFeedbackSkip">不写了</button>
+            </div>
+        </form>
+        <div class="visit-feedback-thanks" id="visitFeedbackThanks" hidden>谢谢反馈，我们会优先看真实参观中的问题。</div>
+    </section>
+
+    <section class="together-shared-goal" id="togetherSharedGoal" hidden aria-live="polite">
+        <div class="together-shared-goal-mark" aria-hidden="true">✦</div>
+        <div><p>本场共同发现</p><h2>第一张任务完成啦。</h2><span>接下来如果遇到一件想推荐给别的小朋友的展品，拍下它，并在照片下勾选“分享给本场同行家庭”。</span></div>
+    </section>
 
     <div class="task-grid" id="taskGrid">
         <div class="loading">正在加载任务...</div>
@@ -479,8 +520,12 @@
             <div class="treasure-contributor-section" id="treasureContributorSection" style="display: none;">
                 <div class="add-treasure-form">
                     <div class="add-treasure-input-group">
-                        <label for="modalTreasureName">🏺 镇馆之宝名称 <span style="color: #dc2626;">*</span></label>
+                        <label for="modalTreasureName" id="modalTreasureNameLabel">🏺 镇馆之宝名称 <span style="color: #dc2626;">*</span></label>
                         <input type="text" id="modalTreasureName" placeholder="例如：唐三彩骆驼载乐俑" maxlength="50">
+                    </div>
+                    <div class="add-treasure-input-group" id="personalTreasureReasonGroup" style="display: none;">
+                        <label for="modalTreasureReason">为什么选它？ <span style="color: #dc2626;">*</span></label>
+                        <textarea id="modalTreasureReason" placeholder="写下孩子的一句话发现或推荐理由" maxlength="120" rows="3"></textarea>
                     </div>
                     
                     <div class="add-treasure-input-group">
@@ -510,6 +555,16 @@
                 <div class="photo-preview" id="photoPreview"></div>
                 <button class="retake-button" id="retakeButton" style="display: none;">重新上传</button>
             </div>
+            <section class="family-photo-share" id="familyPhotoShare" hidden aria-labelledby="familyPhotoShareTitle">
+                <p id="familyPhotoShareTitle">这张照片怎么保存？</p>
+                <label><input type="checkbox" id="sharePhotoWithEvent"> 分享给本场同行家庭 <small>活动期间可见；不显示昵称。</small></label>
+                <label><input type="checkbox" id="submitPhotoForReview"> 允许 MuseumCheck 审核后公开展示 <small>只展示展品、展签或建筑照片；不会自动公开。</small></label>
+                <p class="family-photo-share__hint">建议不要上传孩子正脸、联系方式或包含私人信息的画面。</p>
+            </section>
+            <section class="approved-task-discoveries" id="approvedTaskDiscoveries" hidden aria-labelledby="approvedTaskDiscoveriesTitle">
+                <p>家庭发现</p><h3 id="approvedTaskDiscoveriesTitle">大家这样发现这一题</h3>
+                <div class="family-discovery-grid" id="approvedTaskDiscoveriesGrid"></div>
+            </section>
             
             <div class="action-buttons">
                 <button class="button button-secondary" id="cancelButton">取消</button>
@@ -833,7 +888,7 @@
     <link rel="stylesheet" href="css/unified-game-ui.css">
     
     <!-- Shared Menu Component -->
-    <script src="js/shared-menu.js"></script>
+    <script src="js/shared-menu.js?v=together-navigation-20260815"></script>
     <!-- Leaderboard Template Component -->
     <script src="js/leaderboard-template.js"></script>
     <!-- Museum Metadata for Fallback -->
@@ -851,11 +906,13 @@
     <script src="js/baidu-image-search.js"></script>
     <script src="js/letmetry-cloud-api.js"></script>
     <script src="js/image-upload-util.js"></script>
+    <script src="js/contribution-records.js?v=contributions-20260815"></script>
+    <script src="js/family-photo-sharing.js?v=together-photos-20260815"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
     <!-- Shared Menu Component -->
-    <script src="js/shared-menu.js"></script>
+    <script src="js/shared-menu.js?v=together-navigation-20260815"></script>
     <script>
         // Initialize shared menu after DOM ready
         document.addEventListener('DOMContentLoaded', function() {
@@ -871,7 +928,7 @@
         });
     </script>
     
-    <script src="js/museum-checkin.js"></script>
+    <script src="js/museum-checkin.js?v=anonymous-pilot-20260809"></script>
 
     <!-- Wiki Image Search Modal -->
     <div class="wiki-search-modal" id="wikiSearchModal">

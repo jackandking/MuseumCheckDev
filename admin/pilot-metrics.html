@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Pilot 试用追踪 | MuseumCheck Admin</title>
+  <style>
+    :root { --ink:#16333b; --muted:#64767a; --paper:#fffef9; --canvas:#eff6f4; --line:#d7e4e1; --teal:#087f71; --teal-pale:#e3f4ef; --coral:#ef7252; --shadow:0 16px 38px rgba(18,64,59,.09); }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:linear-gradient(145deg,#e6f5f1 0%,var(--canvas) 42%,#f7faf8 100%); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button,select { font:inherit; } .shell { width:min(1080px,calc(100% - 28px)); margin:28px auto 48px; }
+    .crumb { display:flex; justify-content:space-between; gap:16px; margin-bottom:16px; color:var(--muted); font-size:13px; } .crumb a { color:var(--teal); font-weight:800; text-decoration:none; }
+    .hero,.panel,.metric { background:rgba(255,254,249,.94); border:1px solid rgba(255,255,255,.88); box-shadow:var(--shadow); }
+    .hero { display:flex; justify-content:space-between; gap:24px; padding:28px; border-radius:24px 24px 24px 7px; } .eyebrow { margin:0 0 9px; color:var(--teal); font-size:12px; font-weight:900; letter-spacing:.08em; }
+    h1 { margin:0; font-family:"Songti SC","STSong",serif; font-size:clamp(28px,5vw,42px); line-height:1.15; letter-spacing:-.03em; } .hero p:last-child { max-width:620px; margin:13px 0 0; color:var(--muted); line-height:1.65; }
+    .status { align-self:flex-start; padding:8px 12px; border-radius:999px; background:var(--teal-pale); color:#075f55; font-size:13px; font-weight:800; white-space:nowrap; }
+    .toolbar { display:flex; align-items:end; justify-content:space-between; gap:12px; padding:16px; margin:16px 0; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.78); } .field { display:grid; gap:6px; min-width:min(100%,390px); } label { color:var(--muted); font-size:12px; font-weight:800; } select,button { min-height:44px; border-radius:11px; } select { width:100%; padding:0 11px; border:1px solid var(--line); color:var(--ink); background:white; } button { padding:0 15px; border:1px solid var(--teal); color:#fff; background:var(--teal); font-weight:800; cursor:pointer; } button:disabled { opacity:.6; cursor:wait; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; } .metric { min-height:122px; padding:17px; border-radius:17px; } .metric span { display:block; color:var(--muted); font-size:12px; font-weight:800; } .metric strong { display:block; margin-top:12px; font-size:30px; line-height:1; } .metric small { display:block; margin-top:10px; color:var(--muted); font-size:12px; line-height:1.4; }
+    .grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr); gap:16px; } .panel { padding:20px; border-radius:18px; } .panel h2 { margin:0; font-size:18px; } .panel-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:14px; } .subtle { color:var(--muted); font-size:12px; line-height:1.5; }
+    .flow { display:grid; gap:0; } .flow-step { position:relative; display:grid; grid-template-columns:30px 1fr auto; gap:12px; align-items:center; min-height:56px; } .flow-step:not(:last-child)::after { position:absolute; left:14px; top:40px; width:2px; height:22px; background:var(--line); content:""; } .dot { width:29px; height:29px; border:2px solid var(--line); border-radius:50%; background:white; } .flow-step.done .dot { border-color:var(--teal); background:var(--teal); box-shadow:inset 0 0 0 6px white; } .flow-step.current .dot { border-color:var(--coral); background:#fff2ed; } .flow-step strong { font-size:14px; } .flow-step time { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .timeline { display:grid; gap:10px; margin:0; padding:0; list-style:none; } .event { padding:12px; border:1px solid var(--line); border-radius:12px; background:#fbfdfc; } .event-top { display:flex; justify-content:space-between; gap:10px; font-size:13px; } .event-top strong { font-size:14px; } .event time,.event p { color:var(--muted); font-size:12px; line-height:1.5; } .event p { margin:6px 0 0; } .empty { padding:26px 8px; color:var(--muted); text-align:center; line-height:1.6; } .notice { margin-top:16px; padding:12px 14px; border-left:3px solid var(--coral); color:var(--muted); background:#fff8f4; font-size:12px; line-height:1.65; }
+    .unauthorized { width:min(560px,calc(100% - 32px)); margin:14vh auto; padding:30px; border-radius:18px; background:white; box-shadow:var(--shadow); text-align:center; } .unauthorized[hidden],#app[hidden] { display:none; }
+    @media (max-width:700px) { .shell { margin-top:14px; } .hero,.toolbar { align-items:stretch; flex-direction:column; } .metrics,.grid { grid-template-columns:1fr; } .status { align-self:flex-start; } }
+  </style>
+</head>
+<body>
+  <section class="unauthorized" id="unauthorized" hidden><h1>需要管理员入口</h1><p>请使用 <code>pilot-metrics.html?admin=1</code> 访问。</p></section>
+  <main class="shell" id="app" hidden>
+    <div class="crumb"><span><a href="index.html">管理后台</a> / Pilot 试用追踪</span><span id="lastLoaded">尚未加载</span></div>
+    <section class="hero"><div><p class="eyebrow">INVITED PILOT</p><h1>一张邀请链接，走到了哪一步？</h1><p>按邀请码查看匿名试用会话：是否打开入口、看过任务预览、开始参观、进入任务或完成首任务。</p></div><span class="status" id="status">准备加载</span></section>
+    <section class="toolbar"><div class="field"><label for="inviteSelect">选择邀请码</label><select id="inviteSelect" disabled><option>正在加载…</option></select></div><button type="button" id="reload">刷新数据</button></section>
+    <section class="metrics" aria-label="邀请码摘要"><article class="metric"><span>入口打开</span><strong id="openCount">-</strong><small>该邀请码下的打开信号</small></article><article class="metric"><span>任务预览</span><strong id="previewCount">-</strong><small>至少看过第一张任务预览</small></article><article class="metric"><span>开始参观</span><strong id="startCount">-</strong><small>已提交并进入打卡页</small></article><article class="metric"><span>首任务完成</span><strong id="completeCount">-</strong><small>真实完成信号</small></article></section>
+    <section class="grid"><article class="panel"><div class="panel-head"><h2>当前漏斗</h2><span class="subtle" id="sessionCount"></span></div><div class="flow" id="flow"></div><div class="notice">邀请码只用于来源归因，不是登录身份。若链接被转发，同一邀请码下可能包含多个匿名会话；请不要据此推断具体个人。</div></article><article class="panel"><div class="panel-head"><h2>最近动作</h2><span class="subtle">按时间倒序</span></div><ol class="timeline" id="timeline"></ol></article></section>
+  </main>
+  <script src="../config/api-endpoints.js?v=pilot-metrics-20260813"></script>
+  <script src="../js/admin-pilot-metrics.js?v=pilot-metrics-20260813"></script>
+</body>
+</html>

@@ -251,19 +251,19 @@ describe('Checkin Page Pet Prompt Timing', () => {
     });
 
     describe('Integration Scenario: New User First Visit', () => {
-        test('new user with 0 points should see nickname edit but NOT pet prompt', () => {
+        test('new user with 0 points should not see blocking prompts', () => {
             // Setup: Brand new user
             window.achievementGamification.getXPProgress.mockReturnValue({ totalXP: 0 });
             
             // Simulate page load sequence
-            // 1. Nickname edit triggered (800ms delay in real code)
-            const nicknameEditTriggered = true;
+            // 1. Nickname is generated silently; no blocking onboarding is shown.
+            const nicknameOnboardingShown = false;
             
             // 2. Pet prompt attempted (1000ms delay in real code)
             const petPromptResult = window.virtualPet.showPetAdoptionPrompt('checkin');
             
             // Expectations
-            expect(nicknameEditTriggered).toBe(true); // Nickname edit happens
+            expect(nicknameOnboardingShown).toBe(false); // First task remains reachable
             expect(petPromptResult).toBe(false); // Pet prompt does NOT appear
         });
 

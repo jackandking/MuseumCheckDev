@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="MuseumCheck 早期共创试用邀请">
+    <title>MuseumCheck 早期共创试用</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/pilot.css?v=1">
+</head>
+<body>
+    <main class="pilot-shell">
+        <header class="pilot-header">
+            <a class="pilot-brand" href="index.html" aria-label="返回 MuseumCheck 公开版">
+                <span class="pilot-brand-mark" aria-hidden="true">MC</span>
+                <span>MuseumCheck</span>
+            </a>
+            <span class="pilot-access">受邀共创试用</span>
+        </header>
+
+        <section class="pilot-brief" aria-labelledby="pilotTitle">
+            <div class="pilot-invite-line" id="pilotInviteLine">给这次真实参观的一张任务卡</div>
+            <h1 id="pilotTitle">先看看，这次参观能从哪里开始</h1>
+            <p class="pilot-summary" id="pilotSummary">不用安装，不用注册。先选计划去的馆，看看现场的第一个小任务；合适再开始。</p>
+            <div class="pilot-route" aria-label="试用步骤">
+                <div><span>到馆</span><strong>打开链接</strong></div>
+                <div class="pilot-route-line" aria-hidden="true"></div>
+                <div><span>现场</span><strong>完成 1 个任务</strong></div>
+                <div class="pilot-route-line" aria-hidden="true"></div>
+                <div><span>用后</span><strong>一句话反馈</strong></div>
+            </div>
+        </section>
+
+        <section class="pilot-card" aria-labelledby="pilotFormTitle">
+            <div class="pilot-card-heading">
+                <div>
+                    <p class="pilot-eyebrow">先选参观地点</p>
+                    <h2 id="pilotFormTitle">想去哪里看看？</h2>
+                </div>
+                <span class="pilot-card-count" id="pilotCardCount">1 步</span>
+            </div>
+
+            <form id="pilotForm" novalidate>
+                <label class="pilot-field" for="museumInput">
+                    <span>计划去哪里</span>
+                    <small>已收录馆可从建议中选择；未收录馆也可直接填写</small>
+                    <input id="museumInput" name="museum" list="museumOptions" autocomplete="off" inputmode="search" placeholder="例如：故宫博物院｜北京" required>
+                    <datalist id="museumOptions"></datalist>
+                </label>
+
+                <label class="pilot-field" for="personalMuseumCity">
+                    <span>所在城市 <small>未收录馆时填写</small></span>
+                    <input id="personalMuseumCity" name="personalMuseumCity" autocomplete="address-level2" inputmode="text" placeholder="例如：自贡">
+                </label>
+
+                <section class="pilot-preview" id="pilotPreview" hidden aria-live="polite">
+                    <p class="pilot-preview-kicker">到馆后，第 1 个任务会像这样开始</p>
+                    <h3 id="pilotPreviewTitle">先找一件让孩子想多看一会儿的东西</h3>
+                    <p id="pilotPreviewCopy">站在展厅入口，问孩子：第一眼最想走向哪里？先不用急着解释，一起走过去看看。</p>
+                    <span class="pilot-preview-note">不合适随时退出，不需要完成全部任务</span>
+                </section>
+
+                <section class="pilot-prep" id="pilotPrep" hidden aria-labelledby="pilotPrepTitle">
+                    <div class="pilot-prep-heading">
+                        <h3 id="pilotPrepTitle">要不要顺手准备一下？</h3>
+                        <p>这些都已选好默认值，不改也可以直接开始。</p>
+                    </div>
+                <fieldset class="pilot-fieldset">
+                    <legend>孩子年龄段</legend>
+                    <div class="pilot-choice-grid pilot-choice-grid-age">
+                        <label class="pilot-choice">
+                            <input type="radio" name="age" value="3-6" required>
+                            <span><strong>3–6 岁</strong><small>观察与发现</small></span>
+                        </label>
+                        <label class="pilot-choice">
+                            <input type="radio" name="age" value="7-12" checked required>
+                            <span><strong>7–12 岁</strong><small>探索与提问</small></span>
+                        </label>
+                        <label class="pilot-choice">
+                            <input type="radio" name="age" value="13-18" required>
+                            <span><strong>13–18 岁</strong><small>比较与推理</small></span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="pilot-two-column">
+                    <label class="pilot-field" for="formatSelect">
+                        <span>活动形式</span>
+                        <select id="formatSelect" name="format" required>
+                            <option value="family">亲子参观</option>
+                            <option value="camp">夏令营 / 营队</option>
+                            <option value="school">学校 / 社团</option>
+                            <option value="friends">朋友结伴</option>
+                        </select>
+                    </label>
+
+                    <label class="pilot-field" for="groupSelect">
+                        <span>大约人数</span>
+                        <select id="groupSelect" name="group" required>
+                            <option value="2-3">2–3 人</option>
+                            <option value="4-8">4–8 人</option>
+                            <option value="9-20">9–20 人</option>
+                            <option value="21-plus">21 人以上</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="pilot-field" for="durationSelect">
+                    <span>预计在馆时间</span>
+                    <select id="durationSelect" name="duration" required>
+                        <option value="under-60">1 小时以内</option>
+                        <option value="60-90" selected>1–1.5 小时</option>
+                        <option value="90-120">1.5–2 小时</option>
+                        <option value="120-plus">2 小时以上</option>
+                    </select>
+                </label>
+
+                <label class="pilot-field" for="inviteCodeInput">
+                    <span>邀请码 <small>可选</small></span>
+                    <small>受邀共创家庭可填写，用来记录这次试用来源；不关联姓名或联系方式。</small>
+                    <input id="inviteCodeInput" name="inviteCode" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="6" pattern="[A-Za-z0-9]{6}" placeholder="例如：7K4D9Q">
+                </label>
+                </section>
+
+                <p class="pilot-error" id="pilotError" role="alert" hidden></p>
+
+                <button class="pilot-submit" type="submit">
+                    <span id="pilotSubmitLabel">先看看第 1 个任务</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
+
+            <div class="pilot-privacy">
+                <span aria-hidden="true">◉</span>
+                <p><strong>隐私默认开启</strong>：不需要孩子姓名、手机号或联系方式。以上参观场景会匿名用于判断试用是否顺畅，本机也会保留一份方便继续。</p>
+            </div>
+        </section>
+
+        <footer class="pilot-footer">
+            <p>邀请链接可以直接转发，也可以制作成二维码放在集合通知里。</p>
+            <a href="index.html">不参加试用，直接使用公开版</a>
+        </footer>
+    </main>
+
+    <script src="js/museums-meta.js"></script>
+    <script src="config/api-endpoints.js"></script>
+    <script src="js/pilot.js?v=preview-first-20260813"></script>
+</body>
+</html>

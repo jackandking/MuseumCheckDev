@@ -5587,7 +5587,11 @@ class MuseumCheckApp {
         if (this.searchQuery.length > 0) {
             clearButton.style.display = 'block';
             searchResultsInfo.style.display = 'block';
-            document.getElementById('filteredCount').textContent = this.filteredMuseums.length;
+            const normalizedQuery = this.searchQuery.trim().toLocaleLowerCase('zh-CN');
+            const personalCount = this.getPersonalMuseums().filter(museum =>
+                `${museum.name || ''} ${museum.city || ''}`.toLocaleLowerCase('zh-CN').includes(normalizedQuery)
+            ).length;
+            document.getElementById('filteredCount').textContent = this.filteredMuseums.length + personalCount;
         } else {
             clearButton.style.display = 'none';
             searchResultsInfo.style.display = 'none';
@@ -7241,6 +7245,29 @@ class MuseumCheckApp {
         return [...museums].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
     }
 
+    getPersonalMuseums() {
+        try {
+            const museums = JSON.parse(localStorage.getItem('museumcheck-personal-museums-v1') || '[]');
+            if (!Array.isArray(museums)) return [];
+            const seen = new Set();
+            return museums
+                .filter(museum => {
+                    const key = `${museum?.name || ''}\u0000${museum?.city || ''}`.toLocaleLowerCase('zh-CN');
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .map(museum => ({ ...museum, isPersonalMuseum: true, description: '你的探索记录' }));
+        } catch (error) {
+            console.warn('Unable to load personal museums:', error);
+            return [];
+        }
+    }
+
+    getPersonalMuseumById(museumId) {
+        return this.getPersonalMuseums().find(museum => museum.id === museumId) || null;
+    }
+
     renderMuseums() {
         try {
             const grid = document.getElementById('museumGrid');
@@ -7290,8 +7317,22 @@ class MuseumCheckApp {
 
             // If there's a search query, use search results (takes priority over returning user filters)
             if (this.searchQuery && this.searchQuery.trim() !== '') {
-                // Use filteredMuseums from search
-                museumsToRender = this.filteredMuseums;
+                // Search the public catalogue and this browser's personal museums together.
+                // Personal entries exist only in localStorage, so other users cannot see them.
+                const normalizedQuery = this.searchQuery.trim().toLocaleLowerCase('zh-CN');
+                const personalMatches = this.getPersonalMuseums().filter(museum =>
+                    `${museum.name || ''} ${museum.city || ''}`.toLocaleLowerCase('zh-CN').includes(normalizedQuery)
+                );
+                const seenPersonalMuseums = new Set();
+                const uniquePersonalMatches = personalMatches.filter(museum => {
+                    const key = `${museum.name || ''}\u0000${museum.city || ''}`.toLocaleLowerCase('zh-CN');
+                    if (seenPersonalMuseums.has(key)) return false;
+                    seenPersonalMuseums.add(key);
+                    return true;
+                });
+                museumsToRender = [...this.filteredMuseums, ...uniquePersonalMatches];
+                const countEl = document.getElementById('filteredCount');
+                if (countEl) countEl.textContent = museumsToRender.length;
                 console.log('🔍 [DEBUG] Showing search results:', {
                     searchQuery: this.searchQuery,
                     resultsCount: museumsToRender.length
@@ -7307,7 +7348,7 @@ class MuseumCheckApp {
                 // Get all museums that user has interacted with
                 const interactedIds = [...new Set([...visitedMuseumIds, ...browsedMuseumIds])];
                 const interactedMuseums = interactedIds
-                    .map(id => MUSEUMS.find(m => m.id === id))
+                    .map(id => MUSEUMS.find(m => m.id === id) || this.getPersonalMuseumById(id))
                     .filter(m => m) // Remove any undefined
                     .sort((a, b) => {
                         // Use the most recent time between visit and browse
@@ -7508,7 +7549,7 @@ class MuseumCheckApp {
                         this.markMuseumAsBrowsed(museum.id);
 
                         // Track museum visit to event wall before navigation
-                        if (this.eventWallService) {
+                        if (!museum.isPersonalMuseum && this.eventWallService) {
                             this.eventWallService.recordEvent(
                                 'visit',
                                 '访问博物馆',
@@ -7612,20 +7653,74 @@ class MuseumCheckApp {
     showNoSearchResults(query) {
         const grid = document.getElementById('museumGrid');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const welcomeGuide = document.getElementById('welcomeGuide');
         
         // Hide loading indicator
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
+        }
+        // Search intent is stronger than onboarding; keep the recovery action visible.
+        if (welcomeGuide) {
+            welcomeGuide.style.display = 'none';
         }
         
         grid.innerHTML = `
             <div class="no-results-message">
                 <div class="no-results-icon">🔍</div>
                 <p>没有找到包含 "<strong>${query}</strong>" 的博物馆</p>
-                <p class="no-results-hint">试试其他关键词，如城市名、博物馆名称或标签</p>
+                <p class="no-results-hint">也可以直接从这家馆开始探索。</p>
+                <div class="personal-museum-setup">
+                    <div class="personal-museum-name">🏛️ ${query}</div>
+                    <label for="personalMuseumCity">它在哪个城市？<span>可跳过</span></label>
+                    <input id="personalMuseumCity" type="text" inputmode="text" autocomplete="address-level2" placeholder="例如：自贡">
+                    <button onclick="app.startPersonalMuseumFromSearch()" class="retry-button">开始探索</button>
+                </div>
                 <button onclick="app.clearSearch()" class="clear-search-btn">清空搜索</button>
             </div>
         `;
+    }
+
+    // Museums added from search stay on this device until they are reviewed separately.
+    // They must never be added to the public MUSEUMS catalogue from the visitor flow.
+    startPersonalMuseumFromSearch() {
+        const name = (this.searchQuery || '').trim();
+        if (!name) return;
+
+        const cityInput = document.getElementById('personalMuseumCity');
+        const city = cityInput ? cityInput.value : '';
+        const museum = {
+            id: `personal-${Date.now().toString(36)}`,
+            name,
+            city: city.trim(),
+            location: city.trim(),
+            createdAt: Date.now(),
+            reviewStatus: 'pending',
+            visibility: 'private'
+        };
+
+        try {
+            const key = 'museumcheck-personal-museums-v1';
+            const museums = JSON.parse(localStorage.getItem(key) || '[]');
+            const matchingMuseum = museums.find(museum =>
+                museum && museum.name === name && (museum.city || '') === city.trim()
+            );
+            if (matchingMuseum) {
+                const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+                const ageGroup = checkedRadio ? checkedRadio.value : (this.currentAge || APP_CONFIG.DEFAULT_AGE);
+                window.location.href = `museum-checkin.html?museum=${encodeURIComponent(matchingMuseum.id)}&age=${encodeURIComponent(ageGroup)}`;
+                return;
+            }
+            museums.push(museum);
+            localStorage.setItem(key, JSON.stringify(museums));
+        } catch (error) {
+            console.error('Unable to save personal museum:', error);
+            alert('暂时无法保存这家博物馆，请检查浏览器存储后重试。');
+            return;
+        }
+
+        const checkedRadio = document.querySelector('input[name="ageGroup"]:checked');
+        const ageGroup = checkedRadio ? checkedRadio.value : (this.currentAge || APP_CONFIG.DEFAULT_AGE);
+        window.location.href = `museum-checkin.html?museum=${encodeURIComponent(museum.id)}&age=${encodeURIComponent(ageGroup)}`;
     }
 
     toggleMuseumVisit(museumId) {

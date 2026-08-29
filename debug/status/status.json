@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "app": "MuseumCheck",
+  "environment": "dev-github-pages",
+  "branch": "dev",
+  "commit": "47849014436676a18abd4424d834ec15bf353c3b",
+  "commitShort": "4784901",
+  "workflow": "Deploy Dev to MuseumCheckDev",
+  "runId": "33229661934",
+  "runAttempt": "1",
+  "repository": "jackandking/MuseumCheck",
+  "deployedAt": "2026-08-29T02:43:46.985Z",
+  "generatedBy": "devops/scripts/write-debug-status.js"
+}

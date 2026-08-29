@@ -51,6 +51,19 @@ window.MUSEUMS_META = [
     "level": "一级"
   },
   {
+    "id": "shanghai-natural-history-museum",
+    "name": "上海自然博物馆",
+    "location": "上海",
+    "tags": [
+      "自然科学",
+      "生物多样性",
+      "古生物"
+    ],
+    "image": "",
+    "hasCollections": true,
+    "level": null
+  },
+  {
     "id": "terracotta-warriors",
     "name": "秦始皇帝陵博物院",
     "location": "西安",

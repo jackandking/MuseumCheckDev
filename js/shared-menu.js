@@ -18,6 +18,7 @@
         { action: 'leaderboard', icon: '🏅', text: '排行榜', alwaysShow: true },
         { action: 'quiz', icon: '🎓', text: '考一考', alwaysShow: true },
         { action: 'surveyIndex', icon: '🎯', text: '统一统', alwaysShow: true },
+        { action: 'together', icon: '🤝', text: '同行探索', alwaysShow: true },
         { action: 'home', icon: '🏠', text: '返回主页', showOnSubPages: true }
     ];
 
@@ -67,6 +68,9 @@
                 break;
             case 'surveyIndex':
                 window.open(getBasePath() + 'survey/index.html', '_blank');
+                break;
+            case 'together':
+                window.location.href = getBasePath() + 'together.html';
                 break;
             case 'eventWall':
                 window.open(getBasePath() + 'event-wall.html', '_blank');

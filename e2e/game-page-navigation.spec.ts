@@ -15,7 +15,7 @@ test.describe('游戏页面跳转流程测试', () => {
         });
         await page.goto('http://localhost:8000/museum-checkin.html?museum=beijing-capital-museum');
         await page.waitForLoadState('networkidle');
-        
+
         console.log('✅ 打卡页面加载成功');
 
         // 2. 等待页面加载完成
@@ -30,7 +30,7 @@ test.describe('游戏页面跳转流程测试', () => {
                 window.showGameChoiceOverlay(0, {});
             }
         });
-        
+
         console.log('✅ 游戏选择界面触发成功');
 
         // 4. 等待游戏选择界面出现

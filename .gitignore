@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+regression-results/
+e2e-screenshots/
+
+# Temporary files
+.tmp/
+tmp/
+*.backup
+
+# DevOps runtime data
+devops/.local/
+!devops/.local/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+.windsurf/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Test files
+test-poster-v2-*.html
+test-sortkey-fix-verification.html
+generate-v3-qr-codes.js
+
+# User uploads
+uploads/
+.venv/
+ref/snowpark_config.py
+explorations/

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>访问指标 | MuseumCheck Admin</title>
+  <style>
+    :root {
+      --bg: #f4f7f8;
+      --surface: #ffffff;
+      --surface-soft: #f8fafb;
+      --line: #dde6e8;
+      --text: #122225;
+      --muted: #647174;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --ok: #16803c;
+      --warn: #a15c05;
+      --bad: #b42318;
+      --shadow: 0 10px 28px rgba(15, 35, 38, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .hero,
+    .panel,
+    .metric-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 4vw, 2.3rem);
+      line-height: 1.12;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #eef7f5;
+      color: var(--accent-strong);
+      font-size: 0.86rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .control-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    select,
+    input {
+      min-height: 40px;
+      min-width: 150px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    button {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.62;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      min-height: 112px;
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .metric-caption {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+      margin-bottom: 16px;
+      min-width: 0;
+    }
+
+    .wide-panel {
+      grid-column: 1 / -1;
+    }
+
+    .panel-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-heading h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .target-list,
+    .feedback-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .target-item,
+    .feedback-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+    }
+
+    .target-top,
+    .feedback-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .target-title,
+    .feedback-title {
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .target-meta,
+    .feedback-meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .bar {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef0;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .funnel {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .funnel-step {
+      position: relative;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+      min-width: 0;
+    }
+
+    .funnel-step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.4rem;
+    }
+
+    .funnel-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .rate-badge {
+      display: inline-flex;
+      min-height: 28px;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #eef7f5;
+      color: var(--accent-strong);
+      font-size: 0.78rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .rate-badge.warn {
+      background: #fff3dc;
+      color: var(--warn);
+    }
+
+    .rate-badge.bad {
+      background: #ffe8e5;
+      color: var(--bad);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.86rem;
+    }
+
+    .empty-state {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .unauthorized {
+      width: min(720px, calc(100% - 32px));
+      margin: 48px auto;
+      padding: 24px;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      background: #fff5f5;
+      color: #991b1b;
+    }
+
+    @media (max-width: 840px) {
+      .page-shell {
+        width: min(100% - 24px, 620px);
+        margin-top: 16px;
+      }
+
+      .topbar,
+      .hero,
+      .toolbar,
+      .panel-heading {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .control-row,
+      .metric-grid,
+      .panel-grid,
+      .funnel {
+        grid-template-columns: 1fr;
+      }
+
+      .control-row {
+        display: grid;
+      }
+
+      select,
+      input,
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="unauthorized" id="unauthorized" hidden>
+    <h1>需要管理员入口</h1>
+    <p>请使用带管理员参数的入口访问：<span class="mono">visit-metrics.html?admin=1</span></p>
+  </div>
+
+  <main class="page-shell" id="app" hidden>
+    <div class="topbar">
+      <div class="breadcrumb"><a href="index.html">管理后台</a> / 访问指标</div>
+      <div class="muted" id="lastLoaded">尚未加载</div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <h1>Visit Metrics Dashboard</h1>
+        <p>围绕成功家庭参观会话，查看移动 H5 漏斗、首任务完成和真实反馈。</p>
+      </div>
+      <span class="status-pill" id="statusPill">准备加载</span>
+    </section>
+
+    <section class="toolbar" aria-label="过滤条件">
+      <div class="control-row">
+        <div class="field">
+          <label for="rangeSelect">时间范围</label>
+          <select id="rangeSelect">
+            <option value="7d">最近 7 天</option>
+            <option value="24h">最近 24 小时</option>
+            <option value="30d">最近 30 天</option>
+            <option value="all">全部</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="museumFilter">博物馆</label>
+          <input id="museumFilter" type="search" placeholder="museumId 或名称">
+        </div>
+      </div>
+      <div class="control-row">
+        <button type="button" id="reloadButton" class="primary">刷新数据</button>
+        <button type="button" id="exportButton">导出摘要</button>
+      </div>
+    </section>
+
+    <section class="metric-grid" aria-label="北极星指标">
+      <article class="metric-card">
+        <span class="metric-label">Check-in opens</span>
+        <strong class="metric-value" id="checkinOpenValue">-</strong>
+        <span class="metric-caption">打开打卡页的会话数</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Visit activation</span>
+        <strong class="metric-value" id="activationRateValue">-</strong>
+        <span class="metric-caption">目标 > 70%，`checkin_open -> task_open`</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">First task completion</span>
+        <strong class="metric-value" id="firstCompletionRateValue">-</strong>
+        <span class="metric-caption">目标 > 40%，`checkin_open -> first_task_complete`</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Not helpful feedback</span>
+        <strong class="metric-value" id="notHelpfulRateValue">-</strong>
+        <span class="metric-caption">目标 < 20%，优先看真实阻塞</span>
+      </article>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel wide-panel">
+        <div class="panel-heading">
+          <h2>核心漏斗</h2>
+          <span class="rate-badge" id="northStarBadge">等待数据</span>
+        </div>
+        <div class="funnel" id="funnelSteps"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading">
+          <h2>博物馆首任务表现</h2>
+          <span class="muted">按首任务完成率排序</span>
+        </div>
+        <ul class="target-list" id="museumList"></ul>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading">
+          <h2>反馈优先级</h2>
+          <span class="muted">不展示个人 ID</span>
+        </div>
+        <ul class="feedback-list" id="feedbackList"></ul>
+      </article>
+
+      <article class="panel wide-panel">
+        <div class="panel-heading">
+          <h2>任务完成深度</h2>
+          <span class="muted">每个会话取最高完成数</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>深度</th>
+                <th>会话数</th>
+                <th>占比</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody id="depthTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel wide-panel">
+        <div class="panel-heading">
+          <h2>最近信号</h2>
+          <span class="muted">匿名展示，隐藏 visitor/session</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>信号</th>
+                <th>博物馆</th>
+                <th>年龄段</th>
+                <th>任务</th>
+                <th>备注</th>
+              </tr>
+            </thead>
+            <tbody id="signalTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="../config/api-endpoints.js?v=visit-metrics-20260802"></script>
+  <script src="../js/admin-visit-metrics.js?v=visit-metrics-20260802"></script>
+</body>
+</html>

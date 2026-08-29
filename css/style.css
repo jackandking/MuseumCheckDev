@@ -819,6 +819,13 @@ header h1 {
     margin-bottom: 25px;
 }
 
+.together-home-entry { display:flex; align-items:center; justify-content:space-between; gap:14px; max-width:500px; margin:0 auto 18px; padding:15px 16px; border:1px solid #b7e0d6; border-radius:16px 16px 16px 4px; background:#f0faf7; color:#175d52; text-decoration:none; box-sizing:border-box; }
+.together-home-entry:hover { border-color:#4aa895; box-shadow:0 5px 14px rgba(24,107,91,.10); }
+.together-home-entry__eyebrow { display:block; margin-bottom:4px; color:#277866; font-size:12px; font-weight:700; }
+.together-home-entry__title { display:block; color:#175d52; font-size:16px; font-weight:800; }
+.together-home-entry__detail { display:block; margin-top:4px; color:#46766e; font-size:13px; }
+.together-home-entry__cta { flex:0 0 auto; color:#176d5c; font-size:13px; font-weight:800; }
+
 .search-container {
     position: relative;
     max-width: 500px;
@@ -4118,6 +4125,54 @@ main[role="main"] {
     color: #718096;
     font-size: 0.9em !important;
     margin-bottom: 20px !important;
+}
+
+.personal-museum-setup {
+    width: min(100%, 360px);
+    margin: 12px 0 14px;
+    padding: 16px;
+    text-align: left;
+    background: #ffffff;
+    border: 1px solid #c7ebe5;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(20, 149, 139, 0.08);
+}
+
+.personal-museum-name {
+    margin-bottom: 12px;
+    color: #147d75;
+    font-weight: 700;
+    text-align: center;
+}
+
+.personal-museum-setup label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.personal-museum-setup label span {
+    color: #718096;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.personal-museum-setup input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid #b7d9d4;
+    border-radius: 10px;
+    color: #1f2937;
+    font: inherit;
+}
+
+.personal-museum-setup .retry-button {
+    width: 100%;
 }
 
 .clear-search-btn {

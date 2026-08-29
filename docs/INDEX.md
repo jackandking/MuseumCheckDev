@@ -8,6 +8,7 @@
 - **状态**: 这两个文档必须保持一致
 
 ### 架构和设计
+- **[项目使命、愿景和 AI 演进原则](./architecture/PROJECT_CHARTER.md)** - repo 的 mission/vision/tenets 和跨 AI 工作准则
 - **[架构概览](./ARCHITECTURE_OVERVIEW.md)** - 系统整体架构
 - **[目录结构](./DIRECTORY_STRUCTURE.md)** - 项目文件组织
 - **[数据流](./architecture/DATA_FLOW.md)** - 数据流动方式

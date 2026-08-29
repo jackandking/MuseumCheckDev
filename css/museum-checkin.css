@@ -14,6 +14,12 @@
             border: 2px solid rgba(255, 255, 255, 0.4);
         }
 
+        .task-card:focus-visible,
+        .visit-coach-button:focus-visible {
+            outline: 3px solid rgba(13, 148, 136, 0.55);
+            outline-offset: 3px;
+        }
+
         .task-card:hover {
             transform: translateY(-6px) scale(1.02);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
@@ -28,6 +34,11 @@
         .task-card.completed {
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             animation: completeFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .task-card.next-task {
+            border-color: #C2410C;
+            box-shadow: 0 8px 24px rgba(194, 65, 12, 0.18);
         }
 
         @keyframes completeFlip {
@@ -101,6 +112,23 @@
             opacity: 1;
             transform: scale(1);
             animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .next-task-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #C2410C;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+            box-shadow: 0 3px 10px rgba(194, 65, 12, 0.22);
         }
 
         @keyframes badgePop {
@@ -184,6 +212,246 @@
             border-radius: 16px;
             padding: 16px 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .together-shared-goal {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 0 18px;
+            padding: 15px 16px;
+            box-sizing: border-box;
+            border: 1px solid #b8e6dc;
+            border-radius: 16px 16px 16px 4px;
+            background: #effaf6;
+            color: #175d52;
+        }
+        .together-shared-goal[hidden] { display: none; }
+        .together-shared-goal-mark { display: grid; flex: 0 0 auto; place-items: center; width: 31px; height: 31px; border-radius: 50%; background: #168270; color: #fff; font-weight: 800; }
+        .together-shared-goal p { margin: 0 0 3px; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+        .together-shared-goal h2 { margin: 0; font-size: 16px; }
+        .together-shared-goal span { display: block; margin-top: 5px; font-size: 13px; line-height: 1.55; }
+
+        .visit-coach {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin: 0 0 12px;
+            padding: 18px 20px;
+            background: #fff;
+            border: 2px solid rgba(13, 148, 136, 0.22);
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(13, 148, 136, 0.15);
+        }
+
+        .visit-coach-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .visit-coach-kicker {
+            margin-bottom: 4px;
+            color: #0f766e;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .visit-coach-title {
+            margin: 0 0 4px;
+            color: #134e4a;
+            font-size: 20px;
+            line-height: 1.25;
+        }
+
+        .visit-coach-description {
+            margin: 0;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .visit-coach-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .visit-coach-steps[hidden] {
+            display: none;
+        }
+
+        .visit-coach-steps li {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 28px;
+            padding: 5px 9px 5px 6px;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.08);
+            color: #134e4a;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .visit-coach-steps span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0D9488;
+            color: #fff;
+            font-size: 11px;
+            line-height: 1;
+            flex: 0 0 auto;
+        }
+
+        .visit-coach-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            min-width: 142px;
+            min-height: 54px;
+            padding: 14px 18px;
+            border: 0;
+            border-radius: 12px;
+            background: #C2410C;
+            color: white;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(194, 65, 12, 0.28);
+            touch-action: manipulation;
+        }
+
+        .visit-coach-button:active {
+            transform: scale(0.98);
+        }
+
+        .visit-feedback {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 0 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(13, 148, 136, 0.16);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        .visit-feedback[hidden],
+        .visit-feedback-form[hidden],
+        .visit-feedback-thanks[hidden] {
+            display: none;
+        }
+
+        .visit-feedback-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .visit-feedback-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .visit-feedback-kicker {
+            margin-bottom: 2px;
+            color: #0f766e;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .visit-feedback-question {
+            color: #1f2937;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .visit-feedback-actions,
+        .visit-feedback-form-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .visit-feedback-button,
+        .visit-feedback-submit,
+        .visit-feedback-skip {
+            min-height: 44px;
+            padding: 10px 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(13, 148, 136, 0.24);
+            background: #0D9488;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .visit-feedback-button.secondary,
+        .visit-feedback-skip {
+            background: white;
+            color: #0f766e;
+        }
+
+        .visit-feedback-form {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .visit-feedback-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .visit-feedback textarea {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(15, 23, 42, 0.14);
+            border-radius: 12px;
+            color: #1f2937;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.45;
+            resize: vertical;
+        }
+
+        .visit-feedback textarea:focus {
+            border-color: #0D9488;
+            outline: 2px solid rgba(13, 148, 136, 0.18);
+            outline-offset: 1px;
+        }
+
+        .visit-feedback-thanks {
+            color: #0f766e;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
         }
 
         .progress-text {
@@ -495,19 +763,19 @@
         }
 
         .button-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0D9488;
             color: white;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.26);
         }
 
         .button-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.34);
         }
 
         .button-primary:active {
             transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
         }
 
         .button-secondary {
@@ -552,6 +820,107 @@
 
             .title {
                 font-size: 28px;
+            }
+
+            .visit-coach {
+                align-items: stretch;
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .visit-coach-title {
+                font-size: 19px;
+            }
+
+            .visit-coach-description {
+                font-size: 14px;
+            }
+
+            .visit-coach-button {
+                min-width: 100%;
+                min-height: 56px;
+                width: 100%;
+                padding: 14px 16px;
+            }
+
+            .visit-feedback-main {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .visit-feedback-actions,
+            .visit-feedback-form-actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }
+
+            .visit-feedback-button,
+            .visit-feedback-submit,
+            .visit-feedback-skip {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 420px) {
+            body {
+                padding: 14px;
+            }
+
+            .checkin-header,
+            .progress-container,
+            .visit-coach,
+            .visit-feedback,
+            .task-grid {
+                max-width: 100%;
+            }
+
+            .progress-container {
+                margin-bottom: 14px;
+                display: grid;
+                grid-template-columns: minmax(0, auto) minmax(80px, 1fr);
+                align-items: center;
+                gap: 8px 12px;
+                padding: 10px 12px;
+                text-align: left;
+            }
+
+            .progress-text {
+                margin-bottom: 0;
+                font-size: 14px;
+            }
+
+            .progress-stars {
+                display: none;
+            }
+
+            .task-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .task-card {
+                min-height: 146px;
+                padding: 14px 12px;
+                border-radius: 18px;
+            }
+
+            .task-card-image {
+                height: 100px;
+            }
+
+            .task-icon {
+                font-size: 48px;
+                margin-bottom: 10px;
+            }
+
+            .task-title {
+                font-size: 15px;
+            }
+
+            .task-subtitle {
+                font-size: 12px;
+                line-height: 1.35;
             }
         }
 
@@ -4324,3 +4693,37 @@
    Leaderboard styles moved to css/leaderboard.css
    to avoid duplication across pages
    ===================================================== */
+
+        .family-photo-share, .approved-task-discoveries {
+            margin: 14px 0 0;
+            padding: 14px;
+            border: 1px solid rgba(15, 118, 110, .22);
+            border-radius: 14px;
+            background: #f1faf7;
+        }
+
+        .family-photo-share > p, .approved-task-discoveries > p {
+            margin: 0 0 9px;
+            color: #0f766e;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .family-photo-share label {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin: 10px 0;
+            color: #17313b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .family-photo-share input { margin-top: 3px; accent-color: #0f766e; }
+        .family-photo-share small { display: block; color: #5c7078; font-size: 11px; }
+        .family-photo-share__hint { color: #5c7078 !important; font-size: 11px !important; font-weight: 400 !important; line-height: 1.55; }
+        .approved-task-discoveries h3 { margin: 0; color: #17313b; font-size: 16px; }
+        .family-discovery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 11px; }
+        .family-discovery-card { min-width: 0; margin: 0; overflow: hidden; border-radius: 10px 10px 10px 3px; background: #eaf4f1; }
+        .family-discovery-card img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .family-discovery-card figcaption { overflow: hidden; padding: 5px; color: #5c7078; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }

@@ -53,10 +53,14 @@
         // Get museum ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const museumId = urlParams.get('id') || urlParams.get('museum') || 'forbidden-city';
-        // Use saved age group from localStorage first, then URL parameter as fallback
         const savedAgeGroup = localStorage.getItem('ageGroup');
         const ageGroup = savedAgeGroup || urlParams.get('age') || '7-12';
         const editMode = urlParams.get('edit') === 'true';
+        const pilotContext = getPilotContextFromUrl(urlParams);
+        const togetherEventId = /^[a-z0-9][a-z0-9-]{2,39}$/.test(urlParams.get('together') || '')
+            ? urlParams.get('together')
+            : '';
+        const togetherMode = togetherEventId && urlParams.get('togetherMode') === 'share' ? 'share' : 'easy';
 
         // =====================================================
         // EventWallService moved to event-wall-service.js (shared module)
@@ -72,6 +76,68 @@
         let reportedTasks = new Set(); // Tasks completed by reporting "不存在" (treasure not found)
         let currentTaskIndex = null;
         let treasureReports = {}; // Cache for treasure not-found reports
+        const VISIT_SIGNAL_KEY = 'museumcheck-visit-signals';
+        const VISIT_SIGNAL_TTL_SECONDS = 90 * 24 * 60 * 60;
+        const VISIT_VISITOR_ID_KEY = 'museumcheckVisitVisitorId';
+        const visitSessionId = generateVisitId('session');
+        const visitStartedAt = Date.now();
+        const openedTaskIndices = new Set();
+        let visitOpenSignalSent = false;
+        let firstTaskCtaVisibleSignalSent = false;
+        let firstTaskCtaClickSignalSent = false;
+        let firstTaskCompletionSignalSent = false;
+        let allTasksCompletionSignalSent = false;
+        let exitIncompleteSignalSent = false;
+        let visitFeedbackListenersReady = false;
+        let visitFeedbackContext = null;
+
+        const PERSONAL_MUSEUMS_KEY = 'museumcheck-personal-museums-v1';
+
+        function getPersonalMuseum(id) {
+            try {
+                const museums = JSON.parse(localStorage.getItem(PERSONAL_MUSEUMS_KEY) || '[]');
+                return museums.find(museum => museum && museum.id === id) || null;
+            } catch (error) {
+                console.warn('Unable to read personal museums:', error);
+                return null;
+            }
+        }
+
+        function isPersonalMuseum() {
+            return Boolean(currentMuseum && currentMuseum.isPersonalMuseum);
+        }
+
+        function isPersonalTreasureTask(task) {
+            return isPersonalMuseum() && typeof task === 'string' && task.includes('宝贝');
+        }
+
+        function isPersonalEntranceTask(task) {
+            return isPersonalMuseum() && typeof task === 'string' && task.includes('在门口留一张照片');
+        }
+
+        function buildPersonalMuseumTasks() {
+            return [
+                '📸 在门口留一张照片：拍下博物馆门口或外观（可选）',
+                '✨ 最想带朋友看的宝贝：找到一件想推荐给朋友的展品',
+                '🔎 最让孩子好奇的宝贝：找到一件让孩子想多问几句的展品',
+                '🏛️ 最能代表这家馆的宝贝：找到一件你们觉得最有代表性的展品'
+            ];
+        }
+
+        function savePersonalMuseumEntrance(imageUrl) {
+            try {
+                const key = `personalMuseumEntrance_${museumId}`;
+                localStorage.setItem(key, JSON.stringify({
+                    museumId,
+                    museumName: currentMuseum ? currentMuseum.name : '',
+                    imageUrl: imageUrl || '',
+                    reviewStatus: 'pending',
+                    timestamp: Date.now()
+                }));
+            } catch (error) {
+                console.warn('Unable to save personal museum entrance:', error);
+            }
+        }
 
         // =====================================================
         // 镇馆之宝不存在报告功能
@@ -92,6 +158,353 @@
 
         const CHINA_FILM_MUSEUM_ID = 'china-film-museum';
         const PRINCE_KUNG_MANSION_ID = 'prince-kung-mansion';
+
+        function getPilotContextFromUrl(params) {
+            const rawCohort = params.get('pilot');
+            if (!rawCohort) return null;
+
+            const cohort = /^[a-z0-9][a-z0-9-]{0,39}$/.test(rawCohort) ? rawCohort : 'early-family';
+            const pilotSessionId = /^pilot-[a-z0-9-]{8,80}$/.test(params.get('pilotSession') || '')
+                ? params.get('pilotSession')
+                : '';
+            const inviteCode = /^[A-Z0-9]{6}$/.test((params.get('invite') || '').toUpperCase())
+                ? params.get('invite').toUpperCase()
+                : '';
+            const format = ['family', 'camp', 'school', 'friends'].includes(params.get('format'))
+                ? params.get('format')
+                : 'family';
+            const group = ['2-3', '4-8', '9-20', '21-plus'].includes(params.get('group'))
+                ? params.get('group')
+                : '2-3';
+            const duration = ['under-60', '60-90', '90-120', '120-plus'].includes(params.get('duration'))
+                ? params.get('duration')
+                : '60-90';
+
+            return { cohort, pilotSessionId, inviteCode, format, group, duration };
+        }
+
+        function getPilotDisplayName() {
+            if (!pilotContext) return '';
+            return '受邀共创试用';
+        }
+
+        function applyPilotVisitMode() {
+            if (!pilotContext) return;
+            const kicker = document.getElementById('visitCoachKicker');
+            if (kicker) kicker.textContent = getPilotDisplayName();
+            document.body.classList.add('pilot-visit');
+        }
+
+        function generateVisitId(prefix) {
+            const randomPart = Math.random().toString(36).slice(2, 10);
+            return `${prefix}-${Date.now()}-${randomPart}`;
+        }
+
+        function getVisitVisitorId() {
+            try {
+                const saved = localStorage.getItem(VISIT_VISITOR_ID_KEY);
+                if (saved) return saved;
+
+                const visitorId = generateVisitId('visitor');
+                localStorage.setItem(VISIT_VISITOR_ID_KEY, visitorId);
+                return visitorId;
+            } catch (error) {
+                return generateVisitId('visitor');
+            }
+        }
+
+        function getTaskSignalPayload(taskIndex) {
+            const task = childTasks[taskIndex];
+            const { title, subtitle } = parseTaskString(task || '');
+            return {
+                taskIndex,
+                taskNumber: taskIndex + 1,
+                taskTitle: title || '',
+                taskDescription: subtitle || '',
+                isFirstTask: taskIndex === 0
+            };
+        }
+
+        function sendVisitSignal(signalType, parameters = {}) {
+            try {
+                const endpoint = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
+                if (!endpoint) return Promise.resolve();
+
+                const payload = {
+                    type: 'visit_signal',
+                    signalType,
+                    page: 'museum-checkin',
+                    museumId,
+                    museumName: currentMuseum ? currentMuseum.name : '',
+                    ageGroup,
+                    visitorId: getVisitVisitorId(),
+                    sessionId: visitSessionId,
+                    completedCount: completedTasks.size,
+                    totalTasks: childTasks.length,
+                    secondsSinceOpen: Math.max(0, Math.round((Date.now() - visitStartedAt) / 1000)),
+                    timestamp: Date.now(),
+                    pilotContext: pilotContext ? {
+                        cohort: pilotContext.cohort,
+                        pilotSessionId: pilotContext.pilotSessionId,
+                        inviteCode: pilotContext.inviteCode,
+                        format: pilotContext.format,
+                        group: pilotContext.group,
+                        duration: pilotContext.duration
+                    } : undefined,
+                    togetherEventId: togetherEventId || undefined,
+                    parameters
+                };
+                const body = JSON.stringify({
+                    key: VISIT_SIGNAL_KEY,
+                    sortKey: generateVisitId(signalType),
+                    value: JSON.stringify(payload),
+                    expireAt: Math.floor(Date.now() / 1000) + VISIT_SIGNAL_TTL_SECONDS
+                });
+
+                return fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body,
+                    keepalive: body.length < 60000
+                }).catch(error => {
+                    console.warn('[VisitSignals] Failed to send visit signal:', error);
+                });
+            } catch (error) {
+                console.warn('[VisitSignals] Failed to prepare visit signal:', error);
+                return Promise.resolve();
+            }
+        }
+
+        function trackCheckinOpened() {
+            if (visitOpenSignalSent || !currentMuseum || childTasks.length === 0) return;
+            visitOpenSignalSent = true;
+            sendVisitSignal('checkin_open', {
+                source: editMode ? 'edit' : (pilotContext ? 'pilot' : 'visit'),
+                taskCount: childTasks.length,
+                restoredCompletedCount: completedTasks.size
+            });
+        }
+
+        function trackFirstTaskCtaVisible() {
+            if (
+                firstTaskCtaVisibleSignalSent ||
+                !visitOpenSignalSent ||
+                childTasks.length === 0 ||
+                completedTasks.has(0)
+            ) {
+                return;
+            }
+
+            const button = document.getElementById('visitCoachButton');
+            if (!button || button.disabled || button.style.display === 'none') return;
+
+            const checkVisibility = () => {
+                if (firstTaskCtaVisibleSignalSent) return;
+                const rect = button.getBoundingClientRect();
+                const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+                const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                const isVisible = rect.width > 0 &&
+                    rect.height > 0 &&
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= viewportHeight &&
+                    rect.right <= viewportWidth;
+
+                if (!isVisible) return;
+                firstTaskCtaVisibleSignalSent = true;
+                sendVisitSignal('first_task_cta_visible', {
+                    ...getTaskSignalPayload(0),
+                    source: 'visit_coach',
+                    ctaText: button.textContent.trim(),
+                    viewportWidth,
+                    viewportHeight
+                });
+            };
+
+            if (window.requestAnimationFrame) {
+                window.requestAnimationFrame(checkVisibility);
+            } else {
+                setTimeout(checkVisibility, 0);
+            }
+        }
+
+        function trackFirstTaskCtaClick(taskIndex) {
+            if (taskIndex !== 0 || firstTaskCtaClickSignalSent) return;
+            firstTaskCtaClickSignalSent = true;
+            const button = document.getElementById('visitCoachButton');
+            sendVisitSignal('first_task_cta_click', {
+                ...getTaskSignalPayload(0),
+                source: 'visit_coach',
+                ctaText: button ? button.textContent.trim() : ''
+            });
+        }
+
+        function trackTaskOpened(taskIndex, extraParameters = {}) {
+            if (openedTaskIndices.has(taskIndex)) return;
+            openedTaskIndices.add(taskIndex);
+            sendVisitSignal('task_open', {
+                ...getTaskSignalPayload(taskIndex),
+                ...extraParameters
+            });
+        }
+
+        function trackTaskCompletedSignal(taskIndex, extraParameters = {}) {
+            const taskPayload = getTaskSignalPayload(taskIndex);
+            sendVisitSignal('task_complete', {
+                ...taskPayload,
+                ...extraParameters
+            });
+
+            if (taskIndex === 0 && !firstTaskCompletionSignalSent) {
+                firstTaskCompletionSignalSent = true;
+                sendVisitSignal('first_task_complete', {
+                    ...taskPayload,
+                    ...extraParameters
+                });
+                showVisitFeedbackPrompt(taskIndex);
+            }
+
+            if (
+                childTasks.length > 0 &&
+                completedTasks.size === childTasks.length &&
+                !allTasksCompletionSignalSent
+            ) {
+                allTasksCompletionSignalSent = true;
+                sendVisitSignal('all_tasks_complete', {
+                    taskCount: childTasks.length
+                });
+            }
+        }
+
+        function trackIncompleteExit() {
+            if (
+                exitIncompleteSignalSent ||
+                !visitOpenSignalSent ||
+                childTasks.length === 0 ||
+                completedTasks.size >= childTasks.length
+            ) {
+                return;
+            }
+
+            exitIncompleteSignalSent = true;
+            sendVisitSignal('checkin_exit_incomplete', {
+                openedTaskCount: openedTaskIndices.size,
+                completedCount: completedTasks.size,
+                taskCount: childTasks.length
+            });
+        }
+
+        function setupVisitSignalLifecycle() {
+            window.addEventListener('pagehide', trackIncompleteExit);
+        }
+
+        function getVisitFeedbackStorageKey(taskIndex) {
+            return `museumCheckinVisitFeedback_${museumId}_${ageGroup}_${taskIndex}`;
+        }
+
+        function hasSubmittedVisitFeedback(taskIndex) {
+            try {
+                return localStorage.getItem(getVisitFeedbackStorageKey(taskIndex)) === 'true';
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function markVisitFeedbackSubmitted(taskIndex) {
+            try {
+                localStorage.setItem(getVisitFeedbackStorageKey(taskIndex), 'true');
+            } catch (error) {
+                console.warn('[VisitFeedback] Failed to persist feedback state:', error);
+            }
+        }
+
+        function showVisitFeedbackPrompt(taskIndex) {
+            if (hasSubmittedVisitFeedback(taskIndex)) return;
+
+            const feedback = document.getElementById('visitFeedback');
+            const question = document.getElementById('visitFeedbackQuestion');
+            const actions = document.getElementById('visitFeedbackActions');
+            const form = document.getElementById('visitFeedbackForm');
+            const thanks = document.getElementById('visitFeedbackThanks');
+            const textarea = document.getElementById('visitFeedbackText');
+            if (!feedback || !question || !actions || !form || !thanks || !textarea) return;
+
+            const taskPayload = getTaskSignalPayload(taskIndex);
+            visitFeedbackContext = taskPayload;
+            question.textContent = pilotContext && taskPayload.taskNumber === 1
+                ? '这次试用的第 1 个任务有帮助吗？'
+                : `${taskPayload.taskNumber === 1 ? '第 1 个任务' : '刚才这一步'}有帮助吗？`;
+            actions.hidden = false;
+            form.hidden = true;
+            thanks.hidden = true;
+            textarea.value = '';
+            feedback.hidden = false;
+
+            if (typeof feedback.scrollIntoView === 'function') {
+                feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function showVisitFeedbackThanks() {
+            const actions = document.getElementById('visitFeedbackActions');
+            const form = document.getElementById('visitFeedbackForm');
+            const thanks = document.getElementById('visitFeedbackThanks');
+            if (actions) actions.hidden = true;
+            if (form) form.hidden = true;
+            if (thanks) thanks.hidden = false;
+        }
+
+        function submitVisitFeedback(rating, comment = '') {
+            if (!visitFeedbackContext) return;
+
+            const normalizedComment = (comment || '').trim().slice(0, 120);
+            sendVisitSignal('visit_feedback', {
+                ...visitFeedbackContext,
+                rating,
+                comment: normalizedComment
+            });
+            markVisitFeedbackSubmitted(visitFeedbackContext.taskIndex);
+            showVisitFeedbackThanks();
+        }
+
+        function setupVisitFeedbackListeners() {
+            if (visitFeedbackListenersReady) return;
+            visitFeedbackListenersReady = true;
+
+            const feedback = document.getElementById('visitFeedback');
+            const form = document.getElementById('visitFeedbackForm');
+            const textarea = document.getElementById('visitFeedbackText');
+            const skip = document.getElementById('visitFeedbackSkip');
+            if (!feedback || !form || !textarea) return;
+
+            feedback.querySelectorAll('[data-feedback-rating]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const rating = button.getAttribute('data-feedback-rating');
+                    if (rating === 'helpful') {
+                        submitVisitFeedback('helpful');
+                        return;
+                    }
+
+                    sendVisitSignal('visit_feedback_comment_opened', {
+                        ...visitFeedbackContext,
+                        rating: 'not_helpful'
+                    });
+                    form.hidden = false;
+                    textarea.focus();
+                });
+            });
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                submitVisitFeedback('not_helpful', textarea.value);
+            });
+
+            if (skip) {
+                skip.addEventListener('click', () => {
+                    submitVisitFeedback('not_helpful');
+                });
+            }
+        }
 
         /**
          * Registry of custom museum configurations.
@@ -1916,6 +2329,7 @@
 
             // Check if child mode is enabled and hide settings button
             applyChildMode();
+            applyPilotVisitMode();
             
             // Initialize achievement gamification system
             if (typeof AchievementGamification !== 'undefined') {
@@ -1927,13 +2341,10 @@
 
             updatePageTitle();
             
-            // Check if this is a first-time user and show nickname onboarding modal
-            if (!hasSetNickname()) {
-                // Show nickname onboarding modal for first-time users after a short delay
-                setTimeout(() => {
-                    showNicknameOnboardingModal();
-                }, 800); // Slightly longer delay to ensure page is fully loaded
-            }
+            // updatePageTitle() creates a default nickname if needed. Keep first-time
+            // visitors on the task path instead of blocking them with a setup modal.
+            setupVisitFeedbackListeners();
+            setupVisitSignalLifecycle();
             
             // Load museum data first (await ensures tasks/render have data)
             await loadMuseumData();
@@ -1959,6 +2370,8 @@
             // Re-render after loading persisted completion state so counts and badges reflect correctly
             renderTasks();
             updateProgress();
+            trackCheckinOpened();
+            trackFirstTaskCtaVisible();
             checkCompletion(); // Check if all tasks complete
             
             // Pet adoption prompt moved to checkCompletion() - only show after all tasks complete
@@ -1983,10 +2396,26 @@
         async function loadMuseumData() {
             // Load museum data via tiered loader (Tier2 -> Tier1). Tier3 is deprecated.
             let museum = null;
+            const personalMuseum = getPersonalMuseum(museumId);
+            if (personalMuseum) {
+                museum = {
+                    id: personalMuseum.id,
+                    name: personalMuseum.name,
+                    city: personalMuseum.city || '',
+                    location: personalMuseum.location || personalMuseum.city || '现场探索',
+                    collections: [],
+                    checklists: { child: {} },
+                    isPersonalMuseum: true
+                };
+            }
             if (window.museumDataLoader && typeof window.museumDataLoader.loadMuseum === 'function') {
                 try {
+                    if (museum) {
+                        // A visitor-created museum is intentionally local-only; do not fetch or publish it.
+                    } else {
                     museum = await window.museumDataLoader.loadMuseum(museumId, false); // Don't use cache
                     console.log(`Loaded museum ${museumId} via museumDataLoader`);
+                    }
                 } catch (error) {
                     console.warn('Error loading museum with museumDataLoader:', error);
                 }
@@ -2013,6 +2442,14 @@
             }
 
             currentMuseum = museum;
+
+            if (isPersonalMuseum()) {
+                document.getElementById('museumName').textContent = currentMuseum.name;
+                childTasks = buildPersonalMuseumTasks();
+                renderTasks();
+                updateProgress();
+                return;
+            }
 
             // Merge user-added treasures from localStorage into currentMuseum.collections
             // This ensures user-added treasures are available even if KV store save failed
@@ -2135,6 +2572,7 @@
 
             if (childTasks.length === 0) {
                 taskGrid.innerHTML = '<div class="loading">暂无任务</div>';
+                updateVisitCoach();
                 return;
             }
 
@@ -2158,15 +2596,20 @@
                 addCard.onclick = () => addNewTask();
                 taskGrid.appendChild(addCard);
             }
+
+            updateVisitCoach();
         }
 
         // Create a task card element
         function createTaskCard(task, index) {
             const card = document.createElement('div');
             card.className = 'task-card';
+            const isNextTask = index === getFirstIncompleteTaskIndex();
             
             if (completedTasks.has(index)) {
                 card.classList.add('completed');
+            } else if (isNextTask) {
+                card.classList.add('next-task');
             }
 
             // Extract icon and title from task string
@@ -2226,10 +2669,14 @@
             const wasReportedComplete = reportedTasks.has(index);
             const reportedBadgeHtml = wasReportedComplete ? 
                 `<div class="reported-completion-badge">🙋 报告不存在</div>` : '';
+            const nextTaskBadgeHtml = isNextTask && !completedTasks.has(index)
+                ? '<div class="next-task-badge">从这里开始</div>'
+                : '';
             
             card.innerHTML = `
                 ${badgeHtml}
                 ${reportedBadgeHtml}
+                ${nextTaskBadgeHtml}
                 <div class="completion-badge">✓</div>
                 <div class="task-visual-container">
                     ${imageUrl ? `<img src="${imageUrl}" class="task-card-image" alt="${title}" style="display:none" />` : ''}
@@ -2270,9 +2717,75 @@
                 }
             }
 
-            card.onclick = () => openTaskDetail(index);
+            card.onclick = () => openTaskDetail(index, 'task_card');
+            card.tabIndex = 0;
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', `${completedTasks.has(index) ? '已完成：' : isNextTask ? '从这里开始：' : '开始任务：'}${title}${subtitle ? '，' + subtitle : ''}`);
+            card.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openTaskDetail(index, 'task_card');
+                }
+            });
 
             return card;
+        }
+
+        function getFirstIncompleteTaskIndex() {
+            for (let i = 0; i < childTasks.length; i++) {
+                if (!completedTasks.has(i)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        function updateVisitCoach() {
+            const coach = document.getElementById('visitCoach');
+            if (!coach) return;
+
+            const titleEl = document.getElementById('visitCoachTitle');
+            const descriptionEl = document.getElementById('visitCoachDescription');
+            const steps = document.getElementById('visitCoachSteps');
+            const button = document.getElementById('visitCoachButton');
+
+            if (!titleEl || !descriptionEl || !button) return;
+
+            if (childTasks.length === 0) {
+                titleEl.textContent = '这个博物馆暂时没有任务';
+                descriptionEl.textContent = '可以从菜单回到首页，选择其他博物馆继续探索。';
+                if (steps) steps.hidden = true;
+                button.style.display = 'none';
+                return;
+            }
+
+            const nextIndex = getFirstIncompleteTaskIndex();
+            if (nextIndex === -1) {
+                titleEl.textContent = '任务全部完成';
+                descriptionEl.textContent = '可以和孩子回顾最喜欢的展品，再查看或发布成就海报。';
+                if (steps) steps.hidden = true;
+                button.textContent = '全部完成';
+                button.disabled = true;
+                button.style.display = 'inline-flex';
+                return;
+            }
+
+            const { title, subtitle } = parseTaskString(childTasks[nextIndex]);
+            titleEl.textContent = `先做第 ${nextIndex + 1} 个任务：${title}`;
+            descriptionEl.textContent = subtitle || '打开任务卡，孩子看展品，家长帮忙拍照或确认。';
+            if (steps) steps.hidden = false;
+            button.textContent = nextIndex === 0 ? '开始第 1 个任务' : `继续第 ${nextIndex + 1} 个任务`;
+            button.disabled = false;
+            button.style.display = 'inline-flex';
+            button.onclick = () => {
+                trackFirstTaskCtaClick(nextIndex);
+                const card = document.querySelectorAll('.task-card')[nextIndex];
+                if (card && typeof card.scrollIntoView === 'function') {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                openTaskDetail(nextIndex, 'visit_coach');
+            };
+            trackFirstTaskCtaVisible();
         }
 
         // Create poster card element
@@ -2621,11 +3134,13 @@
         }
 
         // Open task detail modal
-        function openTaskDetail(index) {
+        function openTaskDetail(index, source = 'task_card') {
             currentTaskIndex = index;
             const task = childTasks[index];
             const { icon, title, subtitle } = parseTaskString(task);
+            const personalTreasureTask = isPersonalTreasureTask(task);
             const isCompleted = completedTasks.has(index);
+            trackTaskOpened(index, { source });
 
             const modalIconEl = document.getElementById('modalIcon');
             if (modalIconEl) modalIconEl.textContent = icon;
@@ -2775,6 +3290,13 @@
                 photoInput.style.display = 'block';
                 photoInput.value = '';
             }
+            setFamilyPhotoShareState(Boolean(taskPhotos[index]));
+            const approvedDiscoveries = document.getElementById('approvedTaskDiscoveries');
+            const approvedGrid = document.getElementById('approvedTaskDiscoveriesGrid');
+            if (approvedDiscoveries && approvedGrid && window.MuseumCheckFamilyPhotos) {
+                window.MuseumCheckFamilyPhotos.renderApprovedTaskPhotos(approvedGrid, museumId, index)
+                    .then(photos => { approvedDiscoveries.hidden = photos.length === 0; });
+            }
 
             // Show/hide complete button based on completion status
             const completeButton = document.getElementById('completeButton');
@@ -2783,7 +3305,7 @@
                 completeButton.disabled = true;
                 completeButton.style.opacity = '0.6';
             } else {
-                completeButton.textContent = '完成任务 🎉';
+                completeButton.textContent = index === 0 ? '我找到了，完成第 1 个任务' : '完成任务 🎉';
                 completeButton.disabled = false;
                 completeButton.style.opacity = '1';
             }
@@ -2888,11 +3410,22 @@
             const treasurePreview = document.getElementById('modalTreasurePreview');
             
             const isAddTreasureTask = title && title.includes('添加镇馆之宝');
+            const isContributionTask = isAddTreasureTask || personalTreasureTask;
+            const treasureReasonInput = document.getElementById('modalTreasureReason');
+            const treasureNameLabel = document.getElementById('modalTreasureNameLabel');
+            const personalReasonGroup = document.getElementById('personalTreasureReasonGroup');
+            const photoSection = document.getElementById('photoSection');
             
-            if (isAddTreasureTask) {
+            if (isContributionTask) {
                 contributorSection.style.display = 'block';
+                if (photoSection) photoSection.style.display = personalTreasureTask ? 'none' : '';
+                if (personalReasonGroup) personalReasonGroup.style.display = personalTreasureTask ? 'block' : 'none';
+                if (treasureNameLabel) treasureNameLabel.innerHTML = personalTreasureTask
+                    ? '展品名称或描述 <span style="color: #dc2626;">*</span>'
+                    : '🏺 镇馆之宝名称 <span style="color: #dc2626;">*</span>';
                 // Clear previous values
                 treasureNameInput.value = '';
+                if (treasureReasonInput) treasureReasonInput.value = '';
                 treasureImageInput.value = '';
                 treasurePreview.textContent = '📷';
                 treasurePreview.className = 'image-preview-placeholder';
@@ -2901,6 +3434,7 @@
                 const savedTreasureData = getContributedTreasureForTask(index);
                 if (savedTreasureData) {
                     treasureNameInput.value = savedTreasureData.name || '';
+                    if (treasureReasonInput) treasureReasonInput.value = savedTreasureData.reason || '';
                     if (savedTreasureData.imageUrl) {
                         treasureImageInput.value = savedTreasureData.imageUrl;
                         const img = document.createElement('img');
@@ -2913,6 +3447,8 @@
                 }
             } else {
                 contributorSection.style.display = 'none';
+                if (personalReasonGroup) personalReasonGroup.style.display = 'none';
+                if (photoSection) photoSection.style.display = '';
             }
 
             // ── Custom Museums: Parent Guide & Child Review ──
@@ -3036,31 +3572,84 @@
         window.loadGameRewardSetting = loadGameRewardSetting;
         window.saveGameRewardSetting = saveGameRewardSetting;
 
+        function setFamilyPhotoShareState(hasPhoto) {
+            const section = document.getElementById('familyPhotoShare');
+            const eventCheckbox = document.getElementById('sharePhotoWithEvent');
+            const reviewCheckbox = document.getElementById('submitPhotoForReview');
+            if (!section || !eventCheckbox || !reviewCheckbox) return;
+            const available = Boolean(togetherEventId && togetherMode === 'share' && window.MuseumCheckFamilyPhotos);
+            section.hidden = !available;
+            eventCheckbox.disabled = !hasPhoto;
+            reviewCheckbox.disabled = !hasPhoto;
+            if (!hasPhoto) { eventCheckbox.checked = false; reviewCheckbox.checked = false; }
+        }
+
+        function updateTogetherSharedGoal() {
+            const goal = document.getElementById('togetherSharedGoal');
+            if (!goal) return;
+            goal.hidden = !(togetherEventId && togetherMode === 'share' && completedTasks.size > 0);
+        }
+
+        async function publishFamilyPhotoIfChosen(taskIndex, task, imageDataUrl) {
+            const eventCheckbox = document.getElementById('sharePhotoWithEvent');
+            const reviewCheckbox = document.getElementById('submitPhotoForReview');
+            if (!imageDataUrl || !window.MuseumCheckFamilyPhotos || (!eventCheckbox?.checked && !reviewCheckbox?.checked)) return;
+            const { title } = parseTaskString(task || '');
+            try {
+                await window.MuseumCheckFamilyPhotos.publish({
+                    eventId: togetherEventId,
+                    museumId,
+                    taskIndex,
+                    taskTitle: title || `第 ${taskIndex + 1} 个任务`,
+                    imageDataUrl,
+                    shareWithEvent: eventCheckbox.checked,
+                    submitForReview: reviewCheckbox.checked
+                });
+                sendVisitSignal('family_photo_shared', { taskIndex, eventShared:eventCheckbox.checked, reviewSubmitted:reviewCheckbox.checked });
+            } catch (error) {
+                console.warn('家庭照片分享失败:', error);
+                alert('任务已完成，但照片暂时没有分享成功。稍后重新打开这张任务可以再试。');
+            }
+        }
+
         async function completeTask() {
             if (currentTaskIndex === null) return;
 
-            // Check if this is an "添加镇馆之宝" task and validate/save data
+            // Check whether this task collects a visitor's exhibit discovery.
             const task = childTasks[currentTaskIndex];
             const { title, subtitle } = parseTaskString(task);
             const isAddTreasureTask = title && title.includes('添加镇馆之宝');
+            const isPersonalDiscoveryTask = isPersonalTreasureTask(task);
+            const isPersonalEntrance = isPersonalEntranceTask(task);
             
-            if (isAddTreasureTask) {
+            if (isAddTreasureTask || isPersonalDiscoveryTask) {
                 const treasureName = document.getElementById('modalTreasureName').value.trim();
+                const treasureReason = (document.getElementById('modalTreasureReason')?.value || '').trim();
                 // Get image URL from preview dataset (file inputs can't store URLs in value)
                 const treasurePreview = document.getElementById('modalTreasurePreview');
                 const treasureImage = (treasurePreview && treasurePreview.dataset.imageUrl) || '';
                 
-                // Validate: treasure name is required
+                // A photo is optional. A name/description and the family's reason make the
+                // discovery reviewable without claiming it is an official treasure.
                 if (!treasureName) {
-                    alert('请输入镇馆之宝的名称！');
+                    alert(isPersonalDiscoveryTask ? '请写下展品名称或简单描述。' : '请输入镇馆之宝的名称！');
                     document.getElementById('modalTreasureName').focus();
                     return;
                 }
+                if (isPersonalDiscoveryTask && !treasureReason) {
+                    alert('请写下一句为什么选它。');
+                    document.getElementById('modalTreasureReason').focus();
+                    return;
+                }
                 
-                // Save the contributed treasure data (also saves to KV store)
+                // Personal museums remain local-only. Their data is marked pending so it
+                // can be reviewed before any future public promotion.
                 await saveContributedTreasure(currentTaskIndex, {
                     name: treasureName,
                     imageUrl: treasureImage || '',
+                    reason: treasureReason,
+                    role: isPersonalDiscoveryTask ? currentTaskIndex + 1 : null,
+                    reviewStatus: isPersonalDiscoveryTask ? 'pending' : null,
                     taskIndex: currentTaskIndex,
                     museumId: museumId,
                     museumName: currentMuseum ? currentMuseum.name : '',
@@ -3095,16 +3684,22 @@
             }
 
             const hasPhoto = !!taskPhotos[currentTaskIndex];
+            await publishFamilyPhotoIfChosen(currentTaskIndex, task, taskPhotos[currentTaskIndex]);
+            if (isPersonalEntrance) {
+                savePersonalMuseumEntrance(taskPhotos[currentTaskIndex] || '');
+            }
             const gameRewardEnabled = loadGameRewardSetting();
             // Show game reward only if photo was uploaded and setting is enabled
             const showGame = hasPhoto && gameRewardEnabled;
+            const completedTaskIndex = currentTaskIndex;
 
-            completedTasks.add(currentTaskIndex);
+            completedTasks.add(completedTaskIndex);
             saveCompletedTasks();
+            updateTogetherSharedGoal();
             
             // ===== EVENT WALL TRACKING: Task Completion =====
             // Track individual task completion to event wall
-            if (eventWallService && currentMuseum && task) {
+            if (!isPersonalMuseum() && eventWallService && currentMuseum && task) {
                 const { title, subtitle } = parseTaskString(task);
                 const taskDescription = title + (subtitle ? ` - ${subtitle}` : '');
                 eventWallService.trackTaskComplete(
@@ -3168,15 +3763,23 @@
                 updateProgress();
             }
 
+            trackTaskCompletedSignal(completedTaskIndex, {
+                hasPhoto,
+                gameRewardShown: showGame,
+                completionMethod: 'complete_button'
+            });
+
             // Upload firework to remote
-            uploadFireworkEvent(currentTaskIndex);
+            if (!isPersonalMuseum()) {
+                uploadFireworkEvent(completedTaskIndex);
+            }
             
             // Show game as reward if setting is enabled
             // Present 3 random games for the user to choose
             // IMPORTANT: Do this BEFORE checkCompletion to avoid any interruption
             if (showGame) {
                 // Delay slightly to let fireworks animation start
-                const taskIndexForGame = currentTaskIndex;
+                const taskIndexForGame = completedTaskIndex;
                 const options = {};
 
                 setTimeout(() => {
@@ -3376,6 +3979,8 @@
                     progressText.innerHTML = `已完成 <span id="completedCount">${completed}</span> 个任务`;
                 }
             }
+
+            updateVisitCoach();
         }
 
         // Save completed tasks to local storage
@@ -3549,6 +4154,7 @@
                     // Store photo for current task
                     taskPhotos[currentTaskIndex] = e.target.result;
                     savePhotos();
+                    setFamilyPhotoShareState(true);
                     
                     // Display preview
                     displayPhotoPreview(e.target.result);
@@ -3607,8 +4213,14 @@
                 // Also save to the global contributed treasures list
                 saveToGlobalContributedTreasures(treasureData);
                 
+                // Existing public-museum contributions keep their legacy persistence path.
+                // A visitor-created museum is deliberately not published or added to the
+                // shared catalogue before a reviewer approves it.
+                if (isPersonalMuseum()) {
+                    return;
+                }
+
                 // Add to current museum's collections and save to KV store (Tier 2)
-                // This ensures the treasure is persisted remotely like the settings page does
                 if (currentMuseum && treasureData.name) {
                     const newTreasure = {
                         name: treasureData.name,
@@ -5326,6 +5938,7 @@
             
             // Also load reported tasks
             loadReportedTasks();
+            updateTogetherSharedGoal();
         }
 
         // Setup event listeners
@@ -5797,6 +6410,13 @@
                             
                             // Update progress
                             updateProgress();
+
+                            trackTaskCompletedSignal(currentTaskIndex, {
+                                hasPhoto: false,
+                                gameRewardShown: false,
+                                completionMethod: 'reported_not_found',
+                                reportedTreasureName: treasureName
+                            });
                         }
                         
                         // Re-render tasks to update visual state

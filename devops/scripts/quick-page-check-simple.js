@@ -11,6 +11,7 @@ const path = require('path');
 // 重要页面列表
 const CRITICAL_PAGES = [
     'index.html',
+    'pilot.html',
     'museum-checkin.html', 
     'everyone-achievements.html',
     'achievements.html',
@@ -18,7 +19,10 @@ const CRITICAL_PAGES = [
     'quiz/index.html',
     'survey/index.html',
     'fireworks.html',
-    'event-wall.html'
+    'event-wall.html',
+    'debug/status/index.html',
+    'admin/visit-metrics.html',
+    'admin/pilot-metrics.html'
 ];
 
 // 颜色输出

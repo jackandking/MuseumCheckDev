@@ -73,6 +73,13 @@ museum-checkin.html?museum=forbidden-city&age=7-12&edit=false
 | `museum` | No | `forbidden-city` | Museum ID to display |
 | `age` | No | `7-12` | Age group for tasks (`3-6`, `7-12`, `13-18`) |
 | `edit` | No | `false` | Enable edit mode for museum staff |
+| `pilot` | No | — | Marks an invited co-creation cohort; public access remains unchanged |
+| `pilotSession` | No | — | Anonymous pilot-session identifier passed from `pilot.html` |
+| `format` | No | `family` | Controlled activity-format context for pilot evidence |
+| `group` | No | `2-3` | Controlled approximate group-size band for pilot evidence |
+| `duration` | No | `60-90` | Controlled expected visit-duration band for pilot evidence |
+
+See [Invited Pilot Flow](invited-pilot.md) for the invitation page, privacy contract, and funnel signals.
 
 ## Navigation
 

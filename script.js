@@ -7146,7 +7146,7 @@ class MuseumCheckApp {
                                 <button class="favorite-button" data-museum="${museum.id}" title="${isFavorite ? '取消收藏' : '收藏博物馆'}">${isFavorite ? '⭐' : '☆'}</button>
                                 ${museum.name}
                                 <button class="museum-fireworks-button" data-museum="${museum.id}" title="查看本馆烟花墙" style="display: none;">🎆</button>
-                                <button class="museum-checkin-button" data-museum="${museum.id}" title="进入打卡页面">🔗 打卡</button>
+                                <button class="museum-checkin-button" data-museum="${museum.id}" title="打开现场任务">▶️ 开始任务</button>
                                 ${isVisited && !this.assessmentHidden 
                                     ? (hasAssessment 
                                         ? '<span class="assessment-label" aria-disabled="true" title="已完成亲子测评">🧡 已完成</span>'
