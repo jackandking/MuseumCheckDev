@@ -134,8 +134,15 @@ class ImageUploader {
         
         // Create FormData for upload
         const formData = new FormData();
-        // Use original filename if available, otherwise generate one
-        const filename = file.name || `image-${Date.now()}.jpg`;
+        // Always generate a unique filename to avoid 409 conflicts when the
+        // same file (or a file with the same name) is uploaded more than once
+        // (e.g. across multiple exhibit task photos in a single visit).
+        const originalName = file.name || 'image.jpg';
+        const dotIdx = originalName.lastIndexOf('.');
+        const baseName = dotIdx > 0 ? originalName.slice(0, dotIdx) : originalName;
+        const ext = dotIdx > 0 ? originalName.slice(dotIdx + 1) : 'jpg';
+        const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const filename = `${baseName}_${uniqueSuffix}.${ext}`;
         formData.append('file', uploadBlob, filename);
         
         // Upload
