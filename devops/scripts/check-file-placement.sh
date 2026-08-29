@@ -48,7 +48,7 @@ check_file_placement() {
         # 核心应用文件 - 允许在根目录
         *.html|*.js|*.css)
             # 只允许主要应用文件在根目录
-            if [[ "$file" =~ ^(museum-checkin|achievements|treasures|settings|fireworks|event-wall|everyone-achievements|leaderboard|fireworks-wall)\.html$ ]]; then
+            if [[ "$file" =~ ^(museum-checkin|achievements|treasures|settings|fireworks|event-wall|everyone-achievements|leaderboard|fireworks-wall|together)\.html$ ]]; then
                 return 0
             fi
             # 其他HTML文件应该在子目录

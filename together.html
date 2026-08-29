@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="MuseumCheck 亲子博物馆同行探索活动">
+  <meta name="robots" content="noindex, nofollow">
+  <title>一起去博物馆｜MuseumCheck</title>
+  <link rel="stylesheet" href="css/together.css?v=3">
+</head>
+<body>
+  <main class="together-shell" id="app">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="返回 MuseumCheck 首页"><span>MC</span> MuseumCheck</a>
+      <a class="topbar-link" href="together.html?v=together-20260815b" aria-label="查看全部同行探索活动">← 查看全部活动</a>
+    </header>
+
+    <section class="hero" aria-labelledby="title">
+      <p class="eyebrow" id="heroEyebrow">小型亲子同行活动</p>
+      <h1 id="title">各自带着孩子，<br>一起把馆逛得更有意思。</h1>
+      <p id="eventSummary">挑一场适龄的同行探索：每家自己逛，现场有一点点并肩的感觉就够了。</p>
+    </section>
+
+    <section class="activity-lobby" id="activityLobby" hidden aria-labelledby="lobbyTitle">
+      <div class="lobby-heading">
+        <div><p class="eyebrow">活动广场</p><h2 id="lobbyTitle">正在招募的同行探索</h2></div>
+        <p class="lobby-summary" id="lobbySummary">正在读取活动…</p>
+      </div>
+      <section class="my-activities" id="myActivities" hidden aria-labelledby="myActivitiesTitle">
+        <div><p class="eyebrow">留在这里</p><h2 id="myActivitiesTitle">我的活动</h2></div>
+        <p>已报名或发起过的活动会保留在这台设备上。到馆那天，从这里继续就好。</p>
+        <div class="activity-list" id="myActivityList"></div>
+      </section>
+      <div class="activity-list" id="recruitingList" aria-live="polite"></div>
+      <div class="lobby-heading lobby-heading--ongoing">
+        <div><p class="eyebrow">旁观一下</p><h2>正在进行</h2></div>
+        <p class="lobby-summary" id="ongoingSummary">只显示匿名进度</p>
+      </div>
+      <div class="activity-list" id="ongoingList" aria-live="polite"></div>
+      <div class="lobby-heading lobby-heading--past" id="pastHeading" hidden>
+        <div><p class="eyebrow">往期回顾</p><h2>已结束的活动</h2></div>
+        <p class="lobby-summary" id="pastSummary">仅供参考</p>
+      </div>
+      <div class="activity-list" id="pastList" aria-live="polite"></div>
+      <details class="host-details">
+        <summary>想发起一场专属同行探索？</summary>
+        <p>默认只给你自己分发；勾选公开招募后，才会显示在活动广场。</p>
+        <div id="createHost"></div>
+      </details>
+    </section>
+
+    <section class="event-card" id="eventCard" hidden aria-labelledby="eventName">
+      <div class="event-card__top">
+        <p class="eyebrow">本场活动</p>
+        <span class="status" id="status">正在招募</span>
+      </div>
+      <h2 id="eventName">同行探索</h2>
+      <dl class="event-details">
+        <div><dt>地点</dt><dd id="museumName">-</dd></div>
+        <div><dt>集合</dt><dd id="eventTime">-</dd></div>
+        <div><dt>主要适龄</dt><dd id="eventAge">-</dd></div>
+        <div><dt>规模</dt><dd id="eventLimit">-</dd></div>
+      </dl>
+      <p class="privacy-note">不交换联系方式，不展示孩子照片或实时位置。每家自己买票、自己安排节奏。</p>
+      <section class="family-rollcall" id="familyRollcall" hidden aria-labelledby="familyRollcallTitle">
+        <p class="eyebrow">已经约好一起逛</p>
+        <h3 id="familyRollcallTitle">已报名的家庭</h3>
+        <p>只展示报名时主动留下的临时称号，不含联系方式或孩子信息。</p>
+        <div class="family-aliases" id="familyAliases"></div>
+      </section>
+    </section>
+
+    <section class="join-card" id="joinCard" hidden aria-labelledby="joinTitle">
+      <div class="card-heading">
+        <div><p class="eyebrow">加入这场探索</p><h2 id="joinTitle">留一个家庭代号就好</h2></div>
+        <span class="step">1 分钟</span>
+      </div>
+      <form id="joinForm" novalidate>
+        <label for="familyAlias">这次想怎么称呼你们？<small>默认展示给查看本场活动的家庭；可以在下面关掉。</small></label>
+        <input id="familyAlias" maxlength="12" autocomplete="off" placeholder="例如：小小探险队" required>
+        <label class="alias-choice" for="showAlias"><input id="showAlias" type="checkbox" checked> <span>让其他家庭看到这个临时称号<small>只显示这几个字，不显示联系方式、孩子信息或实时位置。</small></span></label>
+        <label for="joinAgeGroup">孩子年龄段<small>用于匹配进入后的任务；和本场主要适龄不同也可以参加。</small></label>
+        <select id="joinAgeGroup" required><option value="3-6">3–6 岁｜观察与发现</option><option value="7-12">7–12 岁｜探索与提问</option><option value="13-18">13–18 岁｜主题讨论</option></select>
+        <fieldset>
+          <legend>今天更想怎么参与？</legend>
+          <label><input type="radio" name="mode" value="easy" checked> 各自轻松逛，完成自己的任务</label>
+          <label><input type="radio" name="mode" value="share"> 也想参加最后的共同发现</label>
+        </fieldset>
+        <p class="form-error" id="formError" role="alert" hidden></p>
+        <button type="submit">加入这场探索</button>
+      </form>
+    </section>
+
+    <section class="joined-card" id="joinedCard" hidden aria-labelledby="joinedTitle">
+      <p class="eyebrow">你已加入</p>
+      <h2 id="joinedTitle">先按你们自己的节奏出发。</h2>
+      <p id="joinedCopy">到馆后打开任务就行；不用等其他家庭，也不必完成所有任务。</p>
+      <div class="group-goal">
+        <span aria-hidden="true">✦</span>
+        <div><strong>本场共同发现</strong><p id="groupGoal">每家找一件最想推荐给别的小朋友的展品。逛完后，愿意的话再分享一句。</p></div>
+      </div>
+      <p class="attendance" id="attendance">正在确认本场同行家庭数…</p>
+      <section class="event-discoveries" id="eventDiscoveries" hidden aria-labelledby="eventDiscoveriesTitle">
+        <div><p class="eyebrow">只给本场同行家庭看</p><h3 id="eventDiscoveriesTitle">本场发现</h3></div>
+        <p>参与者自愿分享的展品或建筑照片。没有昵称，也不会展示孩子照片。</p>
+        <div class="family-discovery-grid" id="eventDiscoveriesGrid"></div>
+      </section>
+      <a class="start-button" id="startVisit" href="museum-checkin.html">到馆后，从第一张任务开始</a>
+    </section>
+
+    <section class="empty-card" id="emptyCard" hidden>
+      <p class="eyebrow">发起一场同行探索</p>
+      <h2>先确定一座馆和一个时段。</h2>
+      <p>默认只给你自己分发，也不会收集联系方式。想在活动广场招募时再主动选择公开即可。</p>
+      <form id="createForm" novalidate>
+        <label for="createMuseum">去哪个馆？</label>
+        <select id="createMuseum" required><option value="">选择已收录的博物馆</option></select>
+        <div class="form-grid"><label for="createDate">哪天？<input id="createDate" type="date" required></label><label for="createTime">几点集合？<input id="createTime" type="time" value="10:30" required></label></div>
+        <label for="createAgeGroup">主要适龄段<select id="createAgeGroup" required><option value="" selected disabled>选择本场主要适龄段</option><option value="3-6">3–6 岁｜观察与发现</option><option value="7-12">7–12 岁｜探索与提问</option><option value="13-18">13–18 岁｜主题讨论</option></select></label>
+        <label for="createLimit">最多几组家庭？<select id="createLimit"><option value="3">3 组</option><option value="4">4 组</option><option value="5" selected>5 组</option><option value="6">6 组</option></select></label>
+        <label class="public-event-choice" for="createPublicEvent"><input id="createPublicEvent" type="checkbox"> <span>在活动广场公开招募<small>只显示博物馆、时间、适龄段和剩余名额；不显示发起人、联系方式或孩子信息。</small></span></label>
+        <p class="form-error" id="createError" role="alert" hidden></p>
+        <button type="submit">生成活动报名链接</button>
+      </form>
+    </section>
+
+    <section class="how-it-works" aria-labelledby="howTitle">
+      <h2 id="howTitle">这不是拼团，也不要求社交</h2>
+      <ol>
+        <li><span>01</span><div><strong>先各自出发</strong><p>每个家庭独立完成自己的观察任务。</p></div></li>
+        <li><span>02</span><div><strong>可选的共同目标</strong><p>同一场活动收集不同的"孩子发现"，不必互相加好友。</p></div></li>
+        <li><span>03</span><div><strong>把现场体验带回来</strong><p>完成一张任务就算成功，之后再决定要不要继续。</p></div></li>
+      </ol>
+    </section>
+  </main>
+  <script src="config/api-endpoints.js?v=together-20260814"></script>
+  <script src="js/museums-meta.js?v=together-20260814"></script>
+  <script src="js/family-photo-sharing.js?v=together-photos-20260815"></script>
+  <script src="js/together.js?v=together-past-20260829"></script>
+</body>
+</html>
