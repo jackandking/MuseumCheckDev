@@ -5904,23 +5904,48 @@
         }
 
         // 主动更新排行榜数据（打卡后）
+        // Charter: 'Share or publish outcome' (secondary metric) depends on museumcheck-leaderboard
+        // being current. The checkin page is a standalone SPA (script.js is NOT loaded here), so the
+        // main app's submitScore() never runs on this page — that is why the leaderboard stopped
+        // updating after ~2026-01. We write the entry directly here, reusing the same user_id /
+        // childNickname / visitedMuseums keys as the main app so the entry stays consistent.
         function updateLeaderboardAfterCheckin() {
             try {
-                // 打卡后，排行榜数据会在下次访问时自动更新
-                // 不需要模态框相关的刷新逻辑
-                console.log('[MuseumCheckin] Museum checked in, leaderboard will be updated on next visit');
-                
-                // 触发排行榜数据更新事件
+                // Keep the event for any future listener (currently has no consumer).
                 const leaderboardUpdateEvent = new CustomEvent('leaderboard:update', {
-                    detail: { 
-                        type: 'museum_checkin',
-                        museumId: museumId,
-                        timestamp: Date.now()
-                    }
+                    detail: { type: 'museum_checkin', museumId: museumId, timestamp: Date.now() }
                 });
                 document.dispatchEvent(leaderboardUpdateEvent);
-                
-                console.log('[Leaderboard] Update event triggered after check-in');
+
+                // Write the leaderboard entry directly (mirrors script.js submitScore payload).
+                const endpoint = REMOTE_STORAGE_CONFIG.API_ENDPOINT;
+                let userId = localStorage.getItem('user_id');
+                if (!userId) {
+                    userId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                        ? crypto.randomUUID()
+                        : 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                    localStorage.setItem('user_id', userId);
+                }
+                const childNickname = localStorage.getItem('childNickname') || '小朋友';
+                const visitedMuseums = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
+                const visitedCount = Array.isArray(visitedMuseums) ? visitedMuseums.length : 0;
+                const payload = {
+                    nickname: childNickname,
+                    visitedCount: visitedCount,
+                    userId: userId,
+                    lastUpdate: Date.now(),
+                    xp: 0,
+                    petStats: null
+                };
+                const body = JSON.stringify({
+                    key: 'museumcheck-leaderboard',
+                    sortKey: 'user-' + userId,
+                    value: JSON.stringify(payload),
+                    expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+                });
+                fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true })
+                    .then(r => { if (!r.ok) console.warn('[MuseumCheckin] leaderboard write non-ok', r.status); })
+                    .catch(e => console.warn('[MuseumCheckin] leaderboard write failed', e));
             } catch (error) {
                 console.error('Error updating leaderboard after check-in:', error);
             }
