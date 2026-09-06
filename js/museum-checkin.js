@@ -62,6 +62,147 @@
             : '';
         const togetherMode = togetherEventId && urlParams.get('togetherMode') === 'share' ? 'share' : 'easy';
 
+        // ===== CO-PLAY MODULE (Together / 同游) =====
+        // Charter-aligned experiment: make a museum visit feel like playing together with other
+        // kids on the same Together event. No new backend, no child personal data written (only the
+        // existing anonymous user_id + a treasure count), fully reversible. Evidence target: whether
+        // together-event participation lifts the north-star first_task_complete.
+        const coPlayState = {
+            eventId: togetherEventId || null,
+            explorerCount: null,      // number of joins on this event (from KV)
+            teamTreasureTotal: 0,     // sum of treasureCount across participants (from KV)
+            myTreasureCount: 0,       // this participant's own completed treasure tasks
+            loaded: false
+        };
+
+        function coPlayProgressKey() {
+            return 'museumcheck-together-' + togetherEventId + '-progress';
+        }
+
+        function safeJsonParse(s, fallback) {
+            try { return JSON.parse(s); } catch (e) { return fallback; }
+        }
+
+        async function kvGetList(key, timeoutMs = 5000) {
+            const url = REMOTE_STORAGE_CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&sortKey=*';
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+            try {
+                const res = await fetch(url, ctrl ? { signal: ctrl.signal } : {});
+                if (!res.ok) return [];
+                const data = await res.json();
+                let rows = Array.isArray(data) ? data
+                    : (data && Array.isArray(data.value) ? data.value
+                        : (data && typeof data.value === 'string' ? safeJsonParse(data.value, []) : []));
+                return (rows || []).map(r => {
+                    const v = r && r.value !== undefined ? r.value : r;
+                    return (typeof v === 'string') ? safeJsonParse(v, null) : v;
+                }).filter(Boolean);
+            } catch (e) {
+                return [];
+            } finally {
+                if (timer) clearTimeout(timer);
+            }
+        }
+
+        function kvPut(key, sortKey, valueObj) {
+            const body = JSON.stringify({
+                key: key,
+                sortKey: sortKey,
+                value: JSON.stringify(valueObj),
+                expireAt: REMOTE_STORAGE_CONFIG.TIMESTAMP_2124
+            });
+            fetch(REMOTE_STORAGE_CONFIG.API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: body,
+                keepalive: true
+            }).catch(() => {});
+        }
+
+        async function loadTogetherEventMeta() {
+            if (!togetherEventId) return;
+            try {
+                const [joins, progress] = await Promise.all([
+                    kvGetList('museumcheck-together-events'),
+                    kvGetList(coPlayProgressKey())
+                ]);
+                coPlayState.explorerCount = joins.filter(j =>
+                    j && j.type === 'together_join' && j.eventId === togetherEventId
+                ).length;
+                let total = 0, mine = 0;
+                const userId = localStorage.getItem('user_id');
+                progress.forEach(p => {
+                    if (!p || typeof p.treasureCount !== 'number') return;
+                    total += p.treasureCount;
+                    if (userId && p.userId === userId) mine = p.treasureCount;
+                });
+                coPlayState.teamTreasureTotal = total;
+                coPlayState.myTreasureCount = mine;
+                coPlayState.loaded = true;
+            } catch (e) { /* best-effort */ }
+            renderCoPlayPanel();
+        }
+
+        function renderCoPlayPanel() {
+            const el = document.getElementById('togetherSharedGoal');
+            if (!el) return;
+            if (!togetherEventId) { el.hidden = true; return; }
+            el.hidden = false;
+            const explorers = coPlayState.explorerCount;
+            const explorerText = (explorers && explorers > 0)
+                ? ('你和 ' + explorers + ' 位小伙伴一起探险 🎒')
+                : '你正在和伙伴一起探险 🎒';
+            const treasureText = '你们小队已一起发现 ' + coPlayState.teamTreasureTotal + ' 件镇馆之宝 🏺';
+            const total = Math.max(childTasks.length, 1);
+            const pct = Math.min(100, Math.round((completedTasks.size / total) * 100));
+            el.innerHTML =
+                '<div class="together-shared-goal-mark" aria-hidden="true">🎒</div>' +
+                '<div>' +
+                    '<p>同游小队</p>' +
+                    '<h2>' + explorerText + '</h2>' +
+                    '<span>' + treasureText + '　·　你的进度 ' + completedTasks.size + '/' + total + '</span>' +
+                    '<div class="co-play-bar"><div class="co-play-fill" style="width:' + pct + '%"></div></div>' +
+                '</div>';
+        }
+
+        function refreshTogetherPanel() {
+            if (!togetherEventId) {
+                const el = document.getElementById('togetherSharedGoal');
+                if (el) el.hidden = true;
+                return;
+            }
+            renderCoPlayPanel();
+            if (!coPlayState.loaded) loadTogetherEventMeta();
+        }
+
+        function recordCoPlayTreasure() {
+            if (!togetherEventId) return;
+            coPlayState.myTreasureCount += 1;
+            coPlayState.teamTreasureTotal += 1;
+            const userId = localStorage.getItem('user_id');
+            if (userId) {
+                kvPut(coPlayProgressKey(), 'user-' + userId, {
+                    userId: userId,
+                    treasureCount: coPlayState.myTreasureCount,
+                    lastUpdate: Date.now()
+                });
+            }
+            sendVisitSignal('together_progress', {
+                treasureDelta: 1,
+                teamTreasureTotal: coPlayState.teamTreasureTotal
+            });
+            renderCoPlayPanel();
+        }
+
+        function onTaskCompletedCoPlay(task) {
+            if (!togetherEventId) return;
+            const { title } = parseTaskString(task || '');
+            const isTreasure = title && title.includes('镇馆之宝');
+            if (isTreasure) recordCoPlayTreasure();
+            else renderCoPlayPanel();
+        }
+
         // =====================================================
         // EventWallService moved to event-wall-service.js (shared module)
         // Ensure the shared file is loaded before this inline script. Initialize instance below.
@@ -3593,9 +3734,9 @@
         }
 
         function updateTogetherSharedGoal() {
-            const goal = document.getElementById('togetherSharedGoal');
-            if (!goal) return;
-            goal.hidden = !(togetherEventId && togetherMode === 'share' && completedTasks.size > 0);
+            // Delegates to the co-play panel (Together / 同游). Shows the panel as soon as a
+            // family joins a Together event so the visit feels like a shared team activity.
+            refreshTogetherPanel();
         }
 
         async function publishFamilyPhotoIfChosen(taskIndex, task, imageDataUrl) {
@@ -3704,6 +3845,7 @@
             completedTasks.add(completedTaskIndex);
             saveCompletedTasks();
             updateTogetherSharedGoal();
+            onTaskCompletedCoPlay(task);
             
             // ===== EVENT WALL TRACKING: Task Completion =====
             // Track individual task completion to event wall

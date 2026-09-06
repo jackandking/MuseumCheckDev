@@ -2,7 +2,7 @@
 
 Status: Active
 Audience: maintainers, contributors, and AI coding agents
-Last updated: 2026-07-31
+Last updated: 2026-09-06
 
 This document is the product and engineering north star for MuseumCheck. Any AI agent, regardless of vendor or model family, should use it as the first decision filter before proposing or making changes.
 
@@ -77,6 +77,10 @@ Track whether real families can find and enter the product:
 6. Successful family visit session
 
    Treat `checkin_open -> task_open -> first_task_complete` as the minimum successful session. When available, record a second signal of value: a helpful feedback response or a second task opened/completed. Do not use page views or time-on-page as a substitute for this outcome.
+
+7. Together / co-play participation
+
+   Measure `together_join -> first_task_complete` conversion and co-play treasure discovery (team treasure count on a Together event). This validates whether playing together lifts the north-star metric. Treat as an experiment: define a reversible validation step and grow the co-play surface only when the signal is positive.
 
 ### Guardrail Metrics
 
@@ -210,6 +214,10 @@ For larger changes, record which evidence supports the direction, which acquisit
 19. Backward compatibility is a feature
 
    Existing localStorage keys, public URLs, database rows, image URLs, and deployed pages may already be in use. Preserve them or provide explicit migration/compatibility behavior.
+
+20. Together is a primary growth vector
+
+   A child explores more willingly with peers than alone. Co-play (playing together on a shared Together event) is a first-class way to lift the north-star `first_task_complete`, not a side feature. Prefer low-friction, privacy-safe co-play mechanics — shared team goals, peer progress, celebratory feedback — over a social graph. Never add private chat, auto-matching, or member profiles; those conflict with the privacy tenet (7) and are unproven at this stage. Validate Together as an experiment: instrument `together_join → first_task_complete` and grow only on positive evidence.
 
 ## Engineering Tenets
 

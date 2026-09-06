@@ -232,6 +232,8 @@
         .together-shared-goal p { margin: 0 0 3px; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
         .together-shared-goal h2 { margin: 0; font-size: 16px; }
         .together-shared-goal span { display: block; margin-top: 5px; font-size: 13px; line-height: 1.55; }
+        .co-play-bar { margin-top: 9px; height: 8px; border-radius: 99px; background: #cdeee6; overflow: hidden; }
+        .co-play-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #168270, #37c2a3); transition: width .4s ease; }
 
         .visit-coach {
             width: 100%;
