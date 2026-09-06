@@ -317,6 +317,16 @@ class ImageUploader {
 // Consumers can create their own instances with custom config if needed.
 const imageUploader = new ImageUploader();
 
+// Expose on window so classic-script consumers (e.g. family-photo-sharing.js,
+// which references `root.ImageUploader`) can reach the class/instance. Top-level
+// `class`/`const` declarations are lexical globals and are NOT attached to window
+// automatically, so without this the family-photo upload path throws
+// "图片上传暂时不可用".
+if (typeof window !== 'undefined') {
+  window.ImageUploader = ImageUploader;
+  window.imageUploader = imageUploader;
+}
+
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { ImageUploader, imageUploader };
