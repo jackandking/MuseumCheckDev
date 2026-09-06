@@ -3846,6 +3846,14 @@
             saveCompletedTasks();
             updateTogetherSharedGoal();
             onTaskCompletedCoPlay(task);
+
+            // Mark the museum as visited at first check-in (first task completed), not only
+            // after all tasks are done. updateLeaderboardAfterCheckin() writes the leaderboard
+            // entry (visitedCount) at the moment a family actually checks in, matching the
+            // charter's check-in visit signal. markMuseumAsVisited() is idempotent (guarded by
+            // visitedMuseums.includes), so it only writes once per museum even if called here
+            // on every completion.
+            markMuseumAsVisited();
             
             // ===== EVENT WALL TRACKING: Task Completion =====
             // Track individual task completion to event wall
