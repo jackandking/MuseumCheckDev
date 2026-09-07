@@ -1054,9 +1054,47 @@ window.MUSEUMS_META = [
       "长江文明",
       "山水文化"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Zhenjiang_Museum_01_2011-10.JPG/960px-Zhenjiang_Museum_01_2011-10.JPG",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "青铜凤纹尊",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg/960px-%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg",
+        "description": "西周早期青铜礼器，1976年出土于江苏丹阳司徒西周铜器窑藏。通高34厘米、口径41厘米、重约18公斤。尊腹满饰凤鸟纹，两对大型凤鸟回首展翅，间饰蛙形（或龟形）小动物，纹饰繁丽华贵。是迄今所见吴国早期铸造最精美华丽的青铜重器，镇江博物馆唯一的“国宝级”文物。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "白色瑰宝",
+        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "银鎏金龟负“论语玉烛”酒令筒",
+        "dynasty": "唐",
+        "category": "金银器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG/960px-Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG",
+        "description": "唐代银器，1982年出土于江苏丹徒丁卯桥唐代金银器窑藏。通体银质鎏金：底座作龟形，龟背托举圆柱形酒筹筒，筒身刻“论语玉烛”四字，筒内盛放50枚鎏金银酒令筹。令辞上半采自《论语》语句，下半对应具体饮酒规定，生动再现唐代宴饮礼俗，是唐代金银工艺与酒文化结合的巅峰之作，列入禁止出境展览文物名录。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Shallowell",
+        "attribution": "Shallowell / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "青铜鸟盖壶",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg/960px-%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg",
+        "description": "西周青铜酒器，1982年出土于江苏丹徒大港母子墩西周墓。形体硕大，壶盖塑作展翅欲飞的小鸟，弱化器体的沉重感；壶体以凸宽带纹间隔，饰云形勾连纹与对称乳丁，出土时器内尚存液体。造型生动别致，是吴国青铜器中极具特色的代表作品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "白色瑰宝",
+        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "xuzhou-museum",
