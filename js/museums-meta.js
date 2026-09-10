@@ -686,9 +686,47 @@ window.MUSEUMS_META = [
       "河北历史",
       "中山国"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/20250118_Hebei_Museum.jpg/960px-20250118_Hebei_Museum.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "长信宫灯",
+        "dynasty": "西汉",
+        "category": "青铜器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg/960px-%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg",
+        "description": "西汉青铜器，1968年河北满城窦绾墓出土，高48厘米，通体鎏金。作跪地执灯宫女形：灯盘可转动，灯罩屏板可推合以调节亮度与照射方向；宫女右臂中空为烟道，烟灰经衣袖进入体中以保持室内清洁。灯分头、身、右臂、灯座、灯盘、灯罩六部分，均可拆卸清洗，灯体刻“长信尚浴”“阳信家”等铭文65字。被誉为“中华第一灯”，2002年列入首批禁止出境展览文物名录，河北博物院“镇馆之宝”。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Suginami",
+        "attribution": "Suginami / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "刘胜金缕玉衣",
+        "dynasty": "西汉",
+        "category": "玉器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Jade_burial_suit_of_Liu_Sheng.jpg/960px-Jade_burial_suit_of_Liu_Sheng.jpg",
+        "description": "西汉玉衣，1968年河北满城汉墓（中山靖王刘胜墓）出土。由2498片玉片、约1100克金丝编缀而成，是我国考古发掘中年代最早、保存最完整、规格最高的汉代金缕玉衣，再现了汉代诸侯王丧葬礼制与玉作工艺的巅峰。2002年列入首批禁止出境展览文物名录，河北博物院“镇馆之宝”。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jade_burial_suit_of_Liu_Sheng.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Baomi",
+        "attribution": "Baomi / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "错金银四龙四凤铜方案座",
+        "dynasty": "战国",
+        "category": "青铜器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg/960px-Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg",
+        "description": "战国青铜器，1977年河北平山三汲村中山王墓出土。案面已朽，仅存案座，边长47.5厘米。底部两雄两雌跪鹿承托，四龙四凤盘绕纠结组成案身：四龙独首双尾上托斗拱，四凤双翅聚于中央连成半球，凤头自龙尾引颈而出。集铸造、镶嵌、焊接等多种工艺于一身，复杂精巧，是战国中山国青铜工艺的代表作，河北博物院“十大珍宝”之一（首批禁止出境展览文物）。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Photographed by Baomi",
+        "attribution": "Photographed by Baomi / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "taiyuan-museum",
