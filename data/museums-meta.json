@@ -713,9 +713,47 @@
       "马踏飞燕",
       "敦煌文化"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Gansu_Provincial_Museum_-_%E7%94%98%E8%82%83%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_%2817143542340%29.jpg/960px-Gansu_Provincial_Museum_-_%E7%94%98%E8%82%83%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_%2817143542340%29.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "铜奔马（马踏飞燕）",
+        "dynasty": "东汉",
+        "category": "青铜器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg/960px-%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg",
+        "description": "东汉青铜器，1969年出土于甘肃武威雷台汉墓。通高34.5厘米、长45厘米、宽13.1厘米、重7.3千克。作骏马昂首嘶鸣、疾足奔驰状，三足腾空，一足踏掠飞鸟（燕），摄取奔马超越飞鸟的一瞬；全身着力点集注于踏鸟一足之上，精确掌握力学平衡原理，工艺卓绝。1983年被确定为中国旅游标志，1986年鉴定为国宝级文物，2002年列入首批禁止出境展览文物名录，是丝绸之路精神的象征、甘肃省博物馆“镇馆之宝”。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "三猎",
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "人头形器口彩陶瓶",
+        "dynasty": "新石器时代（仰韶文化）",
+        "category": "彩陶",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg/960px-%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg",
+        "description": "仰韶文化中期（庙底沟类型）彩陶，1973年出土于甘肃秦安大地湾遗址。高32.3厘米、口径4厘米、底径6.8厘米，细泥红陶质地。瓶口雕塑为圆雕人头像：挺鼻小嘴、齐刘海、双耳有系挂饰物小孔；瓶身绘黑彩弧线三角纹与变体鸟纹。是大地湾出土上千件陶器中唯一塑有人像的彩陶瓶，将人头与葫芦瓶巧妙结合，体现先民对自身力量的认识与艺术再现能力。2013年列入第三批禁止出境展览文物名录。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "三猎",
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "莲花玻璃托盏",
+        "dynasty": "元",
+        "category": "玻璃器",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Yuan_Lotus-shaped_Glass_Calix_%2810096176946%29.jpg/960px-Yuan_Lotus-shaped_Glass_Calix_%2810096176946%29.jpg",
+        "description": "元代玻璃器，出土于甘肃漳县汪世显家族墓。一托一盏，通体半透明蓝色玻璃质，仿莲花造型——托如莲叶，盏似盛开的莲花，是国内迄今出土最完整的一套元代玻璃托盏。造型清丽、工艺精巧，反映了元代玻璃制造工艺的高超水平，是甘肃省博物馆馆藏精品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yuan_Lotus-shaped_Glass_Calix_(10096176946).jpg",
+        "rightsType": "CC",
+        "license": "CC0",
+        "copyrightHolder": "Gary Todd",
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "xining-museum",
