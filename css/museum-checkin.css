@@ -152,6 +152,14 @@
             border: 2px solid #f5a078;
         }
 
+        /* Keep the achievement poster card (and its 发布 button) above the virtual-pet
+           overlays so the pet adoption prompt/panel can never intercept the publish click.
+           Only applied while a pet overlay is open (toggled from virtual-pet.js). */
+        .poster-card.above-pet-overlay {
+            position: relative;
+            z-index: 10002 !important;
+        }
+
         .poster-card.completed {
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         }

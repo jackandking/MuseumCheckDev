@@ -29,7 +29,12 @@ async function completeAllTasks(page: Page) {
 }
 
 async function dismissOverlays(page: Page) {
-  // Reward / pet-adoption dialogs can cover the poster card after a task completes.
+  // Reward / pet-adoption dialogs can appear after a task completes. We dismiss the
+  // prompt buttons normally. Note: the virtual-pet adoption prompt/panel used to cover
+  // the poster card and intercept the publish click (see fix in virtual-pet.js +
+  // museum-checkin.css: `.poster-card.above-pet-overlay`). That is now resolved by
+  // raising the poster card's z-index while a pet overlay is open, so we deliberately
+  // do NOT hide #petPanelOverlay here — this test proves the real overlay no longer blocks.
   for (const label of ['稍后再说', '关闭', '去领养']) {
     const btn = page.getByRole('button', { name: label }).first();
     if (await btn.isVisible().catch(() => false)) {
@@ -37,11 +42,6 @@ async function dismissOverlays(page: Page) {
       await page.waitForTimeout(250);
     }
   }
-  // The virtual-pet panel overlay can linger on top of the poster card and intercept clicks.
-  // (Reported UX friction: it covers the poster/publish area after the final task.)
-  await page
-    .addStyleTag({ content: '#petPanelOverlay{display:none !important;}' })
-    .catch(() => {});
   await page.keyboard.press('Escape').catch(() => {});
 }
 

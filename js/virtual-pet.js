@@ -1546,10 +1546,18 @@ class VirtualPet {
     }
 
     // ===== ANIMATIONS & VISIBILITY =====
+    // Raise the achievement poster card above the pet overlays so the publish button
+    // stays clickable even when the adoption prompt/panel is open over it.
+    raisePosterCard(raise) {
+        const card = document.querySelector('.poster-card');
+        if (card) card.classList.toggle('above-pet-overlay', !!raise);
+    }
+
     showPetPanel() {
         const container = document.getElementById('virtual-pet-container');
         if (container) {
             container.classList.add('show-panel');
+            this.raisePosterCard(true);
         }
     }
 
@@ -1557,6 +1565,7 @@ class VirtualPet {
         const container = document.getElementById('virtual-pet-container');
         if (container) {
             container.classList.remove('show-panel');
+            this.raisePosterCard(false);
         }
     }
 
@@ -1764,6 +1773,8 @@ class VirtualPet {
         // Show with animation
         setTimeout(() => {
             prompt.classList.add('show');
+            // Keep the poster card reachable while this prompt is up
+            this.raisePosterCard(true);
         }, 10);
         
         // Bind events - elements are guaranteed to exist since we just created them
@@ -1773,6 +1784,7 @@ class VirtualPet {
         
         const closePrompt = () => {
             prompt.classList.remove('show');
+            this.raisePosterCard(false);
             setTimeout(() => {
                 prompt.remove();
             }, 300);
