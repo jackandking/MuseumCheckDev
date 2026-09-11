@@ -9696,7 +9696,8 @@ class MuseumCheckApp {
         } else if (data.success && data.filename) {
             // Handle upload response format: {success: true, filename: "...", path: "...", destination: "..."}
             // Extract base URL from endpoint (e.g., "https://museumcheck.cn/image/upload" -> "https://museumcheck.cn")
-            const url = new URL(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT);
+            // Endpoint may be a relative path (e.g. "/image/upload"), so resolve against the current origin.
+            const url = new URL(APP_CONFIG.TREASURE_CONTRIBUTOR.FILE_UPLOAD_ENDPOINT, window.location.origin);
             const baseUrl = `${url.protocol}//${url.host}`;
             
             // Sanitize filename to prevent path traversal attacks

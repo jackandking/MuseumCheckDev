@@ -181,7 +181,8 @@ class ImageUploader {
         } else if (data.success && data.filename) {
             // Handle upload response format: {success: true, filename: "...", path: "...", destination: "..."}
             // Extract base URL from endpoint (e.g., "https://museumcheck.cn/image/upload" -> "https://museumcheck.cn")
-            const url = new URL(this.config.endpoint);
+            // Endpoint may be a relative path (e.g. "/image/upload"), so resolve against the current origin.
+            const url = new URL(this.config.endpoint, window.location.origin);
             const baseUrl = `${url.protocol}//${url.host}`;
             
             // Sanitize filename to prevent path traversal attacks

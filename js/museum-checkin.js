@@ -5720,23 +5720,27 @@
 
         // Publish poster from check-in page to everyone's achievements
         async function publishPosterFromCheckin() {
+            // NOTE: #publishPosterButton lives inside the celebration modal. Publishing can also be
+            // triggered from the poster card before that modal is rendered, so its absence must NOT
+            // abort the publish — it is only used for progress/state UI. Previously this early-returned
+            // silently, which made the card button flip to "已发布" without ever reaching the backend.
             const publishBtn = document.getElementById('publishPosterButton');
             const deleteBtn = document.getElementById('deletePosterButton');
-            
-            if (!publishBtn) return;
-            
+
             // Check if already published
             const publishedPosters = JSON.parse(localStorage.getItem('publishedPosters') || '{}');
             if (publishedPosters[museumId] && publishedPosters[museumId].recordId) {
                 alert('此海报已经发布过了！');
                 return;
             }
-            
-            const originalText = publishBtn.textContent;
-            
+
+            const originalText = publishBtn ? publishBtn.textContent : '';
+
             try {
-                publishBtn.disabled = true;
-                publishBtn.innerHTML = '<span>⏳</span><span>发布中...</span>';
+                if (publishBtn) {
+                    publishBtn.disabled = true;
+                    publishBtn.innerHTML = '<span>⏳</span><span>发布中...</span>';
+                }
                 
                 // Get current poster data from localStorage
                 const postersData = JSON.parse(localStorage.getItem('museumPosters') || '{}');
@@ -5875,9 +5879,11 @@
                 localStorage.setItem('publishedPosters', JSON.stringify(publishedPosters));
                 
                 // Update button states
-                publishBtn.classList.add('published');
-                publishBtn.innerHTML = '<span>✅</span><span>已发布</span>';
-                publishBtn.disabled = true;
+                if (publishBtn) {
+                    publishBtn.classList.add('published');
+                    publishBtn.innerHTML = '<span>✅</span><span>已发布</span>';
+                    publishBtn.disabled = true;
+                }
                 
                 if (deleteBtn) {
                     deleteBtn.style.display = 'flex';
@@ -5912,8 +5918,12 @@
             } catch (error) {
                 console.error('Publish failed:', error);
                 alert('发布失败：' + (error.message || error));
-                publishBtn.disabled = false;
-                publishBtn.innerHTML = originalText;
+                if (publishBtn) {
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalText;
+                }
+                // Re-throw so callers (e.g. the poster card button) do not report a false success.
+                throw error;
             }
         }
         
