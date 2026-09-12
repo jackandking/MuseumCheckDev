@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>馆图纠错审核 · MuseumCheck</title>
+  <style>
+    :root { --blue:#2b6cb0; --green:#2f855a; --red:#c53030; --gray:#666; --line:#e2e8f0; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui,-apple-system,"PingFang SC",sans-serif; background:#f7fafc; color:#1a202c; }
+    header { padding:16px 20px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    header h1 { font-size:18px; margin:0; }
+    .wrap { max-width:920px; margin:0 auto; padding:20px; }
+    .keybar { display:flex; gap:8px; align-items:center; }
+    .keybar input { padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; width:240px; }
+    button { cursor:pointer; border:none; border-radius:8px; font-size:14px; font-weight:600; padding:8px 14px; }
+    .btn-load { background:var(--blue); color:#fff; }
+    .btn-approve { background:var(--green); color:#fff; }
+    .btn-reject { background:#fff; color:var(--red); border:1px solid var(--red); }
+    .status { font-size:13px; color:var(--gray); margin-left:auto; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .meta { font-size:13px; color:var(--gray); margin-bottom:10px; }
+    .compare { display:flex; gap:14px; flex-wrap:wrap; }
+    .compare figure { margin:0; flex:1; min-width:220px; }
+    .compare img { width:100%; max-height:240px; object-fit:contain; background:#f1f5f9; border-radius:8px; }
+    .compare figcaption { font-size:12px; color:var(--gray); margin-top:4px; text-align:center; }
+    .reason { background:#fffaf0; border-left:3px solid #ed8936; padding:8px 10px; border-radius:4px; font-size:13px; margin:10px 0; }
+    .actions { display:flex; gap:10px; margin-top:10px; }
+    .empty { text-align:center; color:var(--gray); padding:40px 0; }
+    .toast { position:fixed; left:50%; top:18px; transform:translateX(-50%); background:#1a202c; color:#fff; padding:10px 18px; border-radius:8px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:99999; }
+    .toast.show { opacity:1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🖼️ 馆图纠错审核</h1>
+    <div class="keybar">
+      <input id="adminKey" type="password" placeholder="admin key (KV_ADMIN_KEY)" autocomplete="off" />
+      <button class="btn-load" id="loadBtn">加载待审</button>
+    </div>
+    <span class="status" id="status">未加载</span>
+  </header>
+
+  <div class="wrap">
+    <div id="list"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var ADMIN_KEY_STORAGE = 'mc_photo_review_admin_key';
+      var listEl = document.getElementById('list');
+      var statusEl = document.getElementById('status');
+      var keyInput = document.getElementById('adminKey');
+      var toastEl = document.getElementById('toast');
+
+      // 恢复上次输入的 key
+      var savedKey = sessionStorage.getItem(ADMIN_KEY_STORAGE) || '';
+      if (savedKey) keyInput.value = savedKey;
+
+      function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+      }
+
+      function adminKey() {
+        var k = keyInput.value.trim();
+        if (k) sessionStorage.setItem(ADMIN_KEY_STORAGE, k);
+        return k;
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function imgTag(url, caption) {
+        if (!url) return '<figure><div style="padding:30px 0;color:#999;text-align:center;">（无图）</div><figcaption>' + esc(caption) + '</figcaption></figure>';
+        return '<figure><img src="' + esc(url) + '" alt="" /><figcaption>' + esc(caption) + '</figcaption></figure>';
+      }
+
+      async function loadPending() {
+        var key = adminKey();
+        if (!key) { statusEl.textContent = '请先填写 admin key'; return; }
+        statusEl.textContent = '加载中…';
+        try {
+          var res = await fetch('/api/kv/admin/photo-candidates?status=pending', {
+            headers: { 'x-admin-key': key }
+          });
+          if (res.status === 401) { statusEl.textContent = 'admin key 错误'; return; }
+          var data = await res.json();
+          var items = (data && data.items) || [];
+          render(items);
+          statusEl.textContent = '待审 ' + items.length + ' 条';
+        } catch (e) {
+          statusEl.textContent = '加载失败：' + (e && e.message || e);
+        }
+      }
+
+      function render(items) {
+        if (!items.length) { listEl.innerHTML = '<div class="empty">🎉 暂无待审馆图</div>'; return; }
+        listEl.innerHTML = items.map(function (c) {
+          var reason = c.reason ? '<div class="reason">📝 ' + esc(c.reason) + '</div>' : '';
+          return '<div class="card" data-id="' + esc(c.id) + '" data-museum="' + esc(c.museumId) + '" data-url="' + esc(c.candidateImageUrl) + '">' +
+            '<div class="meta">馆：<b>' + esc(c.museumId) + '</b> · 提交人：' + esc(c.submitterId || 'anonymous') + ' · ' + esc(c.submittedAt || '') + '</div>' +
+            reason +
+            '<div class="compare">' +
+              imgTag(c.originalImageUrl, '原馆图') +
+              imgTag(c.candidateImageUrl, '候选替代照') +
+            '</div>' +
+            '<div class="actions">' +
+              '<button class="btn-approve" data-act="approve">✓ 通过并发布</button>' +
+              '<button class="btn-reject" data-act="reject">✕ 驳回</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      async function act(card, actType) {
+        var key = adminKey();
+        var museumId = card.getAttribute('data-museum');
+        var candidateId = card.getAttribute('data-id');
+        var candidateImageUrl = card.getAttribute('data-url');
+        var payload = { museumId: museumId, candidateId: candidateId, reviewedBy: 'admin' };
+        var url;
+        if (actType === 'approve') {
+          payload.candidateImageUrl = candidateImageUrl;
+          url = '/api/kv/admin/photo-candidate/publish';
+        } else {
+          var note = prompt('驳回原因（可选）：') || '';
+          payload.reviewedNote = note;
+          url = '/api/kv/admin/photo-candidate/reject';
+        }
+        try {
+          var res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+            body: JSON.stringify(payload)
+          });
+          var data = await res.json().catch(function () { return {}; });
+          if (!res.ok || !data.success) throw new Error(data.error || ('HTTP ' + res.status));
+          card.remove();
+          toast(actType === 'approve' ? '已发布新馆图 ✓' : '已驳回');
+          var remaining = listEl.querySelectorAll('.card').length;
+          statusEl.textContent = '待审 ' + remaining + ' 条';
+          if (remaining === 0) listEl.innerHTML = '<div class="empty">🎉 暂无待审馆图</div>';
+        } catch (e) {
+          toast('操作失败：' + (e && e.message || e));
+        }
+      }
+
+      listEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        var card = btn.closest('.card');
+        if (card) act(card, btn.getAttribute('data-act'));
+      });
+      document.getElementById('loadBtn').addEventListener('click', loadPending);
+      if (savedKey) loadPending();
+    })();
+  </script>
+</body>
+</html>
