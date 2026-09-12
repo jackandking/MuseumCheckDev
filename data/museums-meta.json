@@ -164,9 +164,47 @@
       "文物",
       "历史"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/7/74/%E6%B2%B3%E5%8D%97%E5%8D%9A%E7%89%A9%E9%99%A2_-_Henan_Museum_-_2014.03_-_panoramio.jpg",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/henan-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "妇好鸮尊",
+        "dynasty": "商代晚期",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/henan-museum-t1-v1.jpg",
+        "description": "1976年安阳殷墟妇好墓出土，通高46.3厘米，鸮（猫头鹰）形青铜盛酒器，中国最早鸟形铜尊之一，河南博物院镇院之宝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fuhao_Owl_Zun_front.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Cangmin (Wikimedia Commons)",
+        "attribution": "Cangmin / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "莲鹤方壶",
+        "dynasty": "春秋中期",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/henan-museum-t2-v1.jpg",
+        "description": "1923年新郑李家楼郑公大墓出土，高117厘米，壶顶莲瓣盛开、立一振翅仙鹤，郭沫若誉其为'时代精神之象征'；河南博物院与故宫各藏一件。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:河南博物院藏莲鹤方壶.jpg",
+        "rightsType": "CC",
+        "license": "CC BY 3.0",
+        "copyrightHolder": "Greg_kf (Wikimedia Commons)",
+        "attribution": "Greg_kf / CC BY 3.0, via Wikimedia Commons"
+      },
+      {
+        "name": "云纹铜禁",
+        "dynasty": "春秋中期",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/henan-museum-t3-v1.jpg",
+        "description": "1978年淅川下寺楚墓出土，通高28.8厘米，失蜡法铸造的云纹铜禁（承置酒器的案具），中国首批禁止出境展览文物。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronze_jin_from_Henan.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 3.0",
+        "copyrightHolder": "Greg_kf (Wikimedia Commons)",
+        "attribution": "Greg_kf / CC BY-SA 3.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "liaoning-museum",
@@ -674,7 +712,7 @@
       "河北历史",
       "中山国"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/20250118_Hebei_Museum.jpg/960px-20250118_Hebei_Museum.jpg",
+    "image": "https://museumcheck.cn/images/shijiazhuang-museum-photo-v1.jpg",
     "hasCollections": true,
     "level": "一级",
     "collections": [
@@ -682,7 +720,7 @@
         "name": "长信宫灯",
         "dynasty": "西汉",
         "category": "青铜器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg/960px-%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg",
+        "imageUrl": "https://museumcheck.cn/images/shijiazhuang-museum-t1-v1.jpg",
         "description": "西汉青铜器，1968年河北满城窦绾墓出土，高48厘米，通体鎏金。作跪地执灯宫女形：灯盘可转动，灯罩屏板可推合以调节亮度与照射方向；宫女右臂中空为烟道，烟灰经衣袖进入体中以保持室内清洁。灯分头、身、右臂、灯座、灯盘、灯罩六部分，均可拆卸清洗，灯体刻“长信尚浴”“阳信家”等铭文65字。被誉为“中华第一灯”，2002年列入首批禁止出境展览文物名录，河北博物院“镇馆之宝”。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%95%BF%E4%BF%A1%E5%AE%AB%E7%81%AF-%E6%B2%B3%E5%8C%97%E5%8D%9A%E7%89%A9%E9%99%A2.jpg",
         "rightsType": "CC",
@@ -694,7 +732,7 @@
         "name": "刘胜金缕玉衣",
         "dynasty": "西汉",
         "category": "玉器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Jade_burial_suit_of_Liu_Sheng.jpg/960px-Jade_burial_suit_of_Liu_Sheng.jpg",
+        "imageUrl": "https://museumcheck.cn/images/shijiazhuang-museum-t2-v1.jpg",
         "description": "西汉玉衣，1968年河北满城汉墓（中山靖王刘胜墓）出土。由2498片玉片、约1100克金丝编缀而成，是我国考古发掘中年代最早、保存最完整、规格最高的汉代金缕玉衣，再现了汉代诸侯王丧葬礼制与玉作工艺的巅峰。2002年列入首批禁止出境展览文物名录，河北博物院“镇馆之宝”。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jade_burial_suit_of_Liu_Sheng.jpg",
         "rightsType": "CC",
@@ -706,7 +744,7 @@
         "name": "错金银四龙四凤铜方案座",
         "dynasty": "战国",
         "category": "青铜器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg/960px-Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg",
+        "imageUrl": "https://museumcheck.cn/images/shijiazhuang-museum-t3-v1.jpg",
         "description": "战国青铜器，1977年河北平山三汲村中山王墓出土。案面已朽，仅存案座，边长47.5厘米。底部两雄两雌跪鹿承托，四龙四凤盘绕纠结组成案身：四龙独首双尾上托斗拱，四凤双翅聚于中央连成半球，凤头自龙尾引颈而出。集铸造、镶嵌、焊接等多种工艺于一身，复杂精巧，是战国中山国青铜工艺的代表作，河北博物院“十大珍宝”之一（首批禁止出境展览文物）。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronze_Square_Table_Stand_Decorated_with_Dragon-and-phoenix.jpg",
         "rightsType": "CC",
@@ -751,7 +789,7 @@
       "马踏飞燕",
       "敦煌文化"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Gansu_Provincial_Museum_-_%E7%94%98%E8%82%83%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_%2817143542340%29.jpg/960px-Gansu_Provincial_Museum_-_%E7%94%98%E8%82%83%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_%2817143542340%29.jpg",
+    "image": "https://museumcheck.cn/images/lanzhou-museum-photo-v1.jpg",
     "hasCollections": true,
     "level": "一级",
     "collections": [
@@ -759,7 +797,7 @@
         "name": "铜奔马（马踏飞燕）",
         "dynasty": "东汉",
         "category": "青铜器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg/960px-%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg",
+        "imageUrl": "https://museumcheck.cn/images/lanzhou-museum-t1-v1.jpg",
         "description": "东汉青铜器，1969年出土于甘肃武威雷台汉墓。通高34.5厘米、长45厘米、宽13.1厘米、重7.3千克。作骏马昂首嘶鸣、疾足奔驰状，三足腾空，一足踏掠飞鸟（燕），摄取奔马超越飞鸟的一瞬；全身着力点集注于踏鸟一足之上，精确掌握力学平衡原理，工艺卓绝。1983年被确定为中国旅游标志，1986年鉴定为国宝级文物，2002年列入首批禁止出境展览文物名录，是丝绸之路精神的象征、甘肃省博物馆“镇馆之宝”。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9B%B7%E5%8F%B0%E6%B1%89%E5%A2%93%E9%93%9C%E5%A5%94%E9%A9%AC3.jpg",
         "rightsType": "CC",
@@ -771,7 +809,7 @@
         "name": "人头形器口彩陶瓶",
         "dynasty": "新石器时代（仰韶文化）",
         "category": "彩陶",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg/960px-%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg",
+        "imageUrl": "https://museumcheck.cn/images/lanzhou-museum-t2-v1.jpg",
         "description": "仰韶文化中期（庙底沟类型）彩陶，1973年出土于甘肃秦安大地湾遗址。高32.3厘米、口径4厘米、底径6.8厘米，细泥红陶质地。瓶口雕塑为圆雕人头像：挺鼻小嘴、齐刘海、双耳有系挂饰物小孔；瓶身绘黑彩弧线三角纹与变体鸟纹。是大地湾出土上千件陶器中唯一塑有人像的彩陶瓶，将人头与葫芦瓶巧妙结合，体现先民对自身力量的认识与艺术再现能力。2013年列入第三批禁止出境展览文物名录。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E4%BB%B0%E9%9F%B6%E6%96%87%E5%8C%96%E4%BA%BA%E5%A4%B4%E5%BD%A2%E5%99%A8%E5%8F%A3%E5%BD%A9%E9%99%B6%E7%93%B6.jpg",
         "rightsType": "CC",
@@ -783,7 +821,7 @@
         "name": "莲花玻璃托盏",
         "dynasty": "元",
         "category": "玻璃器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Yuan_Lotus-shaped_Glass_Calix_%2810096176946%29.jpg/960px-Yuan_Lotus-shaped_Glass_Calix_%2810096176946%29.jpg",
+        "imageUrl": "https://museumcheck.cn/images/lanzhou-museum-t3-v1.jpg",
         "description": "元代玻璃器，出土于甘肃漳县汪世显家族墓。一托一盏，通体半透明蓝色玻璃质，仿莲花造型——托如莲叶，盏似盛开的莲花，是国内迄今出土最完整的一套元代玻璃托盏。造型清丽、工艺精巧，反映了元代玻璃制造工艺的高超水平，是甘肃省博物馆馆藏精品。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yuan_Lotus-shaped_Glass_Calix_(10096176946).jpg",
         "rightsType": "CC",
@@ -1118,7 +1156,7 @@
       "长江文明",
       "山水文化"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Zhenjiang_Museum_01_2011-10.JPG/960px-Zhenjiang_Museum_01_2011-10.JPG",
+    "image": "https://museumcheck.cn/images/zhenjiang-museum-photo-v1.jpg",
     "hasCollections": true,
     "level": "一级",
     "collections": [
@@ -1126,7 +1164,7 @@
         "name": "青铜凤纹尊",
         "dynasty": "西周",
         "category": "青铜器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg/960px-%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg",
+        "imageUrl": "https://museumcheck.cn/images/zhenjiang-museum-t1-v1.jpg",
         "description": "西周早期青铜礼器，1976年出土于江苏丹阳司徒西周铜器窑藏。通高34厘米、口径41厘米、重约18公斤。尊腹满饰凤鸟纹，两对大型凤鸟回首展翅，间饰蛙形（或龟形）小动物，纹饰繁丽华贵。是迄今所见吴国早期铸造最精美华丽的青铜重器，镇江博物馆唯一的“国宝级”文物。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9D%92%E9%93%9C%E5%87%A4%E7%BA%B9%E5%B0%8A_%EF%BC%88%E6%AD%A3%EF%BC%89.jpg",
         "rightsType": "CC",
@@ -1138,7 +1176,7 @@
         "name": "银鎏金龟负“论语玉烛”酒令筒",
         "dynasty": "唐",
         "category": "金银器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG/960px-Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG",
+        "imageUrl": "https://museumcheck.cn/images/zhenjiang-museum-t2-v1.jpg",
         "description": "唐代银器，1982年出土于江苏丹徒丁卯桥唐代金银器窑藏。通体银质鎏金：底座作龟形，龟背托举圆柱形酒筹筒，筒身刻“论语玉烛”四字，筒内盛放50枚鎏金银酒令筹。令辞上半采自《论语》语句，下半对应具体饮酒规定，生动再现唐代宴饮礼俗，是唐代金银工艺与酒文化结合的巅峰之作，列入禁止出境展览文物名录。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guifu_Lunyu_Yuzhu_Jiuchoutong_-_150725095.JPG",
         "rightsType": "CC",
@@ -1150,7 +1188,7 @@
         "name": "青铜鸟盖壶",
         "dynasty": "西周",
         "category": "青铜器",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg/960px-%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg",
+        "imageUrl": "https://museumcheck.cn/images/zhenjiang-museum-t3-v1.jpg",
         "description": "西周青铜酒器，1982年出土于江苏丹徒大港母子墩西周墓。形体硕大，壶盖塑作展翅欲飞的小鸟，弱化器体的沉重感；壶体以凸宽带纹间隔，饰云形勾连纹与对称乳丁，出土时器内尚存液体。造型生动别致，是吴国青铜器中极具特色的代表作品。",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%9D%92%E9%93%9C%E9%B8%9F%E7%9B%96%E5%A3%B6.jpg",
         "rightsType": "CC",

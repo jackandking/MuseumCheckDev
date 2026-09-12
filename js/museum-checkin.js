@@ -2664,7 +2664,7 @@
                 childTasks = childTasks.concat(extras);
             }
             
-            // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 亲子合影)
+            // Treasure hunt workflow pattern for ALL museums with collections (门口打卡 + 找镇馆之宝 + 合影留念)
             // Automatically applied to any museum that has collections data
             // Custom-configured museums use their own treasure count; standard museums use 3
             const isCustomMuseum = isCustomGuidedMuseum(museumId);
@@ -2789,8 +2789,10 @@
             let imageUrl = '';
             let isUserPhoto = false; // Flag to indicate if image is user's photo (no need for cache)
             try {
-                // Check if this is a 亲子合影 task - use user's photo if available
-                if (title && title.includes('亲子合影') && taskPhotos[index]) {
+                // Check if this is the 合影留念 (group photo) task - use user's photo if available.
+                // Must match the exact token '合影留念' (not just '合影'), because treasure tasks
+                // also contain '并合影' and must NOT be captured by this branch.
+                if (title && title.includes('合影留念') && taskPhotos[index]) {
                     imageUrl = taskPhotos[index];
                     isUserPhoto = true;
                 }
@@ -4590,15 +4592,25 @@
                     imgEl.src = imageUrl;
                     imgEl.style.display = 'block';
                 }
-                
+
                 // Show success badge briefly
                 document.getElementById('museumPhotoContributedBadge').style.display = 'block';
-                
+
                 // Update the task card on the main page
                 updateTaskCardImage(0, imageUrl);
-                
+
                 // Play celebration sound if available
                 if (typeof playSuccessSound === 'function') playSuccessSound();
+
+                // By-product: accumulate the entrance photo into MySQL (museum-info skill feed).
+                // Fire-and-forget; never block the UI or throw on failure.
+                try {
+                    const musId = (currentMuseum && currentMuseum.id) || museumId;
+                    if (musId && typeof LetmetryAPI !== 'undefined' && LetmetryAPI.reportPhotoContribution) {
+                        LetmetryAPI.reportPhotoContribution({ museumId: musId, kind: 'entrance', photoUrl: imageUrl })
+                            .catch(() => {});
+                    }
+                } catch (e) { /* swallows: contribution is best-effort */ }
             }
         }
         
@@ -4770,6 +4782,15 @@
                 
                 // Play celebration sound if available
                 if (typeof playSuccessSound === 'function') playSuccessSound();
+
+                // By-product: accumulate the treasure photo into MySQL (museum-info skill feed).
+                // Fire-and-forget; never block the UI or throw on failure.
+                try {
+                    if (typeof LetmetryAPI !== 'undefined' && LetmetryAPI.reportPhotoContribution) {
+                        LetmetryAPI.reportPhotoContribution({ museumId: musId, kind: 'treasure', photoUrl: imageUrl, treasureName: treasureName })
+                            .catch(() => {});
+                    }
+                } catch (e) { /* swallows: contribution is best-effort */ }
             }
         }
         
@@ -7455,9 +7476,9 @@
                 const selectedCollections = allCollections.filter(c => selectedTreasures.includes(c.name));
                 
                 // Build new task list
-                const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+                const start = '📸 门口打卡：在博物馆门口拍一张照片（外观或招牌都行）';
                 const collTasks = selectedCollections.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
-                const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+                const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
                 // Index 0 is the 门口打卡 (museum-entrance photo) task; the welcome task was removed
                 // on 2026-09-12 so the achievement-bearing photo task leads the funnel.
                 childTasks = [start].concat(collTasks, [end]);
@@ -7476,8 +7497,8 @@
          */
         function buildTreasureWorkflowTasks(collections, totalNeeded) {
             const totalTreasuresNeeded = totalNeeded || 3;
-            const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const start = '📸 门口打卡：在博物馆门口拍一张照片（外观或招牌都行）';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
 
             // Index 0 is the 门口打卡 (museum-entrance photo) task; the low-friction welcome task was
             // removed on 2026-09-12 so the achievement-bearing photo task leads the funnel.

@@ -79,6 +79,12 @@
       SEARCH: `${BASE_URL}/museum/search`
     },
 
+    // 照片贡献（拍照打卡 by-product：博物馆外观/镇馆之宝照片 → MySQL，供博物馆信息 skill）
+    PHOTO: {
+      CONTRIBUTE: `${BASE_URL}/api/museum-photo-contribution`,
+      LIST: `${BASE_URL}/api/museum-photos`
+    },
+
     // CDN
     CDN: {
       BASE: `${BASE_URL}/cdn`,
@@ -154,6 +160,8 @@
     this.IMAGE.UPLOAD = `${base}/image/upload`;
     this.IMAGE.SEARCH = `${base}/image/search`;
     this.MUSEUM.SEARCH = `${base}/museum/search`;
+    this.PHOTO.CONTRIBUTE = `${base}/api/museum-photo-contribution`;
+    this.PHOTO.LIST = `${base}/api/museum-photos`;
     this.CDN.BASE = `${base}/cdn`;
     this.CDN.IMAGES = `${base}/images`;
     this.HEALTH = `${base}/health`;

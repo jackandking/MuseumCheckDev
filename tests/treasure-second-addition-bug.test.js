@@ -310,7 +310,7 @@ describe('Treasure Second Addition Bug', () => {
         function buildTreasureWorkflowTasks(collections) {
             const totalTreasuresNeeded = 3;
             const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
             
             if (collections.length >= totalTreasuresNeeded) {
                 const colls = collections.slice(0, totalTreasuresNeeded);
@@ -355,7 +355,7 @@ describe('Treasure Second Addition Bug', () => {
             expect(childTasks[1]).toContain('添加镇馆之宝 1/3');
             expect(childTasks[2]).toContain('添加镇馆之宝 2/3');
             expect(childTasks[3]).toContain('添加镇馆之宝 3/3');
-            expect(childTasks[4]).toContain('亲子合影');
+            expect(childTasks[4]).toContain('合影留念');
 
             // Add first treasure
             const treasure1 = { name: '青铜鼎', taskIndex: 1, museumId, timestamp: Date.now() };
@@ -370,7 +370,7 @@ describe('Treasure Second Addition Bug', () => {
             expect(childTasks[1]).toContain('找到「青铜鼎」');
             expect(childTasks[2]).toContain('添加镇馆之宝 2/3');
             expect(childTasks[3]).toContain('添加镇馆之宝 3/3');
-            expect(childTasks[4]).toContain('亲子合影');
+            expect(childTasks[4]).toContain('合影留念');
 
             // Verify storage state
             expect(currentMuseum.collections.length).toBe(1);
@@ -410,7 +410,7 @@ describe('Treasure Second Addition Bug', () => {
             expect(childTasks[1]).toContain('找到「青铜鼎」');
             expect(childTasks[2]).toContain('找到「玉璧」');
             expect(childTasks[3]).toContain('添加镇馆之宝 3/3');
-            expect(childTasks[4]).toContain('亲子合影');
+            expect(childTasks[4]).toContain('合影留念');
         });
 
         test('should handle third treasure addition correctly', async () => {
@@ -436,7 +436,7 @@ describe('Treasure Second Addition Bug', () => {
             expect(childTasks[1]).toContain('找到「青铜鼎」');
             expect(childTasks[2]).toContain('找到「玉璧」');
             expect(childTasks[3]).toContain('找到「金缕玉衣」');
-            expect(childTasks[4]).toContain('亲子合影');
+            expect(childTasks[4]).toContain('合影留念');
 
             // Verify no "添加镇馆之宝" tasks remain
             const addTreasureTasks = childTasks.filter(t => t.includes('添加镇馆之宝'));

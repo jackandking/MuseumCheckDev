@@ -91,7 +91,7 @@ describe('Treasure Contributor Feature', () => {
                     index: i
                 });
             }
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
             
             const checklist = [start].concat(treasureTasks, [end]);
             
@@ -109,8 +109,8 @@ describe('Treasure Contributor Feature', () => {
             expect(checklist[3]).toHaveProperty('type', 'add-treasure');
             expect(checklist[3]).toHaveProperty('index', 2);
             
-            // Last item should be family photo
-            expect(checklist[4]).toContain('亲子合影');
+            // Last item should be group photo
+            expect(checklist[4]).toContain('合影留念');
         });
     });
 

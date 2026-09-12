@@ -295,7 +295,45 @@ const LetmetryAPI = (function(){
     return matches / maxLen;
   }
 
-  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, queryMysql, updateRecord, deleteRecord, setApiKey, getApiKey, setBaseUrl, getBaseUrl, verifyMuseumOfficial, DEFAULT_BASE };
+  /**
+   * Report a contributed museum photo to the backend so it is accumulated into
+   * the `museum_photos` table (by-product feeding the museum-info skill).
+   * Fire-and-forget friendly: resolves with the server response or a local error.
+   * @param {Object} p - { museumId, kind: 'entrance'|'treasure', photoUrl, treasureName? }
+   * @returns {Promise<Object>}
+   */
+  async function reportPhotoContribution(p) {
+    if (!p || !p.museumId || !p.kind || !p.photoUrl) {
+      return { ok: false, error: 'missing fields' };
+    }
+    const body = JSON.stringify({
+      museumId: String(p.museumId),
+      kind: p.kind,
+      photoUrl: _toAbsoluteImageUrl(p.photoUrl),
+      treasureName: p.treasureName ? String(p.treasureName) : undefined
+    });
+    try {
+      const res = await fetch(`${base}/api/museum-photo-contribution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      const json = await res.json().catch(() => null);
+      return { ok: res.ok, status: res.status, json };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  // Normalise a possibly-relative photo path to an absolute URL on the current origin.
+  function _toAbsoluteImageUrl(u) {
+    if (!u || typeof u !== 'string') return u;
+    if (/^https?:\/\//.test(u)) return u;
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) || 'https://museumcheck.cn';
+    return origin.replace(/\/$/, '') + '/' + u.replace(/^\//, '');
+  }
+
+  return { uploadFile, uploadImage, listFiles, publishPoster, insertRecord, queryMysql, updateRecord, deleteRecord, setApiKey, getApiKey, setBaseUrl, getBaseUrl, verifyMuseumOfficial, reportPhotoContribution, DEFAULT_BASE };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = LetmetryAPI;

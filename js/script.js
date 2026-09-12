@@ -2049,16 +2049,16 @@ class ChecklistManager {
         // Pinghu-specific: child checklist reduced to 3 tasks
         if (museum.id === 'pinghu-museum' && checklistType === 'child') {
             const colls = Array.isArray(museum.collections) ? museum.collections : [];
-            const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+            const start = '📸 门口打卡：在博物馆门口拍一张照片（外观或招牌都行）';
             const collTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
             return [start].concat(collTasks, [end]);
         }
 
         // For museums WITHOUT collections: generate treasure contributor checklist
         if (checklistType === 'child' && !hasExistingCollections && !hasContributedTreasures) {
             const requiredTreasures = APP_CONFIG.TREASURE_CONTRIBUTOR.REQUIRED_TREASURES;
-            const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+            const start = '📸 门口打卡：在博物馆门口拍一张照片（外观或招牌都行）';
             const treasureTasks = [];
             for (let i = 0; i < requiredTreasures; i++) {
                 treasureTasks.push({
@@ -2067,15 +2067,15 @@ class ChecklistManager {
                     index: i
                 });
             }
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
             return [start].concat(treasureTasks, [end]);
         }
         
         // For museums WITH contributed treasures: use them like existing collections
         if (checklistType === 'child' && hasContributedTreasures && !hasExistingCollections) {
-            const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
+            const start = '📸 门口打卡：在博物馆门口拍一张照片（外观或招牌都行）';
             const collTasks = contributedTreasures.slice(0, 3).map(c => `🏺 镇馆之宝：找到「${c.name}」并合影`);
-            const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
+            const end = '📸 合影留念：和朋友/同伴在馆内拍一张合影留念';
             return [start].concat(collTasks, [end]);
         }
 
