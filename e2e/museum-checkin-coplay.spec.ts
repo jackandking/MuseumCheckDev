@@ -21,10 +21,10 @@ test.describe('Check-in co-play panel (Together growth vector, C)', () => {
     // Only present once loadTogetherEventMeta resolved explorerCount > 0.
     await expect(panel).toContainText('位小伙伴一起探险');
 
-    // The first task is the low-friction welcome task; completing it must keep the
-    // panel alive and advance the child's own progress bar.
+    // The first task is the 门口打卡 entrance photo (the welcome task was removed 2026-09-12);
+    // completing it must keep the panel alive and advance the child's own progress bar.
     const firstCard = page.locator('.task-card').first();
-    await expect(firstCard).toContainText('进门第一步');
+    await expect(firstCard).toContainText('门口打卡');
     await firstCard.click();
     await page.locator('#completeButton').click();
     await expect(panel).toContainText('你的进度 1/');

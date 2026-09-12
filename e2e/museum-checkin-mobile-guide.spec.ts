@@ -78,13 +78,13 @@ test.describe('Museum check-in mobile visit guide', () => {
     const firstTask = page.locator('.task-card').first();
     await expect(firstTask).toHaveClass(/next-task/);
     await expect(firstTask).toHaveAttribute('role', 'button');
-    await expect(firstTask).toHaveAttribute('aria-label', /从这里开始：进门第一步/);
+    await expect(firstTask).toHaveAttribute('aria-label', /从这里开始：门口打卡/);
 
     await startButton.click();
 
     const taskModal = page.locator('#taskModal');
     await expect(taskModal).toHaveClass(/show/);
-    await expect(page.locator('#modalTaskTitle')).toContainText('进门第一步');
+    await expect(page.locator('#modalTaskTitle')).toContainText('门口打卡');
     await expect(page.locator('#completeButton')).toContainText('完成第 1 个任务');
 
     await page.locator('#completeButton').click();
@@ -125,7 +125,7 @@ test.describe('Museum check-in mobile visit guide', () => {
 
     await page.locator('#visitCoachButton').click();
     await expect(page.locator('#taskModal')).toHaveClass(/show/);
-    await expect(page.locator('#modalTaskTitle')).toContainText('进门第一步');
+    await expect(page.locator('#modalTaskTitle')).toContainText('门口打卡');
 
     const nicknameState = await page.evaluate(() => ({
       childNickname: localStorage.getItem('childNickname'),
@@ -196,7 +196,7 @@ test.describe('Museum check-in mobile visit guide', () => {
     expect(feedbackValue.parameters).toEqual(expect.objectContaining({
       rating: 'helpful',
       taskIndex: 0,
-      taskTitle: '进门第一步',
+      taskTitle: '门口打卡',
     }));
     expect(feedbackValue.visitorId).toMatch(/^visitor-/);
     expect(feedbackValue).not.toHaveProperty('childNickname');
@@ -211,7 +211,7 @@ test.describe('Museum check-in mobile visit guide', () => {
     expect(taskOpenValue.parameters).toEqual(expect.objectContaining({
       source: 'visit_coach',
       taskIndex: 0,
-      taskTitle: '进门第一步',
+      taskTitle: '门口打卡',
     }));
 
     expect(letmetryRequests).toEqual([]);

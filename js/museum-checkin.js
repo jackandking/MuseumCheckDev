@@ -292,13 +292,16 @@
         // Task type identifier for treasure tasks (for internationalization)
         const TREASURE_TASK_IDENTIFIER = '镇馆之宝';
 
-        // Low-friction first task (charter: child-first, low-friction; north-star = first_task_complete).
-        // Placed at index 0 so a family gets an immediate one-tap win on arrival, instead of
-        // being gated behind the photo-dependent "门口打卡" task. Photo is optional, not required.
-        const FIRST_TASK_WELCOME = '👋 进门第一步：和孩子击个掌，约定今天一起发现宝贝！（门口想拍照就拍一张）';
+        // The museum-entrance photo task (门口打卡) leads the funnel at index 0. 2026-09-12: the
+        // low-friction "进门第一步" one-tap welcome task was removed — the entrance photo is the task
+        // with real achievement value (it feeds the achievement poster and the museum-info photo
+        // library), so it earns the first slot. Completion still does NOT require a photo
+        // (see completeTask), so the first win stays one tap away; the photo just makes it count.
 
         // Task-list schema version. Bumped when task ordering changes so saved progress can be remapped.
-        const TASK_LIST_VERSION = 1;
+        // v2 (2026-09-12): the low-friction "进门第一步" welcome task was removed from index 0, so the
+        // 门口打卡 (museum-entrance photo) task leads the funnel again.
+        const TASK_LIST_VERSION = 2;
 
         // =====================================================
         // 定制导览体验 (Custom Guided Tour Experience)
@@ -4147,7 +4150,9 @@
             const checklistKey = `${museumId}-child-${ageGroup}`;
             const checklistsData = JSON.parse(localStorage.getItem('museumChecklists') || '{}');
             checklistsData[checklistKey] = [...completedTasks];
-            // Stamp schema version so legacy progress can be remapped after task-order changes.
+            // Stamp the schema version per checklist (and globally, for readers written before
+            // per-checklist stamps existed) so saved progress can be remapped after task-order changes.
+            checklistsData[`${checklistKey}__v`] = TASK_LIST_VERSION;
             checklistsData['__taskListVersion'] = TASK_LIST_VERSION;
             localStorage.setItem('museumChecklists', JSON.stringify(checklistsData));
             
@@ -6131,12 +6136,25 @@
                 }
             }
 
-            // Backward compatibility: before v1 a low-friction welcome task was inserted at
-            // index 0, shifting every prior task index by +1. Remap legacy saved progress so
-            // returning visitors keep their completed treasures instead of a corrupted checklist.
-            if (checklistsData['__taskListVersion'] !== TASK_LIST_VERSION) {
+            // Backward compatibility: task-list layouts changed across versions, so remap saved
+            // progress onto the current ordering.
+            //   pre-v1 (untagged): [门口打卡, 镇馆之宝 x n, 合影留念]            - no welcome task
+            //   v1:                [进门第一步(欢迎), 门口打卡, 镇馆之宝 x n, 合影留念]
+            //   v2 (2026-09-12):   the 进门第一步 welcome task was removed, so the layout is
+            //                      identical to pre-v1 again (门口打卡 leads).
+            // A v1 visitor's indices therefore shift DOWN by one; pre-v1 progress already matches the
+            // v2 ordering and must be left untouched (the old code wrongly shifted it up by one).
+            const checklistVersionKey = `${checklistKey}__v`;
+            const savedTaskListVersion = checklistsData[checklistVersionKey] !== undefined
+                ? checklistsData[checklistVersionKey]
+                : checklistsData['__taskListVersion'];
+            if (savedTaskListVersion !== TASK_LIST_VERSION) {
                 const maxLen = (childTasks && childTasks.length) ? childTasks.length : Infinity;
-                completedTasks = new Set([...completedTasks].map(i => i + 1).filter(i => i >= 0 && i < maxLen));
+                if (savedTaskListVersion === 1) {
+                    completedTasks = new Set(
+                        [...completedTasks].map(i => i - 1).filter(i => i >= 0 && i < maxLen)
+                    );
+                }
             }
             
             // Also load reported tasks
@@ -7440,8 +7458,9 @@
                 const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
                 const collTasks = selectedCollections.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
                 const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
-                // Index 0 = low-friction welcome task so first_task_complete is reachable with one tap.
-                childTasks = [FIRST_TASK_WELCOME, start].concat(collTasks, [end]);
+                // Index 0 is the 门口打卡 (museum-entrance photo) task; the welcome task was removed
+                // on 2026-09-12 so the achievement-bearing photo task leads the funnel.
+                childTasks = [start].concat(collTasks, [end]);
                 
                 // Re-render tasks
                 renderTasks();
@@ -7460,13 +7479,13 @@
             const start = '📸 门口打卡：家长给孩子在博物馆门口拍一张照片';
             const end = '📸 亲子合影：和家长比心/拥抱/击掌等动作合影';
 
-            // Index 0 is the low-friction welcome task (see FIRST_TASK_WELCOME) so the
-            // north-star "first_task_complete" is reachable with one tap. Door photo + treasures follow.
+            // Index 0 is the 门口打卡 (museum-entrance photo) task; the low-friction welcome task was
+            // removed on 2026-09-12 so the achievement-bearing photo task leads the funnel.
             if (collections.length >= totalTreasuresNeeded) {
                 // All treasures available - standard treasure hunt
                 const colls = collections.slice(0, totalTreasuresNeeded);
                 const treasureTasks = colls.map(c => `🏺 镇馆之宝：找到「${c && c.name ? c.name : '镇馆之宝'}」并合影`);
-                return [FIRST_TASK_WELCOME, start].concat(treasureTasks, [end]);
+                return [start].concat(treasureTasks, [end]);
             } else {
                 // Mix of treasure hunt and "add treasure" tasks
                 const existingTreasureCount = collections.length;
@@ -7482,7 +7501,7 @@
                     `✨ 添加镇馆之宝 ${existingTreasureCount + i + 1}/${totalTreasuresNeeded}：找到你最喜欢的展品，拍照并记录名称`
                 );
                 
-                return [FIRST_TASK_WELCOME, start].concat(treasureTasks, addTreasureTasks, [end]);
+                return [start].concat(treasureTasks, addTreasureTasks, [end]);
             }
         }
 
