@@ -1548,6 +1548,7 @@ class VirtualPet {
     // ===== ANIMATIONS & VISIBILITY =====
     // Raise the achievement poster card above the pet overlays so the publish button
     // stays clickable even when the adoption prompt/panel is open over it.
+    // (verified 2026-09-12: pet overlay no longer blocks poster publish)
     raisePosterCard(raise) {
         const card = document.querySelector('.poster-card');
         if (card) card.classList.toggle('above-pet-overlay', !!raise);
