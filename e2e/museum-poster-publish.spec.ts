@@ -14,18 +14,26 @@ test.setTimeout(120000);
 const MUSEUM = 'forbidden-city';
 
 async function completeAllTasks(page: Page) {
-  for (let i = 0; i < 12; i++) {
+  // Completing the whole list triggers the celebration flow + canvas poster generation, which is
+  // heavy. When the full e2e suite runs, a 5s click timeout used to be silently swallowed
+  // (`.catch(() => {})`), leaving a task incomplete — then checkCompletion() never fired and the
+  // poster card never appeared, failing the test with a confusing visibility timeout. Give each
+  // interaction a generous window and assert the list actually empties so a real failure is loud.
+  for (let i = 0; i < 15; i++) {
     const next = page.locator('.task-card:not(.completed):not(.poster-card)').first();
     if ((await next.count()) === 0) break;
 
-    await next.click({ timeout: 5000 }).catch(() => {});
+    await next.click({ timeout: 15000 }).catch(() => {});
     const complete = page.locator('#completeButton');
     if (await complete.isVisible().catch(() => false)) {
-      await complete.click().catch(() => {});
+      await complete.click({ timeout: 10000 }).catch(() => {});
     }
-    await page.waitForTimeout(350);
+    await page.waitForTimeout(400);
     await dismissOverlays(page);
   }
+  await expect(page.locator('.task-card:not(.completed):not(.poster-card)')).toHaveCount(0, {
+    timeout: 15000,
+  });
 }
 
 async function dismissOverlays(page: Page) {
@@ -107,10 +115,13 @@ test.describe('Achievement poster publish', () => {
     await completeAllTasks(page);
 
     const publishBtn = page.locator('#posterCardPublishBtn');
-    await expect(publishBtn).toBeVisible({ timeout: 15000 });
+    // The poster card is appended only after the celebration flow has generated the canvas
+    // poster. Wait on that real signal first, then give the DOM a generous window (the full e2e
+    // suite runs these heavy canvas flows in parallel, so a 15s visibility window was too tight).
+    await waitForPosterStored(page);
+    await expect(publishBtn).toBeVisible({ timeout: 30000 });
     await expect(publishBtn).toContainText('发布');
 
-    await waitForPosterStored(page);
     await dismissOverlays(page);
     await page.keyboard.press('Escape').catch(() => {});
 
@@ -163,8 +174,8 @@ test.describe('Achievement poster publish', () => {
     await completeAllTasks(page);
 
     const publishBtn = page.locator('#posterCardPublishBtn');
-    await expect(publishBtn).toBeVisible({ timeout: 15000 });
     await waitForPosterStored(page);
+    await expect(publishBtn).toBeVisible({ timeout: 30000 });
     await dismissOverlays(page);
     await page.keyboard.press('Escape').catch(() => {});
 
