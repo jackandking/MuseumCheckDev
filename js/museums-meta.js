@@ -294,9 +294,47 @@ window.MUSEUMS_META = [
       "考古",
       "世界遗产"
     ],
-    "image": "https://img0.baidu.com/it/u=394895228,4120900227&fm=253&fmt=auto&app=138?f=JPEG?w=667&h=500",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/qinling-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "秦陵二号铜车马（安车）",
+        "dynasty": "秦代",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/qinling-erhaotongchema-v1.jpg",
+        "description": "1980年出土于秦始皇陵封土西侧，按真车1/2比例铸造，由三千多个零件组成，工艺精湛，被誉为'青铜之冠'，属首批禁止出境展览文物。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Qin_bronze_chariot_two.jpg",
+        "rightsType": "CC",
+        "license": "CC BY 3.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Jmhullot, CC BY 3.0, via Wikimedia Commons"
+      },
+      {
+        "name": "跪射俑",
+        "dynasty": "秦代",
+        "category": "陶俑",
+        "imageUrl": "https://museumcheck.cn/images/qinling-guisheyong-v1.jpg",
+        "description": "出土于二号坑，单膝跪地、双手在右侧作持弓状，姿态稳定不易坍塌，是兵马俑中保存最完整的陶俑之一，鞋底针脚纹路清晰可见。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kneeling_archer_of_the_Terracotta_Army.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Difference engine, CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "将军俑",
+        "dynasty": "秦代",
+        "category": "陶俑",
+        "imageUrl": "https://museumcheck.cn/images/qinling-jiangjunyong-v1.jpg",
+        "description": "兵马俑中级别最高的陶俑，头戴鹖冠、身披彩绘鱼鳞甲，昂首挺胸、神态沉稳，出土于一号坑，展现秦军高级将领的威严。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:2009_Qin_Terracotta_General.jpg",
+        "rightsType": "CC0",
+        "license": "CC0 1.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Gary Todd, CC0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "nanjing-museum",
