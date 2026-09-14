@@ -48,3 +48,10 @@ uploads/
 .venv/
 ref/snowpark_config.py
 explorations/
+
+# Agent working memory (NEVER commit — contains local notes / business context)
+.workbuddy/
+
+# Python cache
+__pycache__/
+*.pyc

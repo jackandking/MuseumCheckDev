@@ -4,7 +4,7 @@
  * 图片上传工具 - 自动压缩后上传到自有CDN
  *
  * 解决痛点：直接上传大图片会报 413 Request Entity Too Large
- * 功能：自动压缩到适合手机浏览的大小，然后上传到 letmetry.cloud
+ * 功能：自动压缩到适合手机浏览的大小，然后上传到 museumcheck.cn
  *
  * 用法：
  *   node tools/upload-image-to-cdn.js <图片路径> [选项]
@@ -23,7 +23,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const CDN_UPLOAD_URL = 'https://letmetry.cloud/image/upload';
+const CDN_UPLOAD_URL = 'https://museumcheck.cn/image/upload';
 
 function log(msg) {
   console.log(msg);
@@ -213,7 +213,7 @@ async function main() {
   log('');
 
   // 步骤3：验证
-  const cdnUrl = `https://letmetry.cloud/${result.path}`;
+  const cdnUrl = `https://museumcheck.cn/${result.path}`;
   log('🔗 验证URL可访问性...');
   const isValid = await validateUrl(cdnUrl);
   if (isValid) {

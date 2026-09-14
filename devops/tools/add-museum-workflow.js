@@ -155,7 +155,7 @@ async function searchWikimediaImages(query, limit = 5) {
  */
 async function searchLetmetryImages(keyword, count = 5) {
   try {
-    const response = await fetch('https://letmetry.cloud/image/search', {
+    const response = await fetch('https://museumcheck.cn/image/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ keyword, count })

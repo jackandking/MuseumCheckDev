@@ -11,7 +11,7 @@ const path = require('path');
 
 // 尝试加载集中配置
 let API_ENDPOINTS;
-try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+try { API_ENDPOINTS = require('../../config/api-endpoints.js'); } catch(e) {}
 
 const colors = {
   reset: '\x1b[0m',
@@ -36,7 +36,7 @@ const symbols = {
  */
 async function verifyMuseum(museumName) {
   try {
-    const endpoint = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://letmetry.cloud/museum/search';
+    const endpoint = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://museumcheck.cn/museum/search';
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

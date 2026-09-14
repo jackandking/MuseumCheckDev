@@ -4,7 +4,7 @@
  * Add collections (treasures) data for all museums
  * Uses verify skill API to fetch museum treasures and details
  * 
- * VERIFY SKILL ENDPOINT: https://letmetry.cloud/museum/search
+ * VERIFY SKILL ENDPOINT: https://museumcheck.cn/museum/search
  * Returns: collections, treasures, famous collections info
  */
 
@@ -13,9 +13,9 @@ const path = require('path');
 
 // 尝试加载集中配置
 let API_ENDPOINTS;
-try { API_ENDPOINTS = require('../config/api-endpoints.js'); } catch(e) {}
+try { API_ENDPOINTS = require('../../config/api-endpoints.js'); } catch(e) {}
 
-const VERIFY_ENDPOINT = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://letmetry.cloud/museum/search';
+const VERIFY_ENDPOINT = API_ENDPOINTS ? API_ENDPOINTS.MUSEUM.SEARCH : 'https://museumcheck.cn/museum/search';
 const KV_ENDPOINT = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
 
 const colors = {

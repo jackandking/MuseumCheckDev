@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Database Initialization Script using curl + letmetry.cloud MySQL query API
+# Database Initialization Script using curl + museumcheck.cn MySQL query API
 # This script creates the achievement_posters table if it doesn't exist
 # and adds missing columns if the table exists but lacks required columns
 
 set -e
 
-LETMETRY_API="https://letmetry.cloud"
+LETMETRY_API="https://museumcheck.cn"
 
 echo "🔧 Initializing achievement_posters table using curl..."
 echo ""
