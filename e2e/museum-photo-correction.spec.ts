@@ -166,4 +166,25 @@ test.describe('馆图纠错 · 提交侧 (M1)', () => {
     await page.goto('/leaderboard.html');
     await expect(page.locator('#mcPhotoCorrection-btn')).toHaveCount(0);
   });
+
+  /**
+   * 回归守卫：openTaskDetail 打开任务弹窗时必须「自动」调用 setTarget 注入按钮。
+   * 之前的线上事故：museum-checkin.js 因 CDN 按 query 缓存了旧版（无 setTarget 调用），
+   * 导致按钮永不出现——而旧用例都在手动 setTarget，掩盖了该问题。此用例不手动调用。
+   */
+  test('打开门口打卡弹窗时自动显示反馈按钮（openTaskDetail 自动 setTarget）', async ({ page }) => {
+    captured.length = 0;
+    await mockBackendRoutes(page, captured);
+    // 找「门口打卡」卡片（有馆图，target=museum），不手动 setTarget
+    await page.goto('/museum-checkin.html?museum=forbidden-city&age=7-12');
+    await expect(page.locator('#taskGrid')).toBeVisible();
+    await page.waitForSelector('.task-card', { timeout: 10000 });
+    const card = page.locator('.task-card', { hasText: '门口打卡' }).first();
+    await card.click();
+    await expect(page.locator('#taskModal')).toHaveClass(/show/);
+
+    const btn = page.locator('#mcPhotoCorrection-btn');
+    await expect(btn).toBeVisible({ timeout: 10000 });
+    await expect(btn).toContainText('馆图不对');
+  });
 });
