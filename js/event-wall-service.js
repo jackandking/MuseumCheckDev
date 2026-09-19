@@ -21,7 +21,12 @@ class EventWallService {
             console.log('childNickname before event:', localStorage.getItem('childNickname'));
             let childNickname = localStorage.getItem('childNickname');
             if (!childNickname || childNickname.trim() === '') {
-                childNickname = '小淘气';
+                // Fall back to the user_id-derived default (js/identity.js) rather
+                // than the shared literal '小淘气', which made every unnamed user
+                // indistinguishable on the event wall.
+                childNickname = (typeof LocalIdentity !== 'undefined' && LocalIdentity.getDefaultNickname)
+                    ? LocalIdentity.getDefaultNickname()
+                    : '用户' + String(userId).replace(/[^0-9a-zA-Z]/g, '').slice(-6).toLowerCase();
             }
             
             // Create event object

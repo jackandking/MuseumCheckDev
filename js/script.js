@@ -230,14 +230,73 @@ const UtilityFunctions = {
         });
     },
     
-    // Generate random nickname ID for new users using UUID substring
-    generateRandomNickname: () => {
-        // Generate UUID and take a substring to create unique but shorter nickname
-        const uuid = UtilityFunctions.generateUUID();
-        // Take last 6 characters of UUID (without hyphens) for shorter display
-        const shortId = uuid.replace(/-/g, '').slice(-6);
-        return `用户${shortId}`;
+    /**
+     * Legacy default nickname. Kept only so the one-time migration below can
+     * recognise users who never chose a name (they all shared this literal,
+     * which produced heavy duplication on the firework wall / event wall).
+     * @see js/identity.js
+     */
+    LEGACY_DEFAULT_NICKNAME: '小淘气',
+
+    /**
+     * Get the local user id, creating it once if absent.
+     * Single source of truth for "who is this device" until a real login
+     * system replaces it. Delegates to js/identity.js; the inline branch is a
+     * safety net for pages that forgot to load the module.
+     */
+    getOrCreateUserId: () => {
+        if (typeof LocalIdentity !== 'undefined' && LocalIdentity.getOrCreateUserId) {
+            return LocalIdentity.getOrCreateUserId();
+        }
+
+        let userId = null;
+        try {
+            userId = localStorage.getItem('user_id');
+        } catch (error) {
+            console.warn('Cannot read user_id from localStorage:', error);
+        }
+
+        if (!userId) {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                userId = crypto.randomUUID();
+            } else {
+                userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+            }
+            try {
+                localStorage.setItem('user_id', userId);
+            } catch (error) {
+                console.warn('Cannot persist user_id to localStorage:', error);
+            }
+        }
+
+        return userId;
     },
+
+    /**
+     * Default nickname derived from the user id.
+     *
+     * Previously the default was the shared literal '小淘气', so every user who
+     * never set a nickname showed up under the same name. Deriving it from
+     * user_id keeps it unique, stable across reloads/pages, and traceable back
+     * to the KV records (leaderboard / event wall / fireworks).
+     * Format: 用户 + last 6 alphanumeric chars of user_id (8 chars total, fits maxlength=10)
+     */
+    getDefaultNickname: () => {
+        if (typeof LocalIdentity !== 'undefined' && LocalIdentity.getDefaultNickname) {
+            return LocalIdentity.getDefaultNickname();
+        }
+
+        const normalized = String(UtilityFunctions.getOrCreateUserId())
+            .replace(/[^0-9a-zA-Z]/g, '')
+            .toLowerCase();
+        const tail = normalized.slice(-6) || '000000';
+        return `用户${tail}`;
+    },
+
+    /**
+     * Backwards-compatible alias. Use getDefaultNickname() in new code.
+     */
+    generateRandomNickname: () => UtilityFunctions.getDefaultNickname(),
     
     // ===== WeChat Environment Detection =====
     // Detect if running in WeChat browser or Mini Program webview
@@ -3706,7 +3765,7 @@ class LeaderboardManager {
         try {
             const userId = this.getUserId();
             const sortKey = `user-${userId}`;
-            
+
             const payload = {
                 nickname: nickname || '小朋友',
                 visitedCount: visitedCount,
@@ -5021,17 +5080,41 @@ class MuseumCheckApp {
 
         if (nicknameInput) {
             nicknameInput.addEventListener('blur', () => {
-                const nickname = nicknameInput.value.trim();
-                
-                // Only save if there's a change
+                const typed = nicknameInput.value.trim();
                 const savedNickname = localStorage.getItem('childNickname') || '';
-                if (nickname !== savedNickname) {
-                    const result = this.saveChildNickname(nickname);
+
+                // Empty field = "I don't want a custom name". Revert to the
+                // user_id-derived default instead of failing validation, and
+                // drop the explicit-set flag (which also withdraws the user
+                // from the leaderboard, as intended for unnamed users).
+                if (!typed) {
+                    const defaultNickname = UtilityFunctions.getDefaultNickname();
+                    nicknameInput.value = defaultNickname;
+                    if (defaultNickname !== savedNickname) {
+                        this.childNickname = defaultNickname;
+                        localStorage.setItem('childNickname', defaultNickname);
+                        try {
+                            localStorage.setItem('nicknameHasBeenSet', 'false');
+                        } catch (error) {
+                            console.warn('Failed to clear nickname flag:', error);
+                        }
+                        this.updateHeaderTitle();
+                        showNicknameStatus('✔ 已恢复默认昵称', 'success');
+                        setTimeout(() => showNicknameStatus(''), 1200);
+                    } else {
+                        showNicknameStatus('');
+                    }
+                    return;
+                }
+
+                // Only save if there's a change
+                if (typed !== savedNickname) {
+                    const result = this.saveChildNickname(typed);
                     
                     if (result.isValid) {
                         // Track nickname saved event
                         this.trackEvent('nickname_saved', {
-                            'nickname_length': nickname.length,
+                            'nickname_length': typed.length,
                             'auto_saved': true
                         });
                         showNicknameStatus('✔ 已保存', 'success');
@@ -5039,7 +5122,7 @@ class MuseumCheckApp {
                     } else {
                         showNicknameStatus(result.message || '昵称不符合要求', 'error');
                         // Restore the previous valid nickname
-                        nicknameInput.value = savedNickname || '小淘气';
+                        nicknameInput.value = savedNickname || UtilityFunctions.getDefaultNickname();
                         nicknameInput.focus();
                     }
                 } else {
@@ -5989,18 +6072,28 @@ class MuseumCheckApp {
     loadChildNickname() {
         try {
             const saved = localStorage.getItem('childNickname');
-            if (saved) {
+
+            // One-time migration: users who never picked a name used to inherit
+            // the shared literal '小淘气' (or nothing at all), which is why the
+            // community surfaces were full of identical "小淘气" entries. Swap
+            // them for the user_id-derived default; users who chose their own
+            // name keep it untouched.
+            const isLegacyDefault = !saved
+                || saved.trim() === ''
+                || (saved.trim() === UtilityFunctions.LEGACY_DEFAULT_NICKNAME
+                    && localStorage.getItem('nicknameHasBeenSet') !== 'true');
+
+            if (saved && !isLegacyDefault) {
                 return saved;
             }
-            
-            // Generate random nickname for new users
-            const randomNickname = UtilityFunctions.generateRandomNickname();
+
+            const defaultNickname = UtilityFunctions.getDefaultNickname();
             // Persist once to avoid changing across reloads, but keep nicknameHasBeenSet false
-            localStorage.setItem('childNickname', randomNickname);
-            return randomNickname;
+            localStorage.setItem('childNickname', defaultNickname);
+            return defaultNickname;
         } catch (error) {
             console.error('Failed to load child nickname:', error);
-            return UtilityFunctions.generateRandomNickname();
+            return UtilityFunctions.getDefaultNickname();
         }
     }
     
@@ -6032,7 +6125,7 @@ class MuseumCheckApp {
     updateHeaderTitle() {
         const nicknameDisplay = document.getElementById('nicknameDisplay');
         if (nicknameDisplay) {
-            const nickname = this.childNickname || '小淘气';
+            const nickname = this.childNickname || UtilityFunctions.getDefaultNickname();
             nicknameDisplay.textContent = nickname;
         }
     }
@@ -10220,6 +10313,15 @@ class MuseumCheckApp {
 
     showSettingsModal() {
         this.modalManager.showModal('settingsModal');
+        
+        // Keep the nickname field in sync with the nickname actually in use.
+        // The placeholder shows the auto-generated default (derived from user_id)
+        // so users can tell what they will be called if they leave it empty.
+        const nicknameInput = document.getElementById('childNicknameInput');
+        if (nicknameInput) {
+            nicknameInput.value = this.childNickname || UtilityFunctions.getDefaultNickname();
+            nicknameInput.placeholder = UtilityFunctions.getDefaultNickname();
+        }
         
         // Populate the treasure museum selector when settings modal is opened
         this.populateTreasureMuseumSelector();

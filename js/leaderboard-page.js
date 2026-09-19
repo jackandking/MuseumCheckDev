@@ -13,6 +13,22 @@
 (function() {
     'use strict';
 
+    // Tab configuration: each tab renders the same underlying data differently
+    const TAB_CONFIG = {
+        pet: {
+            icon: '🐾',
+            introTitle: '宠物年龄排行榜',
+            introDesc: '打卡的博物馆越多，宠物越大！看看谁的宠物最年长！',
+            scoreLabel: '宠物年龄'
+        },
+        museum: {
+            icon: '🏛️',
+            introTitle: '打卡博物馆排行榜',
+            introDesc: '看看谁打卡过的博物馆最多！坚持打卡，冲上榜首！',
+            scoreLabel: '打卡数量'
+        }
+    };
+
     // Leaderboard Page Manager
     window.LeaderboardPage = {
         currentTab: 'pet',
@@ -65,29 +81,38 @@
             });
         },
 
-        // Switch between tabs (kept for backward compatibility, only 'pet' tab remains)
+        // Switch between tabs (pet / museum)
         switchTab: function(rankingType) {
             if (this.isLoading) return;
+            if (!TAB_CONFIG[rankingType] || rankingType === this.currentTab) return;
 
             // Update current tab
-            this.currentTab = 'pet';
-            this.currentPage = 1;
-            this.allData = [];
-            this.hasMoreData = true;
+            this.currentTab = rankingType;
 
-            // Reload data
-            this.loadInitialData();
+            // Update tab button states
+            const tabPet = document.getElementById('tabBtnPet');
+            const tabMuseum = document.getElementById('tabBtnMuseum');
+            if (tabPet) tabPet.classList.toggle('active', rankingType === 'pet');
+            if (tabMuseum) tabMuseum.classList.toggle('active', rankingType === 'museum');
+
+            // Update intro text and re-render from already-loaded data (no refetch needed)
+            this.updateIntroText(rankingType);
+            if (this.allData.length > 0) {
+                this.renderLeaderboard(this.allData);
+                this.updateUserStats(this.getCurrentUserStats(this.allData));
+            }
         },
 
         // Update introduction text based on tab
         updateIntroText: function(rankingType) {
+            const config = TAB_CONFIG[rankingType] || TAB_CONFIG.pet;
             const introTitle = document.querySelector('.intro-title');
             const introDesc = document.querySelector('.intro-desc');
             const scoreLabel = document.getElementById('scoreLabel');
 
-            if (introTitle) introTitle.innerHTML = '<span class="title-icon">🐾</span>宠物年龄排行榜';
-            if (introDesc) introDesc.textContent = '打卡的博物馆越多，宠物越大！看看谁的宠物最年长！';
-            if (scoreLabel) scoreLabel.textContent = '宠物年龄';
+            if (introTitle) introTitle.innerHTML = `<span class="title-icon">${config.icon}</span>${config.introTitle}`;
+            if (introDesc) introDesc.textContent = config.introDesc;
+            if (scoreLabel) scoreLabel.textContent = config.scoreLabel;
         },
 
         // Load initial data
@@ -146,26 +171,27 @@
                 return;
             }
 
-            // Parse and filter user records (include all records, not just user- prefix)
+            // Parse user records from KV items (include all records, not just user- prefix)
             const userRecords = items.map(item => {
                 try {
                     const value = JSON.parse(item.value);
                     const sortKey = item.sortKey || item.sk || '';
-                    
+
                     // Extract userId from sortKey, handle both patterns:
                     // "user-xxxxxxxx" and "user-highscore-xxxxxxxx"
                     let userId = sortKey;
                     if (sortKey.startsWith('user-')) {
                         userId = sortKey.replace('user-', '');
                     }
-                    
+
                     // petAge = number of museums visited (打卡博物馆数即宠物年龄)
                     const petAge = value.visitedCount || 0;
                     const petStats = value.petStats || null;
-                    
+
                     return {
                         userId: userId,
                         nickname: value.nickname || value.userName || 'Anonymous',
+                        visitedCount: value.visitedCount || 0,
                         petAge: petAge,
                         petEmoji: (petStats && petStats.petEmoji) || '🐾',
                         petName: (petStats && petStats.petName) || '小宠物',
@@ -177,9 +203,19 @@
                 }
             }).filter(item => item !== null);
 
-            // Sort by petAge (museums visited) descending
+            // Sort descending by the ranking metric
             userRecords.sort((a, b) => b.petAge - a.petAge);
-            
+
+            userRecords.forEach((record, index) => {
+                record.rank = index + 1;
+            });
+
+            if (userRecords.length === 0) {
+                // Genuinely no records at all
+                this.showEmptyState();
+                return;
+            }
+
             userRecords.forEach((record, index) => {
                 record.rank = index + 1;
             });
@@ -201,17 +237,21 @@
 
         // Get current user stats from the data
         getCurrentUserStats: function(records) {
-            const currentUserId = localStorage.getItem('userName') || 'user';
+            // script.js LeaderboardManager stores the id as 'user_id'
+            const currentUserId = localStorage.getItem('user_id')
+                || localStorage.getItem('userName')
+                || 'user';
             const userRecord = records.find(record => record.userId === currentUserId);
-            
+
             if (userRecord) {
                 return {
                     rank: userRecord.rank,
-                    score: userRecord.petAge
+                    visitedCount: userRecord.visitedCount,
+                    petAge: userRecord.petAge
                 };
             }
-            
-            return { rank: '-', score: '-' };
+
+            return null;
         },
 
         // Load sample data for demo/fallback
@@ -267,21 +307,26 @@
 
         // Create HTML for a single leaderboard item
         createLeaderboardItemHTML: function(item, index) {
-            const actualIndex = this.allData.findIndex(d => d.rank === item.rank);
             const medal = item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : `${item.rank}`;
-            const petEmoji = item.petEmoji || '🐾';
-            const petName = item.petName || '小宠物';
-            const petAge = item.petAge || 0;
-            const scoreText = `${petEmoji} ${petName} · ${petAge}岁`;
-            
+            const nickname = item.nickname || '匿名用户';
+
+            let scoreText;
+            if (this.currentTab === 'museum') {
+                scoreText = `🏛️ 已打卡 ${item.visitedCount || 0} 家博物馆`;
+            } else {
+                const petEmoji = item.petEmoji || '🐾';
+                const petName = item.petName || '小宠物';
+                scoreText = `${petEmoji} ${petName} · ${item.petAge || 0}岁`;
+            }
+
             const isCurrentUser = item.nickname === '我' || item.isCurrentUser;
             const currentClass = isCurrentUser ? 'current-user' : '';
-            
+
             return `
                 <div class="leaderboard-item ${currentClass}" data-rank="${item.rank}" style="animation: slideInUp 0.3s ease-out ${index * 0.05}s both">
                     <div class="rank-medal">${medal}</div>
                     <div class="rank-info">
-                        <div class="rank-name">${item.nickname || '匿名用户'}</div>
+                        <div class="rank-name">${nickname}</div>
                         <div class="rank-count">${scoreText}</div>
                     </div>
                     ${isCurrentUser ? '<div class="current-badge">我</div>' : ''}
@@ -296,7 +341,13 @@
 
             if (userStats) {
                 if (myRank) myRank.textContent = `第 ${userStats.rank} 名`;
-                if (myScore) myScore.textContent = userStats.score !== '-' ? `${userStats.score}岁` : '-';
+                if (myScore) {
+                    if (this.currentTab === 'museum') {
+                        myScore.textContent = `${userStats.visitedCount || 0} 家`;
+                    } else {
+                        myScore.textContent = `${userStats.petAge || 0}岁`;
+                    }
+                }
             } else {
                 if (myRank) myRank.textContent = '未上榜';
                 if (myScore) myScore.textContent = '-';
@@ -387,6 +438,10 @@
             if (loadingState) loadingState.style.display = 'none';
             if (leaderboardList) leaderboardList.style.display = 'none';
             if (emptyState) emptyState.style.display = 'block';
+
+            // Nobody is on the board, so the current user cannot be ranked either
+            this.updateUserStats(null);
+            this.updateLastRefreshTime();
         },
 
         // Animate items when they appear

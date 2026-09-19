@@ -14,6 +14,21 @@
             return '';
         }
 
+        // Effective display nickname: the user's saved nickname, otherwise the
+        // user_id-derived default from js/identity.js. Never the old shared
+        // literal '小淘气' / '小朋友', which made every unnamed user look alike.
+        function resolveChildNickname() {
+            try {
+                const saved = localStorage.getItem('childNickname');
+                if (saved && saved.trim()) {
+                    return saved.trim();
+                }
+            } catch (error) {
+                console.warn('Cannot read childNickname:', error);
+            }
+            return generateRandomNickname();
+        }
+
         function normalizeImageUrl(url) {
             if (typeof API_ENDPOINTS !== 'undefined' && typeof API_ENDPOINTS.normalizeImageUrl === 'function') {
                 return API_ENDPOINTS.normalizeImageUrl(url);
@@ -4036,16 +4051,8 @@
             const task = childTasks[taskIndex];
             const { title } = parseTaskString(task);
             
-            // Load child nickname from localStorage
-            let childNickname = '小朋友'; // Default nickname
-            try {
-                const savedNickname = localStorage.getItem('childNickname');
-                if (savedNickname && savedNickname.trim()) {
-                    childNickname = savedNickname.trim();
-                }
-            } catch (error) {
-                console.error('Error loading child nickname:', error);
-            }
+            // Load child nickname (saved value, else user_id-derived default)
+            const childNickname = resolveChildNickname();
             
             // Load firework type from localStorage
             let fireworkType = 'heart'; // Default type
@@ -6132,7 +6139,7 @@
                         : 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
                     localStorage.setItem('user_id', userId);
                 }
-                const childNickname = localStorage.getItem('childNickname') || '小朋友';
+                const childNickname = resolveChildNickname();
                 const visitedMuseums = JSON.parse(localStorage.getItem('visitedMuseums') || '[]');
                 const visitedCount = Array.isArray(visitedMuseums) ? visitedMuseums.length : 0;
                 const payload = {
@@ -6918,14 +6925,18 @@
         function loadChildNickname() {
             try {
                 const saved = localStorage.getItem('childNickname');
-                if (saved) {
+
+                // One-time migration for users who inherited the legacy shared
+                // default '小淘气' (see js/identity.js). Users who chose their own
+                // nickname keep it.
+                if (saved && !isLegacyDefaultNickname(saved)) {
                     return saved;
                 }
-                
-                // Generate random nickname for new users and save it immediately
-                const newNickname = generateRandomNickname();
+
+                // Derive the default from user_id and save it immediately
                 // Save the default nickname so it's available for poster generation
                 // This prevents users from being marked as anonymous when using default nickname
+                const newNickname = generateRandomNickname();
                 localStorage.setItem('childNickname', newNickname);
                 return newNickname;
             } catch (error) {
@@ -6933,16 +6944,30 @@
                 return generateRandomNickname();
             }
         }
-        
+
+        function isLegacyDefaultNickname(nickname) {
+            if (typeof LocalIdentity !== 'undefined' && LocalIdentity.isLegacyDefaultNickname) {
+                return LocalIdentity.isLegacyDefaultNickname(nickname);
+            }
+            return (nickname || '').trim() === '小淘气'
+                && localStorage.getItem('nicknameHasBeenSet') !== 'true';
+        }
+
+        // Default nickname, derived from user_id (unique per user) instead of the
+        // old shared literal. Format: 用户 + last 6 alphanumeric chars of user_id.
         function generateRandomNickname() {
-            // Generate UUID and take a substring to create unique but shorter nickname
-            const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-            // Take last 6 characters of UUID (without hyphens) for shorter display
-            const shortId = uuid.replace(/-/g, '').slice(-6);
+            if (typeof LocalIdentity !== 'undefined' && LocalIdentity.getDefaultNickname) {
+                return LocalIdentity.getDefaultNickname();
+            }
+
+            let userId = localStorage.getItem('user_id');
+            if (!userId) {
+                userId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                localStorage.setItem('user_id', userId);
+            }
+            const shortId = String(userId).replace(/[^0-9a-zA-Z]/g, '').toLowerCase().slice(-6);
             return `用户${shortId}`;
         }
         
@@ -8371,6 +8396,10 @@
             const nicknameInput = document.getElementById('childNicknameInput');
             if (nicknameInput) {
                 nicknameInput.value = nickname;
+                // Placeholder mirrors the auto default (derived from user_id)
+                if (typeof LocalIdentity !== 'undefined' && LocalIdentity.getDefaultNickname) {
+                    nicknameInput.placeholder = LocalIdentity.getDefaultNickname();
+                }
             }
 
             // Load avatar into settings

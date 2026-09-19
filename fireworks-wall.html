@@ -453,9 +453,9 @@
                 <div class="settings-item">
                     <label class="settings-label" for="childNicknameInput">孩子昵称：</label>
                     <div class="settings-input-group">
-                        <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="小淘气">
+                        <input type="text" id="childNicknameInput" class="settings-input" maxlength="10" placeholder="例如：小恐龙">
                     </div>
-                    <div class="settings-hint">最多5个中文字或10个英文字母，输入后自动保存</div>
+                    <div class="settings-hint">最多5个中文字或10个英文字母，输入后自动保存；留空则会自动使用带编号的默认昵称</div>
                 </div>
             </div>
 
@@ -530,11 +530,42 @@
     </div>
 
     <!-- Event Tracking Dependencies -->
+    <script src="js/identity.js"></script>
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
 
     <script src="js/museum-data-loader.js"></script>
     <script>
+        // ===== Nickname resolution =====
+        // The default nickname is derived from user_id (js/identity.js) so it is
+        // unique per user. It used to be the shared literal '小淘气', which made
+        // every unnamed user's firework show the same name.
+        function defaultChildNickname() {
+            if (typeof LocalIdentity !== 'undefined' && LocalIdentity.getDefaultNickname) {
+                return LocalIdentity.getDefaultNickname();
+            }
+            let userId = localStorage.getItem('user_id');
+            if (!userId) {
+                userId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : 'user-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+                localStorage.setItem('user_id', userId);
+            }
+            return '用户' + String(userId).replace(/[^0-9a-zA-Z]/g, '').toLowerCase().slice(-6);
+        }
+
+        function currentChildNickname() {
+            try {
+                const saved = localStorage.getItem('childNickname');
+                if (saved && saved.trim()) {
+                    return saved.trim();
+                }
+            } catch (error) {
+                console.error('Error loading child nickname:', error);
+            }
+            return defaultChildNickname();
+        }
+
         // Canvas setup
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -1359,7 +1390,7 @@
             const targetX = canvas.width * 0.3 + Math.random() * canvas.width * 0.4;
             const targetY = canvas.height * 0.1 + Math.random() * canvas.height * 0.4;
             
-            const childNickname = fireworkData.childNickname || '小淘气';
+            const childNickname = fireworkData.childNickname || defaultChildNickname();
             const taskContent = fireworkData.taskContent || '';
             const museumName = fireworkData.museumName || '博物馆';
             
@@ -1678,16 +1709,8 @@
             }
             lastClickTime = currentTime;
             
-            // Get child nickname from localStorage
-            let childNickname = '小淘气'; // Default nickname
-            try {
-                const savedNickname = localStorage.getItem('childNickname');
-                if (savedNickname && savedNickname.trim()) {
-                    childNickname = savedNickname.trim();
-                }
-            } catch (error) {
-                console.error('Error loading child nickname:', error);
-            }
+            // Get child nickname from localStorage (else user_id-derived default)
+            const childNickname = currentChildNickname();
             
             // Determine display text based on viewing context
             let displayText;
@@ -1885,10 +1908,11 @@
         // Child nickname input handler
         const childNicknameInput = document.getElementById('childNicknameInput');
         if (childNicknameInput) {
-            // Load saved nickname
+            // Load the nickname currently in use (saved value, else the
+            // user_id-derived default) so the field reflects reality.
             try {
-                const savedNickname = localStorage.getItem('childNickname') || '';
-                childNicknameInput.value = savedNickname;
+                childNicknameInput.value = currentChildNickname();
+                childNicknameInput.placeholder = defaultChildNickname();
             } catch (error) {
                 console.error('Error loading child nickname:', error);
             }
@@ -1901,8 +1925,11 @@
                     try {
                         const nickname = childNicknameInput.value.trim();
                         if (nickname.length <= 10) {
-                            localStorage.setItem('childNickname', nickname);
-                            console.log('Child nickname saved:', nickname);
+                            // Empty field reverts to the auto default instead of
+                            // storing an empty nickname
+                            const value = nickname || defaultChildNickname();
+                            localStorage.setItem('childNickname', value);
+                            console.log('Child nickname saved:', value);
                         }
                     } catch (error) {
                         console.error('Error saving child nickname:', error);

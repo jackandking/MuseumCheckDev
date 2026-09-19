@@ -57,6 +57,18 @@
             </div>
         </header>
 
+        <!-- Tab Navigation -->
+        <nav class="leaderboard-tabs" id="leaderboardTabs">
+            <button class="tab-btn active" id="tabBtnPet" onclick="switchTab('pet')">
+                <span class="tab-icon">🐾</span>
+                <span>宠物排行榜</span>
+            </button>
+            <button class="tab-btn" id="tabBtnMuseum" onclick="switchTab('museum')">
+                <span class="tab-icon">🏛️</span>
+                <span>打卡博物馆</span>
+            </button>
+        </nav>
+
         <!-- Leaderboard Content -->
         <main class="leaderboard-content">
             <!-- Introduction Section -->
@@ -135,6 +147,7 @@
 
     <!-- Scripts -->
     <!-- Event Tracking Dependencies -->
+    <script src="js/identity.js"></script>
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
 
