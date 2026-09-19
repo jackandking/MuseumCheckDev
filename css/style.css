@@ -4402,6 +4402,77 @@ main[role="main"] {
     transform: var(--btn-hover-transform);
 }
 
+/* Backup & migration (存档码) */
+.backup-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 0 10px 0;
+}
+
+.settings-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: var(--btn-border-radius);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    min-height: var(--btn-min-height-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+}
+
+.settings-btn:hover:not(:disabled) {
+    transform: var(--btn-hover-transform);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9, #21618c);
+}
+
+.settings-btn:active:not(:disabled) {
+    transform: var(--btn-active-transform);
+}
+
+.settings-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.settings-textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    resize: vertical;
+    box-sizing: border-box;
+    background: #f8f9ff;
+    color: #495057;
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+.settings-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.settings-textarea:read-only {
+    background: #f1f3f5;
+    color: #6c757d;
+}
+
 /* Settings button icon - Extends .btn-icon base styles */
 .settings-button-icon {
     min-width: auto;

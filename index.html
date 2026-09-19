@@ -454,6 +454,26 @@
                 </div>
                 </div>
             </div>
+            <!-- Backup & Migration Section -->
+            <div class="settings-section" data-collapsed="false">
+                <h3 class="settings-section-header">
+                    <span>📦 数据备份与迁移</span>
+                    <span class="settings-section-toggle">▼</span>
+                </h3>
+                <div class="settings-section-content">
+                <div class="settings-item" style="flex-direction: column; align-items: stretch;">
+                    <label class="settings-label">存档码：</label>
+                    <div class="settings-hint">把你的博物馆之旅打包成一段「存档码」。换新手机、清了缓存时，把这段码粘贴回来即可恢复——全程不会上传到任何服务器。</div>
+                    <div class="backup-actions">
+                        <button type="button" id="backupExportBtn" class="settings-btn">导出存档码</button>
+                        <button type="button" id="backupCopyBtn" class="settings-btn" disabled>复制</button>
+                        <button type="button" id="backupImportBtn" class="settings-btn" disabled>导入存档码</button>
+                    </div>
+                    <textarea id="backupCode" class="settings-textarea" placeholder="点「导出存档码」生成；或粘贴存档码后点「导入存档码」" rows="4"></textarea>
+                    <div id="backupStatus" class="settings-inline-status" aria-live="polite"></div>
+                </div>
+                </div>
+            </div>
             <!-- Data Management Section - Moved up for better accessibility -->
             <div class="settings-section" data-collapsed="true">
                 <h3 class="settings-section-header">
@@ -580,6 +600,7 @@
     
     <!-- Event Wall Service (shared) -->
     <script src="js/identity.js"></script>
+    <script src="js/backup.js"></script>
     <script src="js/event-wall-service.js"></script>
     <!-- Shared Menu Component -->
     <script src="js/shared-menu.js?v=together-navigation-20260815"></script>
