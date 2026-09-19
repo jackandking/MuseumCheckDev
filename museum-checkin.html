@@ -820,6 +820,21 @@
             </div>
 
             <div class="settings-section">
+                <h3>📦 数据备份与迁移</h3>
+                <div class="settings-item" style="flex-direction: column; align-items: stretch;">
+                    <label class="settings-label">存档码：</label>
+                    <div class="settings-hint">把你的博物馆之旅打包成一段「存档码」。换新手机、清了缓存时，把这段码粘贴回来即可恢复——全程不会上传到任何服务器。</div>
+                    <div class="backup-actions">
+                        <button type="button" id="backupExportBtn" class="button button-primary">导出存档码</button>
+                        <button type="button" id="backupCopyBtn" class="button button-secondary" disabled>复制</button>
+                        <button type="button" id="backupImportBtn" class="button button-primary" disabled>导入存档码</button>
+                    </div>
+                    <textarea id="backupCode" class="backup-textarea" placeholder="点「导出存档码」生成；或粘贴存档码后点「导入存档码」" rows="4"></textarea>
+                    <div id="backupStatus" class="settings-hint" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
                 <h3>🗑️ 数据管理</h3>
                 <div class="settings-item">
                     <label class="settings-label">清空打卡数据：</label>
@@ -912,6 +927,7 @@
     <script src="js/family-photo-sharing.js?v=together-photos-20260815"></script>
     <!-- Event Wall Service (shared, must come after REMOTE_STORAGE_CONFIG is defined) -->
     <script src="js/identity.js"></script>
+    <script src="js/backup.js"></script>
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
     <!-- Shared Menu Component -->

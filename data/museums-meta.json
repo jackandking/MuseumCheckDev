@@ -590,9 +590,35 @@
       "建筑",
       "江南文化"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Suzhou_Museum_-_new_buildings.jpg",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/suzhou-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "真珠舍利宝幢",
+        "dynasty": "北宋",
+        "category": "佛教文物",
+        "imageUrl": "https://museumcheck.cn/images/suzhou-museum-t1-v1.jpg",
+        "description": "1978年苏州瑞光寺塔第三层天宫出土，楠木雕成、缀珍珠近四万颗，苏博镇馆之宝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:瑞光寺塔出土真珠舍利宝幢.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Siyuwj",
+        "attribution": "Siyuwj / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "秘色瓷莲花碗",
+        "dynasty": "五代",
+        "category": "瓷器",
+        "imageUrl": "https://museumcheck.cn/images/suzhou-museum-t2-v1.jpg",
+        "description": "1957年虎丘云岩寺塔天宫出土，越窑秘色瓷代表作，碗与托如盛开的莲花。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:虎丘出土五代越窑莲花式托盏.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Siyuwj",
+        "attribution": "Siyuwj / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "zhejiang-museum",
@@ -603,9 +629,35 @@
       "文化",
       "江南"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/d/d0/%E6%B5%99%E6%B1%9F%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_-_panoramio.jpg",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/zhejiang-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "富春山居图（剩山图卷）",
+        "dynasty": "元",
+        "category": "书画",
+        "imageUrl": "https://museumcheck.cn/images/zhejiang-museum-t1-v1.jpg",
+        "description": "黄公望传世名作《富春山居图》前段，火殉劫余之首，与台北《无用师卷》隔海相望。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dwelling_in_the_Fuchun_Mountains_(first_half).JPG",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "Huang Gongwang",
+        "attribution": "Huang Gongwang / Public domain, via Wikimedia Commons"
+      },
+      {
+        "name": "鎏金纯银阿育王塔",
+        "dynasty": "五代（吴越国）",
+        "category": "金银器",
+        "imageUrl": "https://museumcheck.cn/images/zhejiang-museum-t2-v1.jpg",
+        "description": "2001年雷峰塔地宫出土，纯银鎏金佛塔，吴越国崇佛巅峰之作，浙博十大镇馆之宝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Relics_Unearthed_from_Leifeng_Pagoda_Site_03_2017-12.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "guangdong-museum",
@@ -616,9 +668,47 @@
       "海丝",
       "文物"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Guangdong_Museum.jpg",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/guangdong-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "千金猴王砚",
+        "dynasty": "清",
+        "category": "端砚",
+        "imageUrl": "https://museumcheck.cn/images/guangdong-museum-t1-v1.jpg",
+        "description": "清末三大名砚之首，端石天然纹理酷似灵猴踞坐，粤博半山出土藏品的镇馆之宝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:千金猴王砚04899.jpg",
+        "rightsType": "CC",
+        "license": "CC0",
+        "copyrightHolder": "Augusthaiho",
+        "attribution": "Augusthaiho / CC0, via Wikimedia Commons"
+      },
+      {
+        "name": "楼阁式陶屋",
+        "dynasty": "东汉",
+        "category": "陶器",
+        "imageUrl": "https://museumcheck.cn/images/guangdong-museum-t2-v1.jpg",
+        "description": "南海平洲出土的东汉干栏式楼阁陶屋，再现两千年前的岭南民居与生活方式。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guangzhou_Tianhe_Guangdong_Sheng_Bowuguan_2024-01-31_16.46.32.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "古海岸遗址",
+        "attribution": "古海岸遗址 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "红陶母鸡",
+        "dynasty": "东汉",
+        "category": "陶器",
+        "imageUrl": "https://museumcheck.cn/images/guangdong-museum-t3-v1.jpg",
+        "description": "佛山澜石出土的东汉红陶母鸡，憨态可掬的农家禽畜塑像，岭南陶塑的代表。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Guangzhou_Tianhe_Guangdong_Sheng_Bowuguan_2024-01-31_16.46.51.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "古海岸遗址",
+        "attribution": "古海岸遗址 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "sichuan-museum",
@@ -629,9 +719,47 @@
       "历史",
       "民俗"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E5%9B%9B%E5%B7%9D%E5%8D%9A%E7%89%A9%E9%99%A2.JPG",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/sichuan-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "七盘舞杂技画像砖",
+        "dynasty": "东汉",
+        "category": "画像砖",
+        "imageUrl": "https://museumcheck.cn/images/sichuan-museum-t1-v1.jpg",
+        "description": "彭州太平乡出土的东汉画像砖，七盘置地、乐舞倒立其上，再现汉代宴乐百戏。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:四川川省彭州市太平乡出土-七盘舞杂技画像砖-东汉（25-220）-四川博物院藏_2024-10-31.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Kcx36",
+        "attribution": "Kcx36 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "涡纹铜罍",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/sichuan-museum-t2-v1.jpg",
+        "description": "1959年彭县竹瓦街窖藏出土，蜀地罕见的西周青铜礼器重器。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:四川省彭县（今彭州市）竹瓦街窖藏出土-涡纹铜罍-西周（前1046-前771）-四川博物院藏_2024-10-31.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Kcx36",
+        "attribution": "Kcx36 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "牛首纹铜钺",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/sichuan-museum-t3-v1.jpg",
+        "description": "彭州濛阳竹瓦街窖藏出土，牛首纹青铜钺，古蜀兵仪之器，造型威严。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:四川彭州濛阳竹瓦街窖藏-牛首纹铜钺-西周-四川博物院.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Kcx36",
+        "attribution": "Kcx36 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "henan-museum",
@@ -701,9 +829,47 @@
       "考古",
       "历史"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/liaoning-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "簪花仕女图",
+        "dynasty": "唐",
+        "category": "书画",
+        "imageUrl": "https://museumcheck.cn/images/liaoning-museum-t1-v1.jpg",
+        "description": "传为周昉所作的唐代仕女画孤品，六位簪花仕女游园，中国仕女画的典范。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zhou_Fang._Court_Ladies_Wearing_Flowered_Headdresses._(46x180)_Liaoning_Provincial_Museum,_Shenyang..jpg",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "Zhou Fang",
+        "attribution": "Zhou Fang / Public domain, via Wikimedia Commons"
+      },
+      {
+        "name": "瑞鹤图",
+        "dynasty": "北宋",
+        "category": "书画",
+        "imageUrl": "https://museumcheck.cn/images/liaoning-museum-t2-v1.jpg",
+        "description": "政和二年上元次夕群鹤盘旋宣德门，宋徽宗亲绘并题诗，诗书画三绝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:瑞鹤图（亮版）.jpg",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "Emperor Huizong of Song",
+        "attribution": "Emperor Huizong of Song / Public domain, via Wikimedia Commons"
+      },
+      {
+        "name": "姑苏繁华图",
+        "dynasty": "清",
+        "category": "书画",
+        "imageUrl": "https://museumcheck.cn/images/liaoning-museum-t3-v1.jpg",
+        "description": "乾隆年间徐扬所绘《姑苏繁华图》，十二米长卷记录清代苏州市井繁华。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prosperous_Suzhou.jpg",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "Xu Yang",
+        "attribution": "Xu Yang / Public domain, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "shandong-museum",
@@ -847,9 +1013,47 @@
       "古都文化",
       "民俗"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Capital_Museum_in_Beijing.jpg",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/beijing-capital-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "伯矩鬲",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/beijing-capital-museum-t1-v1.jpg",
+        "description": "房山琉璃河燕国墓地出土，周身七个牛首，西周燕国青铜器的代表作。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:伯矩鬲.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "钉钉",
+        "attribution": "钉钉 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "青白釉水月观音菩萨像",
+        "dynasty": "元",
+        "category": "瓷塑",
+        "imageUrl": "https://museumcheck.cn/images/beijing-capital-museum-t2-v1.jpg",
+        "description": "景德镇窑青白釉水月观音，衣纹如真丝垂落，元代瓷塑的巅峰之作。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:青白釉水月觀音菩薩像.JPG",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "S M Lee",
+        "attribution": "S M Lee / Public domain, via Wikimedia Commons"
+      },
+      {
+        "name": "董鼎",
+        "dynasty": "西周早期",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/beijing-capital-museum-t3-v1.jpg",
+        "description": "房山琉璃河M253出土，通高62厘米，北京地区出土最大最重的青铜礼器，燕都历史之源的见证。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:首都博物馆藏董鼎.jpg",
+        "rightsType": "CC",
+        "license": "CC0",
+        "copyrightHolder": "狼狼君",
+        "attribution": "狼狼君 / CC0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "china-military-museum",
@@ -1101,9 +1305,47 @@
       "安徽历史",
       "新安文化"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/hefei-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "铸客大鼎",
+        "dynasty": "战国（楚）",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/hefei-museum-t1-v1.jpg",
+        "description": "1933年寿县李三孤堆楚幽王墓出土，通高113厘米，现存东周第一大铜鼎，俗称楚大鼎。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:铸客大鼎1.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "三猎",
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "金边玛瑙碗",
+        "dynasty": "北宋",
+        "category": "玉石器",
+        "imageUrl": "https://museumcheck.cn/images/hefei-museum-t2-v1.jpg",
+        "description": "宋代玛瑙琢磨珍品，碗口镶金边，安徽博物院镇馆之宝。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:北宋金边玛瑙碗.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "三猎",
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "葵花形金盏",
+        "dynasty": "南宋",
+        "category": "金银器",
+        "imageUrl": "https://museumcheck.cn/images/hefei-museum-t3-v1.jpg",
+        "description": "南宋六瓣葵花形金盏，锤揲成型、錾刻细腻的饮器精品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:南宋葵花形金盏.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "三猎",
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "nanchang-museum",
@@ -1114,9 +1356,47 @@
       "江西历史",
       "陶瓷文化"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/nanchang-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "伏鸟双尾青铜虎",
+        "dynasty": "商",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/nanchang-museum-t1-v1.jpg",
+        "description": "1989年新干大洋洲商墓出土，双尾垂地、背上伏鸟的青铜虎王，赣地青铜文明图腾。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jiangxi_Provincial_Museum_2018.01.20_15-26-29.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Zhangzhugang",
+        "attribution": "Zhangzhugang / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "双面神人青铜头像",
+        "dynasty": "商",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/nanchang-museum-t2-v1.jpg",
+        "description": "新干大洋洲出土，中空双面人首，半人半神，全国仅见的商代双面青铜头像。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:双面神人青铜头像.jpg",
+        "rightsType": "CC",
+        "license": "CC BY 4.0",
+        "copyrightHolder": "RoundNoName",
+        "attribution": "RoundNoName / CC BY 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "兽面纹青铜胄",
+        "dynasty": "商",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/nanchang-museum-t3-v1.jpg",
+        "description": "新干大洋洲出土的商代铜胄，兽面纹威武狞厉，存世极罕的青铜头盔。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jiangxi_Provincial_Museum_2018.01.20_15-25-00.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Zhangzhugang",
+        "attribution": "Zhangzhugang / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "jinan-museum",
@@ -1192,9 +1472,47 @@
       "贵州历史",
       "山地文化"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/guiyang-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "东汉铜车马",
+        "dynasty": "东汉",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/guiyang-museum-t1-v1.jpg",
+        "description": "兴义万屯汉墓出土，贵州出土最完整的汉代铜车马，“夜郎道”交通文明的实证。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:贵州省博物馆铜车马.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Ycxr2007",
+        "attribution": "Ycxr2007 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "虎钮铜錞于",
+        "dynasty": "战国",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/guiyang-museum-t2-v1.jpg",
+        "description": "1962年铜仁松桃出土，虎钮錞于是巴人军中乐器，黔地巴文化遗珍。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:贵州铜仁松桃木树-虎钮铜錞于-战国-贵州省博物馆.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Kcx36",
+        "attribution": "Kcx36 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "长松泉石图",
+        "dynasty": "明",
+        "category": "书画",
+        "imageUrl": "https://museumcheck.cn/images/guiyang-museum-t3-v1.jpg",
+        "description": "唐寅真迹《长松泉石图》，贵州省博物馆书画类镇馆藏品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:唐寅《长松泉石图》（局部）.jpg",
+        "rightsType": "CC",
+        "license": "Public domain",
+        "copyrightHolder": "Tang Yin",
+        "attribution": "Tang Yin / Public domain, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "fuzhou-museum",
@@ -1303,9 +1621,47 @@
       "煤炭文化",
       "古建筑"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/taiyuan-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "晋侯鸟尊",
+        "dynasty": "西周",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/taiyuan-museum-t1-v1.jpg",
+        "description": "曲沃北赵晋侯墓地114号墓出土，凤鸟回眸、象尾为鋬，山西博物院院徽原型。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shanxi_Museum_-_bird-shaped_zun.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Underbar dk",
+        "attribution": "Underbar dk / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "龙形觥",
+        "dynasty": "商",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/taiyuan-museum-t2-v1.jpg",
+        "description": "1959年石楼桃花庄出土，龙首昂起、鼍纹饰身，商代方国青铜酒器珍品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shanxi_Museum_-_dragon-shaped_gong.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Underbar dk",
+        "attribution": "Underbar dk / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "彩绘雁鱼铜灯",
+        "dynasty": "西汉",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/taiyuan-museum-t3-v1.jpg",
+        "description": "朔州出土，鸿雁衔鱼造型的环保灯，烟气导入雁腹不染居室。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shanxi_Museum_2009_Taiyuan_869.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "G41rn8",
+        "attribution": "G41rn8 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "hohhot-museum",

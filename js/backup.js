@@ -155,7 +155,14 @@
             return;
         }
         el.textContent = msg || '';
-        el.className = 'settings-inline-status' + (type ? ' ' + type : '');
+        // 用内联颜色，不依赖各页面各自的 CSS 类，保证首页/打卡页表现一致
+        if (type === 'error') {
+            el.style.color = '#dc3545';
+        } else if (type === 'success') {
+            el.style.color = '#28a745';
+        } else {
+            el.style.color = '';
+        }
     }
 
     function initUI() {
