@@ -836,9 +836,47 @@
       "科学教育",
       "互动体验"
     ],
-    "image": "https://eb118-file.cdn.bcebos.com/upload/6db2b79d9fe34f46b8dbc022a2a09a14_1275921381.png?x-bce-process=image/format,f_auto/resize,m_lfit,limit_1,w_500,h_500/quality,q_85&",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/shanghai-science-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "风云二号气象卫星模型",
+        "dynasty": "现代",
+        "category": "航天展项",
+        "imageUrl": "https://museumcheck.cn/images/shanghai-science-museum-fengyun2-v1.jpg",
+        "description": "「宇航天地」展区陈列的风云二号气象卫星模型。风云二号是中国自主研制的地球静止轨道气象卫星，该展项直观展示了中国航天与气象观测技术成就。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:20090829_Model_of_Fengyun-2_4002.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "弹钢琴机器人",
+        "dynasty": "现代",
+        "category": "机器人展项",
+        "imageUrl": "https://museumcheck.cn/images/shanghai-science-museum-robot-v1.jpg",
+        "description": "「机器人世界」展区的标志性展项——能现场演奏钢琴曲的机器人，长期是馆内人气最高的打卡点之一，展示机器人机电一体化与控制技术。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:20090829_Robot_in_Shanghai_Science_and_Technology_Museum_3985.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "大象模型",
+        "dynasty": "现代",
+        "category": "自然展项",
+        "imageUrl": "https://museumcheck.cn/images/shanghai-science-museum-elephant-v1.jpg",
+        "description": "馆内自然生态展项中的大象标本模型，还原野生动物生存场景，传递生物多样性与生态保护理念。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Elephant_model_at_Shanghai_Science_and_Technology_Museum-20130322.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Wikimedia Commons",
+        "attribution": "Shwangtianyuan, CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "guangzhou-museum",
