@@ -819,6 +819,70 @@ header h1 {
     margin-bottom: 25px;
 }
 
+/* Achievement posters promo strip (between search box and first museum card) */
+.achievement-promo {
+    position: relative;
+    max-width: 500px;
+    margin: -12px auto 18px;
+    padding: 8px 30px 8px 12px;
+    background: #f0faf7;
+    border: 1px solid #b7e0d6;
+    border-radius: 12px 12px 12px 4px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(24, 107, 91, 0.06);
+}
+
+.achievement-promo-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #175d52;
+    text-decoration: none;
+}
+
+.achievement-promo-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+}
+
+.achievement-promo-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.achievement-promo-link:hover .achievement-promo-text,
+.achievement-promo-link:active .achievement-promo-text {
+    text-decoration: underline;
+}
+
+.achievement-promo-close {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #8ab8a3;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.achievement-promo-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #175d52;
+}
+
+
 .together-home-entry { display:flex; align-items:center; justify-content:space-between; gap:14px; max-width:500px; margin:0 auto 18px; padding:15px 16px; border:1px solid #b7e0d6; border-radius:16px 16px 16px 4px; background:#f0faf7; color:#175d52; text-decoration:none; box-sizing:border-box; }
 .together-home-entry:hover { border-color:#4aa895; box-shadow:0 5px 14px rgba(24,107,91,.10); }
 .together-home-entry__eyebrow { display:block; margin-bottom:4px; color:#277866; font-size:12px; font-weight:700; }

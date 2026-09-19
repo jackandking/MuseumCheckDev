@@ -305,6 +305,14 @@
                         显示 <span id="filteredCount">0</span> 个搜索结果
                     </div>
                 </div>
+                <!-- Achievement posters promo strip: drives first-time visitors to everyone-achievements.html -->
+                <div id="achievementPromo" class="achievement-promo">
+                    <a class="achievement-promo-link" href="everyone-achievements.html">
+                        <span class="achievement-promo-icon" aria-hidden="true">🏆</span>
+                        <span class="achievement-promo-text" id="achievementPromoText">看看大家发布的成就海报，原来这个网站是这么玩的 →</span>
+                    </a>
+                    <button class="achievement-promo-close" id="achievementPromoClose" aria-label="关闭">&times;</button>
+                </div>
                 <!-- New user welcome guide -->
                 <div id="welcomeGuide" class="welcome-guide" style="display: none;">
                     <button class="welcome-close" id="welcomeClose" aria-label="关闭">&times;</button>
@@ -587,6 +595,53 @@
           SharedMenu.init({ showHome: false });
         }
       });
+    </script>
+    <!-- Achievement promo strip: fetch recent public posters to personalize the hook -->
+    <script>
+      (function() {
+        var promo = document.getElementById('achievementPromo');
+        if (!promo) return;
+        var HIDE_KEY = 'achievementPromoHiddenUntil';
+        try {
+          var hiddenUntil = parseInt(localStorage.getItem(HIDE_KEY) || '0', 10) || 0;
+          if (hiddenUntil > Date.now()) { promo.style.display = 'none'; return; }
+        } catch (e) { /* localStorage unavailable: keep promo visible */ }
+        var closeBtn = document.getElementById('achievementPromoClose');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            promo.style.display = 'none';
+            try { localStorage.setItem(HIDE_KEY, String(Date.now() + 7 * 24 * 3600 * 1000)); } catch (err) {}
+          });
+        }
+        var textEl = document.getElementById('achievementPromoText');
+        if (!textEl || typeof API_ENDPOINTS === 'undefined' || !API_ENDPOINTS.MYSQL || !API_ENDPOINTS.MYSQL.QUERY) return;
+        var sql = "SELECT user_name AS userName, created_at AS createdAt FROM achievement_posters WHERE visibility='public' AND user_name IS NOT NULL AND user_name <> '' ORDER BY created_at DESC LIMIT 10";
+        fetch(API_ENDPOINTS.MYSQL.QUERY, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql: sql, params: [] })
+        }).then(function(resp) {
+          if (!resp.ok) throw new Error('query failed: ' + resp.status);
+          return resp.json();
+        }).then(function(rows) {
+          var list = (Array.isArray(rows) ? rows : (rows && rows.rows) || []).filter(function(r) { return r && r.userName; });
+          if (!list.length) return; // keep fallback text when no posters yet
+          var names = [];
+          list.forEach(function(r) {
+            var n = String(r.userName).trim();
+            if (n && names.indexOf(n) === -1) names.push(n);
+          });
+          if (!names.length) return;
+          var msg;
+          if (names.length >= 3) {
+            msg = names[0] + '、' + names[1] + ' 等 ' + names.length + ' 位小伙伴最近分享了成就海报，快去看看 →';
+          } else {
+            msg = names.join('、') + ' 最近分享了成就海报，快去看看 →';
+          }
+          textEl.textContent = msg;
+        }).catch(function() { /* network/API failure: keep fallback text */ });
+      })();
     </script>
     <!-- Non-critical scripts loaded dynamically after first user interaction -->
     <script>
