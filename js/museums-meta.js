@@ -1327,9 +1327,47 @@ window.MUSEUMS_META = [
       "江南文化",
       "嘉兴历史"
     ],
-    "image": "",
-    "hasCollections": false,
-    "level": "一级"
+    "image": "https://museumcheck.cn/images/jiaxing-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "玉玦",
+        "dynasty": "马家浜文化（约前5000–前4000）",
+        "category": "玉器",
+        "imageUrl": "https://museumcheck.cn/images/jiaxing-museum-t1-v1.jpg",
+        "description": "马家浜文化玉玦，距今约七千年，中国最早的玉耳饰之一，见证长江下游玉文化的萌发。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Majiabang_Culture_Jade_Jue.jpg",
+        "rightsType": "CC",
+        "license": "CC0",
+        "copyrightHolder": "Gary Todd",
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+      },
+      {
+        "name": "玉璜",
+        "dynasty": "马家浜文化",
+        "category": "玉器",
+        "imageUrl": "https://museumcheck.cn/images/jiaxing-museum-t2-v1.jpg",
+        "description": "马家浜文化玉璜，佩饰类玉礼器雏形，体现先民对玉的尊崇与审美。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beiyinyangying_Culture_Agate_Huang_%26_Majiabang_Culture_Jade_Huang.jpg",
+        "rightsType": "CC",
+        "license": "CC0",
+        "copyrightHolder": "Gary Todd",
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+      },
+      {
+        "name": "兽面形陶器耳",
+        "dynasty": "马家浜文化",
+        "category": "陶器",
+        "imageUrl": "https://museumcheck.cn/images/jiaxing-museum-t3-v1.jpg",
+        "description": "马家浜遗址出土的兽面形陶器耳，器物附件塑成兽面，憨态可掬，是马家浜陶器的特色。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Animal-faced_Pottery_Handle_01_2017-04.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "jingdezhen-museum",
@@ -2020,9 +2058,47 @@ window.MUSEUMS_META = [
       "地方",
       "文化"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/9/92/Pinghu_Museum_02_2014-06.JPG",
-    "hasCollections": false,
-    "level": "三级"
+    "image": "https://museumcheck.cn/images/pinghu-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "三级",
+    "collections": [
+      {
+        "name": "明代白玉藕片",
+        "dynasty": "明代",
+        "category": "玉器",
+        "imageUrl": "https://museumcheck.cn/images/pinghu-museum-t1-v1.jpg",
+        "description": "平湖市博物馆藏明代白玉藕片，玉雕莲藕造型，寓意「连生贵子」，温润精巧。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jade_Articles_Collected_in_Pinghu_Museum_02_2014-06.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 3.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+      },
+      {
+        "name": "明代白玉绞丝镯",
+        "dynasty": "明代",
+        "category": "玉器",
+        "imageUrl": "https://museumcheck.cn/images/pinghu-museum-t2-v1.jpg",
+        "description": "平湖市博物馆藏明代白玉绞丝镯，丝环相绞的工艺展现高超碾玉技艺。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jade_Articles_Collected_in_Pinghu_Museum_03_2014-06.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 3.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+      },
+      {
+        "name": "清代兵器形玉佩件",
+        "dynasty": "清代",
+        "category": "玉器",
+        "imageUrl": "https://museumcheck.cn/images/pinghu-museum-t3-v1.jpg",
+        "description": "平湖市博物馆藏清代兵器形玉佩件，仿刀剑造型的玉佩，别具意趣。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jade_Articles_Collected_in_Pinghu_Museum_04_2014-06.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 3.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+      }
+    ]
   },
   {
     "id": "china-archaeology-museum",
@@ -2137,6 +2213,164 @@ window.MUSEUMS_META = [
     "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/Auckland_War_Memorial_Museum.jpg",
     "hasCollections": true,
     "level": "未定级"
+  },
+  {
+    "id": "haining-museum",
+    "name": "海宁市博物馆",
+    "location": "海宁",
+    "tags": [
+      "海宁",
+      "湖田窑",
+      "宋瓷",
+      "亲子"
+    ],
+    "image": "https://museumcheck.cn/images/haining-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "三级",
+    "collections": [
+      {
+        "name": "北宋湖田窑敞口罐",
+        "dynasty": "北宋",
+        "category": "瓷器",
+        "imageUrl": "https://museumcheck.cn/images/haining-museum-t1-v1.jpg",
+        "description": "1974年海宁硖石镇东山西麓宋墓出土，北宋景德镇湖田窑青白瓷敞口罐，釉色莹润。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Porcelain_of_Hutian_Ware_in_Haining_Museum_01_2014-08.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "北宋湖田窑注子和温碗",
+        "dynasty": "北宋",
+        "category": "瓷器",
+        "imageUrl": "https://museumcheck.cn/images/haining-museum-t2-v1.jpg",
+        "description": "1974年海宁宋墓出土，北宋湖田窑注子（酒壶）与温碗一套，再现宋人注酒温酒之雅。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Porcelain_of_Hutian_Ware_in_Haining_Museum_02_2014-08.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "北宋湖田窑注子和刻花温碗",
+        "dynasty": "北宋",
+        "category": "瓷器",
+        "imageUrl": "https://museumcheck.cn/images/haining-museum-t3-v1.jpg",
+        "description": "1974年海宁宋墓出土，北宋湖田窑注子配刻花温碗，青白瓷刻花细腻，宋瓷精品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Porcelain_of_Hutian_Ware_in_Haining_Museum_03_2014-08.JPG",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
+  },
+  {
+    "id": "haiyan-museum",
+    "name": "海盐县博物馆",
+    "location": "海盐",
+    "tags": [
+      "海盐",
+      "青铜器",
+      "佛教文物",
+      "亲子"
+    ],
+    "image": null,
+    "hasCollections": true,
+    "level": "三级",
+    "collections": [
+      {
+        "name": "象形铜尊",
+        "dynasty": "春秋",
+        "category": "青铜器",
+        "imageUrl": "https://museumcheck.cn/images/haiyan-museum-t1-v1.jpg",
+        "description": "海盐县博物馆藏象形铜尊，仿象形制的青铜盛酒器，造型生动。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Elephant-shaped_Bronze_Zun_in_Haiyan_Museum_01_2015-03.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "鎏金铁阿育王塔",
+        "dynasty": "五代（吴越国）",
+        "category": "佛教文物",
+        "imageUrl": "https://museumcheck.cn/images/haiyan-museum-t2-v1.jpg",
+        "description": "海盐县博物馆藏鎏金铁阿育王塔，吴越国时期佛教舍利塔，工艺精湛，见证江南崇佛。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gold-Plated_Iron_Asoka_Stupa_in_Haiyan_Museum_01_2015-03.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "狮形铜香炉",
+        "dynasty": "明清",
+        "category": "铜器",
+        "imageUrl": "https://museumcheck.cn/images/haiyan-museum-t3-v1.jpg",
+        "description": "海盐县博物馆藏狮形铜香炉，狮钮熏香用具，明清铜器之趣品。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bronze_Lion-shaped_Incense_Burner_in_Haiyan_Museum_01_2015-03.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "猫猫的日记本",
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
+  },
+  {
+    "id": "nanhu-revolution-museum",
+    "name": "南湖革命纪念馆",
+    "location": "嘉兴",
+    "tags": [
+      "嘉兴",
+      "南湖",
+      "红船",
+      "中共一大",
+      "革命纪念",
+      "亲子"
+    ],
+    "image": "https://museumcheck.cn/images/nanhu-museum-photo-v1.jpg",
+    "hasCollections": true,
+    "level": "一级",
+    "collections": [
+      {
+        "name": "南湖红船（纪念船）",
+        "dynasty": "1921年（中共一大闭幕地）",
+        "category": "革命纪念船",
+        "imageUrl": "https://museumcheck.cn/images/nanhu-museum-t1-v1.jpg",
+        "description": "1921年中共一大在上海开幕，后移至嘉兴南湖一艘画舫上继续举行并闭幕，这艘船被誉为“母亲船”。停泊于湖心岛畔的纪念船是红船精神发源地，带孩子来能直观感受建党历史。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%8D%97%E6%B9%96%E7%BA%A2%E8%88%B9.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Njzjz",
+        "attribution": "Njzjz / CC BY-SA 4.0, via Wikimedia Commons"
+      },
+      {
+        "name": "烟雨楼",
+        "dynasty": "始建于五代（现存为清代重建）",
+        "category": "江南名楼",
+        "imageUrl": "https://museumcheck.cn/images/nanhu-museum-t2-v1.jpg",
+        "description": "南湖湖心岛上的江南名楼，乾隆六下江南曾八次登临赋诗。1921年中共一大代表正是在烟雨楼下船、登上红船继续会议，是南湖革命历史空间的核心坐标。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:%E5%98%89%E5%85%B4%E5%8D%97%E6%B9%96%E7%83%9F%E9%9B%A8%E6%A5%BC_-_panoramio_-_2007-01-01.jpg",
+        "rightsType": "CC",
+        "license": "CC BY 3.0",
+        "copyrightHolder": "江上清风1961",
+        "attribution": "江上清风1961 / CC BY 3.0, via Wikimedia Commons"
+      },
+      {
+        "name": "南湖湖心岛",
+        "dynasty": "南湖核心景区",
+        "category": "革命历史空间",
+        "imageUrl": "https://museumcheck.cn/images/nanhu-museum-t3-v1.jpg",
+        "description": "红船停泊、烟雨楼所在的南湖湖心岛，是中共一大南湖会议的历史现场。登岛漫步，红船与烟雨楼尽收眼底，是亲子红色研学的重要一站。",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jiaxing_Lake_island%E5%98%89%E5%85%B4%E6%B9%96%E5%BF%83%E5%B2%9B.jpg",
+        "rightsType": "CC",
+        "license": "CC BY-SA 4.0",
+        "copyrightHolder": "Ddccxl",
+        "attribution": "Ddccxl / CC BY-SA 4.0, via Wikimedia Commons"
+      }
+    ]
   }
 ];
 

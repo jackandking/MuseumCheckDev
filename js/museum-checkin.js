@@ -3312,9 +3312,11 @@
                 
                 // Check if this is a 门口打卡 task - use museum image
                 const isDoorCheckinTask = title && title.includes('门口打卡');
+                let photoFeedbackTarget = null;
                 
                 if (isDoorCheckinTask && m && m.image) {
                     matchedUrl = m.image;
+                    photoFeedbackTarget = { type: 'museum', imageUrl: matchedUrl };
                 }
                 // Otherwise, try to match collection images for treasure hunt tasks
                 else if (imgEl && m && Array.isArray(m.collections)) {
@@ -3322,6 +3324,9 @@
                     const collName = nameMatch && nameMatch[1];
                     const found = m.collections.find(c => c && c.name === collName);
                     matchedUrl = found && (found.imageUrl || found.url) || '';
+                    if (matchedUrl) {
+                        photoFeedbackTarget = { type: 'collection', name: collName || '', imageUrl: matchedUrl };
+                    }
                 }
                 
                 if (imgEl) {
@@ -3346,12 +3351,16 @@
                         // Also hide treasure photo section if visible
                         const treasurePhotoSection = document.getElementById('treasurePhotoContributorSection');
                         if (treasurePhotoSection) treasurePhotoSection.style.display = 'none';
+                        // Show inline photo-feedback button below the image (museum image or treasure image)
+                        if (window.MuseumPhotoCorrection) window.MuseumPhotoCorrection.setTarget(photoFeedbackTarget);
                     } else { 
                         imgEl.removeAttribute('src'); 
                         imgEl.style.display = 'none';
                         imgEl.classList.remove('expanded');
                         // Show icon when no image available
                         if (modalIconEl) modalIconEl.style.display = '';
+                        // No official image displayed -> hide feedback button (upload-contribution sections guide users instead)
+                        if (window.MuseumPhotoCorrection) window.MuseumPhotoCorrection.setTarget(null);
                         
                         // Check if this is a treasure task
                         const isTreasureTask = title && title.includes(TREASURE_TASK_IDENTIFIER);
