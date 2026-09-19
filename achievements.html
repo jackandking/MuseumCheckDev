@@ -478,6 +478,7 @@
                 <button class="modal-button primary" id="publishButton" onclick="publishPosterToEveryone()">📣 发布到大家的成就 🏆 +100积分</button>
                 <button class="modal-button" onclick="downloadPoster()">📱 下载海报</button>
                 <button class="modal-button" onclick="sharePoster()">📤 分享海报</button>
+                <button class="modal-button" id="shareXhsButton" onclick="sharePosterToXiaohongshu()" style="background:linear-gradient(135deg,#ff2742,#ff5a3c);border:none;color:#fff;">📕 分享到小红书</button>
             </div>
         </div>
     </div>
@@ -489,6 +490,7 @@
     <!-- Event Tracking Dependencies -->
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
+    <script src="js/share-to-xiaohongshu.js"></script>
 
     <script>
         // Global variables
@@ -682,6 +684,42 @@
             } catch (error) {
                 console.error('Share failed:', error);
                 alert('分享功能暂不可用，请截图分享');
+            }
+        }
+
+        // Share poster to Xiaohongshu (compliant semi-auto: system share w/ image -> fallback download+copy)
+        async function sharePosterToXiaohongshu() {
+            if (!currentPoster) return;
+            try {
+                const caption = buildXhsAchievementCaption({ museumName: currentPoster.museumName });
+                const resp = await fetch(currentPoster.dataURL);
+                const blob = await resp.blob();
+                const r = await shareToXiaohongshu({
+                    imageBlob: blob,
+                    fileName: `${currentPoster.museumName}_打卡海报.png`,
+                    ...caption
+                });
+                if (r.method === 'system-share') {
+                    xhsToast('已唤起分享面板，请选择「小红书」🎉', 'ok');
+                } else if (r.method === 'cancel') {
+                    // 用户主动取消，不打扰
+                } else {
+                    xhsToast(
+                        (r.copied ? '文案已复制 ✓ ' : '文案复制失败，请手动复制 ') +
+                        '图片已下载，去小红书 App 粘贴发布即可',
+                        r.copied ? 'ok' : 'warn'
+                    );
+                }
+                if (typeof gtag === 'function') {
+                    gtag('event', 'achievement_poster_shared_xhs', {
+                        museum_id: currentPoster.museumId,
+                        museum_name: currentPoster.museumName,
+                        method: r.method
+                    });
+                }
+            } catch (e) {
+                console.error('小红书分享失败:', e);
+                xhsToast('分享暂不可用，请截图或长按图片分享', 'warn');
             }
         }
 
