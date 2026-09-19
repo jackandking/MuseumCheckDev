@@ -34,7 +34,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "金瓯永固杯",
@@ -46,7 +47,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "平复帖",
@@ -58,7 +60,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "乾隆田黄三联印",
@@ -70,7 +73,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "九龙壁",
@@ -82,7 +86,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "大禹治水玉山",
@@ -94,9 +99,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "User:kallgan",
+    "imageAttribution": "User:kallgan / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3ASunset_of_the_Forbidden_City_2006.JPG"
   },
   {
     "id": "national-museum",
@@ -121,7 +132,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "四羊方尊",
@@ -133,7 +145,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "击鼓说唱俑",
@@ -145,7 +158,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "人面鱼纹彩陶盆",
@@ -157,7 +171,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "大盂鼎",
@@ -169,7 +184,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "金缕玉衣",
@@ -181,9 +197,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "Temlsth",
+    "imageAttribution": "Temlsth / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E4%B8%AD%E5%9B%BD%E5%9B%BD%E5%AE%B6%E5%8D%9A%E7%89%A9%E9%A6%86.JPG"
   },
   {
     "id": "shanghai-museum",
@@ -208,7 +230,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "晋侯稣钟",
@@ -220,7 +243,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "商鞅方升",
@@ -232,7 +256,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "王献之鸭头丸帖",
@@ -244,7 +269,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "淳化阁帖",
@@ -256,7 +282,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "越窑青釉海棠式碗",
@@ -268,9 +295,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "Hpppp0527",
+    "imageAttribution": "Hpppp0527 / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E4%B8%8A%E6%B5%B7%E5%8D%9A%E7%89%A9%E9%A6%86%E4%B8%9C%E9%A6%86_161003.jpg"
   },
   {
     "id": "shanghai-natural-history-museum",
@@ -308,7 +341,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY 3.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Jmhullot, CC BY 3.0, via Wikimedia Commons"
+        "attribution": "Jmhullot, CC BY 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "跪射俑",
@@ -320,7 +354,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Difference engine, CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Difference engine, CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "将军俑",
@@ -332,9 +367,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC0",
         "license": "CC0 1.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Gary Todd, CC0, via Wikimedia Commons"
+        "attribution": "Gary Todd, CC0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "Ghost Barney",
+    "imageAttribution": "Ghost Barney / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AEmperor_Qinshihuang%27s_Mausoleum_Site_Museum.jpg"
   },
   {
     "id": "nanjing-museum",
@@ -359,7 +400,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "竹林七贤与荣启期砖画",
@@ -371,7 +413,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "青釉神兽尊",
@@ -383,9 +426,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 2.5",
+    "imageCopyrightHolder": "Farm",
+    "imageAttribution": "Farm / CC BY-SA 2.5, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3ANanjing_Museum_big.jpg"
   },
   {
     "id": "hubei-museum",
@@ -410,7 +459,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "越王勾践剑",
@@ -422,7 +472,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "曾侯乙尊盘",
@@ -434,7 +485,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "云梦睡虎地秦简",
@@ -446,7 +498,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "元青花四爱图梅瓶",
@@ -458,7 +511,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "鹿角立鹤",
@@ -470,9 +524,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "No machine-readable author provided. 风之清扬 assumed (based on copyright claims).",
+    "imageAttribution": "No machine-readable author provided. 风之清扬 assumed (based on copyright claims). / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AHubei_Provincial_Museum.JPG"
   },
   {
     "id": "shaanxi-history",
@@ -497,7 +557,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "唐三彩载乐骆驼俑",
@@ -509,7 +570,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC0",
         "license": "CC0",
         "copyrightHolder": "Gary Todd (Wikimedia Commons)",
-        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "鸳鸯莲瓣纹金碗",
@@ -521,9 +583,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 3.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "CC BY-SA 3.0, via Wikimedia Commons"
+        "attribution": "CC BY-SA 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "Liuxingy",
+    "imageAttribution": "Liuxingy / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E9%99%95%E8%A5%BF%E5%8E%86%E5%8F%B2%E5%8D%9A%E7%89%A9%E9%A6%86.jpg"
   },
   {
     "id": "suzhou-museum",
@@ -600,7 +668,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Cangmin (Wikimedia Commons)",
-        "attribution": "Cangmin / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Cangmin / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "莲鹤方壶",
@@ -612,7 +681,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY 3.0",
         "copyrightHolder": "Greg_kf (Wikimedia Commons)",
-        "attribution": "Greg_kf / CC BY 3.0, via Wikimedia Commons"
+        "attribution": "Greg_kf / CC BY 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "云纹铜禁",
@@ -624,9 +694,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 3.0",
         "copyrightHolder": "Greg_kf (Wikimedia Commons)",
-        "attribution": "Greg_kf / CC BY-SA 3.0, via Wikimedia Commons"
+        "attribution": "Greg_kf / CC BY-SA 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "Windmemories",
+    "imageAttribution": "Windmemories / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A20210220_Henan_Museum_-_main_hall_01.jpg"
   },
   {
     "id": "liaoning-museum",
@@ -862,7 +938,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "弹钢琴机器人",
@@ -874,7 +951,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Jakub Hałun, CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "大象模型",
@@ -886,9 +964,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Wikimedia Commons",
-        "attribution": "Shwangtianyuan, CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Shwangtianyuan, CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC0",
+    "imageCopyrightHolder": "DvTor8303",
+    "imageAttribution": "DvTor8303 / CC0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AShanghai_Science_and_Technology_Museum_glass_sphere_20260418.jpg"
   },
   {
     "id": "guangzhou-museum",
@@ -1186,7 +1270,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Suginami",
-        "attribution": "Suginami / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Suginami / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "刘胜金缕玉衣",
@@ -1198,7 +1283,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Baomi",
-        "attribution": "Baomi / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Baomi / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "错金银四龙四凤铜方案座",
@@ -1210,9 +1296,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Photographed by Baomi",
-        "attribution": "Photographed by Baomi / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Photographed by Baomi / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "Windmemories",
+    "imageAttribution": "Windmemories / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A20250118_Hebei_Museum.jpg"
   },
   {
     "id": "taiyuan-museum",
@@ -1263,7 +1355,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "三猎",
-        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "人头形器口彩陶瓶",
@@ -1275,7 +1368,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "三猎",
-        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "三猎 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "莲花玻璃托盏",
@@ -1287,9 +1381,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC0",
         "copyrightHolder": "Gary Todd",
-        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 2.0",
+    "imageCopyrightHolder": "Caitriana Nicholson from 北京 ~ Beijing, 中国 ~ China",
+    "imageAttribution": "Caitriana Nicholson from 北京 ~ Beijing, 中国 ~ China / CC BY-SA 2.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AGansu_Provincial_Museum_-_%E7%94%98%E8%82%83%E7%9C%81%E5%8D%9A%E7%89%A9%E9%A6%86_%2817143542340%29.jpg"
   },
   {
     "id": "xining-museum",
@@ -1379,7 +1479,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC0",
         "copyrightHolder": "Gary Todd",
-        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "玉璜",
@@ -1391,7 +1492,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC0",
         "copyrightHolder": "Gary Todd",
-        "attribution": "Gary Todd / CC0, via Wikimedia Commons"
+        "attribution": "Gary Todd / CC0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "兽面形陶器耳",
@@ -1403,9 +1505,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "Augoustoshai",
+    "imageAttribution": "Augoustoshai / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E5%98%89%E5%85%B4%E5%8D%9A%E7%89%A9%E9%A6%86163043.jpg"
   },
   {
     "id": "jingdezhen-museum",
@@ -1668,7 +1776,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "白色瑰宝",
-        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "银鎏金龟负“论语玉烛”酒令筒",
@@ -1680,7 +1789,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Shallowell",
-        "attribution": "Shallowell / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Shallowell / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "青铜鸟盖壶",
@@ -1692,9 +1802,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "白色瑰宝",
-        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "白色瑰宝 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "猫猫的日记本",
+    "imageAttribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AZhenjiang_Museum_01_2011-10.JPG"
   },
   {
     "id": "xuzhou-museum",
@@ -2110,7 +2226,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 3.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "明代白玉绞丝镯",
@@ -2122,7 +2239,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 3.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "清代兵器形玉佩件",
@@ -2134,9 +2252,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 3.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageCopyrightHolder": "猫猫的日记本",
+    "imageAttribution": "猫猫的日记本 / CC BY-SA 3.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3APinghu_Museum_01_2014-06.JPG"
   },
   {
     "id": "china-archaeology-museum",
@@ -2276,7 +2400,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "北宋湖田窑注子和温碗",
@@ -2288,7 +2413,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "北宋湖田窑注子和刻花温碗",
@@ -2300,9 +2426,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageCopyrightHolder": "猫猫的日记本",
+    "imageAttribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3AHaining_Museum_01_2014-08.JPG"
   },
   {
     "id": "haiyan-museum",
@@ -2328,7 +2460,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "鎏金铁阿育王塔",
@@ -2340,7 +2473,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "狮形铜香炉",
@@ -2352,7 +2486,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "猫猫的日记本",
-        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "猫猫的日记本 / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
     ]
   },
@@ -2382,7 +2517,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Njzjz",
-        "attribution": "Njzjz / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Njzjz / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "烟雨楼",
@@ -2394,7 +2530,8 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY 3.0",
         "copyrightHolder": "江上清风1961",
-        "attribution": "江上清风1961 / CC BY 3.0, via Wikimedia Commons"
+        "attribution": "江上清风1961 / CC BY 3.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       },
       {
         "name": "南湖湖心岛",
@@ -2406,9 +2543,15 @@ window.MUSEUMS_META = [
         "rightsType": "CC",
         "license": "CC BY-SA 4.0",
         "copyrightHolder": "Ddccxl",
-        "attribution": "Ddccxl / CC BY-SA 4.0, via Wikimedia Commons"
+        "attribution": "Ddccxl / CC BY-SA 4.0, via Wikimedia Commons",
+        "sourceType": "commons-cc"
       }
-    ]
+    ],
+    "imageSourceType": "commons-cc",
+    "imageLicense": "CC BY 4.0",
+    "imageCopyrightHolder": "James2026CN",
+    "imageAttribution": "James2026CN / CC BY 4.0, via Wikimedia Commons",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E5%8D%97%E6%B9%96%E9%9D%A9%E5%91%BD%E7%BA%AA%E5%BF%B5%E9%A6%86%E6%96%B0%E9%A6%86.jpg"
   }
 ];
 

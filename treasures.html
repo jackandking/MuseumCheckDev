@@ -192,7 +192,29 @@
             background: #f8f9fa;
             cursor: pointer;
         }
-        
+
+        /* 图片版权署名块（CC 许可合规：attribution + 可点来源） */
+        .img-attribution {
+            margin-top: 3px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #8a9aa5;
+            text-align: center;
+            word-break: break-all;
+        }
+        .img-attribution .img-attribution-link {
+            color: #6b7f8d;
+            text-decoration: underline;
+        }
+
+        .footer-copyright-note {
+            max-width: 640px;
+            margin: 8px auto 0;
+            line-height: 1.7;
+        }
+        .footer-copyright-note .footer-link { color: inherit; }
+
         .treasure-detail-photo:hover {
             opacity: 0.9;
         }
@@ -739,7 +761,8 @@
     </div>
     
     <!-- Phase 3: Adapter pattern - Remove museums-data.js dependency -->
-    <script src="js/museums-meta.js?v=20260919-2"></script>
+    <script src="js/museums-meta.js?v=20260919-1"></script>
+    <script src="js/attribution-helper.js"></script>
     <script src="js/museum-data-loader.js"></script>
     <script src="config/api-endpoints.js"></script>
     <script src="core/event-bus.js"></script>
@@ -953,11 +976,12 @@
                         const imgUrl = getImageUrl(collection.imageUrl);
                         photoGalleryHTML += `
                             <div class="treasure-photo-item">
-                                <img src="${imgUrl}" 
+                                <img src="${imgUrl}"
                                      alt="${collection.name}"
                                      onload="trackImageLoad(true, '${collection.imageUrl}')"
                                      onerror="trackImageLoad(false, '${collection.imageUrl}'); this.parentElement.innerHTML='<div class=\\'no-photo-placeholder\\'>🏺</div>'">
                                 <div class="treasure-photo-label">${collection.name}</div>
+                                ${(window.MuseumAttribution && MuseumAttribution.html(collection)) || ''}
                             </div>
                         `;
                     });
@@ -969,11 +993,12 @@
                 
                 card.innerHTML = `
                     ${museum.image ? `
-                        <img src="${getImageUrl(museum.image)}" 
-                             alt="${museum.name}" 
+                        <img src="${getImageUrl(museum.image)}"
+                             alt="${museum.name}"
                              class="treasure-card-image"
                              onload="trackImageLoad(true, '${museum.image}')"
                              onerror="trackImageLoad(false, '${museum.image}'); this.style.display='none'">
+                        ${(window.MuseumAttribution && MuseumAttribution.html(museum)) || ''}
                     ` : ''}
                     <div class="treasure-card-content">
                         <h3 class="treasure-museum-name">${museum.name}</h3>
@@ -1034,13 +1059,14 @@
                     const imgUrl = getImageUrl(collection.imageUrl);
                     content += `
                         <div class="treasure-detail-item">
-                            <img src="${imgUrl}" 
+                            <img src="${imgUrl}"
                                  alt="${collection.name}"
                                  class="treasure-detail-photo"
                                  onclick="window.open('${imgUrl}', '_blank')"
                                  onload="trackImageLoad(true, '${collection.imageUrl}')"
                                  onerror="trackImageLoad(false, '${collection.imageUrl}'); this.style.display='none'">
                             <h4 style="margin: 10px 0; color: #667eea;">${collection.name}</h4>
+                            ${(window.MuseumAttribution && MuseumAttribution.html(collection)) || ''}
                             <p style="line-height: 1.7;">${collection.description}</p>
                         </div>
                     `;
@@ -1406,6 +1432,9 @@
                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAACXBIWXMAAAsTAAALEwEAmpwYAAABMElEQVQokY2SPUvDUBSGn3NvUhNpC0VwcCu4OYiDg5M4+Qf8A/4BwcHRzU1w6ODo6OQguFkHQRDB0UUEwUGxQ0vrV5Jzj0MaLf5ALpd7Off93vOeI8YYVqWUiKpyNBikv79PKIKqksvnCSKGYJUCgKpSLBZZWCgQhks+RERwXZfJiQnarRYiQhAEPD8/45QnJ6nV6rRaLRKJBNlsFtd1SSZTXF9f0ev1mJ2d5fHhgZPLKyYnp0in03Q6HRqNBo1mk0wmi+M4lEol6vU6vV6P+/t7zs7PGRsbp1atoaq0220cx8F1XQYHB8lkMpTLZQYGBnjrdNiam/M9T1V1ZnpGs/8RdV0dlZFRzefz6nkz+vQ0vSwichSGIZ7nEQQB/X6fxcVFPM/j9fWVIPj/W19fX1n++QRxu4HWiVDDaAAAAABJRU5ErkJggg==" alt="公安备案图标" class="footer-icon">
                     京公网安备11010802046500号
                 </a>
+            </p>
+            <p class="footer-text footer-copyright-note">
+                本站图片版权归原作者所有，按其原始许可声明（如 CC0 / CC BY / CC BY-SA）使用并署名。本服务收取的是信息检索与整理服务费，不包含任何图片版权授权；使用图片产生的任何后果由使用者自行承担。如需下架或更正图片版权信息，请联系：<a class="footer-link" href="mailto:admin@museumcheck.cn">admin@museumcheck.cn</a>
             </p>
         </div>
     </footer>

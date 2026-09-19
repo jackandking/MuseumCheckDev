@@ -4738,3 +4738,25 @@
         .family-discovery-card { min-width: 0; margin: 0; overflow: hidden; border-radius: 10px 10px 10px 3px; background: #eaf4f1; }
         .family-discovery-card img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
         .family-discovery-card figcaption { overflow: hidden; padding: 5px; color: #5c7078; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== 图片版权署名块（CC 许可合规：attribution + 可点来源） ===== */
+.img-attribution {
+    display: none;
+    margin-top: 3px;
+    font-size: 10px;
+    line-height: 1.4;
+    color: #8a9aa5;
+    text-align: center;
+    word-break: break-all;
+}
+.img-attribution .img-attribution-link {
+    color: #6b7f8d;
+    text-decoration: underline;
+}
+
+.footer-copyright-note {
+    max-width: 640px;
+    margin: 8px auto 0;
+    line-height: 1.7;
+}
+.footer-copyright-note .footer-link { color: inherit; }

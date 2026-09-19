@@ -2787,6 +2787,7 @@
 
             // Try to get collection image URL for treasure hunt tasks
             let imageUrl = '';
+            let attributionHtml = ''; // 版权署名块（CC 许可合规：attribution + 可点来源）
             let isUserPhoto = false; // Flag to indicate if image is user's photo (no need for cache)
             try {
                 // Check if this is the 合影留念 (group photo) task - use user's photo if available.
@@ -2799,6 +2800,7 @@
                 // Check if this is a 门口打卡 task - use museum image
                 else if (currentMuseum && title && title.includes('门口打卡')) {
                     imageUrl = currentMuseum.image || '';
+                    attributionHtml = (window.MuseumAttribution && MuseumAttribution.html(currentMuseum)) || '';
                 }
                 // Otherwise, try to match collection images for treasure hunt tasks
                 else if (currentMuseum && Array.isArray(currentMuseum.collections) && subtitle) {
@@ -2807,6 +2809,7 @@
                     if (collName) {
                         const found = currentMuseum.collections.find(c => c && c.name === collName);
                         imageUrl = found && (found.imageUrl || found.url) || '';
+                        attributionHtml = (window.MuseumAttribution && MuseumAttribution.html(found)) || '';
                     }
                 }
             } catch(e) {}
@@ -2834,6 +2837,7 @@
                 <div class="completion-badge">✓</div>
                 <div class="task-visual-container">
                     ${imageUrl ? `<img src="${imageUrl}" class="task-card-image" alt="${title}" style="display:none" />` : ''}
+                    ${imageUrl ? attributionHtml : ''}
                     <div class="task-icon" ${imageUrl ? 'style="display:block"' : ''}>${icon}</div>
                 </div>
                 <div class="task-title">${title}</div>
@@ -2844,10 +2848,14 @@
             if (imageUrl) {
                 const img = card.querySelector('.task-card-image');
                 const iconDiv = card.querySelector('.task-icon');
+                // 署名块仅在图片成功加载后显示（图挂了署名跟着隐藏）
+                const attrEl = card.querySelector('.img-attribution');
+                if (attrEl && !isUserPhoto) attrEl.style.display = 'none';
                 if (img && iconDiv) {
                     img.onload = function() {
                         img.style.display = 'block';
                         iconDiv.style.display = 'none';
+                        if (attrEl && !isUserPhoto) attrEl.style.display = 'block';
                     };
                     img.onerror = function() {
                         img.style.display = 'none';
@@ -4638,6 +4646,9 @@
                         imgEl.className = 'task-card-image';
                         visualContainer.insertBefore(imgEl, iconDiv);
                     }
+                    // 用户贡献的照片替换官方图：原署名块随之移除（署名属于被替换的那张图）
+                    const attrEl = visualContainer.querySelector('.img-attribution');
+                    if (attrEl) attrEl.remove();
                     imgEl.src = imageUrl;
                     imgEl.style.display = 'block';
                     if (iconDiv) iconDiv.style.display = 'none';
