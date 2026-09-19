@@ -94,14 +94,36 @@ def main():
     rows = all_mysql_treasures()
     by_name = {}
     for r in rows:
-        by_name.setdefault(r["name"], r)
+        by_name.setdefault(r["name"], []).append(r)
     print(f"\nMySQL 现有 treasures 行: {len(rows)}")
+
+    # ⚠️ 孤儿行陷阱（2026-09-19 实测）：同名行可能存在于多个 dedupe key
+    # （历史脚本用 city 当 province 造出的孤儿行，如 兰州_甘肃省博物馆）。
+    # 必须显式指定真实 key（省_馆名）；出现多 key 且无映射时直接报错，绝不静默选错。
+    DEDUP_KEY_OVERRIDES = {
+        "shijiazhuang-museum": "河北省_河北博物院",
+        "lanzhou-museum": "甘肃省_甘肃省博物馆",
+        "zhenjiang-museum": "江苏省_镇江博物馆",
+    }
+
+    def resolve_row(m, cname):
+        cands = by_name.get(cname) or []
+        real_key = DEDUP_KEY_OVERRIDES.get(m["id"])
+        if len(cands) > 1:
+            want = f"_{m['name']}"
+            cands = [r for r in cands if r["museumDedupeKey"].endswith(want)] or cands
+            if len({r["museumDedupeKey"] for r in cands}) > 1 and not real_key:
+                keys = sorted({r["museumDedupeKey"] for r in cands})
+                raise SystemExit(f"❌ {m['id']}/{cname}: 同名行存在多个 dedupe key {keys}，请先在 DEDUP_KEY_OVERRIDES 显式指定真实 key")
+        if real_key:
+            cands = [r for r in cands if r["museumDedupeKey"] == real_key]
+        return cands[0] if cands else None
 
     to_write, unmatched = {}, []
     for m in targets:
         for c in m["collections"]:
             st = c.get("sourceType")
-            row = by_name.get(c["name"])
+            row = resolve_row(m, c["name"])
             if not (st and row):
                 unmatched.append(f"{m['id']}/{c['name']}")
                 continue
