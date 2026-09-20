@@ -103,10 +103,19 @@ class MuseumDataLoader {
             console.log(`✓ Loaded museum ${museumId} from treasures API (${collections.length} collections)`);
             // Base the record on static meta (keeps image* attribution fields,
             // tags, level, etc.), then swap in fresh MySQL collections.
-            return Object.assign({}, meta, {
+            // Cover image also comes from MySQL when present, so an approved
+            // cover correction (museums.image_url) actually takes effect —
+            // the static museums-meta.js bundle cannot be corrected at runtime.
+            const mysqlMuseum = (result && result.museum) ? result.museum : null;
+            const base = Object.assign({}, meta);
+            if (mysqlMuseum && mysqlMuseum.imageUrl) base.image = mysqlMuseum.imageUrl;
+
+            return Object.assign(base, {
                 hasCollections: true,
                 collections,
-                dataSource: 'mysql-treasures-api'
+                dataSource: 'mysql-treasures-api',
+                museumDedupeKey: (mysqlMuseum && mysqlMuseum.dedupeKey) || undefined,
+                museumProvince: (mysqlMuseum && mysqlMuseum.province) || undefined
             });
         } catch (error) {
             console.log(`✗ Treasures API failed for ${museumId}:`, error.message);
@@ -169,7 +178,9 @@ class MuseumDataLoader {
      */
     getCachedFromStorage(museumId) {
         try {
-            const cacheKey = `museum-cache-${museumId}`;
+            // MUST use getCacheKey(): writes go to the versioned v2 key, so reading
+            // the bare `museum-cache-<id>` key never hits and silently disables caching.
+            const cacheKey = this.getCacheKey(museumId);
             const cached = localStorage.getItem(cacheKey);
             if (!cached) return null;
 

@@ -47,6 +47,8 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- 名称解析：发布写回 MySQL 需要馆名（前端只存 id），用静态 meta 反查 -->
+  <script src="../js/museums-meta.js?v=photo-review-20260920"></script>
   <script>
     (function () {
       var ADMIN_KEY_STORAGE = 'mc_photo_review_admin_key';
@@ -75,6 +77,16 @@
         return String(s == null ? '' : s)
           .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
+      }
+
+      // 后端写回 MySQL 需要「馆名」（dedupe key 是 "省_馆名"），候选记录里只有 museumId。
+      // 用静态 meta 反查；查不到就让后端明确报错，不要静默写进没人读的 KV。
+      function resolveMuseumName(museumId) {
+        var list = (window.MUSEUMS_META || []);
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] && list[i].id === museumId) return list[i].name || '';
+        }
+        return '';
       }
 
       function imgTag(url, caption) {
@@ -132,6 +144,12 @@
         var url;
         if (actType === 'approve') {
           payload.candidateImageUrl = candidateImageUrl;
+          var museumName = resolveMuseumName(museumId);
+          if (!museumName) {
+            toast('未在 museums-meta 找到馆名，无法写回 MySQL（馆 id：' + museumId + '）');
+            return;
+          }
+          payload.museumName = museumName;
           url = '/api/kv/admin/photo-candidate/publish';
         } else {
           var note = prompt('驳回原因（可选）：') || '';
@@ -147,7 +165,9 @@
           var data = await res.json().catch(function () { return {}; });
           if (!res.ok || !data.success) throw new Error(data.error || ('HTTP ' + res.status));
           card.remove();
-          toast(actType === 'approve' ? '已发布新馆图 ✓' : '已驳回');
+          toast(actType === 'approve'
+            ? '已发布到 MySQL ✓（' + (data.target === 'collection' ? '镇馆之宝图' : '馆封面图') + '）'
+            : '已驳回');
           var remaining = listEl.querySelectorAll('.card').length;
           statusEl.textContent = '待审 ' + remaining + ' 条';
           if (remaining === 0) listEl.innerHTML = '<div class="empty">🎉 暂无待审馆图</div>';

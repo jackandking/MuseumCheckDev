@@ -245,6 +245,72 @@ describe('MuseumDataLoader', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(fetch.mock.calls[0][0]).toContain('keyValueStore');
     });
+
+    test('takes the cover image from MySQL so approved corrections take effect', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{
+        id: 'nanjing-museum', name: '南京博物院', location: '南京',
+        image: 'https://cdn.test/static-bundle-cover.jpg'
+      }];
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          treasures: [{ name: '错银铜牛灯', imageUrl: 'https://cdn.test/ox.jpg' }],
+          museum: { name: '南京博物院', province: '江苏省', dedupeKey: '江苏省_南京博物院', imageUrl: 'https://cdn.test/corrected-cover.jpg' }
+        })
+      });
+
+      const museum = await loader.loadMuseum('nanjing-museum');
+
+      // MySQL 封面覆盖静态 bundle —— 否则审核通过的封面纠错永远不生效
+      expect(museum.image).toBe('https://cdn.test/corrected-cover.jpg');
+      expect(museum.museumDedupeKey).toBe('江苏省_南京博物院');
+      expect(museum.museumProvince).toBe('江苏省');
+      expect(museum.collections[0].imageUrl).toBe('https://cdn.test/ox.jpg');
+    });
+
+    test('falls back to the static meta cover when MySQL has no image', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{
+        id: 'nanjing-museum', name: '南京博物院', image: 'https://cdn.test/static-bundle-cover.jpg'
+      }];
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          treasures: [{ name: '金兽', imageUrl: 'https://cdn.test/gold.jpg' }],
+          museum: { name: '南京博物院', province: '江苏省', dedupeKey: '江苏省_南京博物院', imageUrl: null }
+        })
+      });
+
+      const museum = await loader.loadMuseum('nanjing-museum');
+      expect(museum.image).toBe('https://cdn.test/static-bundle-cover.jpg');
+    });
+
+    test('persists to localStorage so a fresh loader instance needs no fetch', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{ id: 'forbidden-city', name: '故宫博物院' }];
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          treasures: [{ name: '翠玉白菜', imageUrl: 'https://cdn.test/a.jpg' }]
+        })
+      });
+
+      await loader.loadMuseum('forbidden-city');
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      // 关键回归点：写用 v2 键、读也必须用 v2 键，否则新实例读不到缓存。
+      // 这里用全新实例（内存缓存为空）验证确实命中的是 localStorage。
+      const freshLoader = new MuseumDataLoader();
+      const cached = await freshLoader.loadMuseum('forbidden-city');
+
+      expect(fetch).toHaveBeenCalledTimes(1); // 没有新的网络请求
+      expect(cached).not.toBeNull();
+      expect(cached.collections[0].name).toBe('翠玉白菜');
+    });
   });
 
   describe('KV store helpers', () => {
