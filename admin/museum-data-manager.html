@@ -360,6 +360,14 @@
     </div>
 
     <div class="card" id="uploadCard" style="display:none;">
+      <div style="background:#fff5f5;border-left:4px solid #c53030;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.6;">
+        <strong>⚠️ 本工具已过时（2026-09-20）：这里保存的内容写到 KV，线上已不再读取。</strong><br />
+        打卡页 <code>museumDataLoader</code> 已改为 <b>MySQL 优先</b>（<code>/api/museums/treasures</code>），KV 仅作兜底。
+        因此本页保存的 <b>镇馆之宝 / 封面图</b>会被 MySQL 数据盖住，等于改了没生效。<br />
+        请改用：<br />
+        · 镇馆之宝（含图片与版权字段）→ <code>POST /api/museums/treasures</code>，或 <code>museum-selfhost-supplement</code> 流程；<br />
+        · 图片纠错 → 走「馆图纠错审核」<code>admin/museum-photo-review.html</code>（审核通过写回 MySQL）。
+      </div>
       <div id="statusMsg" style="margin-bottom: 16px;"></div>
       <div class="section-title">上传/编辑博物馆数据</div>
       
