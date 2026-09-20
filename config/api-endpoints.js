@@ -76,7 +76,8 @@
 
     // 博物馆服务
     MUSEUM: {
-      SEARCH: `${BASE_URL}/museum/search`
+      SEARCH: `${BASE_URL}/museum/search`,
+      TREASURES: `${BASE_URL}/api/museums/treasures`
     },
 
     // 照片贡献（拍照打卡 by-product：博物馆外观/镇馆之宝照片 → MySQL，供博物馆信息 skill）
@@ -160,6 +161,7 @@
     this.IMAGE.UPLOAD = `${base}/image/upload`;
     this.IMAGE.SEARCH = `${base}/image/search`;
     this.MUSEUM.SEARCH = `${base}/museum/search`;
+    this.MUSEUM.TREASURES = `${base}/api/museums/treasures`;
     this.PHOTO.CONTRIBUTE = `${base}/api/museum-photo-contribution`;
     this.PHOTO.LIST = `${base}/api/museum-photos`;
     this.CDN.BASE = `${base}/cdn`;

@@ -1,24 +1,20 @@
 /**
- * Museum Data Loader - KV Store + Browser Cache Architecture
- * 
- * Architecture: KV Store (AWS Lambda) + Browser Cache (localStorage)
- * 
- * Data Sources:
- * - Primary: KV Store (https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com)
- * - Cache: Browser localStorage with 7-day expiration
- * - Listing: MUSEUMS_META array (lightweight metadata for homepage)
- * 
- * Design Philosophy:
- * - Single source of truth (KV Store) for always-fresh data
- * - Browser cache for offline support and performance
- * - No static JSON files as fallback (adds complexity, rarely used)
- * - Future: If AWS costs exceed free tier, consider static files + CDN
- * 
- * Why not static files?
- * - KV Store is fast enough with AWS Lambda (99.9% uptime)
- * - Browser cache handles offline scenarios
- * - Static files add maintenance overhead (sync, versioning)
- * - Cost-effective: Free tier covers current traffic volume
+ * Museum Data Loader - MySQL API (primary) + KV Store (fallback) + Browser Cache
+ *
+ * Architecture (2026-09 migration: single source of truth for treasures):
+ * - Primary:   /api/museums/treasures (MySQL via museumcheck.cn) — curated
+ *              treasures with photos/licenses; the same source the paid
+ *              museum-treasures skill reads.
+ * - Fallback:  KV Store (AWS Lambda, museum-data-<id>) — museums not yet
+ *              ingested into MySQL keep working unchanged.
+ * - Cache:     Browser localStorage (v2 key) with 7-day expiration.
+ * - Listing:   MUSEUMS_META array (static lightweight metadata).
+ *
+ * Why MySQL first?
+ * The KV layer and MySQL had drifted (KV stale, missing photos), producing
+ * placeholder images on the check-in page for treasures that HAVE verified
+ * photos in MySQL. Treasures/collections now come from MySQL only; the KV
+ * store is demoted to a fallback for un-migrated museums and user-state use.
  */
 
 class MuseumDataLoader {
@@ -27,9 +23,95 @@ class MuseumDataLoader {
         this.kvStoreEndpoint = 'https://rlyhccdr2g.execute-api.us-west-2.amazonaws.com/default/keyValueStore';
         this.kvStoreKeyPrefix = 'museum-data-';
         this.cacheExpirationDays = 7; // localStorage cache expires after 7 days
-        
+        // v2: invalidates caches written by the KV-primary architecture (they
+        // hold stale collections without photos). Old keys are simply orphaned.
+        this.cacheVersion = 'v2';
+
         // Legacy compatibility: tierPriority for tests
         this.tierPriority = ['tier2'];
+    }
+
+    /**
+     * localStorage cache key (versioned so schema changes take effect immediately)
+     */
+    getCacheKey(museumId) {
+        return `museum-cache-${this.cacheVersion}-${museumId}`;
+    }
+
+    /**
+     * Resolve the treasures API endpoint lazily (config/api-endpoints.js loads
+     * after this script, so it may not exist at construction time).
+     */
+    resolveTreasuresEndpoint() {
+        if (typeof window !== 'undefined' && window.API_ENDPOINTS && window.API_ENDPOINTS.MUSEUM) {
+            return window.API_ENDPOINTS.MUSEUM.TREASURES || null;
+        }
+        return null; // No endpoint config -> skip MySQL source, use KV fallback
+    }
+
+    /**
+     * Find static museum metadata (name/location/level/tags/image) by id.
+     */
+    findMuseumMeta(museumId) {
+        const lists = [];
+        if (typeof window !== 'undefined' && Array.isArray(window.MUSEUMS_META)) lists.push(window.MUSEUMS_META);
+        if (typeof MUSEUMS_META !== 'undefined' && Array.isArray(MUSEUMS_META)) lists.push(MUSEUMS_META);
+        if (typeof window !== 'undefined' && Array.isArray(window.MUSEUMS)) lists.push(window.MUSEUMS);
+        if (typeof MUSEUMS !== 'undefined' && Array.isArray(MUSEUMS)) lists.push(MUSEUMS);
+        for (const list of lists) {
+            const found = list.find(m => m && m.id === museumId);
+            if (found) return found;
+        }
+        return null;
+    }
+
+    /**
+     * Load museum data from the MySQL treasures API (primary source).
+     * Returns an object in the same shape the KV store used, so consumers
+     * need no changes: { id, name, location, level, tags, image, collections }.
+     * @returns {Promise<Object|null>} Museum data or null if unavailable
+     */
+    async loadFromTreasuresApi(museumId) {
+        try {
+            const endpoint = this.resolveTreasuresEndpoint();
+            const meta = this.findMuseumMeta(museumId);
+            if (!endpoint || !meta || !meta.name) return null;
+
+            const url = `${endpoint}?museumName=${encodeURIComponent(meta.name)}&limit=50`;
+            const response = await fetch(url, { method: 'GET' });
+            if (!response.ok) return null;
+
+            const result = await response.json();
+            const rows = result && Array.isArray(result.treasures) ? result.treasures : [];
+            const collections = rows
+                .filter(r => r && r.name)
+                .map(r => ({
+                    name: r.name,
+                    dynasty: r.dynasty || '',
+                    category: r.category || '',
+                    description: r.description || '',
+                    imageUrl: r.imageUrl || '',
+                    sourceUrl: r.sourceUrl || '',
+                    license: r.license || '',
+                    attribution: r.attribution || '',
+                    sourceType: r.sourceType || '',
+                    copyrightHolder: r.copyrightHolder || '',
+                    imageRightsNote: r.imageRightsNote || ''
+                }));
+            if (!collections.length) return null;
+
+            console.log(`✓ Loaded museum ${museumId} from treasures API (${collections.length} collections)`);
+            // Base the record on static meta (keeps image* attribution fields,
+            // tags, level, etc.), then swap in fresh MySQL collections.
+            return Object.assign({}, meta, {
+                hasCollections: true,
+                collections,
+                dataSource: 'mysql-treasures-api'
+            });
+        } catch (error) {
+            console.log(`✗ Treasures API failed for ${museumId}:`, error.message);
+            return null;
+        }
     }
 
     /**
@@ -115,7 +197,7 @@ class MuseumDataLoader {
      */
     setCachedToStorage(museumId, data) {
         try {
-            const cacheKey = `museum-cache-${museumId}`;
+            const cacheKey = this.getCacheKey(museumId);
             const cacheData = {
                 data,
                 timestamp: Date.now()
@@ -179,9 +261,12 @@ class MuseumDataLoader {
             }
         }
 
-        // Load from KV Store (fresh data)
-        const data = await this.loadFromKVStore(museumId);
-        
+        // Load fresh data — Primary: MySQL treasures API; Fallback: KV Store
+        let data = await this.loadFromTreasuresApi(museumId);
+        if (!data) {
+            data = await this.loadFromKVStore(museumId);
+        }
+
         if (data) {
             // Cache the fresh data
             this.cache.set(museumId, data); // Memory cache
@@ -192,7 +277,7 @@ class MuseumDataLoader {
         // If network failed, try to use expired cache as last resort
         if (useCache) {
             try {
-                const cacheKey = `museum-cache-${museumId}`;
+                const cacheKey = this.getCacheKey(museumId);
                 const cached = localStorage.getItem(cacheKey);
                 if (cached) {
                     const { data: expiredData } = JSON.parse(cached);

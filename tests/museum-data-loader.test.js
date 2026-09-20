@@ -157,6 +157,96 @@ describe('MuseumDataLoader', () => {
     });
   });
 
+  describe('treasures API (MySQL primary source)', () => {
+    beforeEach(() => {
+      delete window.API_ENDPOINTS;
+      delete window.MUSEUMS_META;
+    });
+
+    afterEach(() => {
+      delete window.API_ENDPOINTS;
+      delete window.MUSEUMS_META;
+    });
+
+    test('loads collections from treasures API and skips KV', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{
+        id: 'forbidden-city', name: '故宫博物院', location: '北京', level: '一级',
+        tags: ['历史'], image: 'https://cdn.test/museum.jpg'
+      }];
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          treasures: [
+            { name: '翠玉白菜', dynasty: '清', imageUrl: 'https://cdn.test/a.jpg', license: 'CC0', attribution: 'Photographer A', sourceUrl: 'https://commons.test/a' },
+            { name: '暂无图文物', dynasty: '明' }
+          ]
+        })
+      });
+
+      const museum = await loader.loadMuseum('forbidden-city');
+
+      expect(museum).not.toBeNull();
+      expect(museum.dataSource).toBe('mysql-treasures-api');
+      expect(museum.name).toBe('故宫博物院');
+      expect(museum.collections).toHaveLength(2);
+      expect(museum.collections[0].imageUrl).toBe('https://cdn.test/a.jpg');
+      expect(museum.collections[0].attribution).toBe('Photographer A');
+      expect(museum.collections[1].imageUrl).toBe(''); // no photo yet, still listed
+      expect(fetch).toHaveBeenCalledTimes(1); // KV store not consulted
+
+      // Second load served from cache — still no extra fetch
+      const again = await loader.loadMuseum('forbidden-city');
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(again.dataSource).toBe('mysql-treasures-api');
+    });
+
+    test('falls back to KV store when treasures API returns no rows', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{ id: 'forbidden-city', name: '故宫博物院' }];
+      global.fetch
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ success: true, treasures: [] }) })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ value: JSON.stringify({ id: 'forbidden-city', collections: [{ name: '旧数据', imageUrl: 'https://kv.test/old.jpg' }] }) })
+        });
+
+      const museum = await loader.loadMuseum('forbidden-city');
+
+      expect(museum).not.toBeNull();
+      expect(museum.dataSource).toBeUndefined();
+      expect(museum.collections[0].name).toBe('旧数据');
+    });
+
+    test('falls back to KV store when treasures API fetch fails', async () => {
+      window.API_ENDPOINTS = { MUSEUM: { TREASURES: 'https://api.test/api/museums/treasures' } };
+      window.MUSEUMS_META = [{ id: 'forbidden-city', name: '故宫博物院' }];
+      global.fetch
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ value: JSON.stringify({ id: 'forbidden-city', collections: [{ name: 'KV兜底' }] }) })
+        });
+
+      const museum = await loader.loadMuseum('forbidden-city');
+      expect(museum).not.toBeNull();
+      expect(museum.collections[0].name).toBe('KV兜底');
+    });
+
+    test('does not call treasures API when endpoint config missing', async () => {
+      const payload = { id: 'forbidden-city', collections: [{ name: '司母戊鼎' }] };
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ value: JSON.stringify(payload) })
+      });
+      const museum = await loader.loadMuseum('forbidden-city');
+      expect(museum).toEqual(payload);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch.mock.calls[0][0]).toContain('keyValueStore');
+    });
+  });
+
   describe('KV store helpers', () => {
     test('saveToKVStore sends POST payload', async () => {
       const payload = { id: 'test', name: '测试' };
