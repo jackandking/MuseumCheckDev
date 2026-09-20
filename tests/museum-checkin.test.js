@@ -248,6 +248,30 @@ describe('Museum Check-in Page', () => {
         });
     });
 
+    describe('Live Room Entry (同游现场入口)', () => {
+        test('should render a hidden live-room banner in the page', () => {
+            expect(htmlContent).toContain('id="liveRoomBanner"');
+            // Hidden until a real museum is resolved, to avoid a dead link.
+            // The href itself is injected by JS so the museum id has one source of truth.
+            expect(htmlContent).toMatch(/id="liveRoomBanner"[^>]*href="#"[^>]*hidden/);
+        });
+
+        test('should link the banner to the current museum room', () => {
+            expect(jsContent).toContain('function updateLiveRoomLink()');
+            expect(jsContent).toContain('museum-live.html?museum=');
+            expect(jsContent).toContain('updateLiveRoomLink();');
+        });
+
+        test('should not link personal (visitor-created) museums', () => {
+            const fn = jsContent.slice(jsContent.indexOf('function updateLiveRoomLink'));
+            expect(fn.slice(0, 400)).toContain('isPersonalMuseum()');
+        });
+
+        test('should style the banner', () => {
+            expect(cssContent).toContain('.live-room-banner');
+        });
+    });
+
     describe('Styling and UX', () => {
         test('should have light blue gradient background', () => {
             expect(cssContent).toContain('linear-gradient(135deg, #a8d8ea');

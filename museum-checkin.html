@@ -313,7 +313,7 @@
     
     
     <!-- Main CSS - Extracted to external file for better caching -->
-    <link rel="stylesheet" href="css/museum-checkin.css?v=pet-overlay-fix-20260912">
+    <link rel="stylesheet" href="css/museum-checkin.css?v=live-banner-20260920">
     <!-- Leaderboard Styles - Unified across all pages -->
     <link rel="stylesheet" href="css/leaderboard.css">
     <!-- Virtual Pet and Achievement Gamification Styles - Load asynchronously -->
@@ -353,6 +353,11 @@
     </div>
     <h1 class="title" id="pageTitle" title="点击修改昵称" style="display:none;">孩子任务</h1>
     <div class="museum-name" id="museumName">加载中...</div>
+    <a class="live-room-banner" id="liveRoomBanner" href="#" hidden>
+        <span class="live-room-banner-icon" aria-hidden="true">🏛️</span>
+        <span class="live-room-banner-text">看看今天馆里还有哪些家庭在逛？</span>
+        <span class="live-room-banner-cta">同游现场 →</span>
+    </a>
 
     <section class="visit-coach" id="visitCoach" aria-live="polite">
         <div class="visit-coach-copy">
@@ -930,6 +935,8 @@
     <script src="js/backup.js"></script>
     <script src="js/event-wall-service.js"></script>
     <script src="js/event-tracking-init.js"></script>
+    <!-- Museum Live Room (同游现场): mirrors check-in activity into the museum's room key -->
+    <script src="js/live-room-service.js?v=live-1"></script>
     <!-- Shared Menu Component -->
     <script src="js/shared-menu.js?v=together-navigation-20260815"></script>
     <script>

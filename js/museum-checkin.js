@@ -240,6 +240,18 @@
         const openedTaskIndices = new Set();
         let visitOpenSignalSent = false;
         let firstTaskCtaVisibleSignalSent = false;
+
+        /** 打卡页 → 本馆「同游现场」入口：把链接指到当前馆的房间。 */
+        function updateLiveRoomLink() {
+            const banner = document.getElementById('liveRoomBanner');
+            if (!banner) return;
+            if (currentMuseum && currentMuseum.id && !isPersonalMuseum()) {
+                banner.href = `museum-live.html?museum=${encodeURIComponent(currentMuseum.id)}`;
+                banner.hidden = false;
+            } else {
+                banner.hidden = true;
+            }
+        }
         let firstTaskCtaClickSignalSent = false;
         let firstTaskCompletionSignalSent = false;
         let allTasksCompletionSignalSent = false;
@@ -442,6 +454,23 @@
             }
         }
 
+        /**
+         * Mirror real check-in activity into this museum's 「同游现场」 room.
+         * Only numbers and event names are sent — the room never receives free
+         * text (see js/live-room-service.js). Failure is silent on purpose:
+         * the live room is an optional layer, it must never block a check-in.
+         */
+        function broadcastRoom(event, details = {}) {
+            try {
+                const live = window.MuseumCheckLive;
+                if (!live || typeof live.postBroadcast !== 'function' || !museumId) return;
+                if (isPersonalMuseum && isPersonalMuseum()) return;
+                live.postBroadcast(museumId, event, details);
+            } catch (error) {
+                console.warn('[MuseumLive] room broadcast skipped:', error);
+            }
+        }
+
         function trackCheckinOpened() {
             if (visitOpenSignalSent || !currentMuseum || childTasks.length === 0) return;
             visitOpenSignalSent = true;
@@ -450,6 +479,7 @@
                 taskCount: childTasks.length,
                 restoredCompletedCount: completedTasks.size
             });
+            broadcastRoom('arrive');
         }
 
         function trackFirstTaskCtaVisible() {
@@ -521,6 +551,7 @@
                 ...taskPayload,
                 ...extraParameters
             });
+            broadcastRoom('progress', { done: completedTasks.size, total: childTasks.length });
 
             if (taskIndex === 0 && !firstTaskCompletionSignalSent) {
                 firstTaskCompletionSignalSent = true;
@@ -540,6 +571,7 @@
                 sendVisitSignal('all_tasks_complete', {
                     taskCount: childTasks.length
                 });
+                broadcastRoom('all_done', { total: childTasks.length });
             }
         }
 
@@ -2609,6 +2641,7 @@
             }
 
             currentMuseum = museum;
+            updateLiveRoomLink();
 
             if (isPersonalMuseum()) {
                 document.getElementById('museumName').textContent = currentMuseum.name;

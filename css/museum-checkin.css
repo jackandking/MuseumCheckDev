@@ -259,6 +259,34 @@
             box-shadow: 0 10px 28px rgba(13, 148, 136, 0.15);
         }
 
+        /* 同游现场入口：低调的青绿横幅，打卡页 → 本馆房间 */
+        .live-room-banner {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            margin: 10px auto 12px;
+            padding: 11px 15px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e6f7f3 0%, #eafaf4 100%);
+            border: 1px solid rgba(22, 130, 112, 0.2);
+            color: #0F766E;
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            box-shadow: 0 3px 12px rgba(13, 148, 136, 0.1);
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        .live-room-banner:active { transform: translateY(1px); box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12); }
+        .live-room-banner-icon { font-size: 16px; line-height: 1; }
+        .live-room-banner-text { flex: 1; min-width: 0; line-height: 1.35; }
+        .live-room-banner-cta { color: #0D9488; font-weight: 800; white-space: nowrap; }
+        @media (max-width: 480px) {
+            .live-room-banner { font-size: 12.5px; padding: 10px 12px; gap: 7px; }
+        }
+
         .visit-coach-copy {
             min-width: 0;
             flex: 1;

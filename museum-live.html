@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="MuseumCheck 同游现场：一个博物馆一个房间，看看今天有哪些家庭来过，用预设语句说一句话。">
+  <meta name="robots" content="noindex, nofollow">
+  <title>同游现场｜MuseumCheck</title>
+  <link rel="stylesheet" href="css/museum-live.css?v=live-1">
+</head>
+<body>
+  <main class="live-shell" id="app">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="返回 MuseumCheck 首页"><span>MC</span> MuseumCheck</a>
+      <a class="topbar-link" href="together.html" aria-label="去看同行探索活动">邀约同游 →</a>
+    </header>
+
+    <section class="picker" id="picker" hidden aria-labelledby="pickerTitle">
+      <p class="eyebrow">同游现场</p>
+      <h1 id="pickerTitle">今天打算去哪座馆？</h1>
+      <p>每座博物馆有一个只属于自己的现场：今天有哪些家庭来过、谁完成了哪些任务，都在这儿。想说话时，从预设语句里挑一句就好。</p>
+      <label for="museumSelect">博物馆
+        <select id="museumSelect"><option value="">选择一座已收录的博物馆</option></select>
+      </label>
+      <a class="enter-link" id="enterRoom" href="#" aria-disabled="true">进入现场</a>
+    </section>
+
+    <section class="room" id="room" hidden aria-labelledby="roomTitle">
+      <div class="room-head">
+        <div class="room-head__top">
+          <div>
+            <p class="eyebrow" id="roomEyebrow">同游现场</p>
+            <h1 id="roomTitle">博物馆</h1>
+          </div>
+          <button class="refresh-button" type="button" id="refreshButton">刷新</button>
+        </div>
+        <div class="presence">
+          <div class="presence-metric">
+            <span class="presence-number" id="statActive">0</span>
+            <span class="presence-label">近 90 分钟在馆家庭</span>
+          </div>
+          <div class="presence-metric">
+            <span class="presence-number" id="statToday">0</span>
+            <span class="presence-label">今天来过家庭</span>
+          </div>
+        </div>
+        <p class="presence-note">只按时间窗统计，不显示谁在线，也不显示实时位置。房间内容 12 小时后自动消失。</p>
+      </div>
+
+      <p class="feed-status" id="feedStatus">正在读取现场…</p>
+      <div class="feed" id="feed" aria-live="polite"></div>
+      <p class="feed-empty" id="feedEmpty" hidden>今天这里还很安静。你先去完成一张任务，打卡信息会自动出现在这里。</p>
+
+      <section class="composer" id="composer" aria-labelledby="composerNote">
+        <p class="composer-note" id="composerNote">能说的话都在下面。房间不接受自由输入，也不能私聊某一个家庭。</p>
+        <div id="phraseGroups"></div>
+        <div id="slotPicker" class="slot-picker" hidden>
+          <p class="slot-picker__label" id="slotPickerLabel">选一个才说得完整</p>
+          <div class="slot-options" id="slotOptions"></div>
+        </div>
+        <div class="composer-send">
+          <p class="composer-preview" id="composerPreview">先选一句</p>
+          <button type="button" id="sendButton" disabled>发出</button>
+        </div>
+        <p class="composer-hint" id="composerHint"></p>
+        <details class="alias-details">
+          <summary>改一下别人看到的代号</summary>
+          <label for="aliasInput">家庭代号
+            <small>别填真实姓名。默认是设备短号，稳定、可区分，不含任何个人信息。</small>
+          </label>
+          <input id="aliasInput" maxlength="12" autocomplete="off">
+          <button type="button" id="aliasSave">保存代号</button>
+        </details>
+      </section>
+    </section>
+
+    <section class="footnote" aria-labelledby="limitsTitle">
+      <h2 id="limitsTitle">这个现场不做什么</h2>
+      <ul>
+        <li>不能自由打字，也不能私聊某一个家庭。</li>
+        <li>不显示姓名、联系方式、孩子照片或实时位置。</li>
+        <li>不发点赞、不做排名，也不展示公开成员列表。</li>
+        <li>除了你主动选的那句话，这里不产生任何别的内容。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="config/api-endpoints.js?v=live-1"></script>
+  <script src="js/museums-meta.js?v=live-1"></script>
+  <script src="js/museum-data-loader.js?v=live-1"></script>
+  <script src="js/live-room-service.js?v=live-1"></script>
+  <script src="js/museum-live.js?v=live-1"></script>
+</body>
+</html>

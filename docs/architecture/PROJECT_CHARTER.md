@@ -219,6 +219,13 @@ For larger changes, record which evidence supports the direction, which acquisit
 
    A child explores more willingly with peers than alone. Co-play (playing together on a shared Together event) is a first-class way to lift the north-star `first_task_complete`, not a side feature. Prefer low-friction, privacy-safe co-play mechanics — shared team goals, peer progress, celebratory feedback — over a social graph. Never add private chat, auto-matching, or member profiles; those conflict with the privacy tenet (7) and are unproven at this stage. Validate Together as an experiment: instrument `together_join → first_task_complete` and grow only on positive evidence.
 
+   The museum-level live room (`museum-live.html`, see `docs/features/museum-live-room.md`) is the pressure-free half of this vector and must stay inside the same boundary. Its hard limits are not stylistic choices and must not be relaxed without revising this tenet:
+
+   - No free-text input. Room records carry only a phrase id plus numeric slots; every reader reconstructs the sentence from its own catalog and drops anything it cannot render. This is what makes a public room safe on an untrusted store — without it, the room becomes UGC and inherits the moderation burden the privacy tenet forbids.
+   - No private chat, no @-targeting, no reply threads. A room speaks to everyone or to no one.
+   - No member profiles and no persistent identity: the family alias is derived from the device id, is not an account, and must not become one.
+   - Presence is reported as coarse time-window counts only. Never show who is online, never show real-time location.
+
 ## Engineering Tenets
 
 1. Use the existing shape of the app before introducing new structure.
