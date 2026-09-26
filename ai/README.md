@@ -40,6 +40,7 @@ ai/
 | 平台 | 产品名 | slug | 目录 | 版本 | 状态 |
 |---|---|---|---|---|---|
 | 虾评 | 博物馆打卡助手 | museumcheck | skills/xiaping/ | v0.1.0 trial | ✅ 已发布 |
+| 虾评 | 博物馆等级查询 | museumcheck | skills/xiaping/museum-level-free/ | v1.0.0 trial | ✅ 已发布（ID 0d1e76a3）|
 | 扣子 | 博物馆打卡助手 | —（MCP Plugin） | skills/coze/mcp-plugin/ | — | ✅ 已创建 |
 | SkillHub | 博物馆级别查询 | museum-level-lookup | skills/skillhub/museum-level-lookup/ | v1.0.0 | ✅ 已发布 |
 | SkillHub | 博物馆镇馆之宝查询（免费） | museum-treasures-free | skills/skillhub/museum-treasures-free/ | v1.0.0 | ✅ 已发布 |
