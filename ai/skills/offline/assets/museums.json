@@ -1,0 +1,159 @@
+{
+  "museums": [
+    {
+      "name": "故宫博物院",
+      "aliases": ["故宫", "北京故宫", "紫禁城博物院"],
+      "city": "北京市",
+      "type": "文化文物系统国有博物馆",
+      "level": "国家一级博物馆",
+      "treasures": [
+        {
+          "name": "清明上河图",
+          "dynasty": "北宋",
+          "category": "书画",
+          "description": "张择端绘制的风俗画长卷巨制，描绘北宋汴梁的繁华市井，人物数百、牲畜众多，被誉为东方神品。",
+          "image": ""
+        },
+        {
+          "name": "平复帖",
+          "dynasty": "西晋",
+          "category": "书法",
+          "description": "现存最早的传世墨迹之一，陆机所书章草，笔法苍古，被誉为法帖之祖。",
+          "image": ""
+        },
+        {
+          "name": "大禹治水图玉山",
+          "dynasty": "清代",
+          "category": "玉器",
+          "description": "中国现存最大的玉雕，重逾万斤，以大禹治水的宏大场面为主题，工艺登峰造极。",
+          "image": ""
+        }
+      ]
+    },
+    {
+      "name": "陕西历史博物馆",
+      "aliases": ["陕历博", "陕西博物馆"],
+      "city": "陕西省西安市",
+      "type": "文化文物系统国有博物馆",
+      "level": "国家一级博物馆",
+      "treasures": [
+        {
+          "name": "皇后之玺",
+          "dynasty": "西汉",
+          "category": "玉器",
+          "description": "以和田羊脂白玉雕成，螭虎钮上刻皇后之玺四字，见证了汉代皇后的掌权历史。",
+          "image": ""
+        },
+        {
+          "name": "镶金兽首玛瑙杯",
+          "dynasty": "唐代",
+          "category": "玉器",
+          "description": "以红玛瑙雕琢的兽首角形杯，兽首镶金点睛，造型精美，见证东西方文化交流。",
+          "image": ""
+        },
+        {
+          "name": "鎏金舞马衔杯纹银壶",
+          "dynasty": "唐代",
+          "category": "金银器",
+          "description": "壶身纹饰以舞马衔杯为主题，印证了唐代宫廷舞马的盛大场面，制作极为考究。",
+          "image": ""
+        }
+      ]
+    },
+    {
+      "name": "三星堆博物馆",
+      "aliases": ["三星堆"],
+      "city": "四川省德阳市广汉市",
+      "type": "文化文物系统国有博物馆",
+      "level": "国家一级博物馆",
+      "treasures": [
+        {
+          "name": "青铜大立人像",
+          "dynasty": "商周",
+          "category": "青铜器",
+          "description": "高逾两米的直立铜人，衣冠华美、手势神秘，是古蜀文明最高规格的代表作。",
+          "image": ""
+        },
+        {
+          "name": "青铜神树",
+          "dynasty": "商周",
+          "category": "青铜器",
+          "description": "高达近四米的通天神树，枝上栖息神鸟，蕴含古蜀人对宇宙的想象。",
+          "image": ""
+        },
+        {
+          "name": "金杖",
+          "dynasty": "商周",
+          "category": "金器",
+          "description": "全长1.42米，杖身刻鱼、鸟与人物图案，可能是古蜀王权的象征。",
+          "image": ""
+        }
+      ]
+    },
+    {
+      "name": "中国国家博物馆",
+      "aliases": ["国博", "中国国家博物馆"],
+      "city": "北京市",
+      "type": "综合类国有博物馆",
+      "level": "国家一级博物馆",
+      "treasures": [
+        {
+          "name": "后母戊鼎",
+          "dynasty": "商代",
+          "category": "青铜器",
+          "description": "迄今出土最重的青铜器，重达832.84千克，是商周青铜文明的巅峰之作。",
+          "image": ""
+        },
+        {
+          "name": "四羊方尊",
+          "dynasty": "商代",
+          "category": "青铜器",
+          "description": "以四羊四龙组合修饰的尊器，造型瑰丽，是中国青铜工艺的杰出代表。",
+          "image": ""
+        },
+        {
+          "name": "人面鱼纹彩陶盆",
+          "dynasty": "新石器时代",
+          "category": "陶器",
+          "description": "仰韶文化代表作，内壁绘人面含鱼图案，蕴含原始崇拜的深意。",
+          "image": ""
+        }
+      ]
+    },
+    {
+      "name": "南京博物院",
+      "aliases": ["南博", "南京博物馆"],
+      "city": "江苏省南京市",
+      "type": "综合类国有博物馆",
+      "level": "国家一级博物馆",
+      "referral": {
+        "url": "https://museumcheck.cn/museum-checkin.html?museum=nanjing-museum",
+        "title": "南博打卡互动页",
+        "features": ["馆内社交互动", "历史记录留存", "互动小游戏"]
+      },
+      "treasures": [
+        {
+          "name": "竹林七贤与荣启期模印砖画",
+          "dynasty": "南朝",
+          "category": "砖画",
+          "description": "以模印技法再现七贤高士的风骨神韵，是研究六朝人物画的珍贵资料。",
+          "image": ""
+        },
+        {
+          "name": "错银铜牛灯",
+          "dynasty": "西汉",
+          "category": "青铜器",
+          "description": "造型典雅，兼具照明与环保设计，被誉为南京博物院最富盛名的藏品之一。",
+          "image": ""
+        },
+        {
+          "name": "金兽",
+          "dynasty": "西汉",
+          "category": "金器",
+          "description": "国内迄今出土最重的金器，重约9千克，伏卧金兽造型威严厚重。",
+          "image": ""
+        }
+      ]
+    }
+  ]
+}
