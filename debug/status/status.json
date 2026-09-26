@@ -3,12 +3,12 @@
   "app": "MuseumCheck",
   "environment": "dev-github-pages",
   "branch": "dev",
-  "commit": "6d4f1f141b046855faed23267ab270944555d30f",
-  "commitShort": "6d4f1f1",
+  "commit": "d4265b86da11bbe0462c80b51c94995b60ea47b2",
+  "commitShort": "d4265b8",
   "workflow": "Deploy Dev to MuseumCheckDev",
-  "runId": "36244918198",
+  "runId": "36273640311",
   "runAttempt": "1",
   "repository": "jackandking/MuseumCheck",
-  "deployedAt": "2026-09-26T13:22:07.548Z",
+  "deployedAt": "2026-09-26T21:38:49.627Z",
   "generatedBy": "devops/scripts/write-debug-status.js"
 }
