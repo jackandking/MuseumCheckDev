@@ -1,6 +1,18 @@
 # 博物馆打卡 (MuseumCheck)
 
 <div align="center">
+
+### 🌟 官方网站 · 立即免费使用
+
+**带孩子逛博物馆，从 [museumcheck.cn](https://museumcheck.cn/) 开始**
+
+🔗 **https://museumcheck.cn/** ｜ 无需下载安装，打开网页即可使用（手机 / 平板 / 电脑）
+
+*中国家庭亲子博物馆参观助手 —— 选博物馆、做观察任务、集成就海报，一站式搞定。*
+
+</div>
+
+<div align="center">
   <img src="assets/images/MuseumCheck_logo.jpg" alt="MuseumCheck Logo" width="200" height="200">
   
   <p>
@@ -20,16 +32,15 @@
 
 ## 🌐 立即使用
 
-**在线访问：** 
-微信/抖音/快手 让孩子爱上博物馆 小程序
-https://博物馆打卡.cn/
-https://museumcheck.cn/
+**在线访问官方网站：** **[https://museumcheck.cn/](https://museumcheck.cn/)**
 
-无需安装，打开网页即可使用！支持手机和电脑访问。
+无需下载安装，打开网页即可使用！支持手机、平板和电脑访问。
 
-**博物馆专用页面：** [museum-checkin.html](museum-checkin.html) - 适合博物馆通过二维码引导访客使用
+> 💡 想带娃去博物馆？直接打开 [museumcheck.cn](https://museumcheck.cn/) 就能开始 —— 选年龄段、挑博物馆、做观察任务、收集成就。
 
-📚 **完整文档：** [Wiki文档中心](wiki/Home.md) - 详细使用指南、开发文档和项目信息
+**博物馆专用打卡页：** [museum-checkin.html](museum-checkin.html) —— 适合博物馆在展品旁放置二维码，访客扫码即用。
+
+📚 **完整文档：** [Wiki 文档中心](wiki/Home.md) —— 详细使用指南、开发文档与项目信息。
 
 ## 功能特色
 
@@ -305,11 +316,11 @@ https://museumcheck.cn/
 
 ### 技术特点
 
-- **纯前端应用**：HTML + CSS + JavaScript，无后端依赖
-- **零延迟加载**：所有数据内置，无需网络请求
-- **离线可用**：下载后可完全离线使用
-- **隐私保护**：数据仅存储在用户本地，不上传服务器
-- **性能优化**：快速渲染，流畅动画，低内存占用
+- **纯前端应用**：HTML + CSS + JavaScript，无需复杂部署，浏览器直接运行
+- **云端博物馆数据**：博物馆内容由云端 KV 存储（AWS Lambda + DynamoDB）统一提供，始终最新；详情页按需加载，首页用轻量元数据快速渲染
+- **本地进度存储**：参观记录、清单进度、成就、测评等个人数据保存在浏览器 localStorage，隐私友好、随开随用
+- **跨设备体验**：手机、平板、电脑自适应，触摸友好
+- **性能优化**：快速渲染、流畅动画、低内存占用
 
 ### UI设计特点
 
